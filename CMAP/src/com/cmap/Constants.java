@@ -2,7 +2,6 @@ package com.cmap;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-
 import com.cmap.comm.enums.ConnectionMode;
 
 public class Constants {
@@ -51,6 +50,9 @@ public class Constants {
 	public static final String SSH = "SSH";
 	public static final String WMI = "WMI";
 	public static final String SNMP = "SNMP";
+
+	public static final String ACTION_TYPE_BACKUP = "BACKUP";
+	public static final String ACTION_TYPE_RESTORE = "RESTORE";
 
 	public static final String CONTENT_SETTING_ACTION_ADD = "+";
 	public static final String CONTENT_SETTING_ACTION_SUBSTRACT = "-";
