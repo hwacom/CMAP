@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -645,4 +643,119 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
 		List<BigDecimal> retList = (List<BigDecimal>)q.list();
 	    return (retList != null && !retList.isEmpty()) ? retList.get(0) : null;
 	}
+
+    @Override
+    public List<DataPollerSetting> getHasAlreadySetUpNetFlowDataPollerInfo() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select dps ")
+          .append(" from DataPollerSetting dps ")
+          .append(" where 1=1 ")
+          .append(" and dps.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+          .append(" and dps.fileNameRegex <> :fileNameRegex ")
+          .append(" and dps.dataType = :dataType ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("fileNameRegex", Env.DEFAULT_NET_FLOW_FILE_NAME_REGEX);
+        q.setParameter("dataType", Env.DEFAULT_NET_FLOW_DATA_TYPE);
+
+        return (List<DataPollerSetting>)q.list();
+    }
+
+    @Override
+    public List<Object[]> getUploadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select 'UPLOAD', nfrd.source_ip, sum(nfrd.size) ")
+          .append(" from ").append(tableName).append(" nfrd ")
+          .append(" where 1=1 ")
+          .append(" and nfrd.now_date_str = '").append(nowDateStr).append("' ")
+          .append(" group by nfrd.source_ip ")
+          .append(" having sum(nfrd.size) > ").append(limitSize);
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createNativeQuery(sb.toString());
+        return (List<Object[]>)q.list();
+    }
+
+    @Override
+    public List<Object[]> getDownloadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select 'DOWNLOAD', nfrd.destination_ip, sum(nfrd.size) ")
+          .append(" from ").append(tableName).append(" nfrd ")
+          .append(" where 1=1 ")
+          .append(" and nfrd.now_date_str = '").append(nowDateStr).append("' ")
+          .append(" group by nfrd.destination_ip ")
+          .append(" having sum(nfrd.size) > ").append(limitSize);
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createNativeQuery(sb.toString());
+        return (List<Object[]>)q.list();
+    }
+
+    @Override
+    public boolean chkFlowExceedIpHasAlreadyExistsInStatToday(String groupId, String nowDateStr,
+            String direction, String ipAddr) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select count(statId) ")
+          .append(" from NetFlowIpStat nfis ")
+          .append(" where 1=1 ")
+          .append(" and nfis.statDate = :nowDateStr ")
+          .append(" and nfis.groupId = :groupId ")
+          .append(" and nfis.ipAddr = :ipAddr ")
+          .append(" and nfis.direction = :direction ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("nowDateStr", nowDateStr);
+        q.setParameter("groupId", groupId);
+        q.setParameter("ipAddr", ipAddr);
+        q.setParameter("direction", direction);
+
+        int size = ((Number)q.uniqueResult()).intValue();
+        return (size == 0) ? false : true;
+    }
+
+    @Override
+    public NetFlowIpStat saveNetFlowIpStat(NetFlowIpStat netFlowIpStat) {
+        netFlowIpStat = (NetFlowIpStat)getHibernateTemplate().getSessionFactory().getCurrentSession().merge(netFlowIpStat);
+        getHibernateTemplate().save(netFlowIpStat);
+        return netFlowIpStat;
+    }
+
+    @Override
+    public void updateNetFlowIpStat(NetFlowIpStat netFlowIpStat) {
+        getHibernateTemplate().update(netFlowIpStat);
+    }
+
+    @Override
+    public List<NetFlowIpStat> findNetFlowIpStat4Resend(String nowDateStr, String sendPRTGFlag) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select nfis ")
+          .append(" from NetFlowIpStat nfis ")
+          .append(" where 1=1 ")
+          .append(" and nfis.statDate = :nowDateStr ")
+          .append(" and nfis.sendPrtgFlag = :sendPrtgFlag ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("nowDateStr", nowDateStr);
+        q.setParameter("sendPrtgFlag", sendPRTGFlag);
+
+        return (List<NetFlowIpStat>)q.list();
+    }
+
+    @Override
+    public NetFlowIpStat findNetFlowIpStatByStatId(String statId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select nfis ")
+          .append(" from NetFlowIpStat nfis ")
+          .append(" where 1=1 ")
+          .append(" and nfis.statId = :statId ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("statId", statId);
+
+        return (NetFlowIpStat)q.uniqueResult();
+    }
 }

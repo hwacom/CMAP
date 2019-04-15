@@ -6,20 +6,18 @@ import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.Locale;
 import java.util.Objects;
-
-import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -28,7 +26,6 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 
@@ -49,6 +46,16 @@ public class LoginContoller extends BaseController {
 	@RequestMapping(value = "/check", method = RequestMethod.GET)
 	public String check(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
+	        HttpSession session = request.getSession();
+            if (session != null) {
+                DefaultSavedRequest dsr = (DefaultSavedRequest)session.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+
+                if (dsr != null) {
+                    String servletPath = dsr.getServletPath();
+                    session.setAttribute(Constants.PREVIOUS_URL, servletPath);
+                }
+            }
+
 			if (null == principal) {
 				if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC)) {
 					return "redirect:/loginOIDC";
@@ -58,8 +65,7 @@ public class LoginContoller extends BaseController {
 				}
 			}
 
-			RequestDispatcher rd = request.getRequestDispatcher(Env.HOME_PAGE);
-			rd.forward(request,response);
+			return "redirect:" + Env.HOME_PAGE;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -80,8 +86,7 @@ public class LoginContoller extends BaseController {
 				}
 			}
 
-			RequestDispatcher rd = request.getRequestDispatcher(Env.HOME_PAGE);
-			rd.forward(request,response);
+			return "redirect:" + Env.HOME_PAGE;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -102,8 +107,12 @@ public class LoginContoller extends BaseController {
 				}
 			}
 
-			RequestDispatcher rd = request.getRequestDispatcher(Env.HOME_PAGE);
-			rd.forward(request,response);
+			String previousPage = Objects.toString(request.getSession().getAttribute(Constants.PREVIOUS_URL));
+
+			String redirectUrl = StringUtils.isNotBlank(previousPage) && StringUtils.contains(previousPage, "/plugin/module/vmswitch")
+			                        ? previousPage : Env.HOME_PAGE;
+
+			return "redirect:" + redirectUrl;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);

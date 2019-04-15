@@ -34,41 +34,11 @@
   <body class="text-center" style="display: block; height: 100vh; background-color: #3e3e3e; background-image: repeating-linear-gradient(#3e3e3e 0px, #3e3e3e 10px, #202020 10px, #202020 12px); color: #fff;">
   	<div class="loader"></div>
 	<div class="mask" style="display: none;"></div>
-	<div class="processing2" style="display: none;">
-	  <div class="row col-12 center">
-		<textarea id="msg_from_server" style="top: 35vh; position: relative; resize: none; margin-top: 30px; white-space: pre-line; word-wrap: break-word; color: #FAFAD2; background-color: #012456; padding: 5px;" rows="10" cols="80" disabled="disabled"></textarea>
-	  </div>
-	  <div class="row col-12 center">
-	    <button type="button" id="btnClose" style="position: relative; top: 36vh; display: none;" class="btn btn-success">關閉</button>
-	  </div>
-	</div>
+	<div class="processing" style="display: none;"></div>
 	
 	<!-- Container fluid  -->
     <!-- ============================================================== -->
 	<div id="content" class="container-fluid">
-	<%
-		String step = Objects.toString(request.getAttribute("STEP"));
-
-		if (step.equals("@BeGIn..")) {
-	%>
-	  	<div class="row col-12 center">
-	  		<span style="font-size: 3em; font-weight: bold;">切換備援 Host name :</span>
-	 	</div>
-		<div class="row col-12 center">
-		  	<span style="font-size: 6em; font-weight: bold;">[</span>
-		  	<span style="font-size: 6em; font-weight: bold; color: red;">${VM_NAME }</span>
-		  	<span style="font-size: 6em; font-weight: bold;">]</span>
-		</div>
-		<div class="row col-12 center">
-		  	<span style="font-size: 3em; font-weight: bold;">切換過程<font style="color:yellow;"><u>無法暫停或中止!!</u></font></span>
-		</div>
-		<div class="row col-12 center" style="padding-top: 50px;">
-		  	<button type="button" class="btn btn-danger btn-lg vmswitch-btn" id="btnGo">GO</button>
-		</div>
-	<%
-		}
-	%>
-	
 		<div class="row col-12 center" style="display: none;">
 			<span style="font-size: 3em; font-weight: bold;">切換結果 :</span>
 		</div>

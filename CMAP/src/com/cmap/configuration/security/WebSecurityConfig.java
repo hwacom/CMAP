@@ -11,9 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 import com.cmap.configuration.filter.RequestBodyReaderAuthenticationFilter;
 import com.cmap.security.AuthSuccessHandler;
 import com.cmap.security.AuthUnsuccessHandler;
@@ -120,7 +118,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/login/code/**").permitAll()
 			.antMatchers("/login/authByOIDC/**").permitAll()
 			.antMatchers("/admin/env/refreshAll").permitAll()
-			.antMatchers("/plugin/module/vmswitch/**").permitAll()	//提供PRTG呼叫切換VM備援 (Y190117, Case No.C31001704016 >> APT HeNBGW & ePDG-LI Expansion)
+			//.antMatchers("/plugin/module/vmswitch/**").permitAll()	// 提供PRTG呼叫切換VM備援 (Y190117, Case No.C31001704016 >> APT HeNBGW & ePDG-LI Expansion)
+			                                                            // Y190409, VM切換須先進行登入驗證，登入後自動跳轉到VM切換UI
 			.anyRequest().hasAnyRole("ADMIN", "USER")
 			.and()
 			.addFilterBefore(authenticationFilter(),
@@ -138,8 +137,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			//.and()
 			.frameOptions()
 			.disable()
-			.addHeaderWriter(new StaticHeadersWriter("X-FRAME-OPTIONS", "ALLOW-FROM https://163.19.163.170"))
-			.addHeaderWriter(new StaticHeadersWriter("X-FRAME-OPTIONS", "ALLOW-FROM https://163.19.163.170:1443"))
+			//.addHeaderWriter(new StaticHeadersWriter("X-FRAME-OPTIONS", "ALLOW-FROM https://163.19.163.170"))
+			//.addHeaderWriter(new StaticHeadersWriter("X-FRAME-OPTIONS", "ALLOW-FROM https://163.19.163.170:1443"))
 			.and()
 		.csrf().disable();
 	}

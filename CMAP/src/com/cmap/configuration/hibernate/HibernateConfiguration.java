@@ -2,9 +2,7 @@ package com.cmap.configuration.hibernate;
 
 import java.beans.PropertyVetoException;
 import java.util.Properties;
-
 import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +13,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 import com.cmap.annotation.Log;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -26,7 +23,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 public class HibernateConfiguration {
 	@Log
 	private static Logger log;
-	
+
     @Autowired
     private Environment environment;
 
@@ -56,11 +53,11 @@ public class HibernateConfiguration {
 			dataSource.setTestConnectionOnCheckout(new Boolean(environment.getRequiredProperty("hibernate.c3p0.testConnectionOnCheckout")));
 			dataSource.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.acquire_increment")));
 			dataSource.setPreferredTestQuery(environment.getRequiredProperty("hibernate.c3p0.preferredTestQuery"));
-			
+
 		} catch (IllegalStateException | PropertyVetoException e) {
 			log.error(e.toString(), e);
 		}
-    	
+
     	/*
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));

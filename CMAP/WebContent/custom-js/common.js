@@ -58,7 +58,7 @@ function alert(msg) {
 			$(".ui-dialog").css('z-index', 2000);
 			$(".ui-widget-overlay").css('z-index', 1999);
 			$(".ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close").hide();
-			$(".ui-button.ui-corner-all.ui-widget").css("font-family", "MicrosoftJhengHei");
+			$(".ui-button.ui-corner-all.ui-widget").css("font-family", "微軟正黑體");
 		},
 		buttons : {
 			"關閉" : function() {
@@ -78,7 +78,7 @@ function confirm(msg, callback) {
 				$(".ui-dialog").css('z-index', 2000);
 				$(".ui-widget-overlay").css('z-index', 1999);
 				$(".ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close").hide();
-				$(".ui-button.ui-corner-all.ui-widget").css("font-family", "MicrosoftJhengHei");
+				$(".ui-button.ui-corner-all.ui-widget").css("font-family", "微軟正黑體");
 			},
 	     buttons : {
 	          "確認" : function() {

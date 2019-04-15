@@ -36,10 +36,11 @@
       					<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/aptg_logo_word.png" width="auto" height="23" style="padding-top: 3px" />
 			  			
 			  			<!-- 桃機 -->
-			  			<!-- 
+			  			<!--
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />
       					<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_word_short.png" width="auto" height="40" style="padding-top: 3px" />
 			  			-->
+			  			
 			  			<span class="h3" style="color:#1C2269"><spring:message code="cmap.title" /></span>	
 			  		</div>
 			  	</div>
@@ -85,6 +86,7 @@
 				  		  	</div>
 				  		  </div>
 				  		   -->
+				  		   <input type="hidden" name="previousPage" value="<%=request.getSession().getAttribute("PREVIOUS_URL") %>">
 					      <div class="row">
 				  		  	<div class="col-sm-12">
 				  		  		<button class="btn btn-block btn-success" type="submit"><spring:message code="login" /></button> <!-- Sign in -->

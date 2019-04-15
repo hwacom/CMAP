@@ -410,6 +410,14 @@
        	  	</div>
        	  	<!-- [END]Data Poller -->
        	  	
+       	  	<!-- IP Traffic Statistics -->
+       	  	<div id="sec_detail_ipTrafficStatistics" style="display: none">
+	            <div class="form-group row">
+	            	<label for="viewDataPollerSettingId" class="col-md-12 col-sm-12 col-form-label">無參數設定</label>
+	            </div>
+       	  	</div>
+       	  	<!-- [END]IP Traffic Statistics -->
+       	  	
        	  	<!-- 本地檔案操作 -->
        	  	<div id="sec_detail_localFileOperation" style="display: none">
 	            <div class="form-group row">
