@@ -77,7 +77,7 @@ function openPrtgWindow(_uri) {
   	//var y = parseInt(obj.top) + parseInt((window.screenY != undefined ? window.screenY : window.screenTop)) + 100;
   	var menu = $("#uriFrame").get(0).getBoundingClientRect();
   	
-  	var x = parseInt(menu.width) + 30;
+  	var x = parseInt(menu.width) + 60;
   	var y = parseInt(menu.top) + 100;
   	
   	var width = obj.width;

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -465,7 +467,7 @@ public class NetFlowServiceImpl implements NetFlowService {
                         continue;
                     }
 
-                    List<Object[]> mergedList = new ArrayList<Object[]>();
+                    List<Object[]> mergedList = new ArrayList<>();
                     mergedList.addAll(uploadAlarmList);
                     mergedList.addAll(downloadAlarmList);
 
@@ -592,17 +594,35 @@ public class NetFlowServiceImpl implements NetFlowService {
 
                 if (retryList != null && !retryList.isEmpty()) {
                     for (NetFlowIpStat retryStat : retryList) {
+                    	boolean sendSuccess = true;
                         try {
+                        	//TODO PRTG接收Server IP要by不同學校設定
+                            String prtgServerIp = Env.NET_FLOW_IP_STAT_SEND_TO_PRTG_SERVER_IP;
                             String groupId = retryStat.getGroupId();
                             String ipAddr = retryStat.getIpAddr();
                             String url =
-                                    Env.PRTG_SERVER_IP + "IP_Traffic_Alert_" + groupId + "?value=1&text=IP%20" + ipAddr + "%20Over%20" + limitSizeUnit;
+                            		prtgServerIp + "IP_Traffic_Alert_" + groupId + "?value=1&text=IP%20" + ipAddr + "%20Over%20" + limitSizeUnit;
 
                             sendAlarm2PRTG(url);
 
                         } catch (Exception e) {
                             // 發送失敗不處理，待後續重發機制再retry
                             log.error(e.toString(), e);
+                            sendSuccess = false;
+                        }
+
+                        // 調整發送註記
+                        if (sendSuccess) {
+                            try {
+                            	retryStat.setSendPrtgFlag(Constants.DATA_Y);
+                            	retryStat.setUpdateTime(new Timestamp((new Date()).getTime()));
+                            	retryStat.setUpdateBy(Env.USER_NAME_JOB);
+                                netFlowDAO.saveNetFlowIpStat(retryStat);
+
+                            } catch (Exception e) {
+                                // 調整註記失敗不作處理
+                                log.error(e.toString(), e);
+                            }
                         }
                     }
                 }
