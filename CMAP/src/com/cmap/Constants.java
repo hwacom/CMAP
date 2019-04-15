@@ -2,7 +2,6 @@ package com.cmap;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-
 import com.cmap.comm.enums.ConnectionMode;
 
 public class Constants {
@@ -11,6 +10,7 @@ public class Constants {
 	public static final String GROUP_DEVICE_MAP = "GROUP_DEVICE_MAP";
 	public static final String CHARSET_UTF8 = "UTF-8";
 	public static final String SYS = "SYS";
+	public static final String PREVIOUS_URL = "PREVIOUS_URL";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	public static final String PASSHASH = "passhash";
@@ -22,6 +22,8 @@ public class Constants {
 	public static final String USERROLE_USER = "USER";
 	public static final String FIELD_NAME_UPDATE_BY = "updateBy";
 	public static final String UNKNOWN = "unknown";
+
+	public static final String VM_SWITCH_HOST_NAME = "vmSwitchHostName";
 
 	public static final String EXCEPTION_POLICY_CONTINUE = "CONTINUE";
 	public static final String EXCEPTION_POLICY_BREAK = "BREAK";
@@ -51,6 +53,9 @@ public class Constants {
 	public static final String SSH = "SSH";
 	public static final String WMI = "WMI";
 	public static final String SNMP = "SNMP";
+
+	public static final String ACTION_TYPE_BACKUP = "BACKUP";
+	public static final String ACTION_TYPE_RESTORE = "RESTORE";
 
 	public static final String CONTENT_SETTING_ACTION_ADD = "+";
 	public static final String CONTENT_SETTING_ACTION_SUBSTRACT = "-";

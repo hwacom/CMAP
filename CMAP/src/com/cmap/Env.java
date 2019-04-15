@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.Step;
 
@@ -236,6 +235,10 @@ public class Env {
 	public static String DEFAULT_FILE_LINE_ENDING_SYMBOL;
 
 	public static String TIMEOUT_4_NET_FLOW_QUERY;
+	public static String ABNORMAL_NET_FLOW_LIMIT_SIZE;
+	public static String DEFAULT_NET_FLOW_FILE_NAME_REGEX;
+	public static String DEFAULT_NET_FLOW_DATA_TYPE;
+	public static String NET_FLOW_IP_STAT_SEND_TO_PRTG_SERVER_IP;
 
 	public static String BOOT_INFO_PARA_TITLE_OF_PRIORITY;
 	public static String BOOT_INFO_PARA_TITLE_OF_IMAGE;

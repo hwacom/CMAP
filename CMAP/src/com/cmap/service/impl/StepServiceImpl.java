@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -501,7 +499,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							break;
 
 						case DOWNLOAD_FILE:
-							outputVOList = downloadFile(fileUtils, vsVOs, ciVO, true);
+							outputVOList = downloadFile(Constants.ACTION_TYPE_BACKUP, fileUtils, vsVOs, ciVO, true);
 							break;
 
 						case CONNECT_FILE_SERVER_4_UPLOAD:
@@ -1299,7 +1297,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<ConfigInfoVO> downloadFile(FileUtils fileUtils, List<VersionServiceVO> vsVOs, ConfigInfoVO ciVO, boolean returnFileString) throws Exception {
+	private List<ConfigInfoVO> downloadFile(String actionType, FileUtils fileUtils, List<VersionServiceVO> vsVOs, ConfigInfoVO ciVO, boolean returnFileString) throws Exception {
 		List<ConfigInfoVO> ciVOList = new ArrayList<>();
 
 		ConfigInfoVO tmpVO = null;
@@ -1309,15 +1307,17 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			String remoteFileDirPath = vsVO.getRemoteFileDirPath();
 
-			if (Env.ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR) {
-				String yyyyMMdd = vsVO.getCreateYyyyMMdd();
-
-				if (StringUtils.isBlank(yyyyMMdd)) {
-					SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
-					yyyyMMdd = sdf.format(new Date());
-				}
-
-				remoteFileDirPath = yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(remoteFileDirPath);
+			if (StringUtils.equals(actionType, Constants.ACTION_TYPE_RESTORE)) {
+			  if (Env.ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR) {
+                  String yyyyMMdd = vsVO.getCreateYyyyMMdd();
+  
+                  if (StringUtils.isBlank(yyyyMMdd)) {
+                      SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
+                      yyyyMMdd = sdf.format(new Date());
+                  }
+  
+                  remoteFileDirPath = yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(remoteFileDirPath);
+              }
 			}
 
 			tmpVO.setRemoteFileDirPath(remoteFileDirPath);
@@ -1786,7 +1786,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 									break;
 								}
 
-								configInfoList = downloadFile(fileUtils, vsVOs, ciVO, false);
+								configInfoList = downloadFile(Constants.ACTION_TYPE_RESTORE, fileUtils, vsVOs, ciVO, false);
 								ciVO.setConfigContentList(
 										configInfoList.get(0).getConfigContentList());
 								break;

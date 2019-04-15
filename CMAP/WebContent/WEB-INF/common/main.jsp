@@ -88,6 +88,7 @@
  		<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />
 		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_word_short.png" width="auto" height="40" style="padding-top: 3px" />
  		 -->
+ 		 
  		<span class="font-weight-bold title-font" style="color:#000079"><spring:message code="cmap.title" /></span>	
       </a>
       <ul class="navbar-nav">
@@ -411,7 +412,7 @@
         
         <!-- Modal [View 組態內容] start -->
 		<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		  <div class="modal-dialog modal-mid" role="document">
+		  <div class="modal-dialog modal-xg" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <h5 class="modal-title" id="exampleModalLabel"><span id="msgModal_title"><spring:message code="config.content.preview" /></span></h5>
@@ -421,21 +422,21 @@
 		      </div>
 		      <div class="modal-body">
 		     	<div class="form-group row">
-		        	<label for="viewModal_group" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
-		    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_group" readonly>
+		        	<label for="viewModal_group" class="col-md-1 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
+		    		<input type="text" class="form-control form-control-sm col-md-11 col-sm-12" id="viewModal_group" readonly>
 		        </div>
 		        <div class="form-group row">
-		        	<label for="viewModal_device" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.name" /> :</label>
-		    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_device" readonly>
+		        	<label for="viewModal_device" class="col-md-1 col-sm-12 col-form-label"><spring:message code="device.name" /> :</label>
+		    		<input type="text" class="form-control form-control-sm col-md-11 col-sm-12" id="viewModal_device" readonly>
 		        </div>
 		        <div class="form-group row">
-		        	<label for="viewModal_version" class="col-md-2 col-sm-12 col-form-label"><spring:message code="config.version" /> :</label>
-		    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_version" readonly>
+		        	<label for="viewModal_version" class="col-md-1 col-sm-12 col-form-label"><spring:message code="config.version" /> :</label>
+		    		<input type="text" class="form-control form-control-sm col-md-11 col-sm-12" id="viewModal_version" readonly>
 		        </div>
 		        <div class="form-group row">
-		        	<label for="viewModal_content" class="col-md-2 col-sm-12 col-form-label"><spring:message code="config.content" /> :</label>
+		        	<label for="viewModal_content" class="col-md-1 col-sm-12 col-form-label"><spring:message code="config.content" /> :</label>
 		        	<!-- <textarea class="form-control col-md-9 col-sm-12" id="viewModal_content" rows="10" readonly></textarea> -->
-		        	<div class="form-control form-control-sm col-md-10 col-sm-12 script" id="viewModal_content"></div>
+		        	<div class="form-control form-control-sm col-md-11 col-sm-12 script" id="viewModal_content"></div>
 		        </div>
 		        
 		      </div>

@@ -1,7 +1,6 @@
 package com.cmap.plugin.module.vmswitch;
 
 import java.util.List;
-
 import com.cmap.dao.BaseDAO;
 
 public interface VmSwitchDAO extends BaseDAO {
@@ -18,4 +17,10 @@ public interface VmSwitchDAO extends BaseDAO {
 	 * @return List<ModuleVmEsxiSetting>
 	 */
 	public List<ModuleVmEsxiSetting> findAllVmEsxiSetting();
+
+	public void saveOrUpdateProcessLog(ModuleVmProcessLog moduleVmProcessLog);
+
+	public int updateProcessLog(ModuleVmProcessLog moduleVmProcessLog);
+
+	public List<ModuleVmProcessLog> findNotPushedModuleVmProcessLogByLogKey(String logKey);
 }

@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +32,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -807,10 +805,21 @@ public class DataPollerServiceImpl implements DataPollerService {
 						/*
 						 * 當前欄位為來源CSV內欄位 >> 塞值來源 = CSV讀取內容
 						 */
-						String targetValue = lineData[sourceColumnIdx];
-
+					    String targetValue = "";
 						if (StringUtils.startsWith(sourceColumnType, Constants.FIELD_TYPE_OF_TIMESTAMP)) {
-							targetValue = transSourceDateColumnFormatFromChinese2English(targetValue);
+						    if (sourceColumnIdx >= lineData.length) {
+						        // 若日期欄位為空則預設寫入當下系統時間
+						        targetValue = Constants.FORMAT_YYYY_MM_DD.format(new Date());
+
+						    } else {
+						        targetValue = lineData[sourceColumnIdx];
+						        targetValue = transSourceDateColumnFormatFromChinese2English(targetValue);
+						    }
+
+						} else {
+						    if (sourceColumnIdx < lineData.length) {
+						        targetValue = lineData[sourceColumnIdx];
+						    }
 						}
 
 						targetStr[targetFieldIdx] = targetValue;
