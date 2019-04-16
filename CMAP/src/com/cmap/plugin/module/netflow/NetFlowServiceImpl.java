@@ -550,6 +550,8 @@ public class NetFlowServiceImpl implements NetFlowService {
 
                             sendAlarm2PRTG(url);
 
+                            Thread.sleep(500); // 避免太密集發送
+
                         } catch (Exception e) {
                             // 發送失敗不處理，待後續重發機制再retry
                             log.error(e.toString(), e);
@@ -604,6 +606,8 @@ public class NetFlowServiceImpl implements NetFlowService {
                             		prtgServerIp + "IP_Traffic_Alert_" + groupId + "?value=1&text=IP%20" + ipAddr + "%20Over%20" + limitSizeUnit;
 
                             sendAlarm2PRTG(url);
+
+                            Thread.sleep(500); // 避免太密集發送
 
                         } catch (Exception e) {
                             // 發送失敗不處理，待後續重發機制再retry
