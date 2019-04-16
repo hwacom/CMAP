@@ -221,6 +221,10 @@ public class Constants {
 	public static final String SYMBOL_GREATER_OR_EQUAL = ">=";
 	public static final String SYMBOL_LESS_OR_EQUAL = "<=";
 
+	public static final String VM_STATUS_FINE = "0";
+	public static final String VM_STATUS_SSH_FAILED = "1";
+	public static final String VM_STATUS_NO_SUBSCRIBER = "2";
+
 	public static final String RESTORE_METHOD_BY_FILE = "RECOVER_METHOD_BY_FILE";	//組態備份還原 BY檔案方式
 	public static final String RESTORE_METHOD_BY_CLI = "RECOVER_METHOD_BY_CLI";	//組態備份還原 BY Command Line(CLI)逐行派送
 

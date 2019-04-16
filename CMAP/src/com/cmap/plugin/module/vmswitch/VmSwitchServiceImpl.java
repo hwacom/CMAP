@@ -25,8 +25,10 @@ import com.cmap.model.DeviceList;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.ScriptService;
+import com.cmap.service.StepService;
 import com.cmap.service.VersionService;
 import com.cmap.service.impl.CommonServiceImpl;
+import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.cmap.service.vo.ScriptServiceVO;
@@ -55,6 +57,9 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
 	@Autowired
 	private ScriptService scriptService;
+
+	@Autowired
+    private StepService stepService;
 
 	private String logKey = "";
 	private Integer logOrderNo = 1;
@@ -285,20 +290,26 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	 * @param deviceList
 	 * @return
 	 */
-	private boolean chkSwitchHostSSHStatus(DeviceList deviceList) throws ServiceLayerException {
+	private boolean chkSwitchHostSSHStatus(String deviceIp, boolean writeLog) throws ServiceLayerException {
+	    boolean sshStatusOK = false;
+
 	    String errorMsg = "";
         try {
+            ConfigInfoVO ciVO = new ConfigInfoVO();
+            ciVO.setDeviceIp(deviceIp);
 
-            return false;
-        /*
-        } catch (ServiceLayerException sle) {
-            throw sle;
-        */
+            sshStatusOK = stepService.chkSSHIsEnable(ciVO);
+
+            return sshStatusOK;
+
         } catch (Exception e) {
             log.error(e.toString(), e);
-            errorMsg = "非預期錯誤!! (" + e.getMessage() + ")";
 
-            writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+            if (writeLog) {
+                errorMsg = "非預期錯誤!! (" + e.getMessage() + ")";
+                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+            }
+
             throw new ServiceLayerException("非預期錯誤 (" + e.getMessage() + ")");
         }
 	}
@@ -353,7 +364,8 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	        /*
 	         * Step 4-2-1. 迴圈執行多台 ESXi 主機備援切換動作
 	         */
-	        ScriptServiceVO vmInfoScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.VM_INFO.toString(), Constants.DATA_STAR_SYMBOL);
+	        ScriptServiceVO vmInfoScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+	                ScriptType.VM_INFO.toString(), Constants.DATA_STAR_SYMBOL);
 
 	        if (vmInfoScriptVO == null) {
 	            errorMsg = "查詢不到ESXi[查詢VM ID]腳本";
@@ -362,7 +374,8 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	            throw new ServiceLayerException("查詢不到預設腳本 for 查詢VM ID >> scriptType: " + ScriptType.VM_INFO);
 	        }
 
-	        ScriptServiceVO powerOffScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.VM_POWER_OFF.toString(), Constants.DATA_STAR_SYMBOL);
+	        ScriptServiceVO powerOffScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+	                ScriptType.VM_POWER_OFF.toString(), Constants.DATA_STAR_SYMBOL);
 
 	        if (powerOffScriptVO == null) {
 	            errorMsg = "查詢不到ESXi[關機VM]腳本";
@@ -404,6 +417,13 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
 	                    final String vmId = analyzeVmId(vmInfo, nameOfVMware);
 	                    System.out.println("*********** VM_ID = [" + vmId + "]");
+
+	                    if (vmId == null) {
+	                        errorMsg = "查詢不到VMware ID (ESXi名稱: " + esxi.getEsxiName() + ", VMware名稱: " + nameOfVMware + ")";
+
+	                        writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+	                        throw new ServiceLayerException(errorMsg);
+	                    }
 
 	                    /*
 	                     * Step 4-2-3. 執行 CLI 將指定的 VM ID 關機(power off)
@@ -578,7 +598,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              * >> OK: 接續 Step 4-1 (連進Host關Interface)
              * >> NO: 接續 Step 4-2 (連進ESXi關機VM)
              */
-            final boolean _SSH_IS_FINE_ = chkSwitchHostSSHStatus(deviceList);
+            final boolean _SSH_IS_FINE_ = chkSwitchHostSSHStatus(deviceIp, true);
 
             if (_SSH_IS_FINE_) {
                 /*
@@ -641,6 +661,10 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	private String analyzeVmId(String vmInfo, String targetVmName) {
 		String vmId = null;
 		try {
+		    if (vmInfo == null || targetVmName == null) {
+		        return null;
+		    }
+
 			String[] lines = vmInfo.split("\r\n");
 
 			for (String line : lines) {
@@ -654,6 +678,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+			vmId = null;
 		}
 
 		return vmId;
@@ -718,5 +743,166 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
+    }
+
+    @Override
+    public VmSwitchVO chkVmStatus(VmSwitchVO vmSwitchVO) throws ServiceLayerException {
+        boolean vmNowFailure = false;
+        String vmStatus = Constants.VM_STATUS_FINE;
+        String vmStatusMsg = "";
+
+        try {
+            final String apiVmName = vmSwitchVO.getApiVmName();
+
+            /*
+             * Step 1. 查詢VM名稱對照表，取得 API 傳入的名稱對應到 CMAP & ESXi 內實際 VMware 設定的名稱
+             */
+            vmSwitchVO = getEsxiAndVmNameMapping(vmSwitchVO, apiVmName);
+
+            final String deviceListId = vmSwitchVO.getDeviceListId();
+            DeviceList deviceList = deviceDAO.findDeviceListByDeviceListId(deviceListId);
+
+            if (deviceList == null) {
+                throw new ServiceLayerException("傳入的VM名稱查找不到對應的設備資料 (apiVmName: " + apiVmName + ", deviceListId: " + deviceListId + ")");
+            }
+
+            final String deviceIp = deviceList.getDeviceIp();
+
+            /*
+             * Step 2. 確認SSH是否可連通
+             */
+            boolean sshEnable = chkSwitchHostSSHStatus(deviceIp, false);
+
+            if (!sshEnable) {
+                vmStatus = Constants.VM_STATUS_SSH_FAILED;
+                throw new ServiceLayerException("SSH不通");
+
+            } else {
+                /*
+                 * Step 3. SSH可通，確認有無 subscriber
+                 */
+                boolean hasSubscriber = chkSwitchHostHasSubscriber(deviceList);
+
+                if (!hasSubscriber) {
+                    vmStatus = Constants.VM_STATUS_NO_SUBSCRIBER;
+                    throw new ServiceLayerException("No Subscribers");
+
+                } else {
+                    vmNowFailure = false;
+                    vmStatusMsg = "SSH & Subscriber檢核正常";
+                    vmStatus = Constants.VM_STATUS_FINE;
+                }
+            }
+
+        } catch (ServiceLayerException sle) {
+            vmNowFailure = true;
+            vmStatusMsg = sle.getMessage();
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            vmNowFailure = true;
+            vmStatusMsg = e.getMessage();
+
+        } finally {
+            vmSwitchVO.setVmNowFailure(vmNowFailure);
+            vmSwitchVO.setVmStatus(vmStatus);
+            vmSwitchVO.setVmStatusMsg(vmStatusMsg);
+        }
+
+        return vmSwitchVO;
+    }
+
+    /**
+     * 檢核要切換的VM當下是否有 Subscribers
+     * @param deviceList
+     * @return
+     * @throws ServiceLayerException
+     */
+    private boolean chkSwitchHostHasSubscriber(DeviceList deviceList) throws ServiceLayerException {
+        boolean hasSubscriber = false;
+        try {
+            /*
+             * Step 1. 查詢預設腳本 for VM show subscribers
+             */
+            ScriptServiceVO vmSubScriberScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+                    ScriptType.VM_SUBSCRIBERS.toString(), Constants.DATA_STAR_SYMBOL);
+
+            if (vmSubScriberScriptVO == null) {
+                throw new ServiceLayerException("查詢不到預設腳本 for VM show subscribers >> scriptType: " + ScriptType.VM_SUBSCRIBERS);
+            }
+
+            /*
+             * Step 2. 準備腳本派送所需參數
+             */
+            DeliveryParameterVO dpVO = new DeliveryParameterVO();
+            dpVO.setScriptInfoId(vmSubScriberScriptVO.getScriptInfoId());
+            dpVO.setScriptCode(vmSubScriberScriptVO.getScriptCode());
+
+            Map<String, String> deviceInfo = new HashMap<>();
+            deviceInfo.put(Constants.DEVICE_IP, deviceList.getDeviceIp());
+            deviceInfo.put(Constants.DEVICE_NAME, deviceList.getDeviceEngName());
+            deviceInfo.put(Constants.DEVICE_LOGIN_ACCOUNT, Env.DEFAULT_DEVICE_LOGIN_ACCOUNT);
+            deviceInfo.put(Constants.DEVICE_LOGIN_PASSWORD, Env.DEFAULT_DEVICE_LOGIN_PASSWORD);
+            dpVO.setDeviceInfo(deviceInfo);
+
+            /*
+             * Step 3. 呼叫共用進行腳本派送
+             */
+            DeliveryServiceVO deliveryVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_VM_SWITCH, dpVO, true, "PRTG", "【VM備援切換】取得當前VM subscriber數", false);
+
+            /*
+             * Step 4. 將派送查詢結果進行文字處理，取得 Subscriber 數
+             */
+            final String subscribersInfo = StringUtils.split(deliveryVO.getCmdOutputList().get(0), Env.COMM_SEPARATE_SYMBOL)[1];
+            final String subscribersCount = analyzeVmSubscribersCount(subscribersInfo);
+
+            if (subscribersCount != null && Integer.parseInt(subscribersCount) > 0) {
+                hasSubscriber = true;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("非預期錯誤 (" + e.getMessage() + ")");
+        }
+        return hasSubscriber;
+    }
+
+    /**
+     * 解析「show subscribers counters」內容，目標值 >> Total Subscribers: 3
+     * @param subscribersInfo
+     * @return
+     */
+    private String analyzeVmSubscribersCount(String subscribersInfo) {
+        String retVal = null;
+        try {
+            if (subscribersInfo == null) {
+                return null;
+            }
+
+            final String keyWord = "Total Subscribers:";
+            String[] lines = subscribersInfo.split("\r\n");
+
+            for (String line : lines) {
+                if (StringUtils.contains(line, keyWord)) {
+                    String[] tmp = line.split(keyWord);
+
+                    /*
+                     * 1、 表示空格  " \\s"， "[ ]"， "[\\s]"
+                     *    表示多個空格 "\\s+"， "[ ]+"， "[\\s]+"
+                     * 2、 表示數字  "\\d"， "[\\d]"， "[0-9]"
+                     *    表示多個數字，同理，在後面加上"+"
+                     */
+                    retVal = StringUtils.isNotBlank(tmp[1]) ? tmp[1].replaceAll("\\s+","") : null;
+                    break;
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            retVal = null;
+        }
+
+        return retVal;
     }
 }

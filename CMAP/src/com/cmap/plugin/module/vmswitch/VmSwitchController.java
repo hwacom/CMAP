@@ -118,11 +118,85 @@ public class VmSwitchController extends BaseController {
         return "plugin/module_vm_switch_result";
     }
 
+	/**
+	 * 檢核 VM 當前狀態是否正常 for PRTG 呼叫 API 入口
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @param response
+	 * @param apiVmName
+	 * @return
+	 */
+	@RequestMapping(value = "/chkVmStatus/{apiVmName}", method = RequestMethod.GET)
+	public @ResponseBody String chkStatus(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+	        @PathVariable(required=true) String apiVmName) {
+
+	    String chkResult = Constants.VM_STATUS_FINE;
+	    try {
+	        VmSwitchVO vmSwitchVO = new VmSwitchVO();
+	        vmSwitchVO.setApiVmName(apiVmName);
+
+	        vmSwitchVO = vmSwitchService.chkVmStatus(vmSwitchVO);
+	        chkResult = vmSwitchVO.getVmStatus();
+
+	    } catch (Exception e) {
+            log.error(e.toString(), e);
+	    }
+
+	    return chkResult;
+	}
+
+	/**
+	 * 檢核 VM 當前狀態是否正常 for VM 切換 UI
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @param response
+	 * @param jsonData
+	 * @return
+	 */
+	@RequestMapping(value = "/chkStatus", method = RequestMethod.POST, produces="application/json;odata=verbose")
+    public @ResponseBody AppResponse chkStatus(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+            @RequestBody JsonNode jsonData) {
+	    try {
+	        final String apiVmName = Objects.toString(request.getSession().getAttribute(Constants.VM_SWITCH_HOST_NAME));
+
+	        VmSwitchVO vmSwitchVO = new VmSwitchVO();
+            vmSwitchVO.setApiVmName(apiVmName);
+
+            vmSwitchVO = vmSwitchService.chkVmStatus(vmSwitchVO);
+
+	        AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "檢查當前VM狀態");
+	        app.putData("VM_NOW_FAILURE", vmSwitchVO.isVmNowFailure());
+	        app.putData("VM_STATUS_MSG", vmSwitchVO.getVmStatusMsg());
+
+            return app;
+
+	    } catch (Exception e) {
+	        log.error(e.toString(), e);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_EXPECTATION_FAILED, "檢查當前VM狀態失敗");
+            app.putData("VM_NOW_FAILURE", false);
+            app.putData("VM_STATUS_MSG", e.getMessage());
+
+            return app;
+	    }
+	}
+
+	/**
+	 * 確認執行備援切換
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @param response
+	 * @param jsonData
+	 * @return
+	 */
 	@RequestMapping(value = "/go", method = RequestMethod.POST, produces="application/json;odata=verbose")
     public @ResponseBody AppResponse go(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
             @RequestBody JsonNode jsonData) {
         try {
-            String apiVmName = Objects.toString(request.getSession().getAttribute(Constants.VM_SWITCH_HOST_NAME));
+            final String apiVmName = Objects.toString(request.getSession().getAttribute(Constants.VM_SWITCH_HOST_NAME));
 
             VmSwitchVO vmSwitchVO = new VmSwitchVO();
             vmSwitchVO.setApiVmName(apiVmName);
