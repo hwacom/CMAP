@@ -2,7 +2,6 @@ package com.cmap.service;
 
 import java.util.List;
 import java.util.Map;
-
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.model.ScriptInfo;
@@ -68,4 +67,11 @@ public interface StepService {
 			boolean sysTrigger,
 			String triggerBy,
 			String triggerRemark);
+
+	/**
+	 * 確認目標物件當前的SSH連線是否可通
+	 * @param ciVO
+	 * @return
+	 */
+	public boolean chkSSHIsEnable(ConfigInfoVO ciVO);
 }

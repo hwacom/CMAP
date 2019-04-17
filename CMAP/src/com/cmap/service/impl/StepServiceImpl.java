@@ -1310,12 +1310,12 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			if (StringUtils.equals(actionType, Constants.ACTION_TYPE_RESTORE)) {
 			  if (Env.ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR) {
                   String yyyyMMdd = vsVO.getCreateYyyyMMdd();
-  
+
                   if (StringUtils.isBlank(yyyyMMdd)) {
                       SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
                       yyyyMMdd = sdf.format(new Date());
                   }
-  
+
                   remoteFileDirPath = yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(remoteFileDirPath);
               }
 			}
@@ -2256,4 +2256,33 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		int layer = whiteSpaceCount / oneLayerWhiteSpaceCount;
 		return layer;
 	}
+
+    @Override
+    public boolean chkSSHIsEnable(ConfigInfoVO ciVO) {
+        boolean sshEnable = false;
+
+        ConnectUtils connectUtils = null; // 連線裝置物件
+        try {
+            connectUtils = connect2Device(connectUtils, ConnectionMode.SSH, ciVO);
+            sshEnable = true;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            sshEnable = false;
+
+        } finally {
+            try {
+                if (connectUtils != null) {
+                    connectUtils.disconnect();
+                }
+
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+            }
+
+            connectUtils = null;
+        }
+        return sshEnable;
+    }
 }

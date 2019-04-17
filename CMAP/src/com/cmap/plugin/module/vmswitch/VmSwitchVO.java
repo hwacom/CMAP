@@ -22,6 +22,10 @@ public class VmSwitchVO {
 	private Map<Integer, String> esxiIdNameMapping = new HashMap<>();
 	private String deviceListId;
 
+	private boolean vmNowFailure;
+	private String vmStatus;
+	private String vmStatusMsg;
+
 	public String getApiVmName() {
 		return apiVmName;
 	}
@@ -69,5 +73,23 @@ public class VmSwitchVO {
     }
     public void setRestoreVersionId(String restoreVersionId) {
         this.restoreVersionId = restoreVersionId;
+    }
+    public boolean isVmNowFailure() {
+        return vmNowFailure;
+    }
+    public void setVmNowFailure(boolean vmNowFailure) {
+        this.vmNowFailure = vmNowFailure;
+    }
+    public String getVmStatusMsg() {
+        return vmStatusMsg;
+    }
+    public void setVmStatusMsg(String vmStatusMsg) {
+        this.vmStatusMsg = vmStatusMsg;
+    }
+    public String getVmStatus() {
+        return vmStatus;
+    }
+    public void setVmStatus(String vmStatus) {
+        this.vmStatus = vmStatus;
     }
 }

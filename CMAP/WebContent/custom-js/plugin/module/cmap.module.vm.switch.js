@@ -6,6 +6,10 @@ var source = null;
 
 $(document).ready(function() {
 	
+	$("#btnCheck").click(function() {
+		checkVmStatus();
+	});
+	
 	$("#btnGo").click(function() {
 		confirm("請再次確認是否要開始執行切換?", "startSwitch");;
 	});
@@ -29,6 +33,37 @@ function hideProcessing2() {
 function showProcessing2() {
 	$(".mask").show();
 	$(".processing2").show();
+}
+
+function checkVmStatus() {
+	var obj = new Object();
+	
+	$.ajax({
+		url : _ctx + '/plugin/module/vmswitch/chkStatus',
+		data : JSON.stringify(obj),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function(xhr) {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			$("#vmStatusMsg").text(resp.data.VM_STATUS_MSG);
+			$("#checkBtn").hide();
+			$("#goMsg").show();
+			$("#goBtn").show();
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
 }
 
 function startSSE() {
