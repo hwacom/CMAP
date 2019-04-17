@@ -33,6 +33,7 @@ import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.model.PrtgAccountMapping;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
 import com.cmap.service.PrtgService;
@@ -197,10 +198,22 @@ public class PrtgController extends BaseController {
 		try {
 			final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
 
+			/*
 			String indexUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_INDEX);
 
 			if (StringUtils.isBlank(indexUrl)) {
 				indexUrl = Env.PRTG_DEFAULT_INDEX_URI;	//如果沒設定則取得預設MAP
+			}
+			*/
+
+			PrtgAccountMapping mapping = prtgService.getMappingBySourceIdAndType(schoolId, Constants.MAP_URL_OF_INDEX);
+			String indexUrl = null;
+
+			if (StringUtils.isBlank(mapping.getIndexUrl())) {
+				indexUrl = Env.PRTG_DEFAULT_INDEX_URI;	//如果沒設定則取得預設MAP
+
+			} else {
+				indexUrl = mapping.getIndexUrl() + "&username=" + mapping.getPrtgAccount() + "&password=" + mapping.getPrtgPassword();
 			}
 
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");

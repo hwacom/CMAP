@@ -60,4 +60,25 @@ public class PrtgServiceImpl implements PrtgService {
 			throw new ServiceLayerException("取得PRTG dashboard MAP失敗!  >> 非預期錯誤");
 		}
 	}
+
+	@Override
+	public PrtgAccountMapping getMappingBySourceIdAndType(String sourceId, String type) throws ServiceLayerException {
+		try {
+			if (StringUtils.isBlank(sourceId)) {
+				throw new ServiceLayerException("取得PRTG dashboard MAP失敗! >> Source_ID 不得為空");
+			}
+
+			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingBySourceId(sourceId);
+
+			if (mapping == null) {
+				throw new ServiceLayerException("取得PRTG dashboard MAP失敗! >> 查無資料, Source_ID: " + sourceId);
+			}
+
+			return mapping;
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			throw new ServiceLayerException("取得PRTG dashboard MAP失敗!  >> 非預期錯誤");
+		}
+	}
 }
