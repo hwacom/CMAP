@@ -17,7 +17,8 @@ public class VmSwitchVO {
 	private boolean isEPDG;
 
 	private String restoreVersionId;
-	private List<String> configContent;
+	private List<String> oriConfigList;
+	private List<String> newConfigList;
 
 	private Map<Integer, String> esxiIdNameMapping = new HashMap<>();
 	private String deviceListId;
@@ -26,18 +27,48 @@ public class VmSwitchVO {
 	private String vmStatus;
 	private String vmStatusMsg;
 
-	public String getApiVmName() {
-		return apiVmName;
-	}
-	public void setApiVmName(String apiVmName) {
-		this.apiVmName = apiVmName;
-	}
-	public SwitchType getSwitchType() {
-		return switchType;
-	}
-	public void setSwitchType(SwitchType switchType) {
-		this.switchType = switchType;
-	}
+    public String getLogKey() {
+        return logKey;
+    }
+    public void setLogKey(String logKey) {
+        this.logKey = logKey;
+    }
+    public String getApiVmName() {
+        return apiVmName;
+    }
+    public void setApiVmName(String apiVmName) {
+        this.apiVmName = apiVmName;
+    }
+    public SwitchType getSwitchType() {
+        return switchType;
+    }
+    public void setSwitchType(SwitchType switchType) {
+        this.switchType = switchType;
+    }
+    public boolean isEPDG() {
+        return isEPDG;
+    }
+    public void setEPDG(boolean isEPDG) {
+        this.isEPDG = isEPDG;
+    }
+    public String getRestoreVersionId() {
+        return restoreVersionId;
+    }
+    public void setRestoreVersionId(String restoreVersionId) {
+        this.restoreVersionId = restoreVersionId;
+    }
+    public List<String> getOriConfigList() {
+        return oriConfigList;
+    }
+    public void setOriConfigList(List<String> oriConfigList) {
+        this.oriConfigList = oriConfigList;
+    }
+    public List<String> getNewConfigList() {
+        return newConfigList;
+    }
+    public void setNewConfigList(List<String> newConfigList) {
+        this.newConfigList = newConfigList;
+    }
     public Map<Integer, String> getEsxiIdNameMapping() {
         return esxiIdNameMapping;
     }
@@ -50,46 +81,22 @@ public class VmSwitchVO {
     public void setDeviceListId(String deviceListId) {
         this.deviceListId = deviceListId;
     }
-    public String getLogKey() {
-        return logKey;
-    }
-    public void setLogKey(String logKey) {
-        this.logKey = logKey;
-    }
-    public boolean isEPDG() {
-        return isEPDG;
-    }
-    public void setEPDG(boolean isEPDG) {
-        this.isEPDG = isEPDG;
-    }
-    public List<String> getConfigContent() {
-        return configContent;
-    }
-    public void setConfigContent(List<String> configContent) {
-        this.configContent = configContent;
-    }
-    public String getRestoreVersionId() {
-        return restoreVersionId;
-    }
-    public void setRestoreVersionId(String restoreVersionId) {
-        this.restoreVersionId = restoreVersionId;
-    }
     public boolean isVmNowFailure() {
         return vmNowFailure;
     }
     public void setVmNowFailure(boolean vmNowFailure) {
         this.vmNowFailure = vmNowFailure;
     }
-    public String getVmStatusMsg() {
-        return vmStatusMsg;
-    }
-    public void setVmStatusMsg(String vmStatusMsg) {
-        this.vmStatusMsg = vmStatusMsg;
-    }
     public String getVmStatus() {
         return vmStatus;
     }
     public void setVmStatus(String vmStatus) {
         this.vmStatus = vmStatus;
+    }
+    public String getVmStatusMsg() {
+        return vmStatusMsg;
+    }
+    public void setVmStatusMsg(String vmStatusMsg) {
+        this.vmStatusMsg = vmStatusMsg;
     }
 }

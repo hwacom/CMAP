@@ -986,7 +986,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						DeviceDetailInfo ddi = null;
 						for (DeviceDetailMapping entity : entities) {
-							final String sourceStrng = entity.getSourceString();
+							final String sourceString = entity.getSourceString();
 							final String splitBy = entity.getSplitBy();
 							final Integer getValueIndex = entity.getGetValueIndex();
 							final String targetInfoName = entity.getTargetInfoName();
@@ -996,7 +996,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							final String deviceId = configInfoVO.getDeviceId();
 							final Timestamp updateTime = currentTimestamp();
 
-							if (StringUtils.startsWith(configStr, sourceStrng)) {
+							if (StringUtils.startsWith(configStr, sourceString)) {
 								String[] tmpArray = StringUtils.split(configStr, splitBy);
 
 								String getTargetValue = null;
@@ -2018,7 +2018,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @param configInfoVO
 	 * @return
 	 */
-	private List<String> processConfigContentSetting(String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException {
+	@Override
+    public List<String> processConfigContentSetting(String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException {
 		final String systemVersion = configInfoVO.getSystemVersion();
 		final String deviceName = configInfoVO.getDeviceEngName();
 		final String deviceListId = configInfoVO.getDeviceListId();
@@ -2057,7 +2058,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
-			throw new ServiceLayerException("processConfigContentSetting EXCEPTION!!!");
+			throw new ServiceLayerException(e.toString());
 		}
 	}
 
@@ -2230,7 +2231,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
-			throw new ServiceLayerException("runConfigAndSettingCheck EXCEPTION!!!");
+			throw new ServiceLayerException(e.toString());
 		}
 
 		return retList;

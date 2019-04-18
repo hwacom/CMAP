@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -45,7 +43,6 @@ import com.cmap.utils.FileUtils;
 import com.cmap.utils.impl.CommonUtils;
 import com.cmap.utils.impl.FtpFileUtils;
 import com.cmap.utils.impl.TFtpFileUtils;
-
 import difflib.Chunk;
 import difflib.Delta;
 import difflib.DiffUtils;
@@ -382,7 +379,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 					fileDir = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileDir);
 				}
 
-				fileUtils.changeDir(fileDir, false);
+				vsVO.setRemoteFileDirPath(fileDir);
+//				fileUtils.changeDir(fileDir, false);
 
 				// Step4. 下載指定的Config落地檔
 				ConfigInfoVO ciVO = new ConfigInfoVO();

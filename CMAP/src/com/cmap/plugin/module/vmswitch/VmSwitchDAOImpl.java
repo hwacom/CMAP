@@ -103,4 +103,19 @@ public class VmSwitchDAOImpl extends BaseDaoHibernate implements VmSwitchDAO {
         q.setParameter("logId", moduleVmProcessLog.getLogId());
         return q.executeUpdate();
     }
+
+    @Override
+    public ModuleVmSetting getVmSetting(String settingName) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select mvs ")
+          .append(" from ModuleVmSetting mvs ")
+          .append(" where 1=1 ")
+          .append(" and mvs.settingName = :settingName ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("settingName", settingName);
+
+        return (ModuleVmSetting)q.uniqueResult();
+    }
 }

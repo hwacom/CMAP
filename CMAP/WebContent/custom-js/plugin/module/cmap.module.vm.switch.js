@@ -96,10 +96,22 @@ function startSSE() {
         			$("#btnClose").show();
         			
         		} else if (step == '<STEP_RESULT>') {
-        			msg = " >> " + msg + "\r\n";
+        			switch (result) {
+        				case "<ERROR>":
+        					msg = " >> <span style=\"color: #ff4747; vertical-align: top;\"><b>" + msg + "</b></span><br>";
+        					break;
+        					
+        				case "<OK>":
+        					msg = " >> <span style=\"color: #01ff01; vertical-align: top;\"><b>" + msg + "</b></span><br>";
+        					break;
+        					
+        				default:
+        					msg = " >> " + msg + "<br>";
+        					break;
+        			}
         			
         		} else {
-            		msg = "[" + time + "] " + step + " >> " + msg;
+            		msg = "[" + time + "] " + step + " >> <span style=\"color: yellow; vertical-align: top;\">" + msg + "</span>";
             		
             		/*
             		s += e.data + "<br/>"
@@ -107,7 +119,7 @@ function startSSE() {
                     */
             	}
         		
-        		$('#msg_from_server').val(function(i, text) {
+        		$('#msg_from_server').html(function(i, text) {
         		    return text + msg;
         		});
         	}
@@ -139,7 +151,7 @@ function stopSSE() {
 }
 
 function startSwitch() {
-	$('#msg_from_server').val('====================== [ Processing ] ======================');
+	$('#msg_from_server').html('====================== [ Processing ] ======================<br>');
 	var obj = new Object();
 	
 	$.ajax({

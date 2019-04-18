@@ -4,16 +4,26 @@ import com.cmap.exception.ServiceLayerException;
 
 public interface VmSwitchService {
 
+    public static final String SETTING_OF_STAND_BY_STATUS = "STAND_BY_STATUS";
+    public static final String SETTING_OF_EPDG_HOST_IP = "EPDG_HOST_IP";
+    public static final String RECONNECT_MAX_TIMES = "RECONNECT_MAX_TIMES";
+    public static final String RECONNECT_INTERVAL = "RECONNECT_INTERVAL";
+
     public enum Step {
         CHECK_BACKUP_HOST_STATUS,
         GET_VM_MAPPING_TABLE,
         GET_SWITCH_HOST_INFO,
         GET_CONFIG_BACKUP_RECORD,
+        PROCESS_CONFIG_CONTENT,
         CHECK_SSH_STATUS,
         DISABLE_SWITCH_HOST_INTERFACE,
         POWER_OFF_FROM_ESXI,
-        INSERT_CONFIG_TO_BACKUP_HOST,
+        POWER_OFF_EACH_ESXI,
+        PROVISION_CONFIG_TO_BACKUP_HOST,
         MODIFY_BOOT_SETTING_AND_RELOAD,
+        WAIT_FOR_RELOADING,
+        PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN,
+        WRITE_PROCESS_LOG,
         STEP_RESULT,
         PROCESS_END,
         NONE
@@ -23,7 +33,8 @@ public interface VmSwitchService {
         EXECUTING,
         FINISH,
         ERROR,
-        END
+        END,
+        MSG
     };
 
 	/**

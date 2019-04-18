@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.vmswitch;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,13 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.comm.enums.RestoreMethod;
+import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.vo.ConfigVersionInfoDAOVO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ConfigVersionInfo;
+import com.cmap.model.DeviceDetailInfo;
 import com.cmap.model.DeviceList;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DeliveryService;
@@ -68,12 +70,36 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 		return (chkList == null || (chkList != null && chkList.isEmpty()));
 	}
 
+	/**
+	 * 取得目前備援機狀態
+	 * @throws ServiceLayerException
+	 */
 	private void chkBackupHostStatus() throws ServiceLayerException {
+	    String errorMsg = "";
 	    try {
+	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(SETTING_OF_STAND_BY_STATUS);
 
+	        if (setting == null) {
+	            errorMsg = "備援機目前狀態不明 (查無設定資料，Code:ModuleVmSetting)";
+
+                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+                throw new ServiceLayerException(errorMsg);
+	        }
+
+	        final String enable = setting.getSettingValue();
+
+	        if (!StringUtils.equals(enable, Constants.DATA_Y)) {
+	            errorMsg = "備援機目前狀態不可切換";
+
+	            writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+	            throw new ServiceLayerException(errorMsg);
+	        }
+
+	    } catch (ServiceLayerException sle) {
+	        throw sle;
 
 	    } catch (Exception e) {
-
+	        throw e;
 	    }
 	}
 
@@ -127,14 +153,55 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 break;
 
             case GET_VM_MAPPING_TABLE:
-                stepMsg = "查詢VM名稱對照表";
+                stepMsg = "查詢 VM 名稱對照表";
                 break;
 
             case GET_SWITCH_HOST_INFO:
                 stepMsg = "查詢要切換的設備相關資料";
+                break;
 
             case GET_CONFIG_BACKUP_RECORD:
-                stepMsg = "查詢指定的VM名稱系統組態備份紀錄";
+                stepMsg = "取得設備最新的組態備份紀錄";
+                break;
+
+            case PROCESS_CONFIG_CONTENT:
+                stepMsg = "處理後續要供裝的組態檔內容片段";
+                break;
+
+            case CHECK_SSH_STATUS:
+                stepMsg = "確認要切換備援的 VM 目前 SSH 連線是否可通";
+                break;
+
+            case DISABLE_SWITCH_HOST_INTERFACE:
+                stepMsg = "[SSH 可通] 登入設備將所有 Interface 關閉";
+                break;
+
+            case POWER_OFF_FROM_ESXI:
+                stepMsg = "[SSH 不通] 登入 ESXi 將 VM 進行關機";
+                break;
+
+            case POWER_OFF_EACH_ESXI:
+                stepMsg = "*** 執行[ " + msg + " ]關機";
+                break;
+
+            case PROVISION_CONFIG_TO_BACKUP_HOST:
+                stepMsg = "[HeNBGW] 將 context 及 port 組態設定派送到備援機";
+                break;
+
+            case MODIFY_BOOT_SETTING_AND_RELOAD:
+                stepMsg = "[ePDG] 設定備援機 boot 最高優先度為 ePDG config 及 image 並重啟";
+                break;
+
+            case WAIT_FOR_RELOADING:
+                stepMsg = "[ePDG] 等待 VM 重啟中...";
+                break;
+
+            case PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN:
+                stepMsg = "[ePDG] 將 port 及 vlan 調整為 no shutdown";
+                break;
+
+            case WRITE_PROCESS_LOG:
+                stepMsg = "寫入執行過程 log";
                 break;
 
             case STEP_RESULT:
@@ -154,22 +221,28 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	    String message = "N/A";
 	    switch (status) {
 	        case EXECUTING:
+	            result = "<OK>";
 	            message = "executing..";
 	            break;
 
 	        case FINISH:
 	            result = "<OK>";
-	            message = "finish OK !!";
+	            message = "Finish OK !!";
 	            break;
 
 	        case ERROR:
 	            result = "<ERROR>";
-	            message = msg;
+	            message = "Error !!" + msg;
 	            break;
 
 	        case END:
 	            result = "<OK>";
 	            message = "=== END ===";
+	            break;
+
+	        case MSG:
+	            result = "<OK>";
+	            message = msg;
 	            break;
 	    }
 
@@ -184,20 +257,46 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
         vmSwitchDAO.saveOrUpdateProcessLog(pLog);
 	}
 
+	/**
+	 * 檢核要切換的VM IP是否為ePDG
+	 * @param deviceIp
+	 * @return
+	 * @throws ServiceLayerException
+	 */
 	private boolean chkSwitchHostIsEpdgOrNot(String deviceIp) throws ServiceLayerException {
+	    boolean isEpdg = false;
+	    try {
+            ModuleVmSetting setting = vmSwitchDAO.getVmSetting(SETTING_OF_EPDG_HOST_IP);
+            final String epdgHostIp = setting.getSettingValue();
 
-	    return true;
+            if (StringUtils.equals(epdgHostIp, deviceIp)) {
+                isEpdg = true;
+
+            } else {
+                isEpdg = false;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("非預期錯誤 (" + e.getMessage() + ")");
+        }
+
+	    return isEpdg;
 	}
 
-	private void getSwitchHostConfigBackupData(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
+	/**
+	 *
+	 * @param vmSwitchVO
+	 * @param deviceList
+	 * @throws ServiceLayerException
+	 */
+	private VmSwitchVO getSwitchHostConfigBackupData(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
 	    String errorMsg = "";
 	    try {
 	        final String apiVmName = vmSwitchVO.getApiVmName();
 	        final String groupId = deviceList.getGroupId();
             final String deviceId = deviceList.getDeviceId();
             final String deviceEngName = deviceList.getDeviceEngName();
-
-            writeLog(logKey, Step.GET_CONFIG_BACKUP_RECORD, Status.EXECUTING, null);
 
 	        /*
              * Step 2-2. 查詢指定的 VM name 系統組態備份紀錄，確認有無備份紀錄，有的話才有辦法執行後續動作
@@ -237,17 +336,22 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             } else {
                 VersionServiceVO retVO = vsVOList.get(0);
 
-                String filePath = "";
-                String fileName = "";
+                String filePath = retVO.getConfigFileDirPath();
+                String fileName = retVO.getFileFullName();
                 try {
-                    retVO = versionService.getConfigFileContent(retVO);
+                    if (Env.FILE_TRANSFER_MODE == ConnectionMode.FTP && Env.ENABLE_REMOTE_BACKUP_USE_TODAY_ROOT_DIR) {
+                        SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
 
-                    filePath = retVO.getConfigFileDirPath();
-                    fileName = retVO.getFileFullName();
+                        // 依照要查看的組態檔Create_date決定要到哪個日期目錄下取得檔案
+                        String date_yyyyMMdd = retVO.getCreateDate() != null ? sdf.format(retVO.getCreateDate()) : sdf.format(new Date());
+                        filePath = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(filePath);
+                    }
+
+                    retVO = versionService.getConfigFileContent(retVO);
 
                 } catch (ServiceLayerException sle) {
                     // FTP取檔過程異常
-                    errorMsg = "於FTP取得設備最新備份檔失敗 (設備名稱: " + deviceEngName + ", FTP路徑: " + filePath + ", 檔名: " + fileName + ")";
+                    errorMsg = "FTP下載組態備份檔失敗 (/" + filePath + "/" + fileName + ")";
 
                     writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
                     throw new ServiceLayerException(
@@ -258,7 +362,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                         || (retVO.getConfigContentList() != null && retVO.getConfigContentList().isEmpty())) {
                     // FTP取檔內容為空
 
-                    errorMsg = "於FTP取得的設備最新備份檔內容為空 (設備名稱: " + deviceEngName + ", FTP路徑: " + filePath + ", 檔名: " + fileName + ")";
+                    errorMsg = "FTP下載的組態備份檔內容為空 (/" + filePath + "/" + fileName + ")";
 
                     writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
                     throw new ServiceLayerException(
@@ -267,9 +371,11 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 } else {
                     configContent = retVO.getConfigContentList();
                     vmSwitchVO.setRestoreVersionId(restoreVersionId);
-                    vmSwitchVO.setConfigContent(configContent);
+                    vmSwitchVO.setOriConfigList(configContent);
 
                     writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+
+                    return vmSwitchVO;
                 }
             }
 
@@ -319,15 +425,28 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	 * @param deviceList
 	 * @throws ServiceLayerException
 	 */
-	private void disableSwitchHostInterface(DeviceList deviceList) throws ServiceLayerException {
+	private void disableSwitchHostInterface(DeviceList deviceList, String logKey) throws ServiceLayerException {
 	    String errorMsg = "";
         try {
+            final String deviceListId = deviceList.getDeviceListId();
+            final String groupId = deviceList.getGroupId();
+            final String deviceId = deviceList.getDeviceId();
+            final String infoName = "PORT_ETHERNET";
 
+            List<DeviceDetailInfo> infoList = deviceDAO.findDeviceDetailInfo(deviceListId, groupId, deviceId, infoName);
 
-        /*
+            if (infoList == null || (infoList != null && infoList.isEmpty())) {
+                errorMsg = "查詢不到要切換的VM interface清單";
+
+                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+                throw new ServiceLayerException("查詢不到 VM ESXi 主機表設定 >> ModuleVmEsxiSetting");
+            }
+
+            //TODO
+
         } catch (ServiceLayerException sle) {
             throw sle;
-        */
+
         } catch (Exception e) {
             log.error(e.toString(), e);
             errorMsg = "非預期錯誤!! (" + e.getMessage() + ")";
@@ -342,13 +461,11 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	 * @param vmSwitchVO
 	 * @throws ServiceLayerException
 	 */
-	private void powerOffSwitchHostVmFromEsxi(VmSwitchVO vmSwitchVO) throws ServiceLayerException {
+	private void powerOffSwitchHostVmFromEsxi(VmSwitchVO vmSwitchVO, String logKey) throws ServiceLayerException {
 	    final Map<Integer, String> esxiIdNameMapping = vmSwitchVO.getEsxiIdNameMapping();
 
 	    String errorMsg = "";
 	    try {
-	        writeLog(logKey, Step.POWER_OFF_FROM_ESXI, Status.EXECUTING, null);
-
 	        /*
 	         * Step 4-2. 取得 VMWare ESXi 主機連線資訊
 	         */
@@ -386,7 +503,9 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
 	        Map<String, String> deviceInfo;
 	        DeliveryServiceVO deliveryVO;
+
 	        for (ModuleVmEsxiSetting esxi : esxiSettings) {
+	            final String esxiName = esxi.getEsxiName();
 	            final Integer esxiID = esxi.getSettingId();
 
 	            int round = 1;
@@ -394,6 +513,8 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
 	            while (round <= retryTimes) {
 	                try {
+	                    writeLog(logKey, Step.POWER_OFF_EACH_ESXI, Status.EXECUTING, esxiName);
+
 	                    /*
 	                     * Step 4-2-2. 執行 CLI 取得 VM name 對應的 VM ID
 	                     */
@@ -419,7 +540,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	                    System.out.println("*********** VM_ID = [" + vmId + "]");
 
 	                    if (vmId == null) {
-	                        errorMsg = "查詢不到VMware ID (ESXi名稱: " + esxi.getEsxiName() + ", VMware名稱: " + nameOfVMware + ")";
+	                        errorMsg = "查詢不到VMware ID，進行第" + round + "/" + retryTimes + "次 retry (ESXi名稱: " + esxi.getEsxiName() + ", VMware名稱: " + nameOfVMware + ")";
 
 	                        writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
 	                        throw new ServiceLayerException(errorMsg);
@@ -430,6 +551,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	                     */
 	                    dpVO.setScriptInfoId(powerOffScriptVO.getScriptInfoId());
 	                    dpVO.setScriptCode(powerOffScriptVO.getScriptCode());
+	                    dpVO.setReason(logKey);
 
 	                    final String scriptKey = powerOffScriptVO.getActionScriptVariable();
 
@@ -442,12 +564,23 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	                    varValue.add(vmIdList);
 	                    dpVO.setVarValue(varValue);
 
+	                    //TODO
 	                    //deliveryVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_VM_SWITCH, dpVO, true, "PRTG", "【VM備援切換】將異常的VM進行關機", false);
+
+	                    writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
 	                    break;      //執行過程正常下停止retry迴圈
 
+	                } catch (ServiceLayerException sle) {
+	                    log.error(sle.toString(), sle);
+	                    round++;    //執行異常進行retry
+
 	                } catch (Exception e) {
 	                    log.error(e.toString(), e);
+
+	                    errorMsg = "非預期異常，進行第" + round + "/" + retryTimes + "次 retry (" + e.toString() + ")";
+	                    writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+
 	                    round++;    //執行異常進行retry
 	                }
 	            }
@@ -469,10 +602,64 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	 * (ePDG備援) 修改boot設定 & reload
 	 * @throws ServiceLayerException
 	 */
-	private void modifyBackupHostBootInfoAndReload() throws ServiceLayerException {
+	private void modifyBackupHostBootAndReloadAndNoShutdown(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
 	    String errorMsg = "";
         try {
+            int _RECONNECT_MAX_TIMES_ = 180;    // 等待reload過程，重試設備連線上限次數 (搭配預設間格時間下，預設最多等待30分鐘)
+            int _RECONNECT_INTERVAL_ = 10000;   // 重試設備連線間格時間 (預設10秒偵測一次)
 
+            final String deviceIp = deviceList.getDeviceIp();
+
+            try {
+                ModuleVmSetting setting = vmSwitchDAO.getVmSetting(RECONNECT_MAX_TIMES);
+
+                if (setting != null) {
+                    _RECONNECT_MAX_TIMES_ = StringUtils.isNotBlank(setting.getSettingValue())
+                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_MAX_TIMES_;
+                }
+
+                setting = vmSwitchDAO.getVmSetting(RECONNECT_INTERVAL);
+
+                if (setting != null) {
+                    _RECONNECT_INTERVAL_ = StringUtils.isNotBlank(setting.getSettingValue())
+                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_INTERVAL_;
+                }
+
+            } catch (Exception e) {
+                // 查找這兩個參數若發生異常不理會，採用預設值
+                log.error(e.toString(), e);
+            }
+
+            /*
+             * Step 1. 調整 boot 最高優先度為 ePDG config 及 image，並作重啟
+             */
+            writeLog(logKey, Step.MODIFY_BOOT_SETTING_AND_RELOAD, Status.EXECUTING, null);
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+            /* Step 1. [END] ********************************************************************************/
+
+            // Step 2. 等待reload完成
+            writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
+
+            int times = 0;
+            while (times < _RECONNECT_MAX_TIMES_) {
+                boolean enable = chkSwitchHostSSHStatus(deviceIp, false);
+
+                if (!enable) {
+                    times++;
+                    Thread.sleep(_RECONNECT_INTERVAL_);
+                }
+            }
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+            /* Step 2. [END] ********************************************************************************/
+
+            /*
+             * Step 3. 將 ePDG 中 port 及 vlan 改為 no shutdown
+             */
+            writeLog(logKey, Step.PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN, Status.EXECUTING, null);
+
+            /* Step 3. [END] ********************************************************************************/
 
         /*
         } catch (ServiceLayerException sle) {
@@ -496,7 +683,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	private void insertConfig2BackupHost(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
 	    final String deviceListId = deviceList.getDeviceListId();
         final String restoreVersionId = vmSwitchVO.getRestoreVersionId();
-        final List<String> configContent = vmSwitchVO.getConfigContent();
+        final List<String> newConfigList = vmSwitchVO.getNewConfigList();
 
 	    String errorMsg = "";
 	    try {
@@ -505,13 +692,16 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	        VersionServiceVO vsVO = new VersionServiceVO();
             vsVO.setDeviceListId(deviceListId);
             vsVO.setRestoreVersionId(restoreVersionId);
-            vsVO.setRestoreContentList(configContent);
+            vsVO.setRestoreContentList(newConfigList);
+
+            //TODO
+            /*
             versionService.restoreConfig(
                     RestoreMethod.CLI, Constants.RESTORE_TYPE_VM_SWITCH, vsVO, "PRTG", "【VM備援切換】3/3.寫入備份組態設定至還原機");
 
 	    } catch (ServiceLayerException sle) {
             throw sle;
-
+        */
 	    } catch (Exception e) {
 	        log.error(e.toString(), e);
             errorMsg = "非預期錯誤!! (" + e.getMessage() + ")";
@@ -538,22 +728,20 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 		     */
 		    writeLog(logKey, Step.CHECK_BACKUP_HOST_STATUS, Status.EXECUTING, null);
 		    chkBackupHostStatus();
-
-		    Thread.sleep(500);
 		    writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
 		    /* Step 1. [END] **********************************************************************************/
+		    Thread.sleep(500);
 
 	        /*
              * Step 2-1. 查詢VM名稱對照表，取得 API 傳入的名稱對應到 CMAP & ESXi 內實際 VMware 設定的名稱
              */
 		    writeLog(logKey, Step.GET_VM_MAPPING_TABLE, Status.EXECUTING, null);
 		    vmSwitchVO = getEsxiAndVmNameMapping(vmSwitchVO, apiVmName);
-
-		    Thread.sleep(500);
 		    writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
 		    /* Step 2-1. [END] ********************************************************************************/
+		    Thread.sleep(500);
 
 		    final String deviceListId = vmSwitchVO.getDeviceListId();
 		    final Map<Integer, String> esxiIdNameMapping = vmSwitchVO.getEsxiIdNameMapping();
@@ -562,7 +750,6 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              * Step 2-2. 查詢要切換的設備相關資料
              */
 		    writeLog(logKey, Step.GET_SWITCH_HOST_INFO, Status.EXECUTING, null);
-		    Thread.sleep(500);
 
             DeviceList deviceList = deviceDAO.findDeviceListByDeviceListId(deviceListId);
 
@@ -577,6 +764,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             }
 
             /* Step 2-2. [END] ********************************************************************************/
+            Thread.sleep(500);
 
             final String groupId = deviceList.getGroupId();
             final String deviceId = deviceList.getDeviceId();
@@ -584,48 +772,122 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             final String deviceEngName = deviceList.getDeviceEngName();
             final String deviceIp = deviceList.getDeviceIp();
 
-            // 判斷要切換的設備是否為ePDG
-            final boolean _IS_EPDG_ = chkSwitchHostIsEpdgOrNot(deviceIp);
-            vmSwitchVO.setEPDG(_IS_EPDG_);
+            /*
+             * Step 2-3. 取得要切換的設備最新的備份檔資料
+             */
+            writeLog(logKey, Step.GET_CONFIG_BACKUP_RECORD, Status.EXECUTING, null);
 
-            if (!_IS_EPDG_) {
-                // 如果要切換的不是ePDG，則取得設備最新的備份檔資料
-                getSwitchHostConfigBackupData(vmSwitchVO, deviceList);
+            vmSwitchVO = getSwitchHostConfigBackupData(vmSwitchVO, deviceList);
+
+            /* Step 2-3. [END] ********************************************************************************/
+            Thread.sleep(500);
+
+            /*
+             * Step 2-4. 處理後續要供裝的組態檔內容片段
+             */
+            writeLog(logKey, Step.PROCESS_CONFIG_CONTENT, Status.EXECUTING, null);
+
+            // 依照【Config_Content_Setting】設定處理，取得ePDG或HeNBGW切換時需要派送的Config內容片段
+            List<String> newConfigList = null;
+
+            try {
+                ConfigInfoVO configInfoVO = new ConfigInfoVO();
+                configInfoVO.setSystemVersion(systemVersion);
+                configInfoVO.setDeviceEngName(deviceEngName);
+                configInfoVO.setDeviceListId(deviceListId);
+                configInfoVO.setConfigContentList(vmSwitchVO.getOriConfigList());
+
+                newConfigList = stepService.processConfigContentSetting(Constants.CONFIG_CONTENT_SETTING_TYPE_VM_SWITCH, configInfoVO);
+
+                if (newConfigList == null || (newConfigList != null && newConfigList.isEmpty())) {
+                    throw new ServiceLayerException("要供裝的組態內容為空");
+                }
+
+                vmSwitchVO.setNewConfigList(newConfigList);
+
+            } catch (ServiceLayerException sle) {
+                errorMsg = "非預期錯誤!! (" + sle.getMessage() + ")";
+
+                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+                throw sle;
+
+            } catch (Exception e) {
+                throw e;
             }
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+
+            /* Step 2-4. [END] ********************************************************************************/
+            Thread.sleep(500);
 
             /*
              * Step 3. 確認要切換備援的Host是否可SSH連線
              * >> OK: 接續 Step 4-1 (連進Host關Interface)
              * >> NO: 接續 Step 4-2 (連進ESXi關機VM)
              */
+            writeLog(logKey, Step.CHECK_SSH_STATUS, Status.EXECUTING, null);
             final boolean _SSH_IS_FINE_ = chkSwitchHostSSHStatus(deviceIp, true);
+            String sshMsg = _SSH_IS_FINE_ ? "SSH 可通" : "SSH 不通";
+            writeLog(logKey, Step.STEP_RESULT, Status.MSG, sshMsg);
+
+            /* Step 3. [END] ********************************************************************************/
+            Thread.sleep(500);
 
             if (_SSH_IS_FINE_) {
                 /*
                  * Step 4-1. 關設備所有Interface
                  */
-                disableSwitchHostInterface(deviceList);
+                writeLog(logKey, Step.DISABLE_SWITCH_HOST_INTERFACE, Status.EXECUTING, null);
+                //TODO
+                disableSwitchHostInterface(deviceList, logKey);
+
+                writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
             } else {
                 /*
                  * Step 4-2. 從ESXi層將要切換的設備VM關機
                  */
-                powerOffSwitchHostVmFromEsxi(vmSwitchVO);
+                writeLog(logKey, Step.POWER_OFF_FROM_ESXI, Status.EXECUTING, null);
+
+                powerOffSwitchHostVmFromEsxi(vmSwitchVO, logKey);
             }
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+
+            /* Step 4. [END] ********************************************************************************/
+            Thread.sleep(500);
+
+            // 判斷要切換的設備是否為ePDG
+            final boolean _IS_EPDG_ = chkSwitchHostIsEpdgOrNot(deviceIp);
+            vmSwitchVO.setEPDG(_IS_EPDG_);
 
             /*
              * Step 5. 登入備援機，依照要切換的設備類型決定還原作法
              */
-            if (!_IS_EPDG_) {
-                modifyBackupHostBootInfoAndReload();
+            if (_IS_EPDG_) {
+                //TODO
+                modifyBackupHostBootAndReloadAndNoShutdown(vmSwitchVO, deviceList);
 
             } else {
+                writeLog(logKey, Step.PROVISION_CONFIG_TO_BACKUP_HOST, Status.EXECUTING, null);
+
+                //TODO
                 insertConfig2BackupHost(vmSwitchVO, deviceList);
             }
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+
+            /* Step 5. [END] ********************************************************************************/
+            Thread.sleep(500);
 
             /*
              * Step 6. 將切換紀錄寫入 DB
              */
+            writeLog(logKey, Step.WRITE_PROCESS_LOG, Status.EXECUTING, null);
+
+            //TODO
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
 		} catch (ServiceLayerException sle) {
 		    log.error(sle.toString(), sle);

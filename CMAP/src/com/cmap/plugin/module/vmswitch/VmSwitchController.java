@@ -88,7 +88,7 @@ public class VmSwitchController extends BaseController {
 	@RequestMapping(value = "", method = RequestMethod.GET)
     public String main(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 	    try {
-	        logKey = "LOG_" + Constants.FORMAT_YYYYMMDD_HH24MISS_NOSYMBOL.format(new Date());
+	        logKey = "VM_SWITCH_LOG_" + Constants.FORMAT_YYYYMMDD_HH24MISS_NOSYMBOL.format(new Date());
 
 	        String apiVmName = Objects.toString(request.getSession().getAttribute(Constants.VM_SWITCH_HOST_NAME));
 

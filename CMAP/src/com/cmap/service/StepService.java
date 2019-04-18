@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
+import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ScriptInfo;
 import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.service.vo.StepServiceVO;
@@ -74,4 +75,13 @@ public interface StepService {
 	 * @return
 	 */
 	public boolean chkSSHIsEnable(ConfigInfoVO ciVO);
+
+	/**
+	 * 依照【Config_Content_Setting】設定處理，取得實際需要派送的Config片段
+	 * @param settingType
+	 * @param configInfoVO
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public List<String> processConfigContentSetting(String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException;
 }

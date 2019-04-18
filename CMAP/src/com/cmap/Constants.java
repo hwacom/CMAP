@@ -231,6 +231,12 @@ public class Constants {
 	public static final String RESTORE_TYPE_VM_SWITCH = "VM_SWITCH";
 	public static final String RESTORE_TYPE_BACKUP_RESTORE = "BACKUP_RESTORE";
 
+	/*
+	 * Config_Content_Setting.Setting_Type
+	 */
+	public static final String CONFIG_CONTENT_SETTING_TYPE_VM_SWITCH = "VM_SWITCH";
+    public static final String CONFIG_CONTENT_SETTING_TYPE_BACKUP_RESTORE = "BACKUP_RESTORE";
+
 	public static final String MAP_URL_OF_INDEX = "INDEX";
 	public static final String MAP_URL_OF_DASHBOARD = "DASHBOARD";
 	public static final String MAP_URL_OF_NET_FLOW_SUMMARY = "NET_FLOW_SUMMARY";

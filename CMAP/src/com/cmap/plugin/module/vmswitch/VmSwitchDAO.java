@@ -23,4 +23,6 @@ public interface VmSwitchDAO extends BaseDAO {
 	public int updateProcessLog(ModuleVmProcessLog moduleVmProcessLog);
 
 	public List<ModuleVmProcessLog> findNotPushedModuleVmProcessLogByLogKey(String logKey);
+
+	public ModuleVmSetting getVmSetting(String settingName);
 }
