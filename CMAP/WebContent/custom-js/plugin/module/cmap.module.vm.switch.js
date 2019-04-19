@@ -3,6 +3,7 @@
  */
 var _ctx = $("meta[name='ctx']").attr("content");
 var source = null;
+var switchResult;
 
 $(document).ready(function() {
 	
@@ -11,7 +12,7 @@ $(document).ready(function() {
 	});
 	
 	$("#btnGo").click(function() {
-		confirm("請再次確認是否要開始執行切換?", "startSwitch");;
+		confirm("請再次確認是否要開始執行切換?<br><font color=\"red\">** 切換過程無法暫停或中止 **</font>", "startSwitch");;
 	});
 	
 	$("#btnClose").click(function() {
@@ -75,13 +76,13 @@ function startSSE() {
         $('#msg_from_server').scrollTop = $('#msg_from_server').scrollHeight;
         
         source.addEventListener('message', function (e) {
-        	console.log("e.data: " + e.data);
+        	//console.log("e.data: " + e.data);
         	var data = JSON.parse(e.data);
         	var time = data.time;
         	var step = data.step;
         	var result = data.result;
         	var msg = data.msg;
-        	console.log("step: " + step + " >> result: " + result + " >> msg: " + msg);
+        	//console.log("step: " + step + " >> result: " + result + " >> msg: " + msg);
         	
         	if (step == '<CLOSE>') {
         		source.close();
@@ -89,11 +90,13 @@ function startSSE() {
         	} else if (step != '<NONE>') {
         		
         		if (step == '<PROCESS_END>') {
-        			msg = "======================== [ End ] ========================";
+        			msg = "======================== [ End ] ========================<br><br>";
         			source.close();
         			
         			$(".processing2").css("background", "none");
         			$("#btnClose").show();
+        			
+        			alert(switchResult);
         			
         		} else if (step == '<STEP_RESULT>') {
         			switch (result) {
@@ -103,6 +106,10 @@ function startSSE() {
         					
         				case "<OK>":
         					msg = " >> <span style=\"color: #01ff01; vertical-align: top;\"><b>" + msg + "</b></span><br>";
+        					break;
+        					
+        				case "<WAITING>":
+        					msg = " >> <span style=\"color: #ff01ca; vertical-align: top;\"><b>" + msg + "</b></span><br>";
         					break;
         					
         				default:
@@ -122,6 +129,8 @@ function startSSE() {
         		$('#msg_from_server').html(function(i, text) {
         		    return text + msg;
         		});
+        		
+        		$("#msg_from_server").animate({ scrollTop: $('#msg_from_server').prop("scrollHeight")}, 1000);
         	}
         });
 
@@ -172,14 +181,7 @@ function startSwitch() {
 			//hideProcessing();
 		},
 		success : function(resp) {
-			/*
-			if (resp.code == '200') {
-				alert(resp.message);
-				
-			} else {
-				alert(resp.message);
-			}
-			*/
+			switchResult = resp.message;
 		},
 		error : function(xhr, ajaxOptions, thrownError) {
 			ajaxErrorHandler();

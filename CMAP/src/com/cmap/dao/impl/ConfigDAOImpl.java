@@ -3,14 +3,12 @@ package com.cmap.dao.impl;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.vo.ConfigVersionInfoDAOVO;
@@ -676,7 +674,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 			q.setParameter("systemVersion", systemVersion);
 		}
 		if (StringUtils.isNotBlank(deviceNameLike)) {
-			q.setParameter("deviceNameLike", deviceNameLike);
+			q.setParameter("deviceNameLike", "%"+deviceNameLike+"%");
 		}
 		if (StringUtils.isNotBlank(deviceListId)) {
 			q.setParameter("deviceListId", deviceListId);

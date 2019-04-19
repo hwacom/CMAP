@@ -8,6 +8,10 @@ public interface VmSwitchService {
     public static final String SETTING_OF_EPDG_HOST_IP = "EPDG_HOST_IP";
     public static final String RECONNECT_MAX_TIMES = "RECONNECT_MAX_TIMES";
     public static final String RECONNECT_INTERVAL = "RECONNECT_INTERVAL";
+    public static final String RECONNECT_TIMES_TO_SHOW_MSG = "RECONNECT_TIMES_TO_SHOW_MSG";
+    public static final String BACKUP_HOST_EPDG_CONFIG_PATH = "BACKUP_HOST_EPDG_CONFIG_PATH";
+    public static final String BACKUP_HOST_EPDG_IMAGE_PATH = "BACKUP_HOST_EPDG_IMAGE_PATH";
+    public static final String BACKUP_HOST_IP = "BACKUP_HOST_IP";
 
     public enum Step {
         CHECK_BACKUP_HOST_STATUS,
@@ -31,6 +35,7 @@ public interface VmSwitchService {
 
     public enum Status {
         EXECUTING,
+        WAITING,
         FINISH,
         ERROR,
         END,

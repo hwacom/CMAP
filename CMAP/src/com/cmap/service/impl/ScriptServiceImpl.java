@@ -3,7 +3,6 @@ package com.cmap.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -93,7 +91,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 
 	@Override
 	public List<ScriptServiceVO> loadSpecifiedScript(String scriptInfoId, String scriptCode, List<Map<String, String>> varMapList, List<ScriptServiceVO> scripts) throws ServiceLayerException {
-		List<ScriptServiceVO> retScriptList = new ArrayList<>();
+		List<ScriptServiceVO> retScriptList = null;
 
 		if (scripts != null && !scripts.isEmpty()) {
 			return scripts;
@@ -119,6 +117,8 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 
 		// 有傳入參數MAP才需跑替換參數值流程
 		if (varMapList != null && !varMapList.isEmpty()) {
+
+		    retScriptList = new ArrayList<>();
 
 			for (Map<String, String> varMap : varMapList) {
 				for (ScriptServiceVO script : scripts) {
@@ -151,9 +151,12 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 					retScriptList.add(newVO);
 				}
 			}
-		}
 
-		return retScriptList;
+			return retScriptList;
+
+		} else {
+		    return scripts;
+		}
 	}
 
 	@Override

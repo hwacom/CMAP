@@ -790,9 +790,12 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			masterVO.setUserName(triggerBy);
 
 			StepServiceVO stepServiceVO = new StepServiceVO();
+			BeanUtils.copyProperties(vsVO, stepServiceVO);
+			/*
 			stepServiceVO.setDeviceListId(vsVO.getDeviceListId());
 			stepServiceVO.setRestoreVersionId(vsVO.getRestoreVersionId());
 			stepServiceVO.setRestoreContentList(vsVO.getRestoreContentList());
+			*/
 
 			StepServiceVO ssVO = stepService.doRestoreStep(restoreMethod, restoreType, stepServiceVO, triggerBy, reason);
 

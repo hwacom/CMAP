@@ -664,6 +664,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @throws ServiceLayerException
 	 */
 	private void findDeviceLoginInfo(ConfigInfoVO ciVO, String deviceListId, String groupId, String deviceId) throws ServiceLayerException {
+	    if (StringUtils.isBlank(deviceListId) && StringUtils.isBlank(groupId) && StringUtils.isBlank(deviceId)) {
+	        // 若這三個參數都未傳值則不處理
+	        return;
+	    }
+
 		DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, groupId, deviceId);
 
 		if (loginInfo == null) {
@@ -1641,7 +1646,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		ConnectUtils connectUtils = null;													// 連線裝置物件
 		final String deviceListId = stepServiceVO.getDeviceListId();						// 要還原的設備 Device_List.device_list_id
 		final String restoreVersionId = stepServiceVO.getRestoreVersionId();				// 要還原的版本號 Config_Version_Info.version_id
-		List<String> restoreContentList = stepServiceVO.getRestoreContentList();		// 要還原的腳本內容，若此參數有給值則只還原給定的內容部分；否則則依照給定的版本號內容做還原
+		List<String> restoreContentList = stepServiceVO.getRestoreContentList();		    // 要還原的腳本內容，若此參數有給值則只還原給定的內容部分；否則則依照給定的版本號內容做還原
 		final boolean __NEED_DOWNLOAD_RESTORE_FILE__ = restoreContentList != null ? true : false;	// 依照是否有傳入要還原的內容(restoreContentList)，決定是否需要下載要還原的組態備份檔
 
 		boolean retryRound = false;
@@ -1691,6 +1696,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					case TFTP:
 						steps = Env.RESTORE_BY_TFTP;
 						break;
+
+					case LOCAL:
+					    steps = Env.RESTORE_BY_LOCAL;
+					    break;
 				}
 
 				List<ScriptServiceVO> scripts = null;
@@ -1748,6 +1757,22 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								log.error(e.toString(), e);
 								throw new ServiceLayerException("取得要還原的組態版本資訊時失敗 [ 錯誤代碼: GET_VERSION_INFO ]");
 							}
+
+						// 依照前面傳入的資訊設定要還原的版本號
+						case SET_LOCAL_VERSION_INFO:
+						    try {
+						        final String configPath = stepServiceVO.getRestoreVersionConfigPath();
+						        final String imagePath = stepServiceVO.getRestoreVersionImagePath();
+
+                                ciVO.setDeviceFlashConfigPath(configPath);   // 要還原的組態檔案在設備的儲存路徑
+                                ciVO.setDeviceFlashImagePath(imagePath);     // 要還原的Image檔案在設備的儲存路徑
+
+						    } catch (Exception e) {
+						        log.error(e.toString(), e);
+                                throw new ServiceLayerException("設定要還原的組態版本資訊時失敗 [ 錯誤代碼: SET_LOCAL_VERSION_INFO ]");
+						    }
+
+						    break;
 
 						// 連線至組態檔放置的 FTP / TFTP
 						case CONNECT_FILE_SERVER_4_DOWNLOAD:
@@ -1828,7 +1853,18 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得組態還原預設腳本
 						case LOAD_DEFAULT_SCRIPT:
 							try {
-								scripts = loadDefaultScript(deviceListId, scripts, ScriptType.RESTORE);
+							    switch (restoreMethod) {
+				                    case FTP:
+				                        scripts = loadDefaultScript(deviceListId, scripts, ScriptType.RESTORE_WITH_COPY_CONFIG);
+				                        break;
+
+				                    case LOCAL:
+				                        scripts = loadDefaultScript(deviceListId, scripts, ScriptType.RESTORE_WITHOUT_COPY_CONFIG);
+				                        break;
+
+                                    default:
+                                        break;
+				                }
 
 								/*
 								 * Provision_Log_Step
@@ -2165,6 +2201,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 								matcher.reset();
 								match = matcher.find();
+
+								matcher.reset();
+								System.out.println("matcher.lookingAt(): " + matcher.lookingAt());
 
 						        if (match) {
 						        	break;

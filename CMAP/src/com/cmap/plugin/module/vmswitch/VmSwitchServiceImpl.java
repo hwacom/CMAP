@@ -16,6 +16,7 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
+import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
@@ -223,6 +224,11 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	        case EXECUTING:
 	            result = "<OK>";
 	            message = "executing..";
+	            break;
+
+	        case WAITING:
+	            result = "<WAITING>";
+	            message = "Not yet finish..";
 	            break;
 
 	        case FINISH:
@@ -605,8 +611,12 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	private void modifyBackupHostBootAndReloadAndNoShutdown(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
 	    String errorMsg = "";
         try {
-            int _RECONNECT_MAX_TIMES_ = 180;    // 等待reload過程，重試設備連線上限次數 (搭配預設間格時間下，預設最多等待30分鐘)
-            int _RECONNECT_INTERVAL_ = 10000;   // 重試設備連線間格時間 (預設10秒偵測一次)
+            int _RECONNECT_MAX_TIMES_ = 180;        // 等待reload過程，重試設備連線上限次數 (搭配預設間格時間下，預設最多等待30分鐘)
+            int _RECONNECT_INTERVAL_ = 10000;       // 重試設備連線間格時間 (預設10秒偵測一次)
+            int _RECONNECT_TIMES_TO_SHOW_MSG_ = 0;  // 設定 ePDG 重啟過程，Server reconnect 每多少次數時要回應 UI 一次訊息 (預設 0 為不回應直到連上)
+            String _BACKUP_HOST_EPDG_CONFIG_PATH_ = null;
+            String _BACKUP_HOST_EPDG_IMAGE_PATH_ = null;
+            String _BACKUP_HOST_IP_ = null;
 
             final String deviceIp = deviceList.getDeviceIp();
 
@@ -625,6 +635,34 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                             ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_INTERVAL_;
                 }
 
+                setting = vmSwitchDAO.getVmSetting(RECONNECT_TIMES_TO_SHOW_MSG);
+
+                if (setting != null) {
+                    _RECONNECT_TIMES_TO_SHOW_MSG_ = StringUtils.isNotBlank(setting.getSettingValue())
+                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_TIMES_TO_SHOW_MSG_;
+                }
+
+                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_EPDG_CONFIG_PATH);
+
+                if (setting != null) {
+                    _BACKUP_HOST_EPDG_CONFIG_PATH_ = StringUtils.isNotBlank(setting.getSettingValue())
+                            ? setting.getSettingValue() : _BACKUP_HOST_EPDG_CONFIG_PATH_;
+                }
+
+                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_EPDG_IMAGE_PATH);
+
+                if (setting != null) {
+                    _BACKUP_HOST_EPDG_IMAGE_PATH_ = StringUtils.isNotBlank(setting.getSettingValue())
+                            ? setting.getSettingValue() : _BACKUP_HOST_EPDG_IMAGE_PATH_;
+                }
+
+                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_IP);
+
+                if (setting != null) {
+                    _BACKUP_HOST_IP_ = StringUtils.isNotBlank(setting.getSettingValue())
+                            ? setting.getSettingValue() : _BACKUP_HOST_IP_;
+                }
+
             } catch (Exception e) {
                 // 查找這兩個參數若發生異常不理會，採用預設值
                 log.error(e.toString(), e);
@@ -635,20 +673,58 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              */
             writeLog(logKey, Step.MODIFY_BOOT_SETTING_AND_RELOAD, Status.EXECUTING, null);
 
+            if (_BACKUP_HOST_IP_ == null) {
+                throw new ServiceLayerException("未設定備援機IP");
+            }
+
+            if (_BACKUP_HOST_EPDG_CONFIG_PATH_ == null || _BACKUP_HOST_EPDG_IMAGE_PATH_ == null) {
+                throw new ServiceLayerException("未設定備援機內 ePDG Config 或 Image 的存放路徑");
+            }
+
+            DeviceList backupHost = deviceDAO.findDeviceListByDeviceIp(_BACKUP_HOST_IP_);
+            final String backupDeviceListId = backupHost.getDeviceListId();
+
+            VersionServiceVO vsVO = new VersionServiceVO();
+            vsVO.setDeviceListId(backupDeviceListId);
+            vsVO.setRestoreVersionConfigPath(_BACKUP_HOST_EPDG_CONFIG_PATH_);
+            vsVO.setRestoreVersionImagePath(_BACKUP_HOST_EPDG_IMAGE_PATH_);
+
+            String userName = SecurityUtil.getSecurityUser().getUsername();
+            String reason = logKey;
+
+            versionService.restoreConfig(RestoreMethod.LOCAL, Constants.RESTORE_TYPE_BACKUP_RESTORE, vsVO, userName, reason);
+
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
             /* Step 1. [END] ********************************************************************************/
 
             // Step 2. 等待reload完成
             writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
 
+            boolean enable = false;
             int times = 0;
             while (times < _RECONNECT_MAX_TIMES_) {
-                boolean enable = chkSwitchHostSSHStatus(deviceIp, false);
+                enable = chkSwitchHostSSHStatus(deviceIp, false);
 
-                if (!enable) {
+                if (enable) {
+                    break;
+
+                } else {
                     times++;
+
+                    if (times % _RECONNECT_TIMES_TO_SHOW_MSG_ == 0) {
+                        writeLog(logKey, Step.STEP_RESULT, Status.WAITING, null);
+                        writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
+                    }
+
                     Thread.sleep(_RECONNECT_INTERVAL_);
                 }
+            }
+
+            if (!enable) {
+                errorMsg = "超過 retry 上限次數仍無法連通，請人工確認設備狀況";
+
+                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+                throw new ServiceLayerException(errorMsg);
             }
 
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
@@ -661,10 +737,9 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             /* Step 3. [END] ********************************************************************************/
 
-        /*
         } catch (ServiceLayerException sle) {
             throw sle;
-        */
+
         } catch (Exception e) {
             log.error(e.toString(), e);
             errorMsg = "非預期錯誤!! (" + e.getMessage() + ")";
@@ -714,7 +789,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	@Override
 	public String powerOff(VmSwitchVO vmSwitchVO) throws ServiceLayerException {
 		final String apiVmName = vmSwitchVO.getApiVmName();
-		String retVal = "已成功將【" + apiVmName + "】切換至備援模式";
+		String retVal = "已成功將【" + apiVmName + "】切換至備援機";
 
 		String errorMsg = null;
 		try {
@@ -772,6 +847,10 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             final String deviceEngName = deviceList.getDeviceEngName();
             final String deviceIp = deviceList.getDeviceIp();
 
+            // 判斷要切換的設備是否為ePDG
+            final boolean _IS_EPDG_ = chkSwitchHostIsEpdgOrNot(deviceIp);
+            vmSwitchVO.setEPDG(_IS_EPDG_);
+
             /*
              * Step 2-3. 取得要切換的設備最新的備份檔資料
              */
@@ -792,8 +871,8 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             try {
                 ConfigInfoVO configInfoVO = new ConfigInfoVO();
-                configInfoVO.setSystemVersion(systemVersion);
-                configInfoVO.setDeviceEngName(deviceEngName);
+                configInfoVO.setSystemVersion(Constants.DATA_STAR_SYMBOL);
+                configInfoVO.setDeviceEngName(_IS_EPDG_ ? "ePDG" : "HeNBGW");
                 configInfoVO.setDeviceListId(deviceListId);
                 configInfoVO.setConfigContentList(vmSwitchVO.getOriConfigList());
 
@@ -841,8 +920,6 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 //TODO
                 disableSwitchHostInterface(deviceList, logKey);
 
-                writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
-
             } else {
                 /*
                  * Step 4-2. 從ESXi層將要切換的設備VM關機
@@ -856,10 +933,6 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             /* Step 4. [END] ********************************************************************************/
             Thread.sleep(500);
-
-            // 判斷要切換的設備是否為ePDG
-            final boolean _IS_EPDG_ = chkSwitchHostIsEpdgOrNot(deviceIp);
-            vmSwitchVO.setEPDG(_IS_EPDG_);
 
             /*
              * Step 5. 登入備援機，依照要切換的設備類型決定還原作法
@@ -978,7 +1051,6 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
         ModuleVmProcessLog retEntity = null;
         try {
             do {
-                System.out.println(Constants.FORMAT_YYYYMMDD_HH24MISS.format(new Date()) + " >>> find process log ..");
                 List<ModuleVmProcessLog> retList = vmSwitchDAO.findNotPushedModuleVmProcessLogByLogKey(logKey);
 
                 if (retList != null && !retList.isEmpty()) {
@@ -1047,7 +1119,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
                 if (!hasSubscriber) {
                     vmStatus = Constants.VM_STATUS_NO_SUBSCRIBER;
-                    throw new ServiceLayerException("No Subscribers");
+                    throw new ServiceLayerException("No subscribers");
 
                 } else {
                     vmNowFailure = false;
@@ -1101,27 +1173,37 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             dpVO.setScriptInfoId(vmSubScriberScriptVO.getScriptInfoId());
             dpVO.setScriptCode(vmSubScriberScriptVO.getScriptCode());
 
-            Map<String, String> deviceInfo = new HashMap<>();
-            deviceInfo.put(Constants.DEVICE_IP, deviceList.getDeviceIp());
-            deviceInfo.put(Constants.DEVICE_NAME, deviceList.getDeviceEngName());
-            deviceInfo.put(Constants.DEVICE_LOGIN_ACCOUNT, Env.DEFAULT_DEVICE_LOGIN_ACCOUNT);
-            deviceInfo.put(Constants.DEVICE_LOGIN_PASSWORD, Env.DEFAULT_DEVICE_LOGIN_PASSWORD);
-            dpVO.setDeviceInfo(deviceInfo);
+            List<String> groupIdList = new ArrayList<>();
+            List<String> deviceIdList = new ArrayList<>();
+
+            groupIdList.add(deviceList.getGroupId());
+            deviceIdList.add(deviceList.getDeviceId());
+
+            dpVO.setGroupId(groupIdList);
+            dpVO.setDeviceId(deviceIdList);
 
             /*
              * Step 3. 呼叫共用進行腳本派送
              */
             DeliveryServiceVO deliveryVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_VM_SWITCH, dpVO, true, "PRTG", "【VM備援切換】取得當前VM subscriber數", false);
 
+            List<String> cmdOutputList = deliveryVO.getCmdOutputList();
+            if (cmdOutputList == null || (cmdOutputList != null && cmdOutputList.isEmpty())) {
+                log.error("無法取得Subscriber資訊 >>> 腳本派送結果回傳的 cmdOutputList 為空");
+                throw new ServiceLayerException("無法取得Subscriber資訊");
+            }
             /*
              * Step 4. 將派送查詢結果進行文字處理，取得 Subscriber 數
              */
-            final String subscribersInfo = StringUtils.split(deliveryVO.getCmdOutputList().get(0), Env.COMM_SEPARATE_SYMBOL)[1];
+            final String subscribersInfo = StringUtils.split(cmdOutputList.get(0), Env.COMM_SEPARATE_SYMBOL)[1];
             final String subscribersCount = analyzeVmSubscribersCount(subscribersInfo);
 
             if (subscribersCount != null && Integer.parseInt(subscribersCount) > 0) {
                 hasSubscriber = true;
             }
+
+        } catch (ServiceLayerException sle) {
+            throw sle;
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -1142,12 +1224,17 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 return null;
             }
 
-            final String keyWord = "Total Subscribers:";
+            final String keyWordOfNoSubscriber = "No subscribers match";
+            final String keyWordOfSubscriber = "Total Subscribers:";
             String[] lines = subscribersInfo.split("\r\n");
 
             for (String line : lines) {
-                if (StringUtils.contains(line, keyWord)) {
-                    String[] tmp = line.split(keyWord);
+                if (StringUtils.contains(line, keyWordOfNoSubscriber)) {
+                    retVal = null;
+                    break;
+
+                } else if (StringUtils.contains(line, keyWordOfSubscriber)) {
+                    String[] tmp = line.split(keyWordOfSubscriber);
 
                     /*
                      * 1、 表示空格  " \\s"， "[ ]"， "[\\s]"

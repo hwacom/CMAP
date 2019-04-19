@@ -58,13 +58,13 @@
 		<div id="checkMsg" class="row col-12 center">
 		  	<span style="font-size: 3em; font-weight: bold;">設備狀態: <span id="vmStatusMsg" style="vertical-align: top; color: yellow;">(按下CHECk進行檢查)</span></span>
 		</div>
-		<div id="checkBtn" class="row col-12 center" style="padding-top: 50px;">
+		<div id="checkBtn" class="row col-12 center" style="padding-top: 25px;">
 		  	<button type="button" class="btn btn-success btn-lg vmswitch-btn" style="font-size: 5em;" id="btnCheck">CHECK</button>
 		</div>
 		<div id="goMsg" class="row col-12 center" style="display: none;">
 		  	<span style="font-size: 3em; font-weight: bold;">切換過程<font style="color: #00cdff;"><u>無法暫停或中止!!</u></font></span>
 		</div>
-		<div id="goBtn" class="row col-12 center" style="padding-top: 50px; display: none;">
+		<div id="goBtn" class="row col-12 center" style="padding-top: 25px; display: none;">
 		  	<button type="button" class="btn btn-danger btn-lg vmswitch-btn" id="btnGo">GO</button>
 		</div>
     </div>

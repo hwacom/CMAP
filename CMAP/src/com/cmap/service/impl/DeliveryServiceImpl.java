@@ -8,14 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -216,12 +214,12 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 
 
-	private boolean checkDeliveryParameter(DeliveryParameterVO pVO) {
+	private boolean checkDeliveryParameter(DeliveryParameterVO dpVO) {
 		try {
 			//Step 1.檢核腳本是否存在
 			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
-			siDAOVO.setQueryScriptInfoId(pVO.getScriptInfoId());
-			siDAOVO.setQueryScriptCode(pVO.getScriptCode());
+			siDAOVO.setQueryScriptInfoId(dpVO.getScriptInfoId());
+			siDAOVO.setQueryScriptCode(dpVO.getScriptCode());
 
 			List<ScriptInfo> scriptList = scriptInfoDAO.findScriptInfo(siDAOVO, null, null);
 
@@ -233,7 +231,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 			//Step 2.檢核JSON內Script_Info_Id與Script_Code是否匹配
 			final String dbScriptCode = dbEntity.getScriptCode();
-			final String jsonScriptCode = pVO.getScriptCode();
+			final String jsonScriptCode = dpVO.getScriptCode();
 
 			if (!dbScriptCode.equals(jsonScriptCode)) {
 				return false;
@@ -242,7 +240,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 			//Step 3.檢核JSON內VarKey與系統內設定的腳本變數欄位是否相符
 			final String dbVarKeyJSON = dbEntity.getActionScriptVariable();
 			final List<String> dbVarKeyList = (List<String>)transJSON2Object(dbVarKeyJSON, ArrayList.class);
-			final List<String> jsonVarKeyList = pVO.getVarKey();
+			final List<String> jsonVarKeyList = dpVO.getVarKey();
 
 			if (dbVarKeyList.size() != jsonVarKeyList.size()) {
 				return false;
@@ -255,8 +253,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 			//Step 4.檢核變數值(VarValue)是否有缺
 			//VarValue資料結構: List(設備)<List(VarValue)>
-			final List<List<String>> jsonVarValueList = pVO.getVarValue();
-			final List<String> jsonDeviceIdList = pVO.getDeviceId();
+			final List<List<String>> jsonVarValueList = dpVO.getVarValue();
+			final List<String> jsonDeviceIdList = dpVO.getDeviceId();
 
 			if (jsonDeviceIdList.size() != jsonVarValueList.size()) {
 				return false;
@@ -276,7 +274,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 			}
 
 			//Step 5.檢核設備是否皆存在 且 是否與JSON內設備ID相符
-			final List<String> jsonGroupIdList = pVO.getGroupId();
+			final List<String> jsonGroupIdList = dpVO.getGroupId();
 
 			if (jsonGroupIdList.size() != jsonDeviceIdList.size()) {
 				return false;
@@ -338,13 +336,13 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		return retVO;
 	}
 
-	private DeliveryServiceVO goDelivery(ConnectionMode connectionMode, DeliveryParameterVO psVO, boolean sysTrigger, String triggerBy, String triggerRemark) throws ServiceLayerException {
+	private DeliveryServiceVO goDelivery(ConnectionMode connectionMode, DeliveryParameterVO dpVO, boolean sysTrigger, String triggerBy, String triggerRemark) throws ServiceLayerException {
 		DeliveryServiceVO retVO = new DeliveryServiceVO();
 		String retMsg = "";
 
 		//Step 1.取得腳本資料
-		final String scriptInfoId = psVO.getScriptInfoId();
-		final String scriptCode = psVO.getScriptCode();
+		final String scriptInfoId = dpVO.getScriptInfoId();
+		final String scriptCode = dpVO.getScriptCode();
 		ScriptInfo scriptInfo = scriptInfoDAO.findScriptInfoByIdOrCode(scriptInfoId, scriptCode);
 
 		if (scriptInfo == null) {
@@ -352,13 +350,13 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		}
 
 		//Step 2.替換腳本參數值
-		final List<String> varKeyList = psVO.getVarKey();
-		final List<List<String>> deviceVarValueList = psVO.getVarValue();
+		final List<String> varKeyList = dpVO.getVarKey();
+		final List<List<String>> deviceVarValueList = dpVO.getVarValue();
 		final String actionScript = scriptInfo.getActionScript();
 
-		final Map<String, String> deviceInfo = psVO.getDeviceInfo();
-		final List<String> groupIdList = psVO.getGroupId();
-		final List<String> deviceIdList = psVO.getDeviceId();
+		final Map<String, String> deviceInfo = dpVO.getDeviceInfo();
+		final List<String> groupIdList = dpVO.getGroupId();
+		final List<String> deviceIdList = dpVO.getDeviceId();
 
 		ProvisionServiceVO masterVO = new ProvisionServiceVO();
 		masterVO.setLogMasterId(UUID.randomUUID().toString());
@@ -483,7 +481,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 		masterVO.setEndTime(new Date());
 		masterVO.setResult(CommonUtils.converMsg(msg, args));
-		masterVO.setReason(psVO.getReason());
+		masterVO.setReason(dpVO.getReason());
 
 		provisionService.insertProvisionLog(masterVO);
 

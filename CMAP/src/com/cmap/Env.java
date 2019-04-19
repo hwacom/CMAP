@@ -184,6 +184,7 @@ public class Env {
 	public static String CLI_VAR_FTP_OUTPUT_FILE_PATH;
 	public static String CLI_VAR_FTP_CONFIG_FILE_PATH;
 	public static String CLI_VAR_DEVICE_FLASH_PATH;
+	public static String CLI_VAR_DEVICE_IMAGE_PATH;
 	public static String CLI_VAR_PRIORITY;
 	public static String CLI_VAR_IMAGE_BIN;
 	public static String CLI_VAR_CONFIG_FILE;
@@ -379,6 +380,16 @@ public class Env {
 			Step.SEND_COMMANDS,
 			Step.CLOSE_DEVICE_CONNECTION
 	};
+	public static final Step[] RESTORE_BY_LOCAL = new Step[] {
+            Step.FIND_DEVICE_CONNECT_INFO,
+            Step.FIND_DEVICE_LOGIN_INFO,
+            Step.SET_LOCAL_VERSION_INFO,
+            Step.LOAD_DEFAULT_SCRIPT,
+            Step.CONNECT_DEVICE,
+            Step.LOGIN_DEVICE,
+            Step.SEND_COMMANDS,
+            Step.CLOSE_DEVICE_CONNECTION
+    };
 	public static final Step[] RESTORE_BY_TFTP = new Step[] {
 			Step.FIND_DEVICE_CONNECT_INFO,
 			Step.FIND_DEVICE_LOGIN_INFO,

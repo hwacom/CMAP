@@ -20,6 +20,7 @@ import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
+import com.cmap.exception.ServiceLayerException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
@@ -45,14 +46,7 @@ public class VmSwitchController extends BaseController {
 	    if (logKey == null) {
 	        return "data:{\"time\":\"" + sdf.format(new Date()) + "\", \"step\":\"<NONE>\", \"process\":\"\"}\n\n";
 	    }
-	    /*
-        try {
-            Thread.sleep(1000);
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
 	    String retJson = "";
 	    try {
 	        ModuleVmProcessLog pLog = vmSwitchService.findFistOneNotPushedLogByLogKey(logKey);
@@ -69,7 +63,6 @@ public class VmSwitchController extends BaseController {
                         + ", \"result\":\"" + pLog.getResult() + "\""
                         + ", \"msg\":\"" + pLog.getMessage() + "\"}\n\n";
 
-	        System.out.println("retJson: " + retJson);
 	        return retJson;
 
 	    } catch (Exception e) {
@@ -80,7 +73,6 @@ public class VmSwitchController extends BaseController {
                         + ", \"result\":\"<ERROR>\""
                         + ", \"msg\":\"" + e.getMessage() + "\"}\n\n";
 
-	        System.out.println("retJson: " + retJson);
             return retJson;
 	    }
     }
@@ -195,36 +187,33 @@ public class VmSwitchController extends BaseController {
 	@RequestMapping(value = "/go", method = RequestMethod.POST, produces="application/json;odata=verbose")
     public @ResponseBody AppResponse go(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
             @RequestBody JsonNode jsonData) {
-        try {
+
+	    String resultMsg = "N/A";
+	    int responseCode = HttpServletResponse.SC_EXPECTATION_FAILED;
+
+	    try {
             final String apiVmName = Objects.toString(request.getSession().getAttribute(Constants.VM_SWITCH_HOST_NAME));
 
             VmSwitchVO vmSwitchVO = new VmSwitchVO();
             vmSwitchVO.setApiVmName(apiVmName);
 
             vmSwitchVO.setLogKey(logKey);
-            vmSwitchService.powerOff(vmSwitchVO);
+            resultMsg = vmSwitchService.powerOff(vmSwitchVO);
+            responseCode = HttpServletResponse.SC_OK;
 
-            model.addAttribute("STEP", "rESulT.@.");
-
-            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "切換成功");
-            app.putData("BACKUP_FROM_HOST_STATUS", "...");
-            app.putData("BACKUP_TO_HOST_STATUS", "...");
-            app.putData("BACKUP_PROCESS_LOG", "...");
-
-            return app;
+        } catch (ServiceLayerException sle) {
+            resultMsg = sle.getMessage();
+            responseCode = HttpServletResponse.SC_EXPECTATION_FAILED;
 
         } catch (Exception e) {
             log.error(e.toString(), e);
 
-
-            AppResponse app = new AppResponse(HttpServletResponse.SC_EXPECTATION_FAILED, "切換失敗");
-            app.putData("BACKUP_FROM_HOST_STATUS", "...");
-            app.putData("BACKUP_TO_HOST_STATUS", "...");
-            app.putData("BACKUP_PROCESS_LOG", "...");
-
-            return app;
+            resultMsg = e.getMessage();
+            responseCode = HttpServletResponse.SC_EXPECTATION_FAILED;
 
         } finally {
+            AppResponse app = new AppResponse(responseCode, resultMsg);
+            return app;
         }
     }
 
