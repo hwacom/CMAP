@@ -48,7 +48,7 @@ public interface StepService {
 	public StepServiceVO doRestoreStep(RestoreMethod restoreMethod, String restoreType, StepServiceVO stepServiceVO, String triggerBy, String reason);
 
 	/**
-	 * 供裝派送流程
+	 * 供裝派送流程 by 指定腳本
 	 * @param connectionMode
 	 * @param deviceListId
 	 * @param deviceInfo
@@ -68,6 +68,26 @@ public interface StepService {
 			boolean sysTrigger,
 			String triggerBy,
 			String triggerRemark);
+
+	/**
+	 * 供裝派送流程 (不指定腳本，由呼叫端傳入要供裝的命令集)
+	 * @param connectionMode
+	 * @param deviceListId
+	 * @param deviceInfo
+	 * @param cmdList
+	 * @param sysTrigger
+	 * @param triggerBy
+	 * @param triggerRemark
+	 * @return
+	 */
+	public StepServiceVO doCommands(
+	        ConnectionMode connectionMode,
+            String deviceListId,
+            Map<String, String> deviceInfo,
+            List<String> cmdList,
+            boolean sysTrigger,
+            String triggerBy,
+            String triggerRemark);
 
 	/**
 	 * 確認目標物件當前的SSH連線是否可通

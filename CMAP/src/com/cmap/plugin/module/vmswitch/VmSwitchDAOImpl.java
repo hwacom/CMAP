@@ -69,6 +69,22 @@ public class VmSwitchDAOImpl extends BaseDaoHibernate implements VmSwitchDAO {
     }
 
     @Override
+    public List<ModuleVmProcessLog> findModuleVmProcessLogByLogKey(String logKey) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select mvpl ")
+          .append(" from ModuleVmProcessLog mvpl ")
+          .append(" where 1=1 ")
+          .append(" and mvpl.logKey = :logKey ")
+          .append(" order by mvpl.orderNo ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("logKey", logKey);
+
+        return (List<ModuleVmProcessLog>)q.list();
+    }
+
+    @Override
     public List<ModuleVmProcessLog> findNotPushedModuleVmProcessLogByLogKey(String logKey) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select mvpl ")

@@ -628,6 +628,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			 * deviceListId 為空表示是直接指定要供裝的設備(可能不在CMAP組態備份名單內的設備)
 			 * 因此相關連線資訊直接從 deviceInfo MAP 中取得
 			 */
+		    if (deviceInfo == null || (deviceInfo != null && deviceInfo.isEmpty())) {
+		        log.error("取得要供裝的設備連線相關資訊失敗 >> 未傳入 deviceListId 且 deviceInfo 也為空");
+		        throw new ServiceLayerException("取得要供裝的設備連線相關資訊失敗");
+		    }
+
 			String deviceIp = deviceInfo.containsKey(Constants.DEVICE_IP) ? deviceInfo.get(Constants.DEVICE_IP) : null;
 			String deviceName = deviceInfo.containsKey(Constants.DEVICE_NAME) ? deviceInfo.get(Constants.DEVICE_NAME) : null;
 			String loginAccount = deviceInfo.containsKey(Constants.DEVICE_LOGIN_ACCOUNT)
@@ -672,11 +677,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, groupId, deviceId);
 
 		if (loginInfo == null) {
-			if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)
-					|| !(StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL))) {
-				// 若by設備查找不到，則再往上一層by群組查找
-				findDeviceLoginInfo(ciVO, Constants.DATA_STAR_SYMBOL, groupId, Constants.DATA_STAR_SYMBOL);
-			}
+		    if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)
+		            && !(StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL))) {
+		        // 若by【資料ID + 設備ID】查找不到，則再往上一層by【群組ID + 設備ID】查找
+		        findDeviceLoginInfo(ciVO, Constants.DATA_STAR_SYMBOL, groupId, deviceId);
+
+		    } else if (StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)
+                    && !(StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL))) {
+		        // 若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
+		        findDeviceLoginInfo(ciVO, Constants.DATA_STAR_SYMBOL, groupId, Constants.DATA_STAR_SYMBOL);
+		    }
 
 		} else if (loginInfo != null) {
 			if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
@@ -1345,7 +1355,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	@Override
-	public StepServiceVO doScript(ConnectionMode connectionMode, String deviceListId, Map<String, String> deviceInfo, ScriptInfo scriptInfo, List<Map<String, String>> varMapList, boolean sysTrigger, String triggerBy, String triggerRemark) {
+	public StepServiceVO doScript(ConnectionMode connectionMode, String deviceListId,
+	        Map<String, String> deviceInfo, ScriptInfo scriptInfo, List<Map<String, String>> varMapList,
+	        boolean sysTrigger, String triggerBy, String triggerRemark) {
+
 		StepServiceVO processVO = new StepServiceVO();
 
 		ProvisionServiceVO psMasterVO = new ProvisionServiceVO();
@@ -1360,8 +1373,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		/*
 		 * Provision_Log_Master & Step
 		 */
-		final String userName = sysTrigger ? triggerBy : SecurityUtil.getSecurityUser() != null ? SecurityUtil.getSecurityUser().getUsername() : Constants.SYS;
-		final String userIp = sysTrigger ? Env.USER_IP_JOB : SecurityUtil.getSecurityUser() != null ? SecurityUtil.getSecurityUser().getUser().getIp() : Constants.UNKNOWN;
+		final String userName = sysTrigger ? triggerBy : SecurityUtil.getSecurityUser() != null
+		                                                       ? SecurityUtil.getSecurityUser().getUsername() : Constants.SYS;
+		final String userIp = sysTrigger ? Env.USER_IP_JOB : SecurityUtil.getSecurityUser() != null
+		                                                        ? SecurityUtil.getSecurityUser().getUser().getIp() : Constants.UNKNOWN;
 
 		psDetailVO.setUserName(userName);
 		psDetailVO.setUserIp(userIp);
@@ -1607,6 +1622,237 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 		return processVO;
 	}
+
+	@Override
+    public StepServiceVO doCommands(ConnectionMode connectionMode, String deviceListId,
+            Map<String, String> deviceInfo, List<String> cmdList, boolean sysTrigger,
+            String triggerBy, String triggerRemark) {
+
+	    StepServiceVO processVO = new StepServiceVO();
+
+        ProvisionServiceVO psMasterVO = new ProvisionServiceVO();
+        ProvisionServiceVO psDetailVO = new ProvisionServiceVO();
+        ProvisionServiceVO psStepVO = new ProvisionServiceVO();
+        ProvisionServiceVO psRetryVO;
+        ProvisionServiceVO psDeviceVO;
+
+        final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
+        int round = 1;
+
+        /*
+         * Provision_Log_Master & Step
+         */
+        final String userName = sysTrigger ? triggerBy : SecurityUtil.getSecurityUser() != null
+                                                            ? SecurityUtil.getSecurityUser().getUsername() : Constants.SYS;
+        final String userIp = sysTrigger ? Env.USER_IP_JOB : SecurityUtil.getSecurityUser() != null
+                                                                ? SecurityUtil.getSecurityUser().getUser().getIp() : Constants.UNKNOWN;
+
+        psDetailVO.setUserName(userName);
+        psDetailVO.setUserIp(userIp);
+        psDetailVO.setBeginTime(new Date());
+        psDetailVO.setRemark(sysTrigger ? triggerRemark : null);
+        psStepVO.setBeginTime(new Date());
+
+        processVO.setActionBy(userName);
+        processVO.setActionFromIp(userIp);
+        processVO.setBeginTime(new Date());
+
+        ConnectUtils connectUtils = null;           // 連線裝置物件
+        List<String> outputList = null;
+
+        boolean retryRound = false;
+        while (round <= RETRY_TIMES) {
+            try {
+                Step[] steps = null;
+                ConnectionMode deviceMode = connectionMode;
+
+                steps = Env.SEND_COMMANDS;
+
+                List<ScriptServiceVO> scripts = null;
+                ConfigInfoVO ciVO = null;                   // 裝置相關設定資訊VO
+
+                for (Step _step : steps) {
+                    switch (_step) {
+                        case FIND_DEVICE_CONNECT_INFO:
+                            try {
+                                ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo);
+                                ciVO.setTimes(String.valueOf(round));
+
+                                /*
+                                 * Provision_Log_Device
+                                 */
+                                if (!retryRound) {
+                                    psDeviceVO = new ProvisionServiceVO();
+                                    psDeviceVO.setDeviceListId(deviceListId);
+
+                                    if (deviceInfo != null) {
+                                        String deviceInfoStr = deviceInfo.get(Constants.DEVICE_IP) + Env.COMM_SEPARATE_SYMBOL + Constants.DEVICE_NAME;
+                                        psDeviceVO.setDeviceInfoStr(deviceInfoStr);
+                                    }
+
+                                    psDeviceVO.setOrderNum(1);
+                                    psStepVO.getDeviceVO().add(psDeviceVO); // add DeviceVO to StepVO
+
+                                    processVO.setDeviceName(ciVO.getDeviceName());
+                                    processVO.setDeviceIp(ciVO.getDeviceIp());
+                                }
+
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("取得設備資訊時失敗 [ 錯誤代碼: FIND_DEVICE_CONNECT_INFO ]");
+                            }
+
+                        case FIND_DEVICE_LOGIN_INFO:
+                            try {
+                                findDeviceLoginInfo(ciVO, deviceListId, null, null);
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("取得設備登入帳密設定時失敗 [ 錯誤代碼: FIND_DEVICE_LOGIN_INFO]");
+                            }
+
+                        case CONNECT_DEVICE:
+                            try {
+                                connectUtils = connect2Device(connectUtils, deviceMode, ciVO);
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("設備連線失敗 [ 錯誤代碼: CONNECT_DEVICE ]");
+                            }
+
+                        case LOGIN_DEVICE:
+                            try {
+                                login2Device(connectUtils, ciVO);
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("登入設備失敗 [ 錯誤代碼: LOGIN_DEVICE ]");
+                            }
+
+                        case SEND_COMMANDS:
+                            try {
+                                outputList = sendCmds(connectUtils, scripts, ciVO, processVO);
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("派送設備命令失敗 [ 錯誤代碼: SEND_COMMANDS ]");
+                            }
+
+                        case CHECK_PROVISION_RESULT:
+                            try {
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("檢核供裝派送結果時失敗 [ 錯誤代碼: CHECK_PROVISION_RESULT ]");
+                            }
+
+                        case CLOSE_DEVICE_CONNECTION:
+                            try {
+                                closeDeviceConnection(connectUtils);
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("關閉與設備間連線時失敗 [ 錯誤代碼: CLOSE_DEVICE_CONNECTION ]");
+                            }
+
+                        default:
+                            break;
+                    }
+                }
+
+                processVO.setCmdOutputList(outputList);
+                processVO.setSuccess(true);
+                processVO.setResult(Result.SUCCESS);
+                break;
+
+            } catch (ServiceLayerException sle) {
+                /*
+                 * Provision_Log_Retry
+                 */
+                psRetryVO = new ProvisionServiceVO();
+                psRetryVO.setResult(Result.ERROR.toString());
+                psRetryVO.setMessage(sle.toString());
+                psRetryVO.setRetryOrder(round);
+                psStepVO.getRetryVO().add(psRetryVO); // add RetryVO to StepVO
+
+                processVO.setSuccess(false);
+                processVO.setResult(Result.ERROR);
+                processVO.setMessage(sle.toString());
+                processVO.setCmdProcessLog(sle.getMessage());
+
+                retryRound = true;
+                round++;
+
+                if (connectUtils != null) {
+                    try {
+                        connectUtils.disconnect();
+                    } catch (Exception e1) {
+                        log.error(e1.toString(), e1);
+                    }
+                }
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+
+                /*
+                 * Provision_Log_Retry
+                 */
+                psRetryVO = new ProvisionServiceVO();
+                psRetryVO.setResult(Result.ERROR.toString());
+                psRetryVO.setMessage(e.toString());
+                psRetryVO.setRetryOrder(round);
+                psStepVO.getRetryVO().add(psRetryVO); // add RetryVO to StepVO
+
+                processVO.setSuccess(false);
+                processVO.setResult(Result.ERROR);
+                processVO.setMessage(e.toString());
+                processVO.setCmdProcessLog(e.getMessage());
+
+                retryRound = true;
+                round++;
+
+                if (connectUtils != null) {
+                    try {
+                        connectUtils.disconnect();
+                    } catch (Exception e1) {
+                        log.error(e1.toString(), e1);
+                    }
+                }
+            }
+        }
+
+        /*
+         * Provision_Log_Step
+         */
+        psStepVO.setEndTime(new Date());
+        psStepVO.setResult(processVO.getResult().toString());
+        psStepVO.setMessage(processVO.getMessage());
+        psStepVO.setRetryTimes(round-1);
+        psStepVO.setProcessLog(processVO.getCmdProcessLog());
+
+        /*
+         * Provision_Log_Detail
+         */
+        psDetailVO.setEndTime(new Date());
+        psDetailVO.setResult(processVO.getResult().toString());
+        psDetailVO.setMessage(processVO.getMessage());
+        psDetailVO.getStepVO().add(psStepVO); // add StepVO to DetailVO
+
+        psMasterVO.getDetailVO().add(psDetailVO); // add DetailVO to MasterVO
+        processVO.setPsVO(psMasterVO);
+
+        processVO.setEndTime(new Date());
+        processVO.setRetryTimes(round);
+
+        return processVO;
+    }
 
 	/**
 	 * 組態還原流程

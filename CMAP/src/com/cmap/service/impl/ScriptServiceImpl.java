@@ -14,6 +14,7 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ScriptType;
+import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ScriptDefaultMappingDAO;
 import com.cmap.dao.ScriptInfoDAO;
 import com.cmap.dao.ScriptStepDAO;
@@ -30,6 +31,9 @@ import com.cmap.service.vo.ScriptServiceVO;
 public class ScriptServiceImpl extends CommonServiceImpl implements ScriptService {
 	@Log
 	private static Logger log;
+
+	@Autowired
+    private DeviceDAO deviceDAO;
 
 	@Autowired
 	private ScriptInfoDAO scriptInfoDAO;

@@ -13,7 +13,10 @@ public interface VmSwitchService {
     public static final String BACKUP_HOST_EPDG_IMAGE_PATH = "BACKUP_HOST_EPDG_IMAGE_PATH";
     public static final String BACKUP_HOST_IP = "BACKUP_HOST_IP";
 
+    public static final String MAIL_LIST_SETTING_CODE = "VM_SWITCH";
+
     public enum Step {
+        PROCESS_READY,
         CHECK_BACKUP_HOST_STATUS,
         GET_VM_MAPPING_TABLE,
         GET_SWITCH_HOST_INFO,

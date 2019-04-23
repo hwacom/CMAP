@@ -1,5 +1,6 @@
 package com.cmap.service.impl;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -9,16 +10,17 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -48,19 +50,22 @@ public class CommonServiceImpl implements CommonService {
 	private static Logger log;
 
 	@Autowired
-	DeviceDAO deviceDAO;
+	private DeviceDAO deviceDAO;
 
 	@Autowired
-	MenuItemDAO menuItemDAO;
+	private MenuItemDAO menuItemDAO;
 
 	@Autowired
-	ScriptTypeDAO scriptTypeDAO;
+	private ScriptTypeDAO scriptTypeDAO;
 
 	@Autowired
-	PrtgDAO prtgDAO;
+	private PrtgDAO prtgDAO;
 
 	@Autowired
-	ProtocolDAO protocolDAO;
+	private ProtocolDAO protocolDAO;
+
+	@Autowired
+    private JavaMailSenderImpl mailSender;
 
 	/**
 	 * 組合 Local / Remote 落地檔路徑資料夾
@@ -337,4 +342,41 @@ public class CommonServiceImpl implements CommonService {
 		}
 		return retMap;
 	}
+
+    @Override
+    public void sendMail(String[] toAddress, String[] ccAddress, String[] bccAddress,
+            String subject, String mailContent, ArrayList<String> filePathList) throws Exception {
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mailMsg = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        mailMsg.setFrom(Env.MAIL_FROM_ADDRESS);
+        mailMsg.setTo(toAddress);
+        mailMsg.setCc(ccAddress);
+        mailMsg.setBcc(bccAddress);
+        mailMsg.setSubject(MimeUtility.encodeText(subject, "UTF-8", "B"));
+        mailMsg.setText(mailContent, true);
+
+        if (filePathList != null) {
+            for (int i = 0; i < filePathList.size(); i++) {
+                File file = new File(filePathList.get(i));
+                if (file != null) {
+                    mailMsg.addAttachment(file.getName(), file);
+                }
+            }
+        }
+
+        mailSender.send(mimeMessage);
+    }
+
+    @Override
+    public String getUserName() {
+        String retVal = "N/A";
+        try {
+            retVal = SecurityUtil.getSecurityUser().getUsername();
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVal;
+    }
 }

@@ -8,5 +8,6 @@ public enum ScriptType {
 	VM_INFO,
 	VM_SUBSCRIBERS,
 	VM_POWER_OFF,
-	VM_POWER_ON
+	VM_POWER_ON,
+	VM_SHUTDOWN_PORT
 }

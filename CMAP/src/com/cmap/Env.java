@@ -40,6 +40,8 @@ public class Env {
 
 	public static String ENABLE_CMD_LOG;						// 設定是否開啟對設備下的CMD LOG
 
+	public static String MAIL_FROM_ADDRESS;               // 設定Email from address
+
 	/**
 	 * GROUP_NAME下拉選單排序相關設定
 	 */
@@ -288,6 +290,15 @@ public class Env {
 			Step.CHECK_PROVISION_RESULT,
 			Step.CLOSE_DEVICE_CONNECTION
 	};
+	public static final Step[] SEND_COMMANDS = new Step[] {
+            Step.FIND_DEVICE_CONNECT_INFO,
+            Step.FIND_DEVICE_LOGIN_INFO,
+            Step.CONNECT_DEVICE,
+            Step.LOGIN_DEVICE,
+            Step.SEND_COMMANDS,
+            Step.CHECK_PROVISION_RESULT,
+            Step.CLOSE_DEVICE_CONNECTION
+    };
 	public static final Step[] BACKUP_BY_TELNET = new Step[] {
 			Step.LOAD_DEFAULT_SCRIPT,
 			Step.FIND_DEVICE_CONNECT_INFO,
