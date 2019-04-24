@@ -29,20 +29,15 @@
 	
 	<script src="${pageContext.request.contextPath}/resources/js/modernizr/modernizr-custom.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/common.min.js"></script>
+	<!-- 
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.vm.switch.min.js"></script>
+	 -->
 	
   <body class="text-center" style="display: block; height: 100vh; background-color: #3e3e3e; background-image: repeating-linear-gradient(#3e3e3e 0px, #3e3e3e 10px, #202020 10px, #202020 12px); color: #fff;">
   	<div class="loader"></div>
 	<div class="mask" style="display: none;"></div>
 	<div class="processing" style="display: none;"></div>
 	
-	<!-- Container fluid  -->
-    <!-- ============================================================== -->
-	<div id="content" class="container-fluid">
-		<div class="row col-12 center" style="display: none;">
-			<span style="font-size: 3em; font-weight: bold;">切換結果 :</span>
-		</div>
-    </div>
     
   </body>
 </html>

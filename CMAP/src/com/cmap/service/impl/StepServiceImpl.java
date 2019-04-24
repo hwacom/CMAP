@@ -1011,6 +1011,36 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							final String deviceId = configInfoVO.getDeviceId();
 							final Timestamp updateTime = currentTimestamp();
 
+							/*
+							 * Y190424, Ken Lin
+							 * 若Mapping設定中，target_info_remark欄位有設定要排除的比對字樣 (以[-]開頭標示，若有多組排除字樣以「@~」區隔)
+							 * 則判斷當前config字串內容是否符合排除字樣開頭，若符合則跳過此Mapping比對
+							 * e.g.: VM切換中，關Port時需跳過管理Port (port ethernet 1/1)
+							 */
+							String[] excludeStrArray = null;
+                            if (StringUtils.isNotBlank(targetInfoRemark)) {
+                                final String excludeSymbol = "[-]";
+
+                                if (StringUtils.contains(targetInfoRemark, excludeSymbol)) {
+                                    String excludeStr = StringUtils.split(targetInfoRemark, excludeSymbol)[0];
+                                    excludeStrArray = StringUtils.split(excludeStr, Env.COMM_SEPARATE_SYMBOL);
+                                }
+                            }
+
+                            boolean excludeThisMapping = false;
+                            if (excludeStrArray != null) {
+                                for (String exStr : excludeStrArray) {
+                                    if (StringUtils.contains(configStr, exStr)) {
+                                        excludeThisMapping = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (excludeThisMapping) {
+                                continue;
+                            }
+
 							if (StringUtils.startsWith(configStr, sourceString)) {
 								String[] tmpArray = StringUtils.split(configStr, splitBy);
 
@@ -1625,7 +1655,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 	@Override
     public StepServiceVO doCommands(ConnectionMode connectionMode, String deviceListId,
-            Map<String, String> deviceInfo, List<String> cmdList, boolean sysTrigger,
+            Map<String, String> deviceInfo, List<ScriptServiceVO> cmdList, boolean sysTrigger,
             String triggerBy, String triggerRemark) {
 
 	    StepServiceVO processVO = new StepServiceVO();
@@ -1668,7 +1698,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                 steps = Env.SEND_COMMANDS;
 
-                List<ScriptServiceVO> scripts = null;
+                List<ScriptServiceVO> scripts = cmdList;
                 ConfigInfoVO ciVO = null;                   // 裝置相關設定資訊VO
 
                 for (Step _step : steps) {

@@ -134,4 +134,9 @@ public class VmSwitchDAOImpl extends BaseDaoHibernate implements VmSwitchDAO {
 
         return (ModuleVmSetting)q.uniqueResult();
     }
+
+    @Override
+    public void updateVmSetting(ModuleVmSetting entity) {
+        getHibernateTemplate().getSessionFactory().getCurrentSession().saveOrUpdate(entity);
+    }
 }

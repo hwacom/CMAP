@@ -107,7 +107,7 @@ public class VmSwitchController extends BaseController {
         } finally {
         }
 
-        return "plugin/module_vm_switch_result";
+        return "plugin/module_ip_open_block";
     }
 
 	/**

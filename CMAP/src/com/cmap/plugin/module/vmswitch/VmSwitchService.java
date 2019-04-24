@@ -13,7 +13,7 @@ public interface VmSwitchService {
     public static final String BACKUP_HOST_EPDG_IMAGE_PATH = "BACKUP_HOST_EPDG_IMAGE_PATH";
     public static final String BACKUP_HOST_IP = "BACKUP_HOST_IP";
 
-    public static final String MAIL_LIST_SETTING_CODE = "VM_SWITCH";
+    public static final String MAIL_LIST_SETTING_CODE = "MAIL_LIST_SETTING_CODE";
 
     public enum Step {
         PROCESS_READY,
@@ -30,6 +30,7 @@ public interface VmSwitchService {
         MODIFY_BOOT_SETTING_AND_RELOAD,
         WAIT_FOR_RELOADING,
         PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN,
+        MODIFY_BACKUP_HOST_STATUS,
         WRITE_PROCESS_LOG,
         STEP_RESULT,
         PROCESS_END,

@@ -260,10 +260,25 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             Thread.sleep(500);
 
             /*
-             * Step 6. 將切換紀錄寫入 DB
+             * Step 6. 調整資料庫設定將備援機可用狀態調整為不可用
+             */
+            writeLog(logKey, Step.MODIFY_BACKUP_HOST_STATUS, Status.EXECUTING, null);
+
+            String remark = "[VM備援切換] " + apiVmName + " → 備援機";
+            modifyBackupHostStatus(Constants.DATA_N, remark);
+
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+
+            /* Step 6. [END] ********************************************************************************/
+            Thread.sleep(500);
+
+            /*
+             * Step 7. 將切換紀錄寫入 DB
              */
             writeLog(logKey, Step.WRITE_PROCESS_LOG, Status.EXECUTING, null);
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+
+            /* Step 7. [END] ********************************************************************************/
 
         } catch (ServiceLayerException sle) {
             log.error(sle.toString(), sle);
@@ -285,6 +300,24 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
         return retVal;
     }
 
+	private void modifyBackupHostStatus(String flag, String remark) {
+	    try {
+	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(SETTING_OF_STAND_BY_STATUS);
+
+	        if (setting != null) {
+	            setting.setSettingValue(flag);
+	            setting.setRemark(remark);
+	            setting.setUpdateBy(getUserName());
+	            setting.setUpdateTime(currentTimestamp());
+
+	            vmSwitchDAO.updateEntity(setting);
+	        }
+
+	    } catch (Exception e) {
+	        log.error(e.toString(), e);
+	    }
+	}
+
 	/**
 	 * 發送 MAIL
 	 * @param vmName
@@ -298,7 +331,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	        StringBuffer contentHtml = new StringBuffer();
 
 	        String mailListSettingCode = null;
-	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting("MAIL_LIST_SETTING_CODE");
+	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(MAIL_LIST_SETTING_CODE);
 
 	        if (setting == null) {
 	            log.error("未設定 VM_SWITCH 要發送 MAIL 的 MAIL_LIST_SETTING_CODE (MUDULE_VM_SETTING.MAIL_LIST_SETTING_CODE)");
@@ -509,6 +542,10 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             case PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN:
                 stepMsg = "[ePDG] 將 port 及 vlan 調整為 no shutdown";
+                break;
+
+            case MODIFY_BACKUP_HOST_STATUS:
+                stepMsg = "調整系統設定中的備援機狀態為不可用";
                 break;
 
             case WRITE_PROCESS_LOG:
@@ -788,13 +825,14 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             dpVO.setVarKey(varKey);
 
             List<List<String>> varValue = new ArrayList<>();
-            List<String> portNoList = new ArrayList<>();
+            List<String> portNoList = null;
 
             for (DeviceDetailInfo info : infoList) {
+                portNoList = new ArrayList<>();
                 portNoList.add(info.getInfoValue());
+                varValue.add(portNoList);
             }
 
-            varValue.add(portNoList);
             dpVO.setVarValue(varValue);
 
             deliveryService.doDelivery(Env.CONNECTION_MODE_OF_VM_SWITCH, dpVO, true, "PRTG", "【VM備援切換】登入異常的 VM 將所有 Port 關閉", false);
@@ -1085,7 +1123,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              */
             writeLog(logKey, Step.PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN, Status.EXECUTING, null);
 
-            insertConfig2BackupHost(vmSwitchVO, deviceList);
+            insertConfig2BackupHost(vmSwitchVO, backupHost);
 
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
             /* Step 3. [END] ********************************************************************************/
@@ -1116,9 +1154,32 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	    StepServiceVO retVO;
 	    try {
 	        String triggerBy = getUserName();
-	        newConfigList.add(0, "configure"); // 補上一行進入 Config 編輯模式的指令
 
-	        retVO = stepService.doCommands(ConnectionMode.SSH, deviceListId, null, newConfigList, false, triggerBy, logKey);
+	        List<ScriptServiceVO> cmdList = new ArrayList<>();
+
+	        ScriptServiceVO sVO = new ScriptServiceVO();
+	        sVO.setScriptContent("configure");                 // 補上一行進入 Config 編輯模式的指令
+	        sVO.setExpectedTerminalSymbol("#");
+	        cmdList.add(sVO);
+
+	        for (String cmd : newConfigList) {
+	            sVO = new ScriptServiceVO();
+	            sVO.setScriptContent(cmd);
+	            sVO.setExpectedTerminalSymbol("#");
+	            cmdList.add(sVO);
+	        }
+
+	        sVO = new ScriptServiceVO();
+            sVO.setScriptContent("end");                        // 寫入完畢後跳出 Config 編輯模式
+            sVO.setExpectedTerminalSymbol("#");
+            cmdList.add(sVO);
+
+            sVO = new ScriptServiceVO();
+            sVO.setScriptContent("filesystem synchronize all"); // 異動完 Config 後再下這道指令讓兩台CF資料同步
+            sVO.setExpectedTerminalSymbol("#");
+            cmdList.add(sVO);
+
+	        retVO = stepService.doCommands(ConnectionMode.SSH, deviceListId, null, cmdList, false, triggerBy, logKey);
 
 	        Result result = retVO.getResult();
 
@@ -1379,7 +1440,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             }
 
             final String keyWordOfNoSubscriber = "No subscribers match";
-            final String keyWordOfSubscriber = "Total Subscribers:";
+            final String keyWordOfSubscriber = "Total Subscribers";
             String[] lines = subscribersInfo.split("\r\n");
 
             for (String line : lines) {
@@ -1396,7 +1457,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                      * 2、 表示數字  "\\d"， "[\\d]"， "[0-9]"
                      *    表示多個數字，同理，在後面加上"+"
                      */
-                    retVal = StringUtils.isNotBlank(tmp[1]) ? tmp[1].replaceAll("\\s+","") : null;
+                    retVal = StringUtils.isNotBlank(tmp[1]) ? tmp[1].replaceAll("\\s+","").replace(":", "") : null;
                     break;
                 }
             }

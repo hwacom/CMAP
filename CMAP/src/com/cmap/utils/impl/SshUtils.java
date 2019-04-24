@@ -228,6 +228,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 				for (ScriptServiceVO scriptVO : scriptList) {
 					// 送出命令
 					csVO = sendCommand(csVO, expect, configInfoVO, scriptVO, processLog, cmdOutputs);
+					Thread.sleep(1000); // 執行命令間格時間
 				}
 
 				/*

@@ -7,6 +7,7 @@ import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ScriptInfo;
 import com.cmap.service.vo.ConfigInfoVO;
+import com.cmap.service.vo.ScriptServiceVO;
 import com.cmap.service.vo.StepServiceVO;
 import com.cmap.service.vo.VersionServiceVO;
 
@@ -84,7 +85,7 @@ public interface StepService {
 	        ConnectionMode connectionMode,
             String deviceListId,
             Map<String, String> deviceInfo,
-            List<String> cmdList,
+            List<ScriptServiceVO> cmdList,
             boolean sysTrigger,
             String triggerBy,
             String triggerRemark);
