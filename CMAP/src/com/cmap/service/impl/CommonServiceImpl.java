@@ -372,7 +372,7 @@ public class CommonServiceImpl implements CommonService {
     public String getUserName() {
         String retVal = "N/A";
         try {
-            retVal = SecurityUtil.getSecurityUser().getUsername();
+            retVal = SecurityUtil.getSecurityUser() == null ? "JOB" : SecurityUtil.getSecurityUser().getUsername();
 
         } catch (Exception e) {
             log.error(e.toString(), e);

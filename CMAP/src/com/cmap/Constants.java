@@ -100,6 +100,12 @@ public class Constants {
 	public static final String DATA_N = "N";
 	public static final String DATA_STAR_SYMBOL = "*";
 
+	public static final String PROCESS_OPEN = "O";
+	public static final String PROCESS_ING = "*";
+	public static final String PROCESS_CLOSE = "C";
+	public static final String PROCESS_ERROR = "E";
+	public static final String PROCESS_RETRY = "R";
+
 	public static final String GROUP_ID = "GROUP_ID";
 	public static final String GROUP_NAME = "GROUP_NAME";
 	public static final String GROUP_ENG_NAME = "GROUP_ENG_NAME";
@@ -107,6 +113,7 @@ public class Constants {
 	public static final String DEVICE_NAME = "DEVICE_NAME";
 	public static final String DEVICE_ENG_NAME = "DEVICE_ENG_NAME";
 	public static final String DEVICE_IP = "DEVICE_IP";
+	public static final String DEVICE_PORT = "DEVICE_PORT";
 	public static final String DEVICE_SYSTEM = "DEVICE_SYSTEM";
 	public static final String DEVICE_LOGIN_ACCOUNT = "DEVICE_LOGIN_ACCOUNT";
 	public static final String DEVICE_LOGIN_PASSWORD = "DEVICE_LOGIN_PASSWORD";
