@@ -29,14 +29,29 @@ public class ClusterMigrateDAOImpl extends BaseDaoHibernate implements ClusterMi
     }
 
     @Override
+    public ModuleClusterMigrateLog findClusterMigrateLogByLogId(Integer logId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select mcsl ")
+          .append(" from ModuleClusterMigrateLog mcsl ")
+          .append(" where 1=1 ")
+          .append(" and mcsl.logId = :logId ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("logId", logId);
+
+        return (ModuleClusterMigrateLog)q.uniqueResult();
+    }
+
+    @Override
     public List<ModuleClusterMigrateLog> findClusterMigrateLog(
-            String logId, String dateStr, String migrateFromCluster, List<String> processFlag) {
+            Integer logId, String dateStr, String migrateFromCluster, List<String> processFlag) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select mcsl ")
           .append(" from ModuleClusterMigrateLog mcsl ")
           .append(" where 1=1 ");
 
-        if (StringUtils.isNotBlank(logId)) {
+        if (logId != null) {
             sb.append(" and mcsl.logId = :logId ");
         }
         if (StringUtils.isNotBlank(dateStr)) {
@@ -52,7 +67,7 @@ public class ClusterMigrateDAOImpl extends BaseDaoHibernate implements ClusterMi
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
 
-        if (StringUtils.isNotBlank(logId)) {
+        if (logId != null) {
             q.setParameter("logId", logId);
         }
         if (StringUtils.isNotBlank(dateStr)) {
@@ -68,4 +83,25 @@ public class ClusterMigrateDAOImpl extends BaseDaoHibernate implements ClusterMi
         return (List<ModuleClusterMigrateLog>)q.list();
     }
 
+    @Override
+    public void updateProcessFlag(ModuleClusterMigrateLog logEntity) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" update Module_Cluster_Migrate_Log mcsl ")
+          .append(" set mcsl.process_Flag = :processFlag ")
+          .append("    ,mcsl.migrate_Start_Time = :migrateStartTime ")
+          .append("    ,mcsl.update_Time = :updateTime ")
+          .append("    ,mcsl.update_By = :updateBy ")
+          .append(" where mcsl.log_Id = :logId ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createNativeQuery(sb.toString());
+        q.setParameter("processFlag", logEntity.getProcessFlag());
+        q.setParameter("migrateStartTime", logEntity.getMigrateStartTime());
+        q.setParameter("updateTime", logEntity.getUpdateTime());
+        q.setParameter("updateBy", logEntity.getUpdateBy());
+        q.setParameter("logId", logEntity.getLogId());
+
+        q.executeUpdate();
+        session.flush();
+    }
 }

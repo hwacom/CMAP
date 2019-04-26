@@ -24,6 +24,7 @@ public class ConfigInfoVO implements Cloneable {
 	private String deviceFlashImagePath;   // 設備端要還原的Image檔路徑
 
 	private String deviceIp;
+	private Integer devicePort;
 	private String account;
 	private String password;
 	private String enablePassword;
@@ -338,5 +339,13 @@ public class ConfigInfoVO implements Cloneable {
 
     public void setDeviceFlashImagePath(String deviceFlashImagePath) {
         this.deviceFlashImagePath = deviceFlashImagePath;
+    }
+
+    public Integer getDevicePort() {
+        return devicePort;
+    }
+
+    public void setDevicePort(Integer devicePort) {
+        this.devicePort = devicePort;
     }
 }

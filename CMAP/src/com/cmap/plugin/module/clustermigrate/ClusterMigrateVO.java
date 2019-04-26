@@ -6,7 +6,7 @@ import com.cmap.comm.enums.ConnectionMode;
 public class ClusterMigrateVO {
 
     private String processResult;
-    private String processRemark;
+    private String processRemark = "";
 
     private List<String> clusterList = null;
     private String serverIp;

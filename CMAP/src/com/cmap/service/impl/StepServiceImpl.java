@@ -634,6 +634,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		    }
 
 			String deviceIp = deviceInfo.containsKey(Constants.DEVICE_IP) ? deviceInfo.get(Constants.DEVICE_IP) : null;
+			String devicePort = deviceInfo.containsKey(Constants.DEVICE_PORT) ? deviceInfo.get(Constants.DEVICE_PORT) : null;
 			String deviceName = deviceInfo.containsKey(Constants.DEVICE_NAME) ? deviceInfo.get(Constants.DEVICE_NAME) : null;
 			String loginAccount = deviceInfo.containsKey(Constants.DEVICE_LOGIN_ACCOUNT)
 															? deviceInfo.get(Constants.DEVICE_LOGIN_ACCOUNT) : Env.DEFAULT_DEVICE_LOGIN_ACCOUNT;
@@ -643,6 +644,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 															? deviceInfo.get(Constants.DEVICE_ENABLE_PASSWORD) : Env.DEFAULT_DEVICE_ENABLE_PASSWORD;
 
 			configInfoVO.setDeviceIp(deviceIp);
+			configInfoVO.setDevicePort(StringUtils.isNotBlank(devicePort) ? Integer.parseInt(devicePort) : null);
 			configInfoVO.setDeviceName(deviceName);
 			configInfoVO.setAccount(loginAccount);
 			configInfoVO.setPassword(loginPassword);
@@ -711,15 +713,18 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @throws Exception
 	 */
 	private ConnectUtils connect2Device(ConnectUtils connectUtils, ConnectionMode _mode, ConfigInfoVO ciVO) throws Exception {
+	    final String deviceIp = ciVO.getDeviceIp();
+	    final Integer devicePort = ciVO.getDevicePort();
+
 		switch (_mode) {
 			case TELNET:
 				connectUtils = new TelnetUtils();
-				connectUtils.connect(ciVO.getDeviceIp(), null);
+				connectUtils.connect(deviceIp, devicePort);
 				break;
 
 			case SSH:
 				connectUtils = new SshUtils();
-				connectUtils.connect(ciVO.getDeviceIp(), null);
+				connectUtils.connect(deviceIp, devicePort);
 				break;
 
 			default:

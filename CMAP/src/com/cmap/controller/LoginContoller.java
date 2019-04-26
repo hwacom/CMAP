@@ -109,7 +109,7 @@ public class LoginContoller extends BaseController {
 
 			String previousPage = Objects.toString(request.getSession().getAttribute(Constants.PREVIOUS_URL));
 
-			String redirectUrl = StringUtils.isNotBlank(previousPage) && StringUtils.contains(previousPage, "/plugin/module/vmswitch")
+			String redirectUrl = StringUtils.isNotBlank(previousPage) && StringUtils.contains(previousPage, "/plugin/module/vmswitch/power/off")
 			                        ? previousPage : Env.HOME_PAGE;
 
 			return "redirect:" + redirectUrl;

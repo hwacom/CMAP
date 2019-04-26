@@ -25,5 +25,5 @@ public interface ClusterMigrateService {
      * @return
      * @throws ServiceLayerException
      */
-    public ClusterMigrateVO doClusterMigrate(String logId) throws ServiceLayerException;
+    public ClusterMigrateVO doClusterMigrate(Integer logId) throws ServiceLayerException;
 }

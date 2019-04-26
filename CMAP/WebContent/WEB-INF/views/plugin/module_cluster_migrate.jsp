@@ -29,20 +29,11 @@
 	
 	<script src="${pageContext.request.contextPath}/resources/js/modernizr/modernizr-custom.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/common.min.js"></script>
-	<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.vm.switch.min.js"></script>
 	
   <body class="text-center" style="display: block; height: 100vh; background-color: #3e3e3e; background-image: repeating-linear-gradient(#3e3e3e 0px, #3e3e3e 10px, #202020 10px, #202020 12px); color: #fff;">
   	<div class="loader"></div>
 	<div class="mask" style="display: none;"></div>
 	<div class="processing" style="display: none;"></div>
-	<div class="processing2" style="display: none;">
-	  <div class="row col-12 center">
-		<div id="msg_from_server" style="top: 35vh; position: relative; resize: none; margin-top: 30px; white-space: pre-line; word-wrap: break-word; color: #FAFAD2; background-color: #012456; padding: 5px; width: 50%; height: 250px; text-align: left;	overflow: auto;"></div>
-	  </div>
-	  <div class="row col-12 center">
-	    <button type="button" id="btnClose" style="position: relative; top: 36vh; display: none;" class="btn btn-success">關閉</button>
-	  </div>
-	</div>
 	
 	<!-- Container fluid  -->
     <!-- ============================================================== -->

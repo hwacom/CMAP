@@ -173,8 +173,9 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 
 	@Override
 	public boolean deleteEntity(Object entity) {
-		// TODO 自動產生的方法 Stub
-		return false;
+	    boolean success = true;
+	    getHibernateTemplate().delete(entity);
+        return success;
 	}
 
 	@Override

@@ -54,6 +54,21 @@ public class ClusterMigrateController {
         return retVal;
     }
 
+    @RequestMapping(value = "/goTest", method = RequestMethod.GET, produces="application/json;odata=verbose")
+    public String  goTest(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+
+        ClusterMigrateVO retVO = null;
+        try {
+            retVO = clusterMigrateService.doClusterMigrate(null);
+            System.out.println("Process_result: " + retVO.getProcessResult());
+            System.out.println("Process_remark: " + retVO.getProcessRemark());
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "plugin/module_cluster_migrate";
+    }
+
     @RequestMapping(value = "/go", method = RequestMethod.POST, produces="application/json;odata=verbose")
     public @ResponseBody AppResponse go(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
             @RequestBody JsonNode jsonData) {
@@ -64,10 +79,10 @@ public class ClusterMigrateController {
         try {
             JsonNode logIdNode = jsonData.findValue("logId");
 
-            String logId = null;
+            Integer logId = null;
 
             if (logIdNode != null) {
-                logId = logIdNode.asText();
+                logId = Integer.parseInt(logIdNode.asText());
             }
 
             retVO = clusterMigrateService.doClusterMigrate(logId);

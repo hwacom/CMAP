@@ -88,6 +88,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 		try {
 			checkSshStatus();
 
+//			ssh.authPublickey(account); //TODO
 			ssh.authPassword(account, password);
 			log.info("SSH login success!! >>> [ account: " + account + " , password: " + password + " ]");
 

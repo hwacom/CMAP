@@ -13,6 +13,13 @@ public interface ClusterMigrateDAO extends BaseDAO {
     public List<ModuleClusterMigrateSetting> getClusterMigrateSetting(String settingName);
 
     /**
+     * 查找 Module_Cluster_Migrate_Log 紀錄 by PK (logId)
+     * @param logId
+     * @return
+     */
+    public ModuleClusterMigrateLog findClusterMigrateLogByLogId(Integer logId);
+
+    /**
      * 查找 Module_Cluster_Migrate_Log 紀錄
      * @param logId PK
      * @param dateStr 切換寫入日期
@@ -20,5 +27,7 @@ public interface ClusterMigrateDAO extends BaseDAO {
      * @return
      */
     public List<ModuleClusterMigrateLog> findClusterMigrateLog(
-            String logId, String dateStr, String migrateFromCluster, List<String> processFlag);
+            Integer logId, String dateStr, String migrateFromCluster, List<String> processFlag);
+
+    public void updateProcessFlag(ModuleClusterMigrateLog logEntity);
 }
