@@ -375,7 +375,7 @@ public class CommonServiceImpl implements CommonService {
             retVal = SecurityUtil.getSecurityUser() == null ? "JOB" : SecurityUtil.getSecurityUser().getUsername();
 
         } catch (Exception e) {
-            log.error(e.toString(), e);
+//            log.error(e.toString(), e);
         }
         return retVal;
     }

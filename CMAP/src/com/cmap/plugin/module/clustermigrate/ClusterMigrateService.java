@@ -11,6 +11,9 @@ public interface ClusterMigrateService {
     public static final String MASTER_SERVER_LOGIN_ACCOUNT = "MASTER_SERVER_LOGIN_ACCOUNT";
     public static final String MASTER_SERVER_LOGIN_PASSWORD = "MASTER_SERVER_LOGIN_PASSWORD";
 
+    public static final String JOB_KEY_GROUP = "JOB_KEY_GROUP";
+    public static final String JOB_KEY_NAME = "JOB_KEY_NAME";
+
     /**
      * 設定準備切換的Cluster
      * @param migrateClusterName
@@ -18,6 +21,13 @@ public interface ClusterMigrateService {
      * @throws ServiceLayerException
      */
     public ClusterMigrateVO settingMigrate(String migrateClusterName) throws ServiceLayerException;
+
+    /**
+     * 開始執行Cluster切換 for JOB
+     * @return
+     * @throws ServiceLayerException
+     */
+    public ClusterMigrateVO executeClusterMigrate() throws ServiceLayerException;
 
     /**
      * 開始執行Cluster切換

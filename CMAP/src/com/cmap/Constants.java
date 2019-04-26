@@ -109,6 +109,7 @@ public class Constants {
 	public static final String RESULT_READY = "O";
 	public static final String RESULT_FINISH = "C";
     public static final String RESULT_ERROR = "E";
+    public static final String RESULT_PARTIAL = "P";
 
 	public static final String GROUP_ID = "GROUP_ID";
 	public static final String GROUP_NAME = "GROUP_NAME";

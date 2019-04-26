@@ -20,10 +20,12 @@ import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.DeliveryService;
+import com.cmap.service.JobService;
 import com.cmap.service.ScriptService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
+import com.cmap.service.vo.JobServiceVO;
 import com.cmap.service.vo.ScriptServiceVO;
 
 @Service("clusterMigrateService")
@@ -41,9 +43,12 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
     @Autowired
     private DeliveryService deliveryService;
 
+    @Autowired
+    private JobService jobService;
+
     @Override
     public ClusterMigrateVO settingMigrate(String migrateClusterName) throws ServiceLayerException {
-        ClusterMigrateVO retVO = new ClusterMigrateVO();
+        ClusterMigrateVO cmVO = new ClusterMigrateVO();
         try {
             final String nowDateStr = Constants.FORMAT_YYYY_MM_DD_NOSYMBOL.format(new Date());
 
@@ -75,6 +80,24 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                 logEntity.setUpdateBy(getUserName());
 
                 clusterMigrateDAO.insertEntity(logEntity);
+
+                /*
+                 * Step 3. 開啟 Cluster migrate 排程
+                 */
+                cmVO = initJobInfo(cmVO);
+
+                String jkName = cmVO.getJobKeyName();
+                String jkGroup = cmVO.getJobKeyGroup();
+
+                if (StringUtils.isNotBlank(jkGroup) && StringUtils.isNotBlank(jkName)) {
+                    List<JobServiceVO> jsVOList = new ArrayList<>();
+                    JobServiceVO jsVO = new JobServiceVO();
+                    jsVO.setJobKeyName(cmVO.getJobKeyName());
+                    jsVO.setJobKeyGroup(cmVO.getJobKeyGroup());
+                    jsVOList.add(jsVO);
+
+                    jobService.resumeJob(jsVOList);
+                }
             }
 
         } catch (Exception e) {
@@ -82,7 +105,94 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
             throw new ServiceLayerException("寫入待切換cluster的log資料時異常 (" + e.getMessage() + ")");
         }
 
-        return retVO;
+        return cmVO;
+    }
+
+    @Override
+    public ClusterMigrateVO executeClusterMigrate() throws ServiceLayerException {
+        ClusterMigrateVO jobVO = new ClusterMigrateVO();
+        ClusterMigrateVO migrateVO = new ClusterMigrateVO();
+        boolean needPauseJob = false;
+        try {
+            jobVO = initJobInfo(jobVO);
+            migrateVO = doClusterMigrate(null);
+
+            final String result = migrateVO.getProcessResultFlag();
+
+            switch (result) {
+                case Constants.RESULT_FINISH:
+                    // Migrate 成功時才須將 JOB 暫停
+                    needPauseJob = true;
+                    break;
+
+                default:
+                    // Migrate 失敗時不關 JOB，讓 JOB 進行 retry
+                    needPauseJob = false;
+                    break;
+            }
+
+        } catch (Exception e) {
+            if (!(e instanceof ServiceLayerException)) {
+                log.error(e.toString(), e);
+            }
+
+        } finally {
+            if (needPauseJob) {
+                String jkName = jobVO.getJobKeyName();
+                String jkGroup = jobVO.getJobKeyGroup();
+
+                if (StringUtils.isNotBlank(jkGroup) && StringUtils.isNotBlank(jkName)) {
+                    List<JobServiceVO> jsVOList = new ArrayList<>();
+                    JobServiceVO jsVO = new JobServiceVO();
+                    jsVO.setJobKeyName(jkName);
+                    jsVO.setJobKeyGroup(jkGroup);
+                    jsVOList.add(jsVO);
+
+                    jobService.pauseJob(jsVOList);
+                }
+            }
+        }
+        return migrateVO;
+    }
+
+    private ClusterMigrateVO initJobInfo(ClusterMigrateVO cmVO) throws ServiceLayerException {
+        String jobKeyGroup;
+        String jobKeyName;
+
+        try {
+            List<ModuleClusterMigrateSetting> settings = clusterMigrateDAO.getClusterMigrateSetting(JOB_KEY_GROUP);
+
+            if (settings == null || (settings != null && settings.isEmpty())) {
+                throw new ServiceLayerException("未設定 JOB_KEY_GROUP");
+
+            } else {
+                jobKeyGroup = settings.get(0).getSettingValue();
+            }
+
+            settings = clusterMigrateDAO.getClusterMigrateSetting(JOB_KEY_NAME);
+
+            if (settings == null || (settings != null && settings.isEmpty())) {
+                throw new ServiceLayerException("未設定 JOB_KEY_NAME");
+
+            } else {
+                jobKeyName = settings.get(0).getSettingValue();
+            }
+
+            if (StringUtils.isBlank(jobKeyGroup) || StringUtils.isBlank(jobKeyName)) {
+                throw new ServiceLayerException("未設定 JOB_KEY_GROUP 或 JOB_KEY_NAME");
+            }
+
+            cmVO.setJobKeyGroup(jobKeyGroup);
+            cmVO.setJobKeyName(jobKeyName);
+
+        } catch (ServiceLayerException sle) {
+            throw sle;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("非預期錯誤 (" + e.getMessage() + ")");
+        }
+        return cmVO;
     }
 
     @Override
@@ -110,7 +220,8 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
             List<ModuleClusterMigrateLog> logList = clusterMigrateDAO.findClusterMigrateLog(logId, dateStr, null, processFlag);
 
             if (logList == null || (logList != null && logList.isEmpty())) {
-                cmVO.setProcessResult("No need migrate.");
+                cmVO.setProcessResultFlag(Constants.RESULT_FINISH);
+                cmVO.setProcessResultMsg("No need migrate.");
                 cmVO.setProcessRemark("無須切換的 cluster");
 
             } else {
@@ -360,20 +471,24 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                 }
 
                 if (errorCount == 0) {
-                    cmVO.setProcessResult("Migrate success !!");
+                    cmVO.setProcessResultFlag(Constants.RESULT_FINISH);
+                    cmVO.setProcessResultMsg("Migrate success !!");
 
                 } else if (errorCount > 0 && errorCount < totalCount) {
-                    cmVO.setProcessResult("Partial migrate success !!");
+                    cmVO.setProcessResultFlag(Constants.RESULT_PARTIAL);
+                    cmVO.setProcessResultMsg("Partial migrate success !!");
 
                 } else {
-                    cmVO.setProcessResult("Migrate failed !!");
+                    cmVO.setProcessResultFlag(Constants.RESULT_ERROR);
+                    cmVO.setProcessResultMsg("Migrate failed !!");
                 }
             }
 
         } catch (Exception e) {
             log.error(e.toString(), e);
 
-            cmVO.setProcessResult("Migrate failed !!");
+            cmVO.setProcessResultFlag(Constants.RESULT_ERROR);
+            cmVO.setProcessResultMsg("Migrate failed !!");
             cmVO.setProcessRemark(e.getMessage());
         }
         return cmVO;
@@ -409,7 +524,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
         String loginPassword = null;
 
         try {
-         // 取得所有 cluster 名稱清單
+            // 取得所有 cluster 名稱清單
             List<ModuleClusterMigrateSetting> settings = clusterMigrateDAO.getClusterMigrateSetting(CLUSTER_NAME);
 
             if (settings == null || (settings != null && settings.isEmpty())) {

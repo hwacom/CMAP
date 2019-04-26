@@ -2,10 +2,12 @@ package com.cmap.plugin.module.clustermigrate;
 
 import java.util.List;
 import com.cmap.comm.enums.ConnectionMode;
+import com.cmap.service.vo.CommonServiceVO;
 
-public class ClusterMigrateVO {
+public class ClusterMigrateVO extends CommonServiceVO {
 
-    private String processResult;
+    private String processResultFlag;
+    private String processResultMsg;
     private String processRemark = "";
 
     private List<String> clusterList = null;
@@ -26,11 +28,21 @@ public class ClusterMigrateVO {
     private String migrateEndTimeStr;
     private String migrateResult;
     private String remark;
-    public String getProcessResult() {
-        return processResult;
+
+    private String jobKeyGroup;
+    private String jobKeyName;
+
+    public String getProcessResultFlag() {
+        return processResultFlag;
     }
-    public void setProcessResult(String processResult) {
-        this.processResult = processResult;
+    public void setProcessResultFlag(String processResultFlag) {
+        this.processResultFlag = processResultFlag;
+    }
+    public String getProcessResultMsg() {
+        return processResultMsg;
+    }
+    public void setProcessResultMsg(String processResultMsg) {
+        this.processResultMsg = processResultMsg;
     }
     public String getProcessRemark() {
         return processRemark;
@@ -139,5 +151,17 @@ public class ClusterMigrateVO {
     }
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+    public String getJobKeyGroup() {
+        return jobKeyGroup;
+    }
+    public void setJobKeyGroup(String jobKeyGroup) {
+        this.jobKeyGroup = jobKeyGroup;
+    }
+    public String getJobKeyName() {
+        return jobKeyName;
+    }
+    public void setJobKeyName(String jobKeyName) {
+        this.jobKeyName = jobKeyName;
     }
 }

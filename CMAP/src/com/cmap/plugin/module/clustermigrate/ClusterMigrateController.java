@@ -60,8 +60,9 @@ public class ClusterMigrateController {
         ClusterMigrateVO retVO = null;
         try {
             retVO = clusterMigrateService.doClusterMigrate(null);
-            System.out.println("Process_result: " + retVO.getProcessResult());
-            System.out.println("Process_remark: " + retVO.getProcessRemark());
+            System.out.println("Process result flag: " + retVO.getProcessResultFlag());
+            System.out.println("Process result msg: " + retVO.getProcessResultMsg());
+            System.out.println("Process remark: " + retVO.getProcessRemark());
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -101,7 +102,8 @@ public class ClusterMigrateController {
             AppResponse app = new AppResponse(responseCode, responseMsg);
 
             if (retVO != null) {
-                app.putData("PROCESS_RESULT", retVO.getProcessResult());
+                app.putData("PROCESS_RESULT_FLAG", retVO.getProcessResultFlag());
+                app.putData("PROCESS_RESULT_MSG", retVO.getProcessResultMsg());
                 app.putData("PROCESS_MSG", retVO.getProcessRemark());
             }
 
