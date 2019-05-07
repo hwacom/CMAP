@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -377,6 +375,10 @@ public class JobServiceImpl implements JobService {
 			case Constants.QUARTZ_SCHED_TYPE_DATA_POLLER:
 				jobDataMap.put(Constants.QUARTZ_PARA_DATA_POLLER_SETTING_ID, jsVO.getInputDataPollerSettingId());
 				break;
+
+			case Constants.QUARTZ_SCHED_TYPE_DATA_POLLER_OPERATOR:
+			    jobDataMap.put(Constants.QUARTZ_PARA_DATA_POLLER_SETTING_ID, jsVO.getInputDataPollerOperatorSettingId());
+                break;
 
 			case Constants.QUARTZ_SCHED_TYPE_LOCAL_FILE_OPERATION:
 				jobDataMap.put(Constants.QUARTZ_PARA_JOB_FILE_OPERATION_SETTING_ID, jsVO.getInputLocalFileOperationSettingId());

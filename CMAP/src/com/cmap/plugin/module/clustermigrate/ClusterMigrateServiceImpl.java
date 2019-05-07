@@ -47,7 +47,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
     private JobService jobService;
 
     @Override
-    public ClusterMigrateVO settingMigrate(String migrateClusterName) throws ServiceLayerException {
+    public ClusterMigrateVO settingMigrate(String migrateClusterName, boolean resumeJob) throws ServiceLayerException {
         ClusterMigrateVO cmVO = new ClusterMigrateVO();
         try {
             final String nowDateStr = Constants.FORMAT_YYYY_MM_DD_NOSYMBOL.format(new Date());
@@ -82,21 +82,23 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                 clusterMigrateDAO.insertEntity(logEntity);
 
                 /*
-                 * Step 3. 開啟 Cluster migrate 排程
+                 * Step 3. 開啟 Cluster migrate 排程 (若有傳入要開啟 JOB 時)
                  */
-                cmVO = initJobInfo(cmVO);
+                if (resumeJob) {
+                    cmVO = initJobInfo(cmVO);
 
-                String jkName = cmVO.getJobKeyName();
-                String jkGroup = cmVO.getJobKeyGroup();
+                    String jkName = cmVO.getJobKeyName();
+                    String jkGroup = cmVO.getJobKeyGroup();
 
-                if (StringUtils.isNotBlank(jkGroup) && StringUtils.isNotBlank(jkName)) {
-                    List<JobServiceVO> jsVOList = new ArrayList<>();
-                    JobServiceVO jsVO = new JobServiceVO();
-                    jsVO.setJobKeyName(cmVO.getJobKeyName());
-                    jsVO.setJobKeyGroup(cmVO.getJobKeyGroup());
-                    jsVOList.add(jsVO);
+                    if (StringUtils.isNotBlank(jkGroup) && StringUtils.isNotBlank(jkName)) {
+                        List<JobServiceVO> jsVOList = new ArrayList<>();
+                        JobServiceVO jsVO = new JobServiceVO();
+                        jsVO.setJobKeyName(cmVO.getJobKeyName());
+                        jsVO.setJobKeyGroup(cmVO.getJobKeyGroup());
+                        jsVOList.add(jsVO);
 
-                    jobService.resumeJob(jsVOList);
+                        jobService.resumeJob(jsVOList);
+                    }
                 }
             }
 
@@ -406,7 +408,6 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                         dpVO.setDeviceInfo(deviceInfo);
                         dpVO.setReason(provisionReason);
 
-
                         final String scriptKey = clusterMigrateScriptVO.getActionScriptVariable();
 
                         List<String> varKey = (List<String>)transJSON2Object(scriptKey, List.class);
@@ -652,5 +653,105 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
         }
 
         return needMigrateList;
+    }
+
+    @Override
+    public ClusterMigrateVO doServiceRestart(String serviceName) throws ServiceLayerException {
+        ClusterMigrateVO cmVO = new ClusterMigrateVO();
+        try {
+            /*
+             * 先取得所需的相關設定值 FOR 後續流程使用
+             * (1) 取得所有 cluster 名稱清單
+             * (2) 取得 Master Server 連線&登入相關資訊
+             */
+            cmVO = initSetting(cmVO);
+
+            // 準備後續供裝要連線的Server相關資訊
+            Map<String, String> deviceInfo = new HashMap<>();
+            deviceInfo.put(Constants.DEVICE_IP, cmVO.getServerIp());
+            deviceInfo.put(Constants.DEVICE_PORT, cmVO.getServerPort());
+            deviceInfo.put(Constants.DEVICE_LOGIN_ACCOUNT, cmVO.getLoginAccount());
+            deviceInfo.put(Constants.DEVICE_LOGIN_PASSWORD, cmVO.getLoginPassword());
+
+            // 供裝設備連線protocol方式
+            final ConnectionMode _CONNECTION_MODE_ = cmVO.getConnectionMode();
+
+            /*
+             * Step 1. 呼叫供裝模組，登入設備取得 cluster status 資料
+             */
+            ScriptServiceVO serviceRestartScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+                    ScriptType.SERVICE_RESTART.toString(), Constants.DATA_STAR_SYMBOL);
+
+            if (serviceRestartScriptVO == null) {
+                throw new ServiceLayerException("查詢不到預設腳本 for 查看 cluster 狀態 >> scriptType: " + ScriptType.CLUSTER_STATUS);
+            }
+
+            DeliveryServiceVO deliveryVO;               // 供裝共用參數傳遞VO
+            String provisionReason;                     // 供裝原因
+
+            provisionReason = "Service restart";
+            DeliveryParameterVO dpVO = new DeliveryParameterVO();
+            dpVO.setScriptInfoId(serviceRestartScriptVO.getScriptInfoId());
+            dpVO.setScriptCode(serviceRestartScriptVO.getScriptCode());
+            dpVO.setDeviceInfo(deviceInfo);
+            dpVO.setReason(provisionReason);
+
+            final String scriptKey = serviceRestartScriptVO.getActionScriptVariable();
+
+            List<String> varKey = (List<String>)transJSON2Object(scriptKey, List.class);
+            dpVO.setVarKey(varKey);
+
+            List<List<String>> varValue = new ArrayList<>();
+            List<String> valueList = new ArrayList<>();
+            valueList.add(serviceName);   // 指令參數1: 要重啟的服務名稱
+            varValue.add(valueList);
+            dpVO.setVarValue(varValue);
+
+            // 【Service restart】重啟服務
+            deliveryVO = deliveryService.doDelivery(_CONNECTION_MODE_, dpVO, true, "PRTG", provisionReason, false);
+
+            cmVO.setProcessResultFlag(Constants.RESULT_FINISH);
+            cmVO.setProcessResultMsg(serviceName + " 服務重啟成功");
+
+        } catch (Exception e) {
+            log.error(e.toString(),e);
+
+            cmVO.setProcessResultFlag(Constants.RESULT_ERROR);
+            cmVO.setProcessResultMsg(serviceName + " 服務重啟失敗");
+        }
+        return cmVO;
+    }
+
+    @Override
+    public ClusterMigrateVO doClusterMigrateImmediately(String migrateClusterName)
+            throws ServiceLayerException {
+        ClusterMigrateVO cmVO = new ClusterMigrateVO();
+        try {
+            cmVO = settingMigrate(migrateClusterName, false);
+
+            doClusterMigrate(null);
+
+            cmVO.setProcessResultFlag(Constants.RESULT_FINISH);
+            cmVO.setProcessResultMsg(migrateClusterName + " 已成功進行 migrate");
+
+        } catch (Exception e) {
+            log.error(e.toString(),e);
+
+            cmVO.setProcessResultFlag(Constants.RESULT_FINISH);
+            cmVO.setProcessResultMsg(migrateClusterName + "  migrate 失敗");
+        }
+        return cmVO;
+    }
+
+    @Override
+    public ClusterMigrateVO doReboot(String rebootServerName) throws ServiceLayerException {
+        ClusterMigrateVO cmVO = new ClusterMigrateVO();
+        try {
+
+
+        } catch (Exception e) {
+            log.error(e.toString(),e);
+        }
+        return cmVO;
     }
 }

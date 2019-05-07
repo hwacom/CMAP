@@ -20,7 +20,7 @@ public interface ClusterMigrateService {
      * @return
      * @throws ServiceLayerException
      */
-    public ClusterMigrateVO settingMigrate(String migrateClusterName) throws ServiceLayerException;
+    public ClusterMigrateVO settingMigrate(String migrateClusterName, boolean resumeJob) throws ServiceLayerException;
 
     /**
      * 開始執行Cluster切換 for JOB
@@ -36,4 +36,28 @@ public interface ClusterMigrateService {
      * @throws ServiceLayerException
      */
     public ClusterMigrateVO doClusterMigrate(Integer logId) throws ServiceLayerException;
+
+    /**
+     * 【第一階段】先嘗試重啟 Service
+     * @param serviceName
+     * @return
+     * @throws ServiceLayerException
+     */
+    public ClusterMigrateVO doServiceRestart(String serviceName) throws ServiceLayerException;
+
+    /**
+     * 【第二階段】再執行 Cluster migrate
+     * @param migrateClusterName
+     * @return
+     * @throws ServiceLayerException
+     */
+    public ClusterMigrateVO doClusterMigrateImmediately(String migrateClusterName) throws ServiceLayerException;
+
+    /**
+     * 【第三階段】前兩個步驟都無法恢復正常時，直接重啟 Server
+     * @param rebootName
+     * @return
+     * @throws ServiceLayerException
+     */
+    public ClusterMigrateVO doReboot(String rebootServerName) throws ServiceLayerException;
 }

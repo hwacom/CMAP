@@ -30,4 +30,6 @@ public interface ClusterMigrateDAO extends BaseDAO {
             Integer logId, String dateStr, String migrateFromCluster, List<String> processFlag);
 
     public void updateProcessFlag(ModuleClusterMigrateLog logEntity);
+
+    public Integer insertModuleClusterMigrateLog(ModuleClusterMigrateLog logEntity);
 }

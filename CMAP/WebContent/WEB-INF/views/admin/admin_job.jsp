@@ -269,6 +269,20 @@
 	            </div>
 	            <!-- [END]Data Poller -->
 	            
+	            <!-- Data Poller Operator -->
+	            <div id="sec_dataPollerOperator" style="display: none">
+	            	<div class="form-group row">
+		              	<label for="inputDataPollerNames" class="col-12 col-form-label"><span style="color:blue">*** Data Poller Operator 參數設定 ***</span></label>
+		            </div>
+		            <div class="form-group row">
+		            	<label for="inputDataPollerOperatorSettingId" class="col-md-2 col-sm-3 col-form-label">Setting IDs<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-10 col-sm-9">
+		            		<input type="text" class="form-control form-control-sm" id="inputDataPollerOperatorSettingId" name="inputDataPollerOperatorSettingId" placeholder="多組ID以「,」區隔；區間以「ID1~ID2」表示"></input>
+		                </div>
+		            </div>
+	            </div>
+	            <!-- [END]Data Poller Operator -->
+	            
 	            <!-- 本地檔案操作 -->
 	            <div id="sec_localFileOperation" style="display: none">
 	            	<div class="form-group row">

@@ -2454,7 +2454,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						}
 					}
 
-					System.out.println(content);
 					/*
 					 * Step 3. 針對此行內容進行設定比對，確認是否納入或跳過
 					 */
@@ -2484,7 +2483,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								match = matcher.find();
 
 								matcher.reset();
-								System.out.println("matcher.lookingAt(): " + matcher.lookingAt());
 
 						        if (match) {
 						        	break;

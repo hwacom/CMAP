@@ -66,6 +66,8 @@ public class Env {
 	public static Integer CONFIG_CONTENT_TOP_LAYER_NUM;
 	public static Integer CONFIG_CONTENT_NO_LIMIT_LAYER_NUM;
 
+	public static Integer THREAD_COUNT_OF_DATA_POLLER;
+
 	/**
 	 * 組態檔異地備份上傳至FTP時，BY日期創建資料夾的名稱格式
 	 */

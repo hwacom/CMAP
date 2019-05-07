@@ -104,4 +104,9 @@ public class ClusterMigrateDAOImpl extends BaseDaoHibernate implements ClusterMi
         q.executeUpdate();
         session.flush();
     }
+
+    @Override
+    public Integer insertModuleClusterMigrateLog(ModuleClusterMigrateLog logEntity) {
+        return (Integer)getHibernateTemplate().getSessionFactory().getCurrentSession().save(logEntity);
+    }
 }

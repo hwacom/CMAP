@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -27,7 +26,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -181,6 +179,8 @@ public class NetFlowServiceImpl implements NetFlowService {
 
 				} else {
 					// fieldList.add(0, "GroupId");
+				    boolean hasGetDevice = false;
+                    DeviceList device = null;
 
 					NetFlowVO vo;
 					for (Object[] data : dataList) {
@@ -226,7 +226,17 @@ public class NetFlowServiceImpl implements NetFlowService {
 
 							} else if (oriName.equals("GroupId")) {
 								String groupId = Objects.toString(data[dataIdx]);
-								DeviceList device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+
+								if (hasGetDevice == false && device == null) {
+								    /*
+								     * 查詢條件已限制只能查一所學校，因此不需要每一筆查詢結果都再做一次學校查詢
+								     */
+								    device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+
+								    if (!hasGetDevice) {
+								        hasGetDevice = true;
+								    }
+								}
 
 								if (device == null) {
 									fValue = groupId;

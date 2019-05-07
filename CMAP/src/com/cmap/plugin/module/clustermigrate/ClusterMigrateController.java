@@ -39,12 +39,11 @@ public class ClusterMigrateController {
     }
 
     @RequestMapping(value = "setting/{migrateClusterName}", method = RequestMethod.GET)
-    public String migrateSetting(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+    public @ResponseBody String migrateSetting(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
             @PathVariable(required=true) String migrateClusterName) {
         String retVal = "READY_OK";
         try {
-            clusterMigrateService.settingMigrate(migrateClusterName);
-
+            clusterMigrateService.settingMigrate(migrateClusterName, true);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -55,7 +54,7 @@ public class ClusterMigrateController {
     }
 
     @RequestMapping(value = "/goTest", method = RequestMethod.GET, produces="application/json;odata=verbose")
-    public String  goTest(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+    public String goTest(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 
         ClusterMigrateVO retVO = null;
         try {
@@ -68,6 +67,58 @@ public class ClusterMigrateController {
             log.error(e.toString(), e);
         }
         return "plugin/module_cluster_migrate";
+    }
+
+    @RequestMapping(value = "/service/restart/{serviceName}", method = RequestMethod.GET)
+    public @ResponseBody String serviceRestart(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+            @PathVariable(required=true) String serviceName) {
+
+        ClusterMigrateVO retVO = null;
+        try {
+            retVO = clusterMigrateService.doServiceRestart(serviceName);
+            System.out.println("Process result flag: " + retVO.getProcessResultFlag());
+            System.out.println("Process result msg: " + retVO.getProcessResultMsg());
+            System.out.println("Process remark: " + retVO.getProcessRemark());
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return "E";
+        }
+        return retVO.getProcessResultFlag();
+    }
+
+    @RequestMapping(value = "/cluster/migrate/{migrateClusterName}", method = RequestMethod.GET)
+    public @ResponseBody String clusterMigrate(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+            @PathVariable(required=true) String migrateClusterName) {
+
+        ClusterMigrateVO retVO = null;
+        try {
+            retVO = clusterMigrateService.doClusterMigrateImmediately(migrateClusterName);
+            System.out.println("Process result flag: " + retVO.getProcessResultFlag());
+            System.out.println("Process result msg: " + retVO.getProcessResultMsg());
+            System.out.println("Process remark: " + retVO.getProcessRemark());
+
+        } catch (Exception e) {
+            return "E";
+        }
+        return retVO.getProcessResultFlag();
+    }
+
+    @RequestMapping(value = "/server/reboot/{rebootServerName}", method = RequestMethod.GET)
+    public @ResponseBody String rebootServer(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+            @PathVariable(required=true) String rebootServerName) {
+
+        ClusterMigrateVO retVO = null;
+        try {
+            retVO = clusterMigrateService.doReboot(rebootServerName);
+            System.out.println("Process result flag: " + retVO.getProcessResultFlag());
+            System.out.println("Process result msg: " + retVO.getProcessResultMsg());
+            System.out.println("Process remark: " + retVO.getProcessRemark());
+
+        } catch (Exception e) {
+            return "E";
+        }
+        return retVO.getProcessResultFlag();
     }
 
     @RequestMapping(value = "/go", method = RequestMethod.POST, produces="application/json;odata=verbose")

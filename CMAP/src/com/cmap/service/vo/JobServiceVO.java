@@ -26,6 +26,7 @@ public class JobServiceVO extends CommonServiceVO {
 	private String inputFtpPassword;
 	private List<String> inputSysCheckSql = new ArrayList<>();
 	private String inputDataPollerSettingId;
+	private String inputDataPollerOperatorSettingId;
 	private String inputLocalFileOperationSettingId;
 
 	private List<JobServiceVO> jobKeySet = new ArrayList<>();
@@ -309,10 +310,12 @@ public class JobServiceVO extends CommonServiceVO {
 	public void setJobGroup(String jobGroup) {
 		this.jobGroup = jobGroup;
 	}
-	public String getDescription() {
+	@Override
+    public String getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
+	@Override
+    public void setDescription(String description) {
 		this.description = description;
 	}
 	public String get_nextFireTime() {
@@ -433,4 +436,10 @@ public class JobServiceVO extends CommonServiceVO {
 	public void setLocalFileOperationSettingId(String localFileOperationSettingId) {
 		this.localFileOperationSettingId = localFileOperationSettingId;
 	}
+    public String getInputDataPollerOperatorSettingId() {
+        return inputDataPollerOperatorSettingId;
+    }
+    public void setInputDataPollerOperatorSettingId(String inputDataPollerOperatorSettingId) {
+        this.inputDataPollerOperatorSettingId = inputDataPollerOperatorSettingId;
+    }
 }

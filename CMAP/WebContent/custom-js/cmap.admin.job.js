@@ -31,7 +31,6 @@ $(document).ready(function() {
 	
 	$("#btnModify").click(function() {
 		isModify = true;
-		changeSchedView($("#inputSchedType").val());
 		jobAction('modify');
 	});
 	
@@ -116,6 +115,7 @@ function jobAction(action) {
 					$("#inputSysCheckSql").val(resp.data.inputSysCheckSql);
 					
 					$("#inputDataPollerSettingId").val(resp.data.inputDataPollerSettingId);
+					$("#inputDataPollerOperatorSettingId").val(resp.data.inputDataPollerSettingId);
 					$("#inputLocalFileOperationSettingId").val(resp.data.inputLocalFileOperationSettingId);
 					
 					$("#inputMisFirePolicy option").filter(function() {
@@ -139,6 +139,10 @@ function jobAction(action) {
 					$("#addModifyModal").modal({
 						backdrop : 'static'
 					});
+					
+					if (action == "modify") {
+						changeSchedView($("#inputSchedType").val());
+					}
 					
 				} else {
 					alert(resp.message);

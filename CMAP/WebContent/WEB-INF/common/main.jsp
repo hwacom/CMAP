@@ -73,6 +73,9 @@
 	
     <nav class="navbar navbar-dark fixed-top flex-md-nowrap p-0 shadow navbar-bg">
       <a href="${pageContext.request.contextPath}/index">
+      	<!-- Hwacom -->
+		<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="30" style="padding-top: 3px" />
+			  			
       	<!-- 苗栗 -->
       	<!-- 
       	<img class="img" src="${pageContext.request.contextPath}/resources/images/Logo_icon.png" width="auto" height="30" style="padding-top: 3px" />
@@ -80,9 +83,11 @@
  		 -->
  		  
  		<!-- 亞太 -->
+ 		<!-- 
  		<img class="img" src="${pageContext.request.contextPath}/resources/images/aptg_logo_icon.png" width="auto" height="30" style="padding-top: 3px" />
 		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/aptg_logo_word.png" width="auto" height="23" style="padding-top: 3px" />
- 		  
+ 		 -->
+ 		 
  		<!-- 桃機 -->
  		<!-- 
  		<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />

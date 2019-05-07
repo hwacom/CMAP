@@ -69,6 +69,7 @@ public class Constants {
 	public static final String QUARTZ_SCHED_TYPE_CLEAN_UP_FTP_FILE = "cleanUpFtpFile";
 	public static final String QUARTZ_SCHED_TYPE_CLEAN_UP_DB_DATA = "cleanUpDbData";
 	public static final String QUARTZ_SCHED_TYPE_DATA_POLLER = "dataPoller";
+	public static final String QUARTZ_SCHED_TYPE_DATA_POLLER_OPERATOR = "dataPollerOperator";
 	public static final String QUARTZ_SCHED_TYPE_LOCAL_FILE_OPERATION = "localFileOperation";
 
 	public static final String QUARTZ_PARA_JSON_STR = "paraJsonStr";
@@ -123,6 +124,7 @@ public class Constants {
 	public static final String DEVICE_LOGIN_ACCOUNT = "DEVICE_LOGIN_ACCOUNT";
 	public static final String DEVICE_LOGIN_PASSWORD = "DEVICE_LOGIN_PASSWORD";
 	public static final String DEVICE_ENABLE_PASSWORD = "DEVICE_ENABLE_PASSWORD";
+	public static final String THREAD_COUNT = "THREAD_COUNT";
 
 	public static final String DIR_PATH_GROUP_ID = "[gID]";
 	public static final String DIR_PATH_GROUP_NAME = "[gName]";
