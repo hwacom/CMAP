@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
-@Repository("clusterMigrateDAOImpl")
+@Repository("clusterMigrateDAO")
 @Transactional
 public class ClusterMigrateDAOImpl extends BaseDaoHibernate implements ClusterMigrateDAO {
 

@@ -33,6 +33,7 @@ public class Env {
 	public static String SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT;		// 資安通報 > 開關PORT
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			// 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			// 資安通報 > 網卡MAC開通/封鎖
+	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;        // 資安通報 > 防火牆LOG查詢
 
 	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				// 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
 

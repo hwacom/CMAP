@@ -125,6 +125,8 @@ public class Constants {
 	public static final String DEVICE_LOGIN_PASSWORD = "DEVICE_LOGIN_PASSWORD";
 	public static final String DEVICE_ENABLE_PASSWORD = "DEVICE_ENABLE_PASSWORD";
 	public static final String THREAD_COUNT = "THREAD_COUNT";
+	public static final String TARGET_TABLE = "TARGET_TABLE";
+	public static final String SKIP_HEAD_LINES_COUNT = "SKIP_HEAD_LINES_COUNT";
 
 	public static final String DIR_PATH_GROUP_ID = "[gID]";
 	public static final String DIR_PATH_GROUP_NAME = "[gName]";
@@ -187,6 +189,7 @@ public class Constants {
 
 	public static final String DATA_TYPE_OF_NET_FLOW = "NET_FLOW";
 	public static final String DATA_TYPE_OF_FIREWALL_BLACK_LIST = "FW_BLACK_LIST";
+	public static final String DATA_TYPE_OF_FIREWALL_LOG = "FIREWALL_LOG";
 
 	public static final String STORE_METHOD_OF_FILE = "FILE";
 	public static final String STORE_METHOD_OF_DB = "DB";

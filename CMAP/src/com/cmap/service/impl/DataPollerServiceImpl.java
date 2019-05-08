@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -184,14 +185,12 @@ public class DataPollerServiceImpl implements DataPollerService {
 								success = false;
 
 							} else {
-							    long beginT = System.currentTimeMillis();
 								for (Map.Entry<String, List<String>> entry : recordListMap.entrySet()) {
 									final String targetTableName = entry.getKey();
 									final List<String> recordList = entry.getValue();
 
 									writeCsvDataFile(targetTableName, setting, recordList);
 								}
-								long endT = System.currentTimeMillis();
 							}
 
 							break;
@@ -583,7 +582,7 @@ public class DataPollerServiceImpl implements DataPollerService {
 				}
 
 				if (!moveFile) {
-					throw new ServiceLayerException("移動檔案至備份資料夾失敗 >>> oriFile: " + file.getPath() + ", targetFile: " + targetFile.getPath());
+					throw new ServiceLayerException("移動檔案至備份資料夾失敗 >>> oriFile: " + file.getPath() + ", targetFile: " + targetFilePath);
 
 				} else {
 					if (file.exists()) {
@@ -735,11 +734,9 @@ public class DataPollerServiceImpl implements DataPollerService {
                 final String sourceColumnName = data.getSourceColumnName();
                 final String sourceColumnType = data.getSourceColumnType();
                 final String sourceColumnJavaFormat = data.getSourceColumnJavaFormat();
-                final String sourceColumnSqlFormat = data.getSourceColumnSqlFormat();
 
                 targetTableName = data.getTargetTableName();
                 final String targetFieldName = data.getTargetFieldName();
-                final String targetFieldType = data.getTargetFieldType();
 
                 if (StringUtils.equals(setting.getRecordByDay(), Constants.DATA_Y)) {
                     if (StringUtils.equals(sourceColumnName, setting.getRecordByDayReferField())) {
@@ -814,45 +811,7 @@ public class DataPollerServiceImpl implements DataPollerService {
                     }
                 }
 
-                /*
-                 * 判斷當前欄位型態是否為日期
-                 */
-                if (StringUtils.startsWith(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_TIMESTAMP)) {
-                    String funcStr = "STR_TO_DATE(@`" + targetFieldName + "`, '" + sourceColumnSqlFormat + "') ";
-
-                    if (!StringUtils.equals(isSourceColumn, Constants.DATA_Y)) {
-                        //非原始CSV檔內欄位(e.g. Create_Time、Update_Time)，一律以 NOW()函式(設定在Source_Column_SQL_Format欄位)取得當下日期時間即可
-                        funcStr = sourceColumnSqlFormat;
-
-                    } else {
-                        /*
-                         * 判斷是否有設定要 ADDTIME
-                         * (e.g. TIMESTAMP+0:8:0 >> 表示要加8小時)
-                         */
-                        if (StringUtils.contains(sourceColumnType, "+")) {
-                            String[] str = sourceColumnType.split("\\+");
-                            String addTime = str[1];
-
-                            funcStr = "ADDTIME(" + funcStr + ", \"" + addTime + "\")";
-                        }
-                    }
-
-                    if (StringUtils.equals(targetFieldType, Constants.FIELD_TYPE_OF_VARCHAR)) {
-                        // 時間欄位轉成字串寫入DB
-                        String targetValueFormat = data.getTargetValueFormat();
-                        funcStr = "DATE_FORMAT(" + funcStr + ", '" + targetValueFormat + "')";
-                    }
-
-                    specialSetFieldMap.put(targetFieldName, funcStr);
-
-                } else if (StringUtils.equals(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_USER)) {
-                    String userName = "'" + Env.USER_NAME_JOB + "'";
-                    specialSetFieldMap.put(targetFieldName, userName);
-
-                } else if (StringUtils.equals(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_FILE_NAME)) {
-                    String sqlFileName = "'" + fileName + "'";
-                    specialSetFieldMap.put(targetFieldName, sqlFileName);
-                }
+                transSpecialSetField(specialSetFieldMap, map, fileName);
             }
 
             StringBuffer sb = new StringBuffer();
@@ -898,6 +857,7 @@ public class DataPollerServiceImpl implements DataPollerService {
 
 		switch (dataType) {
 			case Constants.DATA_TYPE_OF_NET_FLOW:
+			case Constants.DATA_TYPE_OF_FIREWALL_LOG:
 				tmpSpecialFieldMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
 				break;
 		}
@@ -916,6 +876,7 @@ public class DataPollerServiceImpl implements DataPollerService {
                 if (StringUtils.equals(setting.getDataType(), Constants.DATA_TYPE_OF_NET_FLOW)) {
                     /*
                      * 若是 NET_FLOW plugin，以GROUP_ID查找Mapping檔取得要寫入的TABLE名稱
+                     * [應用Case]: 苗栗教網
                      */
                     String groupId = specialFieldMap.get(Constants.GROUP_ID);
                     String retTableName = netFlowDAO.findTargetTableNameByGroupId(groupId);
@@ -926,20 +887,37 @@ public class DataPollerServiceImpl implements DataPollerService {
                     recordDateTableName = retTableName;
 
                 } else if (StringUtils.equals(setting.getDataType(), Constants.DATA_TYPE_OF_FIREWALL_BLACK_LIST)) {
-                    // 防火牆黑名單記錄預設寫入table名稱
+                    /*
+                     * 防火牆黑名單記錄預設寫入table名稱
+                     * [應用Case]: 桃機T1/T2
+                     */
                     recordDateTableName = Env.TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;
+
+                } else if (StringUtils.equals(setting.getDataType(), Constants.DATA_TYPE_OF_FIREWALL_LOG)) {
+                    /*
+                     * 防火牆LOG，依 Special_Var_Setting 中設定的 TARGET_TABLE 決定寫入的table名稱
+                     * [應用Case]: 桃機T1/T2
+                     */
+                    String targetTableName = specialFieldMap.get(Constants.TARGET_TABLE);
+                    recordDateTableName = targetTableName;
                 }
 			}
 
 			final String targetTableName = recordDateTableName;
 			final String fileName = file.getName();
 
-			// 定義 Thread Pool 數量
-			final int threadCount = Env.THREAD_COUNT_OF_DATA_POLLER;
+			// 定義 Thread Pool 數量 (看 Setting 中 Special_Var_Setting 有無設定 THREAD_COUNT，若無則取預設值)
+			String settingThreadCount = specialFieldMap.get(Constants.THREAD_COUNT);
+			final int threadCount = StringUtils.isBlank(settingThreadCount)
+			                            ? Env.THREAD_COUNT_OF_DATA_POLLER : Integer.parseInt(settingThreadCount);
 			ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
+			String settingSkipHeadLinesCount = specialFieldMap.get(Constants.SKIP_HEAD_LINES_COUNT);
+			int skipHeadLinesCount = StringUtils.isNotBlank(settingSkipHeadLinesCount)
+			                            ? Integer.parseInt(settingSkipHeadLinesCount) : 0;
+
 			// 逐行讀取檔案內容
-			long ttlSize = Files.lines(Paths.get(file.getPath()), Charset.forName(charset)).count();
+			long ttlSize = Files.lines(Paths.get(file.getPath()), Charset.forName(charset)).count() - skipHeadLinesCount;
 			List<List<String>> sliceList = new LinkedList<>();
 			List<String> tmpList = new LinkedList<>();
 			int sliceSize =
@@ -949,6 +927,12 @@ public class DataPollerServiceImpl implements DataPollerService {
 			try (BufferedReader br = new BufferedReader(isr)) {
 			    String line;
 			    while ((line = br.readLine()) != null) {
+			        if (row < skipHeadLinesCount) {
+			            // 若有設定要跳過前幾行的話則跳過
+			            row++;
+			            continue;
+			        }
+
 			        tmpList.add(line);
                     line = null;
 
@@ -1678,51 +1662,63 @@ public class DataPollerServiceImpl implements DataPollerService {
 		return retVal;
 	}
 
-	private Map<String, String> composeSpecialSetFieldMap(Map<Integer, DataPollerServiceVO> mappingMap) {
+	private Map<String, String> composeSpecialSetFieldMap(Map<Integer, DataPollerServiceVO> mappingMap, String fileName) {
 	    Map<String, String> specialSetFieldMap = new HashMap<>();
 
 	    for (Map.Entry<Integer, DataPollerServiceVO> map : mappingMap.entrySet()) {
-            final DataPollerServiceVO data = map.getValue();
-            final String isSourceColumn = data.getIsSourceColumn();
-            final String sourceColumnType = data.getSourceColumnType();
-            final String sourceColumnSqlFormat = data.getSourceColumnSqlFormat();
-            final String targetFieldName = data.getTargetFieldName();
-            final String targetFieldType = data.getTargetFieldType();
-
-            /*
-             * 判斷當前欄位型態是否為日期
-             */
-            if (StringUtils.startsWith(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_TIMESTAMP)) {
-                String funcStr = "STR_TO_DATE(@`" + targetFieldName + "`, '" + sourceColumnSqlFormat + "') ";
-
-                if (!StringUtils.equals(isSourceColumn, Constants.DATA_Y)) {
-                    //非原始CSV檔內欄位(e.g. Create_Time、Update_Time)，一律以 NOW()函式(設定在Source_Column_SQL_Format欄位)取得當下日期時間即可
-                    funcStr = sourceColumnSqlFormat;
-
-                } else {
-                    /*
-                     * 判斷是否有設定要 ADDTIME
-                     * (e.g. TIMESTAMP+0:8:0 >> 表示要加8小時)
-                     */
-                    if (StringUtils.contains(sourceColumnType, "+")) {
-                        String[] str = sourceColumnType.split("\\+");
-                        String addTime = str[1];
-
-                        funcStr = "ADDTIME(" + funcStr + ", \"" + addTime + "\")";
-                    }
-                }
-
-                if (StringUtils.equals(targetFieldType, Constants.FIELD_TYPE_OF_VARCHAR)) {
-                    // 時間欄位轉成字串寫入DB
-                    String targetValueFormat = data.getTargetValueFormat();
-                    funcStr = "DATE_FORMAT(" + funcStr + ", '" + targetValueFormat + "')";
-                }
-
-                specialSetFieldMap.put(targetFieldName, funcStr);
-            }
+            transSpecialSetField(specialSetFieldMap, map, fileName);
         }
 
 	    return specialSetFieldMap;
+	}
+
+	private void transSpecialSetField(Map<String, String> specialSetFieldMap, Map.Entry<Integer, DataPollerServiceVO> map, String fileName) {
+        final DataPollerServiceVO data = map.getValue();
+        final String isSourceColumn = data.getIsSourceColumn();
+        final String sourceColumnType = data.getSourceColumnType();
+        final String sourceColumnSqlFormat = data.getSourceColumnSqlFormat();
+        final String targetFieldName = data.getTargetFieldName();
+        final String targetFieldType = data.getTargetFieldType();
+
+	    /*
+         * 判斷當前欄位型態是否為日期
+         */
+        if (StringUtils.startsWith(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_TIMESTAMP)) {
+            String funcStr = "STR_TO_DATE(@`" + targetFieldName + "`, '" + sourceColumnSqlFormat + "') ";
+
+            if (!StringUtils.equals(isSourceColumn, Constants.DATA_Y)) {
+                //非原始CSV檔內欄位(e.g. Create_Time、Update_Time)，一律以 NOW()函式(設定在Source_Column_SQL_Format欄位)取得當下日期時間即可
+                funcStr = sourceColumnSqlFormat;
+
+            } else {
+                /*
+                 * 判斷是否有設定要 ADDTIME
+                 * (e.g. TIMESTAMP+0:8:0 >> 表示要加8小時)
+                 */
+                if (StringUtils.contains(sourceColumnType, "+")) {
+                    String[] str = sourceColumnType.split("\\+");
+                    String addTime = str[1];
+
+                    funcStr = "ADDTIME(" + funcStr + ", \"" + addTime + "\")";
+                }
+            }
+
+            if (StringUtils.equals(targetFieldType, Constants.FIELD_TYPE_OF_VARCHAR)) {
+                // 時間欄位轉成字串寫入DB
+                String targetValueFormat = data.getTargetValueFormat();
+                funcStr = "DATE_FORMAT(" + funcStr + ", '" + targetValueFormat + "')";
+            }
+
+            specialSetFieldMap.put(targetFieldName, funcStr);
+
+        } else if (StringUtils.equals(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_USER)) {
+            String userName = "'" + Env.USER_NAME_JOB + "'";
+            specialSetFieldMap.put(targetFieldName, userName);
+
+        } else if (StringUtils.equals(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_FILE_NAME)) {
+            String sqlFileName = "'" + fileName + "'";
+            specialSetFieldMap.put(targetFieldName, sqlFileName);
+        }
 	}
 
     @Override
@@ -1765,7 +1761,7 @@ public class DataPollerServiceImpl implements DataPollerService {
                 return dpsVO;
             }
 
-            final Map<String, String> specialSetFieldMap = composeSpecialSetFieldMap(mappingMap);
+            final Map<String, String> specialSetFieldMap = composeSpecialSetFieldMap(mappingMap, null);
             final String extraSetStr = composeExtraSetStr(specialSetFieldMap, mappingMap);
             final Map<String, String> specialFieldMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
 
@@ -1773,6 +1769,9 @@ public class DataPollerServiceImpl implements DataPollerService {
             final Integer threadCount = Integer.parseInt(Objects.toString(specialFieldMap.get(Constants.THREAD_COUNT), "1"));
 
             ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+
+            // 排序檔案，最早進來的檔案先處理
+            Arrays.sort(files, (a, b) -> Long.compare(a.lastModified(), b.lastModified()));
 
             int ttlCount = files.length;
             int errorCount = 0;
@@ -1793,9 +1792,7 @@ public class DataPollerServiceImpl implements DataPollerService {
                         public void run() throws RuntimeException {
                             try {
                                 // Step 1. 執行CSV檔資料寫入DB
-                                long b = System.currentTimeMillis();
                                 insertData2DBByFile(setting, targetFilePath, targetTableName, extraSetStr);
-                                long e = System.currentTimeMillis();
 
                                 // Step 2. 刪除CSV檔案
                                 deleteInsertCsvFile(targetFilePath);
@@ -1809,6 +1806,11 @@ public class DataPollerServiceImpl implements DataPollerService {
                 } catch (Exception e) {
                     errorCount++;
                 }
+            }
+
+            executor.shutdown();
+
+            while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
             }
 
             String remark = "共處理 " + ttlCount + " 筆檔案。成功 " + (ttlCount - errorCount) + " 筆；失敗 " + errorCount + " 筆";
