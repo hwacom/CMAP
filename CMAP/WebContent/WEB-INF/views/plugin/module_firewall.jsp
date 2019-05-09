@@ -45,17 +45,17 @@
 	    	  </div>
 	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
 	    	    <div class="col-lg-4 group-field-other">
-					<label for="querySrcIp" class="font-weight-bold" style="width: 15%"><spring:message code="firewall.src.ip" /></label>
+					<label for="querySrcIp" class="font-weight-bold" style="width: 15%"><spring:message code="src.ip" /></label>
 					<input type="text" id="querySrcIp" class="input-ip" style="width: 40%">
 					&nbsp;
-					<label for="querySrcPort" class="font-weight-bold" style="width: 18%"><spring:message code="firewall.src.port" /></label>
+					<label for="querySrcPort" class="font-weight-bold" style="width: 18%"><spring:message code="src.port" /></label>
 					<input type="text" id="querySrcPort" class="input-port" style="width: 20%">
 				</div>
 				<div class="col-lg-4 group-field-other">
-					<label for="queryDstIp" class="font-weight-bold" style="width: 15%"><spring:message code="firewall.dst.ip" /></label>
+					<label for="queryDstIp" class="font-weight-bold" style="width: 15%"><spring:message code="dst.ip" /></label>
 					<input type="text" id="queryDstIp" class="input-ip" style="width: 40%">
 					&nbsp;
-					<label for="queryDstPort" class="font-weight-bold" style="width: 18%"><spring:message code="firewall.dst.port" /></label>
+					<label for="queryDstPort" class="font-weight-bold" style="width: 18%"><spring:message code="dst.port" /></label>
 					<input type="text" id="queryDstPort" class="input-port" style="width: 20%">
 				</div>
 			  </div>
@@ -91,19 +91,19 @@
                     </form:select>
 				  </div>
 		    	  <div class="form-group row">
-		    	  	<label for="query_SrcIp_mobile" class="col-sm-2 col-form-label"><spring:message code="firewall.src.ip" /></label>
+		    	  	<label for="query_SrcIp_mobile" class="col-sm-2 col-form-label"><spring:message code="src.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_SrcIp_mobile">
 				  </div>
 				  <div class="form-group row">
-		    	  	<label for="query_SrcPort_mobile" class="col-sm-2 col-form-label"><spring:message code="firewall.src.port" /></label>
+		    	  	<label for="query_SrcPort_mobile" class="col-sm-2 col-form-label"><spring:message code="src.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_SrcPort_mobile">
 				  </div>
 				  <div class="form-group row">
-		    	  	<label for="query_DstIp_mobile" class="col-sm-2 col-form-label"><spring:message code="firewall.dst.ip" /></label>
+		    	  	<label for="query_DstIp_mobile" class="col-sm-2 col-form-label"><spring:message code="dst.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_DstIp_mobile">
 				  </div>
 				  <div class="form-group row">
-		    	  	<label for="query_DstPort_mobile" class="col-sm-2 col-form-label"><spring:message code="firewall.dst.port" /></label>
+		    	  	<label for="query_DstPort_mobile" class="col-sm-2 col-form-label"><spring:message code="dst.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_DstPort_mobile">
 				  </div>
 				  <div class="form-group row">
@@ -146,28 +146,27 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="firewall.type" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="dev.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="date" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="severity">Severity</th>
-		      <th scope="col" nowrap="nowrap" data-field="srcIp">Src_IP</th>
-		      <th scope="col" nowrap="nowrap" data-field="srcPort">Src_Port</th>
-		      <th scope="col" nowrap="nowrap" data-field="srcCountry">Src_Country</th>
-		      <th scope="col" nowrap="nowrap" data-field="dstIp">Dst_IP</th>
-		      <th scope="col" nowrap="nowrap" data-field="dstPort">Dst_Port</th>
-		      <th scope="col" nowrap="nowrap" data-field="proto">Proto</th>
-		      <th scope="col" nowrap="nowrap" data-field="service">Service</th>
-		      <th scope="col" nowrap="nowrap" data-field="url">Url</th>
-		      <th scope="col" nowrap="nowrap" data-field="app">App</th>
-		      <th scope="col" nowrap="nowrap" data-field="action">Action</th>
-		      <th scope="col" nowrap="nowrap" data-field="sentByte">Sent_Byte</th>
-		      <th scope="col" nowrap="nowrap" data-field="rcvdByte">Rcvd_Byte</th>
-		      <th scope="col" nowrap="nowrap" data-field="utmAction">Utm_Action</th>
-		      <th scope="col" nowrap="nowrap" data-field="level">Level</th>
-		      <th scope="col" nowrap="nowrap" data-field="user">User</th>
-		      <th scope="col" nowrap="nowrap" data-field="message">Message</th>
-		      <th scope="col" nowrap="nowrap" data-field="attack">Attack</th>
+		      <th scope="col" nowrap="nowrap" data-field="severity"><spring:message code="severity" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="srcIp"><spring:message code="src.ip" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="srcPort"><spring:message code="src.port" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="srcCountry"><spring:message code="src.country" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="dstIp"><spring:message code="dst.ip" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="dstPort"><spring:message code="dst.port" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="proto"><spring:message code="protocol" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="service"><spring:message code="service" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="url"><spring:message code="url" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="app"><spring:message code="application" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="action"><spring:message code="action" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="sentByte"><spring:message code="sent.flow" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="rcvdByte"><spring:message code="rcvd.flow" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="utmAction"><spring:message code="utm.action" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="level"><spring:message code="level" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="user"><spring:message code="user" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="message"><spring:message code="message" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="attack"><spring:message code="attack.name" /></th>
 		    </tr>
 		  </thead>
 		</table>

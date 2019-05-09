@@ -137,7 +137,6 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
                     FirewallVO vo;
                     for (Object[] data : dataList) {
                         vo = new FirewallVO();
-                        vo.setType(fVO.getQueryType());
 
                         for (int i=0; i<fieldList.size(); i++) {
                             int fieldIdx = i;
