@@ -9,8 +9,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="module_firewall_setting")
-public class ModuleFirewallSetting implements java.io.Serializable {
+@Table(name="module_firewall_log_setting")
+public class ModuleFirewallLogSetting implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -43,12 +43,12 @@ public class ModuleFirewallSetting implements java.io.Serializable {
 	@Column(name = "update_by", nullable = false)
 	private String updateBy;
 
-	public ModuleFirewallSetting() {
+	public ModuleFirewallLogSetting() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-    public ModuleFirewallSetting(String id, String settingName, String settingValue,
+    public ModuleFirewallLogSetting(String id, String settingName, String settingValue,
             Integer orderNo, String remark, Timestamp createTime, String createBy,
             Timestamp updateTime, String updateBy) {
         super();

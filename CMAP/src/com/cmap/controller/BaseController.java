@@ -19,11 +19,9 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.TreeMap;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
-
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
@@ -130,7 +127,7 @@ public class BaseController {
 	        Authentication authentication =  new UsernamePasswordAuthenticationToken(securityUser, USER_NAME, authorities);
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-	        return "redirect:" + Env.HOME_PAGE;
+	        return "redirect:" + Env.PRTG_SSH_CONFIRM_PAGE;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);

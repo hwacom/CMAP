@@ -1,5 +1,6 @@
 package com.cmap.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,8 @@ import com.cmap.service.vo.CommonServiceVO;
 import com.cmap.service.vo.PrtgServiceVO;
 
 public interface CommonService {
+
+    public String convertByteSizeUnit(BigDecimal sizeByte, Integer targetUnit);
 
     /**
      * 取得 GROUP 及 DEVICE 選單

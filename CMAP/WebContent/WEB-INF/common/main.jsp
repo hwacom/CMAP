@@ -341,7 +341,7 @@
 			            	if (Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL.equals(__SHOW__)) {
 			            %>
 	                    <li class="subMenu-item">
-	                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/firewall">
+	                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
 	                    	  <span data-feather="shuffle"></span>
 	                    	  	<span><spring:message code="func.plugin.firewall" /></span>
 	                    	</a>

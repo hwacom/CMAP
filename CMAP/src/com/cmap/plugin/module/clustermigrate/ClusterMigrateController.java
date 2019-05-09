@@ -14,12 +14,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cmap.AppResponse;
 import com.cmap.annotation.Log;
+import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 @RequestMapping("/plugin/module/clustermigrate")
-public class ClusterMigrateController {
+public class ClusterMigrateController extends BaseController {
     @Log
     private static Logger log;
 

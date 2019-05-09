@@ -2,7 +2,6 @@ package com.cmap.plugin.module.netflow;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -35,8 +34,8 @@ import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DataPollerMapping;
 import com.cmap.model.DataPollerSetting;
 import com.cmap.model.DeviceList;
-import com.cmap.service.CommonService;
 import com.cmap.service.DataPollerService;
+import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.impl.jobs.BaseJobImpl.Result;
 import com.cmap.service.vo.CommonServiceVO;
 import com.cmap.service.vo.DataPollerServiceVO;
@@ -44,7 +43,7 @@ import com.cmap.utils.impl.CloseableHttpClientUtils;
 
 @Service("netFlowService")
 @Transactional
-public class NetFlowServiceImpl implements NetFlowService {
+public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowService {
 	@Log
 	private static Logger log;
 
@@ -59,9 +58,6 @@ public class NetFlowServiceImpl implements NetFlowService {
 
 	@Autowired
 	private DeviceDAO deviceDAO;
-
-	@Autowired
-	private CommonService commonService;
 
 	private String getTodayTableName() {
 		String tableName = Env.DATA_POLLER_NET_FLOW_TABLE_BASE_NAME;
@@ -166,7 +162,7 @@ public class NetFlowServiceImpl implements NetFlowService {
 				}
 			}
 
-			Map<Integer, CommonServiceVO> protocolMap = commonService.getProtoclSpecMap();
+			Map<Integer, CommonServiceVO> protocolMap = getProtoclSpecMap();
 
 			final String queryTable = getQueryTableName(nfVO);
 			List<Object[]> dataList = netFlowDAO.findNetFlowDataFromDB(nfVO, startRow, pageLength, searchLikeField, queryTable, queryFieldsSQL.toString());
@@ -274,39 +270,6 @@ public class NetFlowServiceImpl implements NetFlowService {
 			throw new ServiceLayerException("查詢失敗，請重新操作");
 		}
 		return retList;
-	}
-
-	private String convertByteSizeUnit(BigDecimal sizeByte, Integer targetUnit) {
-		int scale = Env.NET_FLOW_SIZE_SCALE;
-		BigDecimal unitSize = new BigDecimal("1024");
-		BigDecimal sizeKb = sizeByte.divide(unitSize, scale, RoundingMode.HALF_UP);
-		BigDecimal sizeMb = (sizeByte.divide(unitSize)).divide(unitSize, scale, RoundingMode.HALF_UP);
-		BigDecimal sizeGb = (sizeByte.divide(unitSize).divide(unitSize)).divide(unitSize, scale, RoundingMode.HALF_UP);
-		BigDecimal sizeTb = (sizeByte.divide(unitSize).divide(unitSize).divide(unitSize)).divide(unitSize, scale, RoundingMode.HALF_UP);
-		BigDecimal unitBaseSize = new BigDecimal("1.00"); //有超過下一單位的數量1時再轉換 (e.g. 100MB不到1GB，不轉換成0.1GB；1120MB有超過1GB，轉換成1.xxGB)
-
-		/*
-		 * targetUnit : 目標最高轉換至哪個單位
-		 * 1=B / 2=KB / 3=MB / 4=GB / 5=TB
-		 */
-		String convertedSize = "";
-		if (targetUnit >= 5 && sizeTb.compareTo(unitBaseSize) == 1) {
-			convertedSize = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(sizeTb) + " TB";
-
-		} else if (targetUnit >= 4 && sizeGb.compareTo(unitBaseSize) == 1) {
-			convertedSize = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(sizeGb) + " GB";
-
-		} else if (targetUnit >= 3 && sizeMb.compareTo(unitBaseSize) == 1) {
-			convertedSize = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(sizeMb) + " MB";
-
-		} else if (targetUnit >= 2 && sizeKb.compareTo(unitBaseSize) == 1) {
-			convertedSize = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(sizeKb) + " KB";
-
-		} else if (targetUnit >= 1){
-			convertedSize = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(sizeByte) + " B";
-		}
-
-		return convertedSize;
 	}
 
 	private Map<String, NetFlowVO> composeQueryMap(NetFlowVO nfVO) {

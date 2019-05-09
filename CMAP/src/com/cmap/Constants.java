@@ -44,6 +44,7 @@ public class Constants {
 	public static final SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	public static final SimpleDateFormat FORMAT_YYYYMMDD_HH24MI = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	public static final SimpleDateFormat FORMAT_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
+	public static final SimpleDateFormat FORMAT_HH24_MI_SS = new SimpleDateFormat("HH:mm:ss");
 
 	public static final DecimalFormat NUMBER_FORMAT_THOUSAND_SIGN = new DecimalFormat("###,###,###,###.##");
 

@@ -39,24 +39,24 @@
 	    	    	<input type="date" id="queryDateBegin" style="width: 12%">
 	    	    	<input type="time" id="queryTimeBegin" style="width: 10%">
 	    	    	~
-	    	    	<input type="date" id="queryDateEnd" style="width: 12%">
+	    	    	<!-- <input type="date" id="queryDateEnd" style="width: 12%"> -->
 	    	    	<input type="time" id="queryTimeEnd" style="width: 10%">
 	    	    </div>
 	    	  </div>
 	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
 	    	    <div class="col-lg-4 group-field-other">
-					<label for="query_SrcIp" class="font-weight-bold" style="width: 15%"><spring:message code="firewall.src.ip" /></label>
-					<input type="text" id="query_SrcIp" class="input-ip" style="width: 40%">
+					<label for="querySrcIp" class="font-weight-bold" style="width: 15%"><spring:message code="firewall.src.ip" /></label>
+					<input type="text" id="querySrcIp" class="input-ip" style="width: 40%">
 					&nbsp;
-					<label for="query_SrcPort" class="font-weight-bold" style="width: 18%"><spring:message code="firewall.src.port" /></label>
-					<input type="text" id="query_SrcPort" class="input-port" style="width: 20%">
+					<label for="querySrcPort" class="font-weight-bold" style="width: 18%"><spring:message code="firewall.src.port" /></label>
+					<input type="text" id="querySrcPort" class="input-port" style="width: 20%">
 				</div>
 				<div class="col-lg-4 group-field-other">
-					<label for="query_DstIp" class="font-weight-bold" style="width: 15%"><spring:message code="firewall.dst.ip" /></label>
-					<input type="text" id="query_DstIp" class="input-ip" style="width: 40%">
+					<label for="queryDstIp" class="font-weight-bold" style="width: 15%"><spring:message code="firewall.dst.ip" /></label>
+					<input type="text" id="queryDstIp" class="input-ip" style="width: 40%">
 					&nbsp;
-					<label for="query_DstPort" class="font-weight-bold" style="width: 18%"><spring:message code="firewall.dst.port" /></label>
-					<input type="text" id="query_DstPort" class="input-port" style="width: 20%">
+					<label for="queryDstPort" class="font-weight-bold" style="width: 18%"><spring:message code="firewall.dst.port" /></label>
+					<input type="text" id="queryDstPort" class="input-port" style="width: 20%">
 				</div>
 			  </div>
 	      	</div>
@@ -119,9 +119,11 @@
 		    	    <div class="col-sm-1">~</div>
 		    	  </div>
 		    	  <div class="form-group row">
+		    	  	<!-- 
 				  	<div class="col-sm-4">
 				      <input type="date" class="form-control form-control-sm" id="queryDateEnd_mobile">
 				    </div>
+				     -->
 				    <div class="col-sm-4">
 				      <input type="time" class="form-control form-control-sm" id="queryTimeBegin_mobile">
 				    </div>
@@ -144,10 +146,28 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-		      <!-- <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th> -->
-		      <c:forEach var="fName" items="${TABLE_FIELD}">
-		        <th scope="col" nowrap="nowrap">${fName }</th>
-		      </c:forEach>
+		      <th scope="col" nowrap="nowrap"><spring:message code="firewall.type" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="dev.name" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="date" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="time" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="severity">Severity</th>
+		      <th scope="col" nowrap="nowrap" data-field="srcIp">Src_IP</th>
+		      <th scope="col" nowrap="nowrap" data-field="srcPort">Src_Port</th>
+		      <th scope="col" nowrap="nowrap" data-field="srcCountry">Src_Country</th>
+		      <th scope="col" nowrap="nowrap" data-field="dstIp">Dst_IP</th>
+		      <th scope="col" nowrap="nowrap" data-field="dstPort">Dst_Port</th>
+		      <th scope="col" nowrap="nowrap" data-field="proto">Proto</th>
+		      <th scope="col" nowrap="nowrap" data-field="service">Service</th>
+		      <th scope="col" nowrap="nowrap" data-field="url">Url</th>
+		      <th scope="col" nowrap="nowrap" data-field="app">App</th>
+		      <th scope="col" nowrap="nowrap" data-field="action">Action</th>
+		      <th scope="col" nowrap="nowrap" data-field="sentByte">Sent_Byte</th>
+		      <th scope="col" nowrap="nowrap" data-field="rcvdByte">Rcvd_Byte</th>
+		      <th scope="col" nowrap="nowrap" data-field="utmAction">Utm_Action</th>
+		      <th scope="col" nowrap="nowrap" data-field="level">Level</th>
+		      <th scope="col" nowrap="nowrap" data-field="user">User</th>
+		      <th scope="col" nowrap="nowrap" data-field="message">Message</th>
+		      <th scope="col" nowrap="nowrap" data-field="attack">Attack</th>
 		    </tr>
 		  </thead>
 		</table>
@@ -160,8 +180,10 @@
 <c:set var="val"><spring:message code="group.name"/></c:set>
 
 <script>
-	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
+	var msg_chooseType = '<spring:message code="please.choose" /><spring:message code="firewall.type" />';
+	var msg_chooseDevName = '<spring:message code="please.choose" /><spring:message code="dev.name" />';
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
+	var msg_chooseTime = '<spring:message code="please.choose" /><spring:message code="time" />';
 </script>
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.firewall.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/node-ip-master/ip.min.js"></script>
+<!-- <script src="${pageContext.request.contextPath}/resources/js/node-ip-master/ip.js"></script> -->
