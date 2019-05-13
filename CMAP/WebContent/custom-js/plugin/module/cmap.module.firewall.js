@@ -5,7 +5,7 @@
 var timer, startTime, timer_start, timer_end;
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_netflow");
+	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_firewallLog");
 	
 	$("input").val("");
 	
@@ -47,6 +47,16 @@ $(document).ready(function() {
 	
 	$("#queryDateBegin").val(cDate);
 	$("#queryDateEnd").val(cDate);
+	
+	$("#queryType").change(function() {
+		var option = $(this).val();
+		
+		if (option == "SYSTEM") {
+			$('[data-ipPortSec]').hide();
+		} else {
+			$('[data-ipPortSec]').show();
+		}
+	});
 });
 
 function countDown(status) {
@@ -73,13 +83,16 @@ function countDown(status) {
 function findData(from) {
 	$('#queryFrom').val(from);
 	
-	if ($("#queryGroup").val().trim().length == 0) {
-		alert(msg_chooseGroup);
+	if ($("#queryType").val().trim().length == 0) {
+		alert(msg_chooseType);
 		return;
 	}
-	
 	if ($("#queryDateBegin").val().trim().length == 0) {
 		alert(msg_chooseDate);
+		return;
+	}
+	if ($("#queryTimeBegin").val().trim().length == 0 || $("#queryTimeEnd").val().trim().length == 0) {
+		alert(msg_chooseTime);
 		return;
 	}
 	
@@ -93,6 +106,7 @@ function findData(from) {
 		
 	} else {
 		$(".myTableSection").show();
+		$('[data-field]').hide();
 		
 		resutTable = $('#resutTable').DataTable(
 		{
@@ -115,32 +129,30 @@ function findData(from) {
 	        "createdRow": function( row, data, dataIndex ) {
 	        },
 			"ajax" : {
-				"url" : _ctx + '/plugin/module/netFlow/getNetFlowData.json',
+				"url" : _ctx + '/plugin/module/firewall/log/getFirewallLogData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
-						d.queryGroup = $("#queryGroup").val(),
-						d.querySourceIp = $("#query_SourceIp").val(),
-						d.queryDestinationIp = $("#query_DestinationIp").val(),
-						d.querySenderIp = $("#query_SenderIp").val(),
-						d.querySourcePort = $("#query_SourcePort").val(),
-						d.queryDestinationPort = $("#query_DestinationPort").val(),
-						//d.queryMac = $("#queryMac").val(),
+						d.queryType = $("#queryType").val(),
+						d.queryDevName = $("#queryDevName").val(),
+						d.querySrcIp = $("#querySrcIp").val(),
+						d.querySrcPort = $("#querySrcPort").val(),
+						d.queryDstIp = $("#queryDstIp").val(),
+						d.queryDstPort = $("#queryDstPort").val(),
 						d.queryDateBegin = $("#queryDateBegin").val(),
-						//d.queryDateEnd = $("#queryDateEnd").val()
+						d.queryDateEnd = $("#queryDateEnd").val()
 						d.queryTimeBegin = $("#queryTimeBegin").val(),
 						d.queryTimeEnd = $("#queryTimeEnd").val()
 					
 					} else if ($('#queryFrom').val() == 'MOBILE') {
-						d.queryGroup = $("#queryGroup_mobile").val(),
-						d.querySourceIp = $("#query_SourceIp_mobile").val(),
-						d.queryDestinationIp = $("#query_DestinationIp_mobile").val(),
-						d.querySenderIp = $("#query_SenderIp_mobile").val(),
-						d.querySourcePort = $("#query_SourcePort_mobile").val(),
-						d.queryDestinationPort = $("#query_DestinationPort_mobile").val(),
-						//d.queryMac = $("#queryMac_mobile").val();
+						d.queryType = $("#queryTypeMobile").val(),
+						d.queryDevName = $("#queryDevNameMobile").val(),
+						d.querySrcIp = $("#query_SrcIp_mobile").val(),
+						d.querySrcPort = $("#query_SrcPort_mobile").val(),
+						d.queryDstIp = $("#query_DstIp_mobile").val(),
+						d.queryDstPort = $("#query_DstPort_mobile").val(),
 						d.queryDateBegin = $("#queryDateBegin_mobile").val(),
-						//d.queryDateEnd = $("#queryDateEnd_mobile").val()
+						d.queryDateEnd = $("#queryDateEnd_mobile").val()
 						d.queryTimeBegin = $("#queryTimeBegin").val(),
 						d.queryTimeEnd = $("#queryTimeEnd").val()
 					}
@@ -148,7 +160,6 @@ function findData(from) {
 					return d;
 				},
 				beforeSend : function() {
-					$("#div_TotalFlow").hide();
 					countDown('START');
 				},
 				complete : function() {
@@ -161,7 +172,7 @@ function findData(from) {
 					if (json.data.length > 0) {
 						if (json.otherMsg != null && json.otherMsg != "") {
 							$("#div_TotalFlow").css("display", "contents");
-							$("#result_TotalFlow").text("總流量：" + json.otherMsg);
+							//$("#result_TotalFlow").text("總流量：" + json.otherMsg);
 						}
 						
 					} else {
@@ -172,7 +183,7 @@ function findData(from) {
 				},
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			/*"order": [[6 , 'desc' ]],*/
+			"order": [[3 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -192,35 +203,117 @@ function findData(from) {
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
 				bindTrEvent();
+				
+				$('[data-field]').hide();
+				
+				var queryType = $("#queryType").val();
+				if (queryType == "APP") {
+					$('[data-field="srcIp"]').show();
+					$('[data-field="srcPort"]').show();
+					$('[data-field="dstIp"]').show();
+					$('[data-field="dstPort"]').show();
+					$('[data-field="proto"]').show();
+					$('[data-field="app"]').show();
+					$('[data-field="action"]').show();
+					
+					$('[data-field="severity"]').hide();
+					$('[data-field="srcCountry"]').hide();
+					$('[data-field="service"]').hide();
+					$('[data-field="url"]').hide();
+					$('[data-field="sentByte"]').hide();
+					$('[data-field="rcvdByte"]').hide();
+					$('[data-field="utmAction"]').hide();
+					$('[data-field="level"]').hide();
+					$('[data-field="user"]').hide();
+					$('[data-field="message"]').hide();
+					$('[data-field="attack"]').hide();
+					
+				} else if (queryType == "FORWARDING") {
+					$('[data-field="srcIp"]').show();
+					$('[data-field="srcPort"]').show();
+					$('[data-field="dstIp"]').show();
+					$('[data-field="dstPort"]').show();
+					$('[data-field="proto"]').show();
+					$('[data-field="app"]').show();
+					$('[data-field="action"]').show();
+					$('[data-field="sentByte"]').show();
+					$('[data-field="rcvdByte"]').show();
+					$('[data-field="utmAction"]').show();
+					
+				} else if (queryType == "SYSTEM") {
+					$('[data-field="level"]').show();
+					$('[data-field="user"]').show();
+					$('[data-field="message"]').show();
+					
+				} else if (queryType == "INTRUSION") {
+					$('[data-field="severity"]').show();
+					$('[data-field="srcIp"]').show();
+					$('[data-field="srcPort"]').show();
+					$('[data-field="srcCountry"]').show();
+					$('[data-field="dstIp"]').show();
+					$('[data-field="dstPort"]').show();
+					$('[data-field="proto"]').show();
+					$('[data-field="attack"]').show();
+					$('[data-field="action"]').show();
+					
+				} else if (queryType == "WEBFILTER") {
+					$('[data-field="srcIp"]').show();
+					$('[data-field="srcPort"]').show();
+					$('[data-field="dstIp"]').show();
+					$('[data-field="dstPort"]').show();
+					$('[data-field="proto"]').show();
+					$('[data-field="service"]').show();
+					$('[data-field="action"]').show();
+					$('[data-field="url"]').show();
+					$('[data-field="sentByte"]').show();
+					$('[data-field="rcvdByte"]').show();
+				}
+				
+				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
+			},
+			"rowCallback": function( row, data ) {
+				$('td:eq(4)', row).attr('data-field', 'severity');
+				$('td:eq(5)', row).attr('data-field', 'srcIp');
+				$('td:eq(6)', row).attr('data-field', 'srcPort');
+				$('td:eq(7)', row).attr('data-field', 'srcCountry');
+				$('td:eq(8)', row).attr('data-field', 'dstIp');
+				$('td:eq(9)', row).attr('data-field', 'dstPort');
+				$('td:eq(10)', row).attr('data-field', 'proto');
+				$('td:eq(11)', row).attr('data-field', 'service');
+				$('td:eq(12)', row).attr('data-field', 'url');
+				$('td:eq(13)', row).attr('data-field', 'app');
+				$('td:eq(14)', row).attr('data-field', 'action');
+				$('td:eq(15)', row).attr('data-field', 'sentByte');
+				$('td:eq(16)', row).attr('data-field', 'rcvdByte');
+				$('td:eq(17)', row).attr('data-field', 'utmAction');
+				$('td:eq(18)', row).attr('data-field', 'level');
+				$('td:eq(19)', row).attr('data-field', 'user');
+				$('td:eq(20)', row).attr('data-field', 'message');
+				$('td:eq(21)', row).attr('data-field', 'attack');
 			},
 			"columns" : [
 				{},
-				{ "data" : "groupName" },
-				{ "data" : "now" },
-				{ "data" : "fromDateTime" },
-				{ "data" : "toDateTime" },
-				{ "data" : "ethernetType" },
-				{ "data" : "protocol" },
-				{ "data" : "sourceIP" },
-				{ "data" : "sourcePort" },
-				{ "data" : "sourceMAC" },
-				{ "data" : "destinationIP" },
-				{ "data" : "destinationPort" },
-				{ "data" : "destinationMAC" },
-				{ "data" : "size" },
-				{ "data" : "channelID" },
-				{ "data" : "toS" },
-				{ "data" : "senderIP" },
-				{ "data" : "inboundInterface" },
-				{ "data" : "outboundInterface" },
-				{ "data" : "sourceASI" },
-				{ "data" : "destinationASI" },
-				{ "data" : "sourceMask" },
-				{ "data" : "destinationMask" },
-				{ "data" : "nextHop" },
-				{ "data" : "sourceVLAN" },
-				{ "data" : "destinationVLAN" },
-				{ "data" : "flowID" }
+				{ "data" : "devName" },
+				{ "data" : "dateStr" },
+				{ "data" : "timeStr" },
+				{ "data" : "severity" },	//severity
+				{ "data" : "srcIp" },		//srcIp
+				{ "data" : "srcPort" },		//srcPort
+				{ "data" : "srcCountry" },	//srcCountry
+				{ "data" : "dstIp" },		//dstIp
+				{ "data" : "dstPort" },		//dstPort
+				{ "data" : "proto" },		//proto
+				{ "data" : "service" },		//service
+				{ "data" : "url" },			//url
+				{ "data" : "app" },			//app
+				{ "data" : "action" },		//action
+				{ "data" : "sentByte" , "className" : "right" },	//sentByte
+				{ "data" : "rcvdByte" , "className" : "right" },	//rcvdByte
+				{ "data" : "utmAction" },	//utmAction
+				{ "data" : "level" },		//level
+				{ "data" : "user" },		//user
+				{ "data" : "message" },		//message
+				{ "data" : "attack" }		//attack
 			],
 			"columnDefs" : [
 				{

@@ -342,7 +342,7 @@
 			            %>
 	                    <li class="subMenu-item">
 	                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
-	                    	  <span data-feather="shuffle"></span>
+	                    	  <span data-feather="shield"></span>
 	                    	  	<span><spring:message code="func.plugin.firewall" /></span>
 	                    	</a>
 	                    </li>

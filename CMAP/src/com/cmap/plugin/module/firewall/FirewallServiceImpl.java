@@ -73,6 +73,7 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
                     vo = new FirewallVO();
                     vo.setSettingName(s.getSettingName());
                     vo.setSettingValue(s.getSettingValue());
+                    vo.setOrderNo(s.getOrderNo());
                     vo.setRemark(s.getRemark());
 
                     retList.add(vo);

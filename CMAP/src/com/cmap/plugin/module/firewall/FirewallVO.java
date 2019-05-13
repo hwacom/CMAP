@@ -17,6 +17,7 @@ public class FirewallVO extends CommonServiceVO {
 
     private String settingName;
     private String settingValue;
+    private Integer orderNo;
     private String remark;
 
     private String type;
@@ -251,5 +252,11 @@ public class FirewallVO extends CommonServiceVO {
     }
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+    public Integer getOrderNo() {
+        return orderNo;
+    }
+    public void setOrderNo(Integer orderNo) {
+        this.orderNo = orderNo;
     }
 }

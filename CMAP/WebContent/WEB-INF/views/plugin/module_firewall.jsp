@@ -43,7 +43,7 @@
 	    	    	<input type="time" id="queryTimeEnd" style="width: 10%">
 	    	    </div>
 	    	  </div>
-	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
+	    	  <div data-ipPortSec="1" class="form-group row" style="margin-bottom: -.2rem;">
 	    	    <div class="col-lg-4 group-field-other">
 					<label for="querySrcIp" class="font-weight-bold" style="width: 15%"><spring:message code="src.ip" /></label>
 					<input type="text" id="querySrcIp" class="input-ip" style="width: 40%">
@@ -90,19 +90,19 @@
                         <form:options items="${devNameList}" />
                     </form:select>
 				  </div>
-		    	  <div class="form-group row">
+		    	  <div data-ipPortSec="1" class="form-group row">
 		    	  	<label for="query_SrcIp_mobile" class="col-sm-2 col-form-label"><spring:message code="src.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_SrcIp_mobile">
 				  </div>
-				  <div class="form-group row">
+				  <div data-ipPortSec="1" class="form-group row">
 		    	  	<label for="query_SrcPort_mobile" class="col-sm-2 col-form-label"><spring:message code="src.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_SrcPort_mobile">
 				  </div>
-				  <div class="form-group row">
+				  <div data-ipPortSec="1" class="form-group row">
 		    	  	<label for="query_DstIp_mobile" class="col-sm-2 col-form-label"><spring:message code="dst.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_DstIp_mobile">
 				  </div>
-				  <div class="form-group row">
+				  <div data-ipPortSec="1" class="form-group row">
 		    	  	<label for="query_DstPort_mobile" class="col-sm-2 col-form-label"><spring:message code="dst.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_DstPort_mobile">
 				  </div>

@@ -86,16 +86,29 @@ public class FirewallController extends BaseController {
     }
 
     private String getOrderColumnName(String queryType, Integer orderColIdx) {
-        String retVal = "Date";
+        String retVal = "TIME";
         try {
+            List<String> typeFieldList = firewallService.getFieldNameList(queryType, DataPollerService.FIELD_TYPE_TARGET);
             /*
-             * TODO
              * 查詢結果UI欄位為所有類別的欄位總和，因此這邊在抓order by欄位時需改成從所有欄位抓取
              */
-            List<String> tableTitleField = getFieldNameList(queryType);
+            List<FirewallVO> voList = firewallService.findFirewallLogSetting("UI_FIELDS");
 
-            if (tableTitleField != null && !tableTitleField.isEmpty()) {
-                retVal = (orderColIdx < tableTitleField.size()) ? tableTitleField.get(orderColIdx) : retVal;
+            if (voList != null && !voList.isEmpty()) {
+                if (typeFieldList == null || (typeFieldList != null && typeFieldList.isEmpty())) {
+
+                } else {
+                    if (orderColIdx < voList.size()) {
+                        String settingVal = voList.get(orderColIdx).getSettingValue();
+
+                        for (String fName : typeFieldList) {
+                            if (StringUtils.equals(settingVal, fName)) {
+                                retVal = fName;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
         } catch (Exception e) {
