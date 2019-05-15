@@ -21,5 +21,7 @@
 	<decorator name="vm_switch" page="views/plugin/module_vm_switch.jsp">
 		<pattern>/plugin/module/vmswitch*</pattern>
 	</decorator>
-	
+	<decorator name="version_diff_view" page="views/version/version_diff_view.jsp">
+		<pattern>/version/diff/view*</pattern>
+	</decorator>
 </decorators>

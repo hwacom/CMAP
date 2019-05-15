@@ -1,7 +1,6 @@
 package com.cmap.service;
 
 import java.util.List;
-
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.vo.VersionServiceVO;
@@ -16,7 +15,8 @@ public interface VersionService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public long countUserPermissionAllVersionInfo(List<String> groupList, List<String> deviceList, String configType) throws ServiceLayerException;
+	public long countUserPermissionAllVersionInfo(List<String> groupList, List<String> deviceList, String configType)
+	        throws ServiceLayerException;
 
 	/**
 	 * 取得符合條件的資料筆數
@@ -42,7 +42,8 @@ public interface VersionService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public List<VersionServiceVO> findVersionInfo(VersionServiceVO vsVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
+	public List<VersionServiceVO> findVersionInfo(VersionServiceVO vsVO, Integer startRow, Integer pageLength)
+	        throws ServiceLayerException;
 
 	/**
 	 * 取得符合條件的設備清單及其最新備份版本號紀錄資料
@@ -52,7 +53,8 @@ public interface VersionService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public List<VersionServiceVO> findDeviceList(VersionServiceVO vsVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
+	public List<VersionServiceVO> findDeviceList(VersionServiceVO vsVO, Integer startRow, Integer pageLength)
+	        throws ServiceLayerException;
 
 	/**
 	 * 刪除系統內設備備份版本號紀錄(化學刪除非物理刪除)
@@ -94,7 +96,8 @@ public interface VersionService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger) throws ServiceLayerException;
+	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger)
+	        throws ServiceLayerException;
 
 	/**
 	 * 組態還原流程方法
@@ -106,5 +109,14 @@ public interface VersionService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public VersionServiceVO restoreConfig(RestoreMethod restoreMethod, String restoreType, VersionServiceVO vsVO, String triggerBy, String reason) throws ServiceLayerException;
+	public VersionServiceVO restoreConfig(RestoreMethod restoreMethod, String restoreType, VersionServiceVO vsVO,
+	        String triggerBy, String reason) throws ServiceLayerException;
+
+	/**
+	 * 查看版本比對紀錄結果
+	 * @param diffLogId
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public VersionServiceVO viewCompareResult(String diffLogId) throws ServiceLayerException;
 }

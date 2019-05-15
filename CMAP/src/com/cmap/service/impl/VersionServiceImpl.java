@@ -26,6 +26,7 @@ import com.cmap.dao.ScriptDefaultMappingDAO;
 import com.cmap.dao.vo.ConfigVersionInfoDAOVO;
 import com.cmap.dao.vo.DeviceDAOVO;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.ConfigVersionDiffLog;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceList;
 import com.cmap.security.SecurityUtil;
@@ -58,7 +59,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	private StepService stepService;
 
 	@Autowired
-	private ConfigDAO configVersionInfoDAO;
+	private ConfigDAO configDAO;
 
 	@Autowired
 	private DeviceDAO deviceDAO;
@@ -86,7 +87,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			cviDAOVO.setQueryDevice1List(deviceList);
 			cviDAOVO.setQueryConfigType(configType);
 
-			retCount = configVersionInfoDAO.countConfigVersionInfoByDAOVO(cviDAOVO);
+			retCount = configDAO.countConfigVersionInfoByDAOVO(cviDAOVO);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -107,9 +108,9 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			cviDAOVO = transServiceVO2ConfigVersionInfoDAOVO(vsVO);
 
 			if (vsVO.isQueryNewChkbox()) {
-				retCount = configVersionInfoDAO.countConfigVersionInfoByDAOVO4New(cviDAOVO);
+				retCount = configDAO.countConfigVersionInfoByDAOVO4New(cviDAOVO);
 			} else {
-				retCount = configVersionInfoDAO.countConfigVersionInfoByDAOVO(cviDAOVO);
+				retCount = configDAO.countConfigVersionInfoByDAOVO(cviDAOVO);
 			}
 
 		} catch (Exception e) {
@@ -149,9 +150,9 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			cviDAOVO = transServiceVO2ConfigVersionInfoDAOVO(vsVO);
 
 			if (vsVO.isQueryNewChkbox()) {
-				modelList = configVersionInfoDAO.findConfigVersionInfoByDAOVO4New(cviDAOVO, startRow, pageLength);
+				modelList = configDAO.findConfigVersionInfoByDAOVO4New(cviDAOVO, startRow, pageLength);
 			} else {
-				modelList = configVersionInfoDAO.findConfigVersionInfoByDAOVO(cviDAOVO, startRow, pageLength);
+				modelList = configDAO.findConfigVersionInfoByDAOVO(cviDAOVO, startRow, pageLength);
 			}
 
 			if (modelList != null && !modelList.isEmpty()) {
@@ -193,7 +194,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	@Override
 	public boolean deleteVersionInfo(List<String> versionIDs) throws ServiceLayerException {
 		try {
-			configVersionInfoDAO.deleteConfigVersionInfoByVersionIds(versionIDs, SecurityUtil.getSecurityUser().getUsername());
+			configDAO.deleteConfigVersionInfoByVersionIds(versionIDs, SecurityUtil.getSecurityUser().getUsername());
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -292,7 +293,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	public List<VersionServiceVO> findConfigFilesInfo(List<String> versionIDs) throws ServiceLayerException {
 		List<VersionServiceVO> retList = null;
 		try {
-			List<ConfigVersionInfo> cviList = configVersionInfoDAO.findConfigVersionInfoByVersionIDs(versionIDs);
+			List<ConfigVersionInfo> cviList = configDAO.findConfigVersionInfoByVersionIDs(versionIDs);
 
 			if (cviList != null && !cviList.isEmpty()) {
 				retList = new ArrayList<>();
@@ -836,4 +837,46 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 		return retVO;
 	}
+
+    @Override
+    public VersionServiceVO viewCompareResult(String diffLogId) throws ServiceLayerException {
+        VersionServiceVO retVO = null;
+        try {
+            // Step 1. 查找比對來源版本號
+            ConfigVersionDiffLog diffLogEntity = configDAO.findConfigVersionDiffLogById(diffLogId);
+
+            if (diffLogEntity == null) {
+                throw new ServiceLayerException("查無版本比對差異紀錄 (ID:" + diffLogId + ")");
+            }
+
+            final String preVersionId = diffLogEntity.getPreVersionId();
+            final String newVersionId = diffLogEntity.getNewVersionId();
+
+            // Step 2. 執行版本比對
+            List<String> versionIDs = new ArrayList<>();
+            versionIDs.add(preVersionId);
+            versionIDs.add(newVersionId);
+
+            List<VersionServiceVO> vsVOList = findConfigFilesInfo(versionIDs);
+
+            for (VersionServiceVO vsVO : vsVOList) {
+                vsVO.setCheckEnableCurrentDateSetting(true);
+            }
+
+            if (vsVOList != null && !vsVOList.isEmpty() && vsVOList.size() == 2) {
+                retVO = compareConfigFiles(vsVOList);
+
+            } else {
+                throw new ServiceLayerException("資料取得異常");
+            }
+
+        } catch (ServiceLayerException sle) {
+            throw sle;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("非預期異常 (" + e.getMessage() + ")");
+        }
+        return retVO;
+    }
 }

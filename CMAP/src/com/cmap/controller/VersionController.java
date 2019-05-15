@@ -5,21 +5,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
@@ -222,6 +220,42 @@ public class VersionController extends BaseController {
 			initMenu(model, request);
 		}
 	}
+
+	/**
+     * [版本管理] >> 版本比對結果查看
+     * @param model
+     * @param principal
+     * @param request
+     * @param response
+     * @param jsonData
+     * @return
+     */
+    @RequestMapping(value = "/diff/view/{diffLogId}", method = RequestMethod.GET)
+    public String viewCompareResult(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+            @PathVariable String diffLogId) {
+
+        try {
+            VersionServiceVO retVO = versionService.viewCompareResult(diffLogId);
+
+            if (retVO != null) {
+                model.addAttribute("versionLeft", retVO.getVersionOri());
+                model.addAttribute("versionRight", retVO.getVersionRev());
+                model.addAttribute("versionLineNum", retVO.getVersionLineNum());
+                model.addAttribute("contentLeft", retVO.getConfigDiffOriContent());
+                model.addAttribute("contentRight", retVO.getConfigDiffRevContent());
+                model.addAttribute("diffPos", retVO.getDiffPos());
+            }
+
+        } catch (ServiceLayerException sle) {
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+        } finally {
+        }
+
+        return "version/version_diff_view";
+    }
 
 	/**
 	 * [版本管理] >> 刪除組態檔

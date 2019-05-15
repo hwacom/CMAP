@@ -38,6 +38,12 @@ function viewDetail(key) {
 		type : "POST",
 		dataType : 'json',
 		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
 		success : function(resp) {
 			if (resp.code == '200') {
 				$("#detailsModal").modal();
@@ -99,6 +105,12 @@ function findErrorLogData(from) {
 				"url" : _ctx + "/admin/log/getErrorLog.json",
 				"type" : "POST",
 				"data" : function ( d ) {},
+				"beforeSend" : function() {
+					showProcessing();
+				},
+				"complete" : function() {
+					hideProcessing();
+				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();
 				}
@@ -206,6 +218,12 @@ function findJobLogData(from) {
 				"url" : _ctx + "/admin/log/getJobLog.json",
 				"type" : "POST",
 				"data" : function ( d ) {},
+				"beforeSend" : function() {
+					showProcessing();
+				},
+				"complete" : function() {
+					hideProcessing();
+				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();
 				}

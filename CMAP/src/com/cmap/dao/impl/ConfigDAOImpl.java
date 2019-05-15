@@ -13,6 +13,7 @@ import com.cmap.Constants;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.vo.ConfigVersionInfoDAOVO;
 import com.cmap.model.ConfigContentSetting;
+import com.cmap.model.ConfigVersionDiffLog;
 import com.cmap.model.ConfigVersionInfo;
 
 @Repository
@@ -682,4 +683,19 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 
 		return (List<ConfigContentSetting>)q.list();
 	}
+
+    @Override
+    public ConfigVersionDiffLog findConfigVersionDiffLogById(String diffLogId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select cvdl ")
+          .append(" from ConfigVersionDiffLog cvdl ")
+          .append(" where 1=1 ")
+          .append(" and cvdl.diffLogId = :diffLogId ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("diffLogId", diffLogId);
+
+        return (ConfigVersionDiffLog)q.uniqueResult();
+    }
 }

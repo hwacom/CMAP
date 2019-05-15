@@ -292,6 +292,12 @@ function findData(from) {
 				"url" : _ctx + "/admin/job/getJobInfo.json",
 				"type" : "POST",
 				"data" : function ( d ) {},
+				"beforeSend" : function() {
+					showProcessing();
+				},
+				"complete" : function() {
+					hideProcessing();
+				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();
 				}
