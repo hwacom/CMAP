@@ -255,6 +255,9 @@ public class Env {
 	public static String BOOT_INFO_PARA_TITLE_OF_IMAGE;
 	public static String BOOT_INFO_PARA_TITLE_OF_CONFIG;
 
+	// 設定是否啟用組態檔內容比對差異時發MAIL通知
+	public static Boolean ENABLE_CONFIG_DIFF_NOTIFY;
+
 	public static ConnectionMode CONNECTION_MODE_OF_DELIVERY;
 	public static ConnectionMode CONNECTION_MODE_OF_VM_SWITCH;
 
@@ -336,7 +339,8 @@ public class Env {
 			Step.COMPARE_CONTENTS,
 			Step.ANALYZE_CONFIG_INFO,
 			Step.COMPOSE_OUTPUT_VO,
-			Step.RECORD_DB_OF_CONFIG_VERSION_INFO
+			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
+			Step.VERSION_DIFF_NOTIFY
 	};
 	public static final Step[] BACKUP_BY_FTP = new Step[] {
 			Step.LOAD_DEFAULT_SCRIPT,
@@ -352,7 +356,8 @@ public class Env {
 			Step.COMPARE_CONTENTS,
 			Step.ANALYZE_CONFIG_INFO,
 			Step.COMPOSE_OUTPUT_VO,
-			Step.RECORD_DB_OF_CONFIG_VERSION_INFO
+			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
+            Step.VERSION_DIFF_NOTIFY
 	};
 	public static final Step[] DOWNLOAD_FILE_FROM_TFTP = new Step[] {
 			Step.CONNECT_FILE_SERVER_4_DOWNLOAD,

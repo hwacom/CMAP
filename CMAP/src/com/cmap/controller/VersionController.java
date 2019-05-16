@@ -129,7 +129,7 @@ public class VersionController extends BaseController {
 			List<VersionServiceVO> vsVOList = versionService.findConfigFilesInfo(versionIDs);
 
 			if (vsVOList != null && !vsVOList.isEmpty()) {
-				VersionServiceVO retVO = versionService.getConfigFileContent(vsVOList.get(0));
+				VersionServiceVO retVO = versionService.getConfigFileContent(vsVOList.get(0), true);
 
 				if (StringUtils.isNotBlank(retVO.getConfigFileContent())) {
 					Map<String, Object> retMap = new HashMap<>();

@@ -42,29 +42,27 @@
 	<!-- Container fluid  -->
     <!-- ============================================================== -->
 	<div id="content" class="container-fluid">
-		<div id="content" class="container-fluid">
-		  	<div class="form-group row">
-		    	<div class="col-1"></div>
-		    	<label for="viewModal_version" class="col-md-1 col-sm-12 col-form-label"><spring:message code="config.version.short" /> :</label>
-				<input type="text" class="form-control form-control-sm col-md-4 col-sm-12" id="viewModal_versionLeft" value="${versionLeft }" readonly>
-				<label for="viewModal_version" class="col-md-1 col-sm-12 col-form-label"><spring:message code="config.version.short" /> :</label>
-				<input type="text" class="form-control form-control-sm col-md-4 col-sm-12" id="viewModal_versionRight" value="${versionRight }" readonly>
-		    </div>
-		    <div class="form-group row">
-		    	<div class="form-control form-control-sm col-1 compare-line script" id="compareModal_contentLineNum">${versionLineNum }</div>
-		    	<div class="form-control form-control-sm col-5 compare-content nowrap script" id="compareModal_contentLeft">${contentLeft }</div>
-		    	<div class="form-control form-control-sm col-5 compare-content nowrap script" id="compareModal_contentRight">${contentRight }</div>
-		    	<div class="col-1">
-		    		<span data-feather="chevrons-up" class="feather-compare" id="jumpToTop"></span>
-		    		<span data-feather="chevron-up" class="feather-compare" id="jumpToPre"></span>
-		    		<span data-feather="chevron-down" class="feather-compare" id="jumpToNext"></span>
-		    		<span data-feather="chevrons-down" class="feather-compare" id="jumpToBottom"></span>
-		    	</div>
-		    	<div class="col-12 center">
-		    		<span id="compareModal_summary"></span>
-		    	</div>
-		    </div>
-		  </div>
+	  	<div class="form-group row">
+	    	<div class="col-1"></div>
+	    	<label for="viewModal_version" class="col-md-1 col-sm-12 col-form-label"><spring:message code="config.version.short" /> :</label>
+			<input type="text" class="form-control form-control-sm col-md-4 col-sm-12" id="viewModal_versionLeft" value="${versionLeft }" readonly>
+			<label for="viewModal_version" class="col-md-1 col-sm-12 col-form-label"><spring:message code="config.version.short" /> :</label>
+			<input type="text" class="form-control form-control-sm col-md-4 col-sm-12" id="viewModal_versionRight" value="${versionRight }" readonly>
+	    </div>
+	    <div class="form-group row">
+	    	<div class="form-control form-control-sm col-1 diff-compare-line script" id="compareModal_contentLineNum">${versionLineNum }</div>
+	    	<div class="form-control form-control-sm col-5 diff-compare-content nowrap script" id="compareModal_contentLeft">${contentLeft }</div>
+	    	<div class="form-control form-control-sm col-5 diff-compare-content nowrap script" id="compareModal_contentRight">${contentRight }</div>
+	    	<div class="col-1">
+	    		<span data-feather="chevrons-up" class="feather-compare" id="jumpToTop"></span>
+	    		<span data-feather="chevron-up" class="feather-compare" id="jumpToPre"></span>
+	    		<span data-feather="chevron-down" class="feather-compare" id="jumpToNext"></span>
+	    		<span data-feather="chevrons-down" class="feather-compare" id="jumpToBottom"></span>
+	    	</div>
+	    	<div class="col-12 center">
+	    		<span id="compareModal_summary"></span>
+	    	</div>
+	    </div>
 	</div>
     
     <script src="${pageContext.request.contextPath}/resources/js/custom/min/cmap.main.min.js"></script>

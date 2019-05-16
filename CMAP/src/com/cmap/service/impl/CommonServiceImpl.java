@@ -313,7 +313,11 @@ public class CommonServiceImpl implements CommonService {
 	}
 
 	protected String currentUserName() {
-		return SecurityUtil.getSecurityUser().getUsername();
+	    if (SecurityUtil.getSecurityUser() == null) {
+	        return Env.USER_NAME_JOB;
+	    } else {
+	        return SecurityUtil.getSecurityUser().getUsername();
+	    }
 	}
 
 	protected Timestamp currentTimestamp() {

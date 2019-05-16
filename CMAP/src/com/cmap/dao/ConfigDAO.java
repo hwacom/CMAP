@@ -6,7 +6,7 @@ import com.cmap.model.ConfigContentSetting;
 import com.cmap.model.ConfigVersionDiffLog;
 import com.cmap.model.ConfigVersionInfo;
 
-public interface ConfigDAO {
+public interface ConfigDAO extends BaseDAO {
 
 	public long countConfigVersionInfoByDAOVO(ConfigVersionInfoDAOVO cviDAOVO);
 
@@ -27,7 +27,21 @@ public interface ConfigDAO {
 
 	public Integer deleteConfigVersionInfoByVersionIds(List<String> versionIDs, String actionBy);
 
+	/**
+	 * 查詢版本資料 BY PK欄位
+	 * @param versionIDs
+	 * @return
+	 */
 	public List<ConfigVersionInfo> findConfigVersionInfoByVersionIDs(List<String> versionIDs);
+
+	/**
+	 * 查詢版本資料 BY UK欄位
+	 * @param groupId
+	 * @param deviceId
+	 * @param configVersion
+	 * @return
+	 */
+	public ConfigVersionInfo getConfigVersionInfoByUK(String groupId, String deviceId, String configVersion);
 
 	public void insertConfigVersionInfo(ConfigVersionInfo configVersionInfo);
 

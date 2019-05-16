@@ -643,6 +643,25 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	}
 
 	@Override
+    public ConfigVersionInfo getConfigVersionInfoByUK(String groupId, String deviceId, String configVersion) {
+	    StringBuffer sb = new StringBuffer();
+        sb.append(" select cvi ")
+          .append(" from ConfigVersionInfo cvi ")
+          .append(" where 1=1 ")
+          .append(" and cvi.groupId = :groupId ")
+          .append(" and cvi.deviceId = :deviceId ")
+          .append(" and cvi.configVersion = :configVersion ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("groupId", groupId);
+        q.setParameter("deviceId", deviceId);
+        q.setParameter("configVersion", configVersion);
+
+        return (ConfigVersionInfo)q.uniqueResult();
+    }
+
+	@Override
 	public void insertConfigVersionInfo(ConfigVersionInfo configVersionInfo) {
 		getHibernateTemplate().save(configVersionInfo);
 	}

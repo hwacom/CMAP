@@ -7,6 +7,7 @@ import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ScriptInfo;
 import com.cmap.service.vo.ConfigInfoVO;
+import com.cmap.service.vo.ConfigVO;
 import com.cmap.service.vo.ScriptServiceVO;
 import com.cmap.service.vo.StepServiceVO;
 import com.cmap.service.vo.VersionServiceVO;
@@ -99,10 +100,12 @@ public interface StepService {
 
 	/**
 	 * 依照【Config_Content_Setting】設定處理，取得實際需要派送的Config片段
+	 * @param configVO
 	 * @param settingType
 	 * @param configInfoVO
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public List<String> processConfigContentSetting(String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException;
+	public List<String> processConfigContentSetting(ConfigVO configVO, String settingType, ConfigInfoVO configInfoVO)
+	        throws ServiceLayerException;
 }

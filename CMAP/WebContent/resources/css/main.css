@@ -44,7 +44,7 @@ img {
 }
 
 .script {
-  height: 300px;
+  height: 60vh;
   overflow: auto;
   background-color: #000;
   color: #f5deb3 !important;
@@ -112,16 +112,30 @@ nav > ul > li {
 */
 
 .compare-line {
-  height: 400px;
+  height: 70vh;
   overflow: auto;
   white-space: nowrap;
 }
 
 .compare-content {
-  height: 400px;
+  height: 70vh;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
+}
+
+.diff-compare-line {
+  height: 80vh;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+.diff-compare-content {
+  height: 80vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  text-align: left !important;
 }
 
 .delivery-var-title {
@@ -181,8 +195,8 @@ nav img {
 }
 
 .feather-compare {
-  margin-top: 3rem;
-  margin-bottom: 4rem;
+  margin-top: 10vh;
+  margin-bottom: 10vh;
   cursor: pointer;
   display: block;
 }

@@ -30,8 +30,8 @@ import com.cmap.model.ConfigVersionDiffLog;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceList;
 import com.cmap.security.SecurityUtil;
+import com.cmap.service.ConfigService;
 import com.cmap.service.ProvisionService;
-import com.cmap.service.ScriptService;
 import com.cmap.service.StepService;
 import com.cmap.service.StepService.Result;
 import com.cmap.service.VersionService;
@@ -72,7 +72,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	private ProvisionService provisionService;
 
 	@Autowired
-	private ScriptService scriptService;
+	private ConfigService configService;
 
 	/**
 	 * 查找使用者有權限之群組+設備的資料筆數 for UI分頁區塊中的total使用
@@ -334,7 +334,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	}
 
 	@Override
-	public VersionServiceVO getConfigFileContent(VersionServiceVO vsVO) throws ServiceLayerException {
+	public VersionServiceVO getConfigFileContent(VersionServiceVO vsVO, boolean transHtmlFormat) throws ServiceLayerException {
 		try {
 			FileUtils fileUtils = null;
 			List<String> contentList = null;
@@ -389,17 +389,19 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				contentList = fileUtils.downloadFiles(ciVO);
 
 				// Step5. 轉換為String for UI輸出
-				if (contentList != null && !contentList.isEmpty()) {
-					vsVO.setConfigContentList(contentList);
+			    if (contentList != null && !contentList.isEmpty()) {
+                    vsVO.setConfigContentList(contentList);
 
-					sb = new StringBuffer();
+                    if (transHtmlFormat) {
+                        sb = new StringBuffer();
 
-					for (String content : contentList) {
-						sb.append(content).append("<br />");
-					}
+                        for (String content : contentList) {
+                            sb.append(content).append("<br />");
+                        }
 
-					vsVO.setConfigFileContent(sb.toString());
-				}
+                        vsVO.setConfigFileContent(sb.toString());
+                    }
+                }
 
 				// Step6. 關閉FTP連線
 				if (fileUtils != null) {
@@ -493,6 +495,28 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 		return retVal;
 	}
+
+	@Override
+    public boolean compareConfigList(List<String> preConfigList, List<String> newConfigList) throws ServiceLayerException {
+	    try {
+	        if (preConfigList == null || newConfigList == null) {
+	            throw new ServiceLayerException("要比對的組態內容為空");
+	        }
+
+	        Patch patch = DiffUtils.diff(preConfigList, newConfigList);
+            List<Delta> deltaList = patch.getDeltas();
+
+            if (deltaList != null && !deltaList.isEmpty()) {
+                return true;
+            } else {
+                return false;
+            }
+
+	    } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException(e);
+        }
+    }
 
 	/**
 	 * 版本比對

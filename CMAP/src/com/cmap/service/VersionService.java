@@ -75,10 +75,20 @@ public interface VersionService {
 	/**
 	 * 取得FTP/TFTP上組態檔案內容
 	 * @param vsVO
+	 * @param transHtmlFormat
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public VersionServiceVO getConfigFileContent(VersionServiceVO vsVO) throws ServiceLayerException;
+	public VersionServiceVO getConfigFileContent(VersionServiceVO vsVO, boolean transHtmlFormat) throws ServiceLayerException;
+
+	/**
+	 * 比對兩組Config內容
+	 * @param preConfigList
+	 * @param newConfigList
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+    public boolean compareConfigList(List<String> preConfigList, List<String> newConfigList) throws ServiceLayerException;
 
 	/**
 	 * 取得裝置Config落地檔 for UI查看Config檔內容 or 版本比對

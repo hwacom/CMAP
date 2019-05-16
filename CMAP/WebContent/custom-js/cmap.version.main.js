@@ -158,6 +158,12 @@ function compareFile() {
 			type : "POST",
 			dataType : 'json',
 			async: true,
+			beforeSend : function() {
+				showProcessing();
+			},
+			complete : function() {
+				hideProcessing();
+			},
 			success : function(resp) {
 				if (resp.code == '200') {
 					

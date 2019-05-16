@@ -39,6 +39,7 @@ import com.cmap.dao.ScriptStepDAO;
 import com.cmap.dao.vo.ConfigVersionInfoDAOVO;
 import com.cmap.exception.FileOperationException;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.ConfigVersionDiffLog;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceDetailInfo;
 import com.cmap.model.DeviceDetailMapping;
@@ -288,7 +289,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("分析取得設備明細內容時失敗 [ 錯誤代碼: ANALYZE_CONFIG_INFO] ");
+								throw new ServiceLayerException("分析取得設備明細內容時失敗 [ 錯誤代碼: ANALYZE_CONFIG_INFO ] ");
 							}
 
 						case DEFINE_OUTPUT_FILE_NAME:
@@ -371,13 +372,30 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								throw new ServiceLayerException("關閉與 File Server 間連線時失敗 [ 錯誤代碼: CLOSE_FILE_SERVER_CONNECTION ]");
 							}
 
+						case VERSION_DIFF_NOTIFY:
+                            try {
+                                // 若先前比對步驟結果已無差異，此步驟就不需執行
+                                if (retVO.getResult() != Result.NO_DIFFERENT) {
+                                    versionDiffNotify(ciVO, retVO, outputVOList);
+                                }
+
+                            } catch (Exception e) {
+                                String msg = "組態檔內容模板比對差異通知失敗 [ 錯誤代碼: VERSION_DIFF_NOTIFY ]";
+                                retVO.setMessage(msg);
+                                log.error(msg);
+                            }
+
 						default:
 							break;
 					}
 				}
 
 				retVO.setSuccess(true);
-				retVO.setResult(Result.SUCCESS);
+
+				if (retVO.getResult() == null) {
+				    retVO.setResult(Result.SUCCESS);
+				}
+
 				break;
 
 			} catch (ServiceLayerException sle) {
@@ -778,13 +796,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<String> compareContents(ConfigInfoVO ciVO, List<String> outputList, FileUtils fileUtils, ConnectionMode _mode, StepServiceVO ssVO) throws Exception {
+	private List<String> compareContents(ConfigInfoVO ciVO, List<String> outputList, FileUtils fileUtils, ConnectionMode _mode, StepServiceVO ssVO)
+	        throws Exception {
 		String type = "";
 
+		List<List<VersionServiceVO>> allVersionList = new ArrayList<>();  // 存放 Running & Startup 各自的前後版本 config 內容
 		boolean haveDiffVersion = false;
 		List<String> tmpList = outputList.stream().collect(Collectors.toList());
 		ConfigVersionInfoDAOVO daovo;
 		for (final String output : tmpList) {
+
 			if (output.indexOf(Env.COMM_SEPARATE_SYMBOL) != -1) {
 				type = output.split(Env.COMM_SEPARATE_SYMBOL)[0];
 			}
@@ -831,6 +852,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				preVersionVO.setConfigFileDirPath(dlEntity.getConfigFileDirPath());
 				preVersionVO.setFileFullName(cviEntity.getFileFullName());
 				preVersionVO.setCreateDate(cviEntity.getCreateTime() != null ? new Date(cviEntity.getCreateTime().getTime()) : null);
+				preVersionVO.setFileFullName(cviEntity.getFileFullName());
 				vsVOs.add(preVersionVO);
 
 				//當下備份上傳版本VO
@@ -855,6 +877,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				}
 
 				vsVOs.add(nowVersionVO);
+				allVersionList.add(vsVOs);
 
 				VersionServiceVO compareRetVO = versionService.compareConfigFiles(vsVOs);
 
@@ -909,6 +932,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			}
 		}
 
+		ssVO.setVersionList(allVersionList);
+
 		if (!haveDiffVersion) {
 			ssVO.setResult(Result.NO_DIFFERENT);
 			ssVO.setMessage("版本無差異");
@@ -917,6 +942,108 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		}
 
 		return outputList;
+	}
+
+	/**
+	 * 比對前後版本是否有差異 & 發信通知
+	 * @param ciVO
+	 * @param ssVO
+	 * @throws Exception
+	 */
+	private void versionDiffNotify(ConfigInfoVO ciVO, StepServiceVO ssVO, List<ConfigInfoVO> ciVOList) throws Exception {
+	    String retMsg = null;
+	    try {
+	        final String CONFIG_DIFF_NOTIFY = Constants.CONFIG_CONTENT_SETTING_TYPE_CONFIG_DIFF_NOTIFY;
+	        final List<List<VersionServiceVO>> versionList = ssVO.getVersionList();
+	        final String groupId = ciVO.getGroupId();
+	        final String deviceId = ciVO.getDeviceId();
+
+	        ConfigVersionInfo cviEntity = null;
+	        for (List<VersionServiceVO> typeConfig : versionList) {
+	            try {
+	                // Step 1. 取得兩個版本的Config內容
+	                VersionServiceVO preVersionVO = typeConfig.get(0);
+	                VersionServiceVO newVersionVO = typeConfig.get(1);
+
+	                List<String> oriPreContentList = versionService.getConfigFileContent(preVersionVO, false).getConfigContentList();
+	                List<String> oriNewContentList = versionService.getConfigFileContent(newVersionVO, false).getConfigContentList();
+
+	                if ((oriPreContentList == null || (oriPreContentList != null && oriPreContentList.isEmpty()))
+	                        || (oriNewContentList == null || (oriNewContentList != null && oriNewContentList.isEmpty()))) {
+	                    throw new ServiceLayerException(
+	                            "[versionDiffNotify] 版本內容為空 >> preVersion: " + preVersionVO.getFileFullName() +
+	                            ", newVersion: " + newVersionVO.getFileFullName());
+	                }
+
+	                // Step 2. 依設定的比對模板，取出符合設定的Config內容片段
+	                ConfigVO configVO = null;
+	                ciVO.setConfigContentList(oriPreContentList);
+	                List<String> preContentList = processConfigContentSetting(configVO, CONFIG_DIFF_NOTIFY, ciVO);
+
+	                ciVO.setConfigContentList(oriNewContentList);
+	                List<String> newContentList = processConfigContentSetting(configVO, CONFIG_DIFF_NOTIFY, ciVO);
+
+	                boolean isDiff = versionService.compareConfigList(preContentList, newContentList);
+
+	                if (isDiff) {
+	                    // Step 3. 比對結果有差異，寫入差異LOG & 發信通知
+	                    final String endPosSympol = "." + Env.CONFIG_FILE_EXTENSION_NAME;
+	                    final String preVersion = subStr(preVersionVO.getFileFullName(), 0, endPosSympol);
+	                    final String newVersion = subStr(newVersionVO.getFileFullName(), 0, endPosSympol);
+
+	                    cviEntity = configDAO.getConfigVersionInfoByUK(groupId, deviceId, preVersion);
+	                    final String preVersionId = cviEntity.getVersionId();
+
+	                    cviEntity = configDAO.getConfigVersionInfoByUK(groupId, deviceId, newVersion);
+	                    final String newVersionId = cviEntity.getVersionId();
+
+	                    ConfigVersionDiffLog diffLogEntity = new ConfigVersionDiffLog(
+	                            null
+	                           ,groupId
+	                           ,deviceId
+	                           ,preVersionId
+	                           ,preVersion
+	                           ,newVersionId
+	                           ,newVersion
+	                           ,currentTimestamp()
+	                           ,currentUserName()
+	                           ,currentTimestamp()
+	                           ,currentUserName()
+	                    );
+
+	                    configDAO.insertEntity(diffLogEntity);
+
+	                    // 發信
+	                    //TODO
+	                }
+
+	            } catch (Exception e) {
+	                retMsg += "[" + e.toString() + "]";
+	                log.error(e.toString(), e);
+	            }
+	        }
+
+	        if (StringUtils.isNotBlank(retMsg)) {
+	            throw new ServiceLayerException(retMsg);
+	        }
+
+	    } catch (ServiceLayerException sle) {
+	        throw sle;
+
+	    } catch (Exception e) {
+	        log.error(e.toString(), e);
+	        throw new ServiceLayerException(e.toString());
+	    }
+	}
+
+	private String subStr(String text, int beginIndex, String endPosSymbol) {
+	    int endIndex = text.indexOf(endPosSymbol);
+
+	    if (endIndex != -1) {
+	        return text.substring(beginIndex, endIndex);
+	    } else {
+	        return text;
+	    }
 	}
 
 	private List<String> getConfigContent(ConfigInfoVO configInfoVO) {
@@ -2119,7 +2246,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 依組態內容設定(Config_Content_Setting)處理要還原的版本內容
 						case PROCESS_CONFIG_CONTENT_SETTING:
 							try {
-								restoreContentList = processConfigContentSetting(restoreType, ciVO);
+								restoreContentList = processConfigContentSetting(null, restoreType, ciVO);
 								ciVO.setConfigContentList(restoreContentList);
 								break;
 
@@ -2336,7 +2463,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 */
 	@Override
-    public List<String> processConfigContentSetting(String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException {
+    public List<String> processConfigContentSetting(ConfigVO configVO, String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException {
 		final String systemVersion = configInfoVO.getSystemVersion();
 		final String deviceName = configInfoVO.getDeviceEngName();
 		final String deviceListId = configInfoVO.getDeviceListId();
@@ -2347,7 +2474,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		List<ConfigVO> settings = null;
 		try {
 			// Step 1. 取得設定
-			ConfigVO configVO = configService.findConfigContentSetting(null, settingType, systemVersion, deviceName, deviceListId);
+		    if (configVO == null) {
+		        configVO = configService.findConfigContentSetting(null, settingType, systemVersion, deviceName, deviceListId);
+		    }
+
 			settings = configVO.getConfigVOList();
 
 			// 確認有無正向設定
@@ -2395,6 +2525,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				content = new String(content.getBytes("UTF-8"));
 				int currentLayer = chkCurrentContentLineLayer(content);	// 當前行的層級
 
+				if (content.startsWith("interface")) {
+				    System.out.println("COME ON, LET's GO !!");
+				}
+
 				/*
 				 * Step 1. 判斷此行層級，確認是否為同一區塊內容&是否納入 OR 是新的區塊開始
 				 */
@@ -2405,14 +2539,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					 * (2) 若當前行內容不是 exit，表示是新的內容 >> 需做後續比對
 					 */
 					String trimContent = content.trim();
-					if (trimContent.equalsIgnoreCase("#exit") || trimContent.equalsIgnoreCase("exit")) {
+					if (trimContent.equalsIgnoreCase("#exit") || trimContent.equalsIgnoreCase("exit") || trimContent.equals("!")) {
 						MatchVO currentLayerMatchVO = layerMatchMap.get(currentLayer);
 
 						if (currentLayerMatchVO.isSkip()) {
 							continue;
 
 						} else {
-							retList.add("exit"); // 區塊結束需下exit指令
+						    if (!trimContent.equals("!")) {
+						        retList.add("exit"); // 區塊結束需下exit指令
+						    }
 							layerMatchMap.remove(currentLayer);	// 區塊已結束，將MAP紀錄清除
 							continue;
 						}

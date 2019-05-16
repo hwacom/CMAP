@@ -1,6 +1,7 @@
 package com.cmap.service.vo;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import com.cmap.service.StepService;
@@ -22,10 +23,14 @@ public class StepServiceVO extends CommonServiceVO {
 	private List<String> cmdOutputList;
 
 	private String deviceListId;
-	private String restoreVersionId;			// 要還原的版本號
-	private List<String> restoreContentList;	// 要還原的組態內容
-	private String restoreVersionConfigPath;    // 要還原的組態版本在設備的哪個路徑 (for VM切換，ePDG config已先放在設備內)
-	private String restoreVersionImagePath;     // 要還原的image版本在設備的哪個路徑 (for VM切換，ePDG需指定image)
+	private String restoreVersionId;           // 要還原的版本號
+	private List<String> restoreContentList;   // 要還原的組態內容
+	private String restoreVersionConfigPath;   // 要還原的組態版本在設備的哪個路徑 (for VM切換，ePDG config已先放在設備內)
+	private String restoreVersionImagePath;    // 要還原的image版本在設備的哪個路徑 (for VM切換，ePDG需指定image)
+
+	private List<List<VersionServiceVO>> versionList = new ArrayList<>();
+	private List<String> preVerConfigList = new ArrayList<>();     // 前一版本Config內容
+	private List<String> newVerConfigList = new ArrayList<>();     // 最新(當下備份)版本Config內容
 
 	private ProvisionServiceVO psVO;
 
@@ -222,5 +227,29 @@ public class StepServiceVO extends CommonServiceVO {
 
     public void setRestoreVersionImagePath(String restoreVersionImagePath) {
         this.restoreVersionImagePath = restoreVersionImagePath;
+    }
+
+    public List<String> getPreVerConfigList() {
+        return preVerConfigList;
+    }
+
+    public void setPreVerConfigList(List<String> preVerConfigList) {
+        this.preVerConfigList = preVerConfigList;
+    }
+
+    public List<String> getNewVerConfigList() {
+        return newVerConfigList;
+    }
+
+    public void setNewVerConfigList(List<String> newVerConfigList) {
+        this.newVerConfigList = newVerConfigList;
+    }
+
+    public List<List<VersionServiceVO>> getVersionList() {
+        return versionList;
+    }
+
+    public void setVersionList(List<List<VersionServiceVO>> versionList) {
+        this.versionList = versionList;
     }
 }

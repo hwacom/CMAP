@@ -174,7 +174,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 configInfoVO.setDeviceListId(deviceListId);
                 configInfoVO.setConfigContentList(vmSwitchVO.getOriConfigList());
 
-                newConfigList = stepService.processConfigContentSetting(Constants.CONFIG_CONTENT_SETTING_TYPE_VM_SWITCH, configInfoVO);
+                newConfigList = stepService.processConfigContentSetting(null, Constants.CONFIG_CONTENT_SETTING_TYPE_VM_SWITCH, configInfoVO);
 
                 if (newConfigList == null || (newConfigList != null && newConfigList.isEmpty())) {
                     throw new ServiceLayerException("要供裝的組態內容為空");
@@ -701,7 +701,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                         filePath = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(filePath);
                     }
 
-                    retVO = versionService.getConfigFileContent(retVO);
+                    retVO = versionService.getConfigFileContent(retVO, false);
 
                 } catch (ServiceLayerException sle) {
                     // FTP取檔過程異常
