@@ -374,9 +374,12 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case VERSION_DIFF_NOTIFY:
                             try {
-                                // 若先前比對步驟結果已無差異，此步驟就不需執行
-                                if (retVO.getResult() != Result.NO_DIFFERENT) {
-                                    versionDiffNotify(ciVO, retVO, outputVOList);
+                                // 有啟用版本異常通知時才執行
+                                if (Env.ENABLE_CONFIG_DIFF_NOTIFY) {
+                                    // 若先前比對步驟結果已無差異，此步驟就不需執行
+                                    if (retVO.getResult() != Result.NO_DIFFERENT) {
+                                        versionDiffNotify(ciVO, retVO, outputVOList);
+                                    }
                                 }
 
                             } catch (Exception e) {

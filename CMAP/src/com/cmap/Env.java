@@ -257,6 +257,8 @@ public class Env {
 
 	// 設定是否啟用組態檔內容比對差異時發MAIL通知
 	public static Boolean ENABLE_CONFIG_DIFF_NOTIFY;
+	// 設定組態檔備份時是否要參照比對模板
+	public static Boolean ENABLE_CONFIG_BACKUP_REFER_TEMPLATE;
 
 	public static ConnectionMode CONNECTION_MODE_OF_DELIVERY;
 	public static ConnectionMode CONNECTION_MODE_OF_VM_SWITCH;

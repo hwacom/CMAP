@@ -583,6 +583,16 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 					BeanUtils.copyProperties(vsVO, ciVO);
 					List<String> cList = fileUtils.downloadFiles(ciVO);
 
+					/*
+		             * TODO: 組態備份版本比對，依設定開關是否參照比對模板
+		             * 若[On]  >> 參照模板設定區塊進行比對，區塊內有差異才做備份
+		             * 若[Off] >> 不參照，採全部比對
+		             */
+		            if (Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE) {
+		                ciVO.setConfigContentList(cList);
+		                cList = stepService.processConfigContentSetting(null, Constants.CONFIG_CONTENT_SETTING_TYPE_CONFIG_BACKUP, ciVO);
+		            }
+
 					if (cList != null && !cList.isEmpty()) {
 						if (contentOriList == null) {
 							contentOriList = cList;

@@ -255,6 +255,7 @@ public class Constants {
 	public static final String CONFIG_CONTENT_SETTING_TYPE_VM_SWITCH = "VM_SWITCH";
     public static final String CONFIG_CONTENT_SETTING_TYPE_BACKUP_RESTORE = "BACKUP_RESTORE";
     public static final String CONFIG_CONTENT_SETTING_TYPE_CONFIG_DIFF_NOTIFY = "CONFIG_DIFF_NOTIFY";
+    public static final String CONFIG_CONTENT_SETTING_TYPE_CONFIG_BACKUP = "CONFIG_BACKUP";
 
 	public static final String MAP_URL_OF_INDEX = "INDEX";
 	public static final String MAP_URL_OF_DASHBOARD = "DASHBOARD";
