@@ -339,7 +339,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
 	        mailListSettingCode = setting.getSettingValue();
 
-	        SysMailDAOVO mailDAOVO = sysMailDAO.getMailListSettingBySettingCode(mailListSettingCode);
+	        SysMailDAOVO mailDAOVO = sysMailDAO.getMailListSettingBySettingIdAndCode(null, mailListSettingCode);
 
 	        if (mailDAOVO == null) {
 	            log.error("未設定 VM_SWITCH 要發送 MAIL 的對象 (SYS_MAIL_LIST_SETTING , SETTING_CODE = " + mailListSettingCode + ")");

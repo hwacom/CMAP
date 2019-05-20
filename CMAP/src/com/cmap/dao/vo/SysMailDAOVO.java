@@ -2,11 +2,17 @@ package com.cmap.dao.vo;
 
 public class SysMailDAOVO {
 
+    private String mailListSettingId;
+    private String mailContentSettingId;
+    private String settingCode;
+
     private String subject;
     private String[] mailTo;
     private String[] mailCc;
     private String[] mailBcc;
     private String remark;
+
+    private String mailContent;
 
     public String getSubject() {
         return subject;
@@ -37,5 +43,29 @@ public class SysMailDAOVO {
     }
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+    public String getMailContent() {
+        return mailContent;
+    }
+    public void setMailContent(String mailContent) {
+        this.mailContent = mailContent;
+    }
+    public String getMailListSettingId() {
+        return mailListSettingId;
+    }
+    public void setMailListSettingId(String mailListSettingId) {
+        this.mailListSettingId = mailListSettingId;
+    }
+    public String getMailContentSettingId() {
+        return mailContentSettingId;
+    }
+    public void setMailContentSettingId(String mailContentSettingId) {
+        this.mailContentSettingId = mailContentSettingId;
+    }
+    public String getSettingCode() {
+        return settingCode;
+    }
+    public void setSettingCode(String settingCode) {
+        this.settingCode = settingCode;
     }
 }

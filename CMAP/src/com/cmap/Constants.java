@@ -87,6 +87,7 @@ public class Constants {
 	public static final String QUARTZ_PARA_SYS_CHECK_SQLS = "sysCheckSqls";
 	public static final String QUARTZ_PARA_DATA_POLLER_SETTING_ID = "dataPollerSettingId";
 	public static final String QUARTZ_PARA_JOB_FILE_OPERATION_SETTING_ID = "jobFileOperationSettingId";
+	public static final String QUARTZ_PARA_MAIL_LIST_SETTING_ID = "jobMailListSettingId";
 
 	public static final String DATA_POLLER_FILE_BY_FTP = "FTP";
 	public static final String DATA_POLLER_FILE_BY_LOCAL_DIR = "LOCAL_DIR";

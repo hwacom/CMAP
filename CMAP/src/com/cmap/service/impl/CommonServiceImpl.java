@@ -12,11 +12,21 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -32,6 +42,7 @@ import com.cmap.dao.ProtocolDAO;
 import com.cmap.dao.PrtgDAO;
 import com.cmap.dao.ScriptTypeDAO;
 import com.cmap.exception.AuthenticateException;
+import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.MenuItem;
 import com.cmap.model.ProtocolSpec;
@@ -418,5 +429,94 @@ public class CommonServiceImpl implements CommonService {
 //            log.error(e.toString(), e);
         }
         return retVal;
+    }
+
+    public static void generateAndSendEmail() throws AddressException, MessagingException {
+        Properties mailServerProperties;
+        Session getMailSession;
+        MimeMessage generateMailMessage;
+
+        // Step1
+        System.out.println("\n 1st ===> setup Mail Server Properties..");
+        mailServerProperties = System.getProperties();
+        mailServerProperties.put("mail.smtp.port", "587");
+        mailServerProperties.put("mail.smtp.auth", "true");
+        mailServerProperties.put("mail.smtp.starttls.enable", "true");
+        System.out.println("Mail Server Properties have been setup successfully..");
+
+        // Step2
+        System.out.println("\n\n 2nd ===> get Mail Session..");
+        getMailSession = Session.getDefaultInstance(mailServerProperties, null);
+        generateMailMessage = new MimeMessage(getMailSession);
+        generateMailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress("shinhwa520.ken@gmail.com"));
+        generateMailMessage.addRecipient(Message.RecipientType.CC, new InternetAddress("ken.lin@hwacom.com"));
+        generateMailMessage.setSubject("Greetings from Crunchify..");
+        String emailBody = "Test email by Crunchify.com JavaMail API example. " + "<br><br> Regards, <br>Crunchify Admin";
+        generateMailMessage.setContent(emailBody, "text/html");
+        System.out.println("Mail Session has been created successfully..");
+
+        // Step3
+        System.out.println("\n\n 3rd ===> Get Session and Send mail");
+        Transport transport = getMailSession.getTransport("smtp");
+
+        // Enter your correct gmail UserID and Password
+        // if you have 2FA enabled then provide App Specific Password
+        transport.connect("smtp.gmail.com", "shinhwa520@gmail.com", "@Ken52034!");
+        transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
+        transport.close();
+    }
+
+    /**
+     * 寄發 HTML 格式 MAIL
+     * @param to
+     * @param cc
+     * @param bcc
+     * @param subject
+     * @param htmlContent
+     */
+    public static void sendHtmlEmail(String[] to, String[] cc, String[] bcc, String subject, String htmlContent) throws ServiceLayerException {
+        HtmlEmail email = new HtmlEmail();
+
+        try {
+            String host = Env.MAIL_SERVER_HOST;
+            String port = Env.MAIL_SERVER_PORT;
+
+            String from = Env.MAIL_FROM_ADDRESS;
+            String fromName = Env.MAIL_FROM_USERNAME;
+
+            String user = Env.MAIL_SERVER_ACCOUNT;
+            String pwd = Env.MAIL_SERVER_PASSWORD;
+
+            email.setStartTLSEnabled(true); // 是否TLS檢驗，某些email需要TLS安全檢驗，同理有SSL檢驗
+            email.setHostName(host);
+            email.setAuthenticator(new DefaultAuthenticator(user, pwd)); // 使用者帳號及密碼
+            email.setSmtpPort(Integer.parseInt(port));
+
+            email.setFrom(from, fromName);
+            email.setCharset("utf-8");
+
+            email.addTo(to); // 接收方
+
+            if (cc != null && cc.length > 0) {
+                email.addCc(cc); //副本
+            }
+
+            if (bcc != null && bcc.length > 0) {
+                email.addBcc(bcc); //密件副本
+            }
+
+            email.setSubject(subject); // 標題
+            email.setTextMsg("Your email client does not support HTML messages");
+            email.setHtmlMsg(htmlContent); // 内容
+            email.send();
+
+        } catch (EmailException e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("發信失敗 (" + e.getMessage() + ")");
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("發信失敗 (" + e.getMessage() + ")");
+        }
     }
 }

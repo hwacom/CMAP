@@ -8,18 +8,18 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 /**
- * SYS_MAIL_LIST_SETTING Entity
+ * SYS_MAIL_CONTENT_SETTING Entity
  * @author Ken Lin
  *
  */
 @Entity
 @Table(
-		name = "sys_mail_list_setting",
+		name = "sys_mail_content_setting",
 		uniqueConstraints = {
 				@UniqueConstraint(columnNames = {"setting_id"})
 		}
 	)
-public class SysMailListSetting {
+public class SysMailContentSetting {
 
 	@Id
 	@Column(name = "setting_id", unique = true)
@@ -28,17 +28,8 @@ public class SysMailListSetting {
 	@Column(name = "setting_code", nullable = false)
     private String settingCode;
 
-	@Column(name = "mail_subject", nullable = false)
-    private String mailSubject;
-
-	@Column(name = "mail_to", nullable = false)
-    private String mailTo;
-
-	@Column(name = "mail_cc", nullable = true)
-    private String mailCc;
-
-	@Column(name = "mail_bcc", nullable = true)
-    private String mailBcc;
+	@Column(name = "mail_content", nullable = false)
+    private String mailContent;
 
 	@Column(name = "remark", nullable = true)
     private String remark;
@@ -55,20 +46,17 @@ public class SysMailListSetting {
     @Column(name = "update_by", nullable = false)
     private String updateBy;
 
-	public SysMailListSetting() {
+	public SysMailContentSetting() {
 		super();
 	}
 
-    public SysMailListSetting(String settingId, String settingCode, String mailSubject,
-            String mailTo, String mailCc, String mailBcc, String remark, Timestamp createTime,
-            String createBy, Timestamp updateTime, String updateBy) {
+    public SysMailContentSetting(String settingId, String settingCode, String mailContent,
+            String remark, Timestamp createTime, String createBy, Timestamp updateTime,
+            String updateBy) {
         super();
         this.settingId = settingId;
         this.settingCode = settingCode;
-        this.mailSubject = mailSubject;
-        this.mailTo = mailTo;
-        this.mailCc = mailCc;
-        this.mailBcc = mailBcc;
+        this.mailContent = mailContent;
         this.remark = remark;
         this.createTime = createTime;
         this.createBy = createBy;
@@ -92,36 +80,12 @@ public class SysMailListSetting {
         this.settingCode = settingCode;
     }
 
-    public String getMailSubject() {
-        return mailSubject;
+    public String getMailContent() {
+        return mailContent;
     }
 
-    public void setMailSubject(String mailSubject) {
-        this.mailSubject = mailSubject;
-    }
-
-    public String getMailTo() {
-        return mailTo;
-    }
-
-    public void setMailTo(String mailTo) {
-        this.mailTo = mailTo;
-    }
-
-    public String getMailCc() {
-        return mailCc;
-    }
-
-    public void setMailCc(String mailCc) {
-        this.mailCc = mailCc;
-    }
-
-    public String getMailBcc() {
-        return mailBcc;
-    }
-
-    public void setMailBcc(String mailBcc) {
-        this.mailBcc = mailBcc;
+    public void setMailContent(String mailContent) {
+        this.mailContent = mailContent;
     }
 
     public String getRemark() {

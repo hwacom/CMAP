@@ -9,5 +9,7 @@ public interface SysMailDAO {
      * @param settingCode
      * @return
      */
-    public SysMailDAOVO getMailListSettingBySettingCode(String settingCode);
+    public SysMailDAOVO getMailListSettingBySettingIdAndCode(String settingId, String settingCode);
+
+    public SysMailDAOVO getMailContentSettingBySettingIdAndCode(String settingId, String settingCode);
 }

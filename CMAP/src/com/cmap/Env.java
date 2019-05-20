@@ -46,7 +46,12 @@ public class Env {
 
 	public static String ENABLE_CMD_LOG;						// 設定是否開啟對設備下的CMD LOG
 
+	public static String MAIL_SERVER_HOST;
+	public static String MAIL_SERVER_PORT;
 	public static String MAIL_FROM_ADDRESS;               // 設定Email from address
+	public static String MAIL_FROM_USERNAME;
+	public static String MAIL_SERVER_ACCOUNT;
+	public static String MAIL_SERVER_PASSWORD;
 
 	/**
 	 * GROUP_NAME下拉選單排序相關設定

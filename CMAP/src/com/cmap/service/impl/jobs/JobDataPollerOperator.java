@@ -17,7 +17,7 @@ import com.cmap.utils.impl.ApplicationContextUtil;
 
 @DisallowConcurrentExecution
 public class JobDataPollerOperator extends BaseJobImpl implements BaseJobService {
-    private static Logger log = LoggerFactory.getLogger(JobDataPoller.class);
+    private static Logger log = LoggerFactory.getLogger(JobDataPollerOperator.class);
 
     private DataPollerService dataPollerService;
 
