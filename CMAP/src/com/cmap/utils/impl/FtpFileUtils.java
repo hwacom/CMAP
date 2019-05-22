@@ -357,4 +357,11 @@ public class FtpFileUtils implements FileUtils {
 		ftp.enterLocalPassiveMode();
 		return ftp.retrieveFile(fileName, fos);
 	}
+
+    @Override
+    public boolean connectAndLogin(String hostIp, Integer hostPort, String account, String password)
+            throws Exception {
+        // TODO 自動產生的方法 Stub
+        return false;
+    }
 }
