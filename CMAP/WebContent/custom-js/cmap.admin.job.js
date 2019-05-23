@@ -117,6 +117,7 @@ function jobAction(action) {
 					$("#inputDataPollerSettingId").val(resp.data.inputDataPollerSettingId);
 					$("#inputDataPollerOperatorSettingId").val(resp.data.inputDataPollerSettingId);
 					$("#inputLocalFileOperationSettingId").val(resp.data.inputLocalFileOperationSettingId);
+					$("#inputMailSenderSettingId").val(resp.data.inputMailSenderSettingId);
 					
 					$("#inputMisFirePolicy option").filter(function() {
 					    return $(this).val() == resp.data.inputMisFirePolicy; 
@@ -230,6 +231,7 @@ function viewDetail(key) {
 				
 				$("#viewDataPollerSettingId").val(resp.data.dataPollerSettingId);
 				$("#viewLocalFileOperationSettingId").val(resp.data.localFileOperationSettingId);
+				$("#viewMailSenderSettingId").val(resp.data.mailSenderSettingId);
 				
 				var schedType = resp.data.schedType;
 				

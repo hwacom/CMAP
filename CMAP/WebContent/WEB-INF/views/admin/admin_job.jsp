@@ -297,6 +297,20 @@
 	            </div>
 	            <!-- [END]本地檔案操作 -->
 	            
+	            <!-- MAIL Sender -->
+	            <div id="sec_mailSender" style="display: none">
+	            	<div class="form-group row">
+		              	<label for="inputDataPollerNames" class="col-12 col-form-label"><span style="color:blue">*** Mail Sender 參數設定 ***</span></label>
+		            </div>
+		            <div class="form-group row">
+		            	<label for="inputMailSenderSettingId" class="col-md-2 col-sm-3 col-form-label">Setting IDs<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-10 col-sm-9">
+		            		<input type="text" class="form-control form-control-sm" id="inputMailSenderSettingId" name="inputMailSenderSettingId" placeholder="多組ID以「,」區隔；區間以「ID1~ID2」表示"></input>
+		                </div>
+		            </div>
+	            </div>
+	            <!-- [END]MAIL Sender -->
+	            
 	            <input type="hidden" id="jobKeyName" name="jobKeyName">
 	            <input type="hidden" id="jobKeyGroup" name="jobKeyGroup">
 	            
@@ -442,6 +456,17 @@
 	            </div>
        	  	</div>
        	  	<!-- [END]本地檔案操作 -->
+       	  	
+       	  	<!-- Mail Sender -->
+       	  	<div id="sec_detail_mailSender" style="display: none">
+	            <div class="form-group row">
+	            	<label for="viewMailSenderSettingId" class="col-md-2 col-sm-3 col-form-label">Mail_Sender_Setting.ID:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<textarea rows="5" class="form-control form-control-sm" id="viewMailSenderSettingId" readonly></textarea>
+	                </div>
+	            </div>
+       	  	</div>
+       	  	<!-- [END]Mail Sender -->
             
           </div>
 		</div>

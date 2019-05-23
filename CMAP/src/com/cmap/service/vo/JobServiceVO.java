@@ -28,6 +28,7 @@ public class JobServiceVO extends CommonServiceVO {
 	private String inputDataPollerSettingId;
 	private String inputDataPollerOperatorSettingId;
 	private String inputLocalFileOperationSettingId;
+	private String inputMailSenderSettingId;
 
 	private List<JobServiceVO> jobKeySet = new ArrayList<>();
 	private String jobKeyName;
@@ -46,6 +47,7 @@ public class JobServiceVO extends CommonServiceVO {
 	private String sysCheckSqlStr;
 	private String dataPollerSettingId;
 	private String localFileOperationSettingId;
+	private String mailSenderSettingId;
 
 	private String schedType;
 	private String schedTypeName;
@@ -441,5 +443,17 @@ public class JobServiceVO extends CommonServiceVO {
     }
     public void setInputDataPollerOperatorSettingId(String inputDataPollerOperatorSettingId) {
         this.inputDataPollerOperatorSettingId = inputDataPollerOperatorSettingId;
+    }
+    public String getInputMailSenderSettingId() {
+        return inputMailSenderSettingId;
+    }
+    public void setInputMailSenderSettingId(String inputMailSenderSettingId) {
+        this.inputMailSenderSettingId = inputMailSenderSettingId;
+    }
+    public String getMailSenderSettingId() {
+        return mailSenderSettingId;
+    }
+    public void setMailSenderSettingId(String mailSenderSettingId) {
+        this.mailSenderSettingId = mailSenderSettingId;
     }
 }
