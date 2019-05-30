@@ -28,6 +28,9 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	@Log
 	private static Logger log;
 
+	@Autowired
+    private SessionFactory secondSessionFactory;
+
 	protected static final String MARK_AS_DELETE = "Y";
 
 	@Autowired
@@ -219,7 +222,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	}
 
 	@Override
-	public Integer loadDataInFile(String tableName, String filePath, String charset, String fieldsTerminatedBy,
+	public Integer loadDataInFile(String targetDB, String tableName, String filePath, String charset, String fieldsTerminatedBy,
 			String linesTerminatedBy, String extraSetStr) {
 	    Session session = null;
 	    Transaction tx = null;
@@ -248,10 +251,19 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	            sql.append(extraSetStr);
 	        }
 
-	        try {
-	            session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	        } catch (HibernateException e) {
-	            session = getHibernateTemplate().getSessionFactory().openSession();
+	        if (StringUtils.equals(targetDB, TARGET_PRIMARY_DB)) {
+	            try {
+	                session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	            } catch (HibernateException e) {
+	                session = getHibernateTemplate().getSessionFactory().openSession();
+	            }
+
+	        } else if (StringUtils.equals(targetDB, TARGET_SECONDARY_DB)) {
+	            try {
+	                session = secondSessionFactory.getCurrentSession();
+	            } catch (HibernateException e) {
+	                session = secondSessionFactory.openSession();
+	            }
 	        }
 
 	        if (session != null) {

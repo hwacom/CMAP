@@ -1549,6 +1549,7 @@ public class DataPollerServiceImpl implements DataPollerService {
 	    try {
 	        final String fileCharset = setting.getFileCharset();
 	        final String linesTerminatedBy = setting.getLinesTerminatedBy();
+	        final String targetDB = setting.getTargetDb();
 
             /*
              * Step 3. 呼叫執行 LOAD DATA INFILE 指令
@@ -1556,7 +1557,7 @@ public class DataPollerServiceImpl implements DataPollerService {
             final String fieldsTerminatedBy = setting.getFieldsTerminatedBy();
 
             String sqlFilePath = targetFilePath.toString().replace("\\", "\\\\");
-            dataPollerDAO.loadDataInFile(targetTableName, sqlFilePath, fileCharset, fieldsTerminatedBy, linesTerminatedBy, extraSetStr);
+            dataPollerDAO.loadDataInFile(targetDB, targetTableName, sqlFilePath, fileCharset, fieldsTerminatedBy, linesTerminatedBy, extraSetStr);
 
 	    } catch (Exception e) {
 	        log.error(e.toString(), e);

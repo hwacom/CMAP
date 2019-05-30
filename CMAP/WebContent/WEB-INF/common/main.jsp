@@ -74,8 +74,13 @@
     <nav class="navbar navbar-dark fixed-top flex-md-nowrap p-0 shadow navbar-bg">
       <a href="${pageContext.request.contextPath}/index">
       	<!-- Hwacom -->
+		<!-- 
 		<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="30" style="padding-top: 3px" />
-			  			
+		 -->
+		 
+		<!-- Innolux 群創 -->
+		<img class="img" src="${pageContext.request.contextPath}/resources/images/innolux_logo.png" width="auto" height="30" style="padding-top: 3px" />
+		
       	<!-- 苗栗 -->
       	<!-- 
       	<img class="img" src="${pageContext.request.contextPath}/resources/images/Logo_icon.png" width="auto" height="30" style="padding-top: 3px" />

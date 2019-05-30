@@ -119,7 +119,7 @@ public class VmSwitchController extends BaseController {
 	 * @param apiVmName
 	 * @return
 	 */
-	@RequestMapping(value = "/chkVmStatus/{apiVmName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/chkVmStatus/{apiVmName}", method = RequestMethod.GET, produces="application/json")
 	public @ResponseBody String chkStatus(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
 	        @PathVariable(required=true) String apiVmName) {
 
