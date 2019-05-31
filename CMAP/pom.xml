@@ -136,11 +136,13 @@
 		<version>5.1.2.RELEASE</version>
 	</dependency>
 	<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-openid -->
+	<!-- 
 	<dependency>
 	    <groupId>org.springframework.security</groupId>
 	    <artifactId>spring-security-openid</artifactId>
 	    <version>5.1.2.RELEASE</version>
 	</dependency>
+	 -->
 	<!-- Logging -->
 	<!-- https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j -->
 	<dependency>
@@ -360,6 +362,12 @@
 	    <artifactId>oauth2-oidc-sdk</artifactId>
 	    <version>6.2</version>
 	    <scope>runtime</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.openid4java/openid4java -->
+	<dependency>
+	    <groupId>org.openid4java</groupId>
+	    <artifactId>openid4java</artifactId>
+	    <version>1.0.0</version>
 	</dependency>
 	<!-- https://mvnrepository.com/artifact/javax.cache/cache-api -->
 	<dependency>

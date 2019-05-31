@@ -115,8 +115,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/resources/**").permitAll()
 			.antMatchers("/login").permitAll()
 			.antMatchers("/loginOIDC").permitAll()
+			.antMatchers("/loginOIDC_NTPC").permitAll()
 			.antMatchers("/login/code/**").permitAll()
 			.antMatchers("/login/authByOIDC/**").permitAll()
+			.antMatchers("/login/authByOIDC_NTPC/**").permitAll()
 			.antMatchers("/admin/env/refreshAll").permitAll()
 			.antMatchers("/plugin/module/vmswitch/chkVmStatus/**").permitAll()           // 提供PRTG呼叫切換VM備援 (Y190117, Case No.C31001704016 >> APT HeNBGW & ePDG-LI Expansion)
 			                                                                             // Y190409, VM切換須先進行登入驗證，登入後自動跳轉到VM切換UI

@@ -199,7 +199,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 				loginAuthByPRTG(request, username, password);
 				break;
 
-			case Constants.LOGIN_AUTH_MODE_OIDC:
+			case Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI:
 				loginAuthByOIDC(request, response);
 				break;
 		}

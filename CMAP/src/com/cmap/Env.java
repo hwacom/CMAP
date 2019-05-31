@@ -39,6 +39,7 @@ public class Env {
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			// 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			// 資安通報 > 網卡MAC開通/封鎖
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;        // 資安通報 > 防火牆LOG查詢
+	public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;  // PRTG  > 流量統計
 
 	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				// 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
 
@@ -295,6 +296,11 @@ public class Env {
 	public static String OIDC_USERINFO_ENDPOINT_JSON_EMAIL_NODE;
 	public static String OIDC_USERINFO_ENDPOINT_JSON_OPEN2ID_NODE;
 	public static String OIDC_EDUINFO_ENDPOINT_JSON_SCHOOLID_NODE;
+
+	/*
+	 * 新北市教育局OpenID
+	 */
+	public static String OIDC_URL_OF_NEW_TAIPEI_CITY;
 
 	public static String FILE_EXTENSION_NAME_OF_NET_FLOW;
 

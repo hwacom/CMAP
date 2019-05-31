@@ -32,12 +32,12 @@
 	  			<div class="row">
 			  		<div class="col-md-6 col-sm-12 offset-md-3 m-t-5 login-title">
 			  			<!-- Hwacom -->
-			  			<!-- 
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="30" style="padding-top: 3px" />
-			  			-->
 			  			
 			  			<!-- Innolux 群創 -->
+			  			<!-- 
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/innolux_logo.png" width="auto" height="30" style="padding-top: 3px" />
+			  			-->
 			  			
 			  			<!-- 亞太 -->
 			  			<!-- 

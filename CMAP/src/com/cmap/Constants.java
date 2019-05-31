@@ -28,7 +28,8 @@ public class Constants {
 	public static final String EXCEPTION_POLICY_CONTINUE = "CONTINUE";
 	public static final String EXCEPTION_POLICY_BREAK = "BREAK";
 
-	public static final String LOGIN_AUTH_MODE_OIDC = "OIDC";
+	public static final String LOGIN_AUTH_MODE_OIDC_MIAOLI = "OIDC_MAC";
+	public static final String LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI = "OIDC_NTPC";
 	public static final String LOGIN_AUTH_MODE_PRTG = "PRTG";
 	public static final String LOGIN_AUTH_MODE_PRIME = "PRIME";
 	public static final String LOGIN_AUTH_MODE_DB = "DB";

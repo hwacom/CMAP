@@ -79,7 +79,13 @@
 		 -->
 		 
 		<!-- Innolux 群創 -->
+		<!-- 
 		<img class="img" src="${pageContext.request.contextPath}/resources/images/innolux_logo.png" width="auto" height="30" style="padding-top: 3px" />
+		 -->
+		 
+		<!-- 新北 -->
+      	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_icon.png" width="auto" height="30" style="padding-top: 3px" />
+  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_word.png" width="auto" height="23" style="padding-top: 3px" />
 		
       	<!-- 苗栗 -->
       	<!-- 
@@ -140,12 +146,18 @@
                     	  	<span><spring:message code="func.prtg.dashboard" /></span>
                     	</a>
                     </li>
+                    <%
+			            if (Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS.equals(__SHOW__)) {
+			         %>
                    	<li class="subMenu-item">
                     	<a id="mp_netFlowSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowSummary')">
                     	  <span data-feather="activity"></span>
                     	  	<span><spring:message code="func.prtg.net.flow.statistics" /></span>
                     	</a>
                     </li>
+                    <%
+		            	}
+		            %>
                 </ul>
 	          </li>
 	          <%

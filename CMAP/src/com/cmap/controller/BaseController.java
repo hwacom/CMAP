@@ -42,10 +42,15 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
+import com.cmap.comm.BaseAuthentication;
+import com.cmap.exception.AuthenticateException;
 import com.cmap.model.User;
 import com.cmap.security.SecurityUser;
 import com.cmap.service.CommonService;
 import com.cmap.service.UserService;
+import com.cmap.service.vo.PrtgServiceVO;
+import com.cmap.utils.ApiUtils;
+import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -82,6 +87,53 @@ public class BaseController {
 			return null;
 		}
 	}
+
+	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String sourceId) {
+        HttpSession session = request.getSession();
+        PrtgServiceVO prtgVO = null;
+
+        try {
+            prtgVO = commonService.findPrtgLoginInfo(sourceId);
+
+            if (prtgVO == null ||
+                    (prtgVO != null && StringUtils.isBlank(prtgVO.getAccount()) && StringUtils.isBlank(prtgVO.getPassword()))) {
+                throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (sourceId: " + sourceId + " )");
+            }
+
+            ApiUtils prtgApiUtils = new PrtgApiUtils();
+            boolean loginSuccess = prtgApiUtils.login(request, prtgVO.getAccount(), prtgVO.getPassword());
+
+            if (!loginSuccess) {
+                throw new AuthenticateException("PRTG登入失敗 >> prtgApiUtils.login return false");
+            }
+
+            String role = Objects.toString(session.getAttribute(Constants.USERROLE), null);
+
+            if (StringUtils.isBlank(role)) {
+                request.getSession().setAttribute(Constants.USERROLE, Constants.USERROLE_USER);
+
+            } else {
+                if (role.indexOf(Constants.USERROLE_USER) == -1) {
+                    role = role.concat(Env.COMM_SEPARATE_SYMBOL).concat(Constants.USERROLE_USER);
+                    request.getSession().setAttribute(Constants.USERROLE, role);
+                }
+            }
+
+            String userOIDCSub = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SUB), null);
+
+            if (StringUtils.isNotBlank(userOIDCSub)) {
+                BaseAuthentication.authAdminRole(request, userOIDCSub);
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "PRTG登入失敗，請重新操作或聯絡系統管理員");
+            return "redirect:/login";
+        }
+
+        return manualAuthenticatd4EduOIDC(model, principal, request);
+    }
 
 	protected String manualAuthenticatd4EduOIDC(Model model, Principal principal, HttpServletRequest request) {
 		try {

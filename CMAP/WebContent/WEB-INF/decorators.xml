@@ -8,8 +8,16 @@
 		<pattern>/login</pattern>
 		<pattern>/accessdenied*</pattern>
 	</decorator>
-	<decorator name="loginOIDC" page="views/login_openid.jsp">
+	<decorator name="loginOIDC_MLC" page="views/login_openid_mlc.jsp">
 		<pattern>/loginOIDC</pattern>
+		<pattern>/accessdenied*</pattern>
+	</decorator>
+	<decorator name="loginOIDC_NTPC" page="views/login_openid_ntpc.jsp">
+		<pattern>/loginOIDC_NTPC</pattern>
+		<pattern>/accessdenied*</pattern>
+	</decorator>
+	<decorator name="formredirection" page="views/formredirection.jsp">
+		<pattern>/login/authByOIDC_NTPC</pattern>
 		<pattern>/accessdenied*</pattern>
 	</decorator>
 	<decorator name="outsite" page="common/blank.jsp">

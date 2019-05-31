@@ -77,27 +77,6 @@
 		  $("#btnLogin").click(function(e) {
 			 location.href = "${pageContext.request.contextPath}/login/authByOIDC";
 		  });
-		  /*
-		  $.get("https://tw.yahoo.com",function(data){
-			$("#test").html(data);//初始化加载界面
-		  });
-		  */
 	  });
-	  
-	/*
-	  function reqListener () {
-		  console.log(this.responseText);
-	  }
-	  
-	  function include(url){
-		  var oReq = new XMLHttpRequest();
-		  oReq.addEventListener("load", reqListener);
-		  oReq.open("GET", url);
-		  oReq.send();
-		  //document.writeln(xmlHttp.responseText);
-	  }
-	  
-	  include("https://163.19.163.170:1443/public/login.htm");
-	*/
   </script>
 </html>

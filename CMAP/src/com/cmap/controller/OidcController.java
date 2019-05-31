@@ -6,24 +6,19 @@ import java.net.URL;
 import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.comm.BaseAuthentication;
 import com.cmap.configuration.security.CustomAuthenticationProvider;
-import com.cmap.exception.AuthenticateException;
 import com.cmap.extension.openid.connect.sdk.ConfigurationErrorResponse;
 import com.cmap.extension.openid.connect.sdk.ConfigurationRequest;
 import com.cmap.extension.openid.connect.sdk.ConfigurationResponse;
@@ -34,9 +29,6 @@ import com.cmap.extension.openid.connect.sdk.EduInfoResponse;
 import com.cmap.extension.openid.connect.sdk.EduInfoSuccessResponse;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.UserService;
-import com.cmap.service.vo.PrtgServiceVO;
-import com.cmap.utils.ApiUtils;
-import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -74,7 +66,6 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
-
 import net.minidev.json.JSONObject;
 
 @Controller
@@ -378,52 +369,5 @@ public class OidcController extends BaseController {
         	session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "無網路管理系統存取權限，請與系統管理員聯繫");
             return "redirect:/loginOIDC";
         }
-	}
-
-	private String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String sourceId) {
-		HttpSession session = request.getSession();
-		PrtgServiceVO prtgVO = null;
-
-		try {
-			prtgVO = commonService.findPrtgLoginInfo(sourceId);
-
-			if (prtgVO == null ||
-					(prtgVO != null && StringUtils.isBlank(prtgVO.getAccount()) && StringUtils.isBlank(prtgVO.getPassword()))) {
-				throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (sourceId: " + sourceId + " )");
-			}
-
-			ApiUtils prtgApiUtils = new PrtgApiUtils();
-			boolean loginSuccess = prtgApiUtils.login(request, prtgVO.getAccount(), prtgVO.getPassword());
-
-			if (!loginSuccess) {
-				throw new AuthenticateException("PRTG登入失敗 >> prtgApiUtils.login return false");
-			}
-
-			String role = Objects.toString(session.getAttribute(Constants.USERROLE), null);
-
-			if (StringUtils.isBlank(role)) {
-				request.getSession().setAttribute(Constants.USERROLE, Constants.USERROLE_USER);
-
-			} else {
-				if (role.indexOf(Constants.USERROLE_USER) == -1) {
-					role = role.concat(Env.COMM_SEPARATE_SYMBOL).concat(Constants.USERROLE_USER);
-					request.getSession().setAttribute(Constants.USERROLE, role);
-				}
-			}
-
-			String userOIDCSub = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SUB), null);
-
-			if (StringUtils.isNotBlank(userOIDCSub)) {
-				BaseAuthentication.authAdminRole(request, userOIDCSub);
-			}
-
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-
-			session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "PRTG登入失敗，請重新操作或聯絡系統管理員");
-            return "redirect:/login";
-		}
-
-		return super.manualAuthenticatd4EduOIDC(model, principal, request);
 	}
 }
