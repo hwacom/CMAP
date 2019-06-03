@@ -56,6 +56,12 @@ import com.cmap.comm.oidc.X509TrustManager;
 import com.cmap.exception.ServiceLayerException;
 import com.google.gson.Gson;
 
+/**
+ * OpenID 登入驗證流程
+ * 目前 for 新北教網
+ * @author 不滅神話
+ *
+ */
 @Controller
 @RequestMapping("/login/authByOIDC_NTPC")
 public class ConsumerController extends BaseController implements ServletConfigAware {

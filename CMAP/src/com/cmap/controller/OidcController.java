@@ -28,7 +28,6 @@ import com.cmap.extension.openid.connect.sdk.EduInfoRequest;
 import com.cmap.extension.openid.connect.sdk.EduInfoResponse;
 import com.cmap.extension.openid.connect.sdk.EduInfoSuccessResponse;
 import com.cmap.security.SecurityUtil;
-import com.cmap.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -68,6 +67,12 @@ import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 import net.minidev.json.JSONObject;
 
+/**
+ * OpenID 登入驗證流程
+ * 目前 for 苗栗教網
+ * @author 不滅神話
+ *
+ */
 @Controller
 @RequestMapping("/login/code")
 public class OidcController extends BaseController {
@@ -76,9 +81,6 @@ public class OidcController extends BaseController {
 
 	@Autowired
 	private CustomAuthenticationProvider customerAuthProvider;
-
-	@Autowired
-	private UserService userService;
 
 	private ClientID clientID = null;
 	private Secret clientSecret = null;

@@ -84,8 +84,8 @@
 		 -->
 		 
 		<!-- 新北 -->
-      	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_icon.png" width="auto" height="30" style="padding-top: 3px" />
-  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_word.png" width="auto" height="23" style="padding-top: 3px" />
+      	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_icon.png" width="auto" height="40" style="padding-top: 3px" />
+  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_word.png" width="auto" height="40" style="padding-top: 3px" />
 		
       	<!-- 苗栗 -->
       	<!-- 

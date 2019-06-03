@@ -329,6 +329,46 @@ public class PrtgApiUtils implements ApiUtils {
 		return false;
 	}
 
+	/**
+	 * 取得PRTG pashhash
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	public String getPasshash(String username, String password) throws ServiceLayerException {
+	    String retVal = null;
+	    try {
+            if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+                throw new Exception("[Login failed] >> username or password is blank.");
+
+            } else {
+                API_LOGIN = StringUtils.replace(API_LOGIN, "{username}", username);
+                API_LOGIN = StringUtils.replace(API_LOGIN, "{password}", password);
+
+                String apiUrl = PRTG_ROOT.concat(API_LOGIN);
+
+                try {
+                    retVal = callPrtg(apiUrl);
+
+                } catch (ConnectTimeoutException cte) {
+                    throw new ServiceLayerException("PRTG連線超時");
+                }
+
+                if (StringUtils.isBlank(retVal)) {
+                    throw new ServiceLayerException("PRTG認證失敗");
+                }
+            }
+
+        } catch (ServiceLayerException sle) {
+            throw sle;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("PRTG認證異常");
+        }
+        return retVal;
+	}
+
 	private void checkPasshash(HttpServletRequest request) throws Exception {
 		User user = SecurityUtil.getSecurityUser().getUser();
 		String username = user.getPrtgLoginAccount();

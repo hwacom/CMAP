@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.PrtgDAO;
@@ -26,13 +25,13 @@ public class PrtgServiceImpl implements PrtgService {
 	public String getMapUrlBySourceIdAndType(String sourceId, String type) throws ServiceLayerException {
 		try {
 			if (StringUtils.isBlank(sourceId)) {
-				throw new ServiceLayerException("取得PRTG dashboard MAP失敗! >> Source_ID 不得為空");
+				throw new ServiceLayerException("取得PRTG mapping表失敗! >> 傳入ID為空");
 			}
 
 			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingBySourceId(sourceId);
 
 			if (mapping == null) {
-				throw new ServiceLayerException("取得PRTG dashboard MAP失敗! >> 查無資料, Source_ID: " + sourceId);
+				throw new ServiceLayerException("取得PRTG mapping表失敗! >> 傳入ID查無資料, Source_ID: " + sourceId);
 			}
 
 			switch (type) {
@@ -55,30 +54,36 @@ public class PrtgServiceImpl implements PrtgService {
 					return null;
 			}
 
-		} catch (Exception e) {
+		} catch (ServiceLayerException sle) {
+            throw sle;
+
+        } catch (Exception e) {
 			log.error(e.toString(), e);
-			throw new ServiceLayerException("取得PRTG dashboard MAP失敗!  >> 非預期錯誤");
+			throw new ServiceLayerException("取得PRTG mapping表失敗!  >> 非預期錯誤(" + e.getMessage() + ")");
 		}
 	}
 
 	@Override
-	public PrtgAccountMapping getMappingBySourceIdAndType(String sourceId, String type) throws ServiceLayerException {
+	public PrtgAccountMapping getMappingBySourceId(String sourceId) throws ServiceLayerException {
 		try {
 			if (StringUtils.isBlank(sourceId)) {
-				throw new ServiceLayerException("取得PRTG dashboard MAP失敗! >> Source_ID 不得為空");
+				throw new ServiceLayerException("取得PRTG mapping表失敗! >> 傳入ID為空");
 			}
 
 			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingBySourceId(sourceId);
 
 			if (mapping == null) {
-				throw new ServiceLayerException("取得PRTG dashboard MAP失敗! >> 查無資料, Source_ID: " + sourceId);
+				throw new ServiceLayerException("取得PRTG mapping表失敗! >> 傳入ID查無資料, Source_ID: " + sourceId);
 			}
 
 			return mapping;
 
+		} catch (ServiceLayerException sle) {
+		    throw sle;
+
 		} catch (Exception e) {
 			log.error(e.toString(), e);
-			throw new ServiceLayerException("取得PRTG dashboard MAP失敗!  >> 非預期錯誤");
+			throw new ServiceLayerException("取得PRTG mapping表失敗!  >> 非預期錯誤(" + e.getMessage() + ")");
 		}
 	}
 }

@@ -4,11 +4,9 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -25,20 +23,24 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.PrtgAccountMapping;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
 import com.cmap.service.PrtgService;
+import com.cmap.service.UserService;
 import com.cmap.service.vo.PrtgServiceVO;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
+import com.cmap.utils.impl.PrtgApiUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 @RequestMapping("/prtg")
@@ -51,6 +53,9 @@ public class PrtgController extends BaseController {
 
 	@Autowired
 	private PrtgService prtgService;
+
+	@Autowired
+	private UserService userService;
 
 	private void init(Model model) {
 		model.addAttribute("PRTG_IP_ADDR", Env.PRTG_SERVER_IP);
@@ -139,6 +144,83 @@ public class PrtgController extends BaseController {
 		return retVal;
 	}
 
+	/**
+	 * 取得 PRTG passhash
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @param response
+	 * @param jsonData
+	 * [範例]:
+     *     {
+              "groupId" : "019998",
+              "role": [
+                "教師",
+                "資訊教師"
+              ],
+              "account" : "test1234"
+            }
+	 * @return
+	 */
+    @RequestMapping(value = "/getPasshash", method = RequestMethod.POST, produces="application/json")
+    public @ResponseBody AppResponse getPasshash(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+            @RequestBody JsonNode jsonData) {
+
+        try {
+            String groupId = jsonData.findValue("groupId") != null ? jsonData.findValue("groupId").asText() : "";
+
+            String[] roles;
+            JsonNode roleArr = jsonData.get("role");
+            if (roleArr.isArray()) {
+                roles = new String[roleArr.size()];
+
+                for (int i=0; i<roleArr.size(); i++) {
+                    roles[i] = roleArr.get(i).asText();
+                }
+            } else {
+                roles = new String[1];
+                roles[0] = roleArr.asText();
+            }
+
+            String account = jsonData.findValue("account") != null ? jsonData.findValue("account").asText() : "";
+
+            // Step 1. 判斷此 groupId + role + account 有無權限登入使用
+            boolean canLogin = userService.checkUserCanAccess(request, true, groupId, roles, account);
+
+            if (!canLogin) {
+                throw new ServiceLayerException("使用者無登入權限");
+            }
+
+            // Step 2. 取得 groupId 對應的 PRTG 登入帳密
+            PrtgAccountMapping mapping = prtgService.getMappingBySourceId(groupId);
+
+            String username = mapping.getPrtgAccount();
+            String password = mapping.getPrtgPassword();
+
+            // Step 3. 呼叫 PRTG API 取得 passhash
+            PrtgApiUtils prtgApiUtils = new PrtgApiUtils();
+            String passhash = prtgApiUtils.getPasshash(username, password);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "Success");
+            app.putData(Constants.PASSHASH, passhash);
+            return app;
+
+        } catch (ServiceLayerException sle) {
+            log.error(sle.getMessage());
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_EXPECTATION_FAILED, sle.getMessage());
+            app.putData(Constants.PASSHASH, null);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_EXPECTATION_FAILED, e.getMessage());
+            app.putData(Constants.PASSHASH, null);
+            return app;
+        }
+    }
+
 	@RequestMapping(value = "/welcomePage", method = RequestMethod.GET)
 	public String welcomePage(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -206,7 +288,7 @@ public class PrtgController extends BaseController {
 			}
 			*/
 
-			PrtgAccountMapping mapping = prtgService.getMappingBySourceIdAndType(schoolId, Constants.MAP_URL_OF_INDEX);
+			PrtgAccountMapping mapping = prtgService.getMappingBySourceId(schoolId);
 			String indexUrl = null;
 
 			if (StringUtils.isBlank(mapping.getIndexUrl())) {
