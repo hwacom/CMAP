@@ -89,6 +89,19 @@ $(document).ready(function() {
 				initActionBar();
 			}
     	}
+    	if (typeof resultTable_blockIpRecord !== "undefined") {
+    		calHeight();
+    		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
+    		resultTable_blockIpRecord.ajax.reload();
+			
+			if (typeof $("#checkAll") !== "undefined") {
+				$('input[name=checkAll]').prop('checked', false);
+			}
+			
+			if (typeof initActionBar === 'function') {
+				initActionBar();
+			}
+    	}
     	
     	if ($('#chkbox').length > 0) {
     		var chooseIdx = [];

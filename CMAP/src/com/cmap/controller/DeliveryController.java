@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
@@ -112,6 +109,47 @@ public class DeliveryController extends BaseController {
 
 		return "plugin/module_ip_open_block";
 	}
+
+	/**
+	 * 查找被封鎖過的IP紀錄
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param groupId
+	 * @param ipAddress
+	 * @param startNum
+	 * @param pageLength
+	 * @param searchValue
+	 * @param orderColIdx
+	 * @param orderDirection
+	 * @return
+	 */
+	@RequestMapping(value = "getBlockedIpData.json", method = RequestMethod.POST)
+    public @ResponseBody DatatableResponse getBlockedIpData(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="groupId", required=false, defaultValue="") String groupId,
+            @RequestParam(name="ipAddress", required=false, defaultValue="") String ipAddress,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="6") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
+
+        long total = 0;
+        long filterdTotal = 0;
+        List<DeliveryServiceVO> dataList = new ArrayList<>();
+        DeliveryServiceVO dsVO;
+        try {
+            dsVO = new DeliveryServiceVO();
+
+        } catch (Exception e) {
+
+        } finally {
+            initMenu(model, request);
+        }
+
+        return new DatatableResponse(total, dataList, filterdTotal);
+    }
 
 	@RequestMapping(value = "macOpenBlock", method = RequestMethod.GET)
 	public String macOpenBlock(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {

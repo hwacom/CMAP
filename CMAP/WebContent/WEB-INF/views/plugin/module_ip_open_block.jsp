@@ -39,28 +39,27 @@
 	  	</div>
 		</div>
   	</div>
+
+	<div style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">已封鎖IP清單:</div>
   	
   	<!-- IP封鎖紀錄 -->
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
-	  	<div class="col-sm-12 myTableSection" style="display:none;">
-			<table id="resultTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
-		  	<thead class="center">
-		    	<tr>
-			      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="script.name" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="type" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="system.version" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="execute.script.content" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="execute.script.remark" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="check.script.content" /></th>
-			      <th scope="col" nowrap="nowrap"><spring:message code="check.script.remark" /></th>
-			    </tr>
-			  </thead>
-			</table>
-	  	</div>
+		  	<div class="col-sm-12 myTableSection" style="display:none;">
+				<table id="resultTable_blockIpRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+			  	<thead class="center">
+			    	<tr>
+				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
+				      <th scope="col" nowrap="nowrap">IP address</th>
+				      <th scope="col" nowrap="nowrap">封鎖時間</th>
+				      <th scope="col" nowrap="nowrap">封鎖原因</th>
+				      <th scope="col" nowrap="nowrap">封鎖人</th>
+				    </tr>
+				  </thead>
+				</table>
+		  	</div>
 		</div>
   	</div>
   	
@@ -222,3 +221,4 @@
 <!-- Modal [View] end -->
 
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/cmap.delivery.main.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.open.block.min.js"></script>
