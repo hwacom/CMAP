@@ -30,7 +30,7 @@ $(document).ready(function() {
 	});
 	*/
 	
-	$("#resutTable").on('xhr.dt', function ( e, settings, json, xhr ) {
+	$("#resultTable").on('xhr.dt', function ( e, settings, json, xhr ) {
 		if (json.msg != null) {
 			$(".myTableSection").hide();
 			alert(json.msg);
@@ -100,15 +100,15 @@ function findData(from) {
 		$('#collapseExample').collapse('hide');
 	}
 	
-	if (typeof resutTable !== "undefined") {
-		resutTable.ajax.reload();
+	if (typeof resultTable !== "undefined") {
+		resultTable.ajax.reload();
 		$(".myTableSection").show();
 		
 	} else {
 		$(".myTableSection").show();
 		$('[data-field]').hide();
 		
-		resutTable = $('#resutTable').DataTable(
+		resultTable = $('#resultTable').DataTable(
 		{
 			"autoWidth" 	: true,
 			"paging" 		: true,

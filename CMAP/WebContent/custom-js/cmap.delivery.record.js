@@ -20,14 +20,14 @@ $(document).ready(function() {
 function findData(from) {
 	$('#queryFrom').val(from);
 	
-	if (typeof resutTable !== "undefined") {
-		//resutTable.clear().draw(); server-side is enabled.
-		resutTable.ajax.reload();
+	if (typeof resultTable !== "undefined") {
+		//resultTable.clear().draw(); server-side is enabled.
+		resultTable.ajax.reload();
 		
 	} else {
 		$(".myTableSection").show();
 		
-		resutTable = $('#resutTable').DataTable(
+		resultTable = $('#resultTable').DataTable(
 		{
 			"autoWidth" 	: true,
 			"paging" 		: true,

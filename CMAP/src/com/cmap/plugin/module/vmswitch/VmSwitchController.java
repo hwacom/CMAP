@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +20,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cmap.AppResponse;
 import com.cmap.Constants;
+import com.cmap.PrtgJsonResponse;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/plugin/module/vmswitch")
@@ -119,23 +123,37 @@ public class VmSwitchController extends BaseController {
 	 * @param apiVmName
 	 * @return
 	 */
-	@RequestMapping(value = "/chkVmStatus/{apiVmName}", method = RequestMethod.GET, produces="application/json")
+	@RequestMapping(value = "/chkVmStatus/{apiVmName}", method = RequestMethod.GET, produces="application/json;charset=UTF-8")
 	public @ResponseBody String chkStatus(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
 	        @PathVariable(required=true) String apiVmName) {
 
+	    String jsonString = "";
 	    String chkResult = Constants.VM_STATUS_FINE;
 	    try {
+	        // Step 1. 判斷VM狀態
 	        VmSwitchVO vmSwitchVO = new VmSwitchVO();
 	        vmSwitchVO.setApiVmName(apiVmName);
 
 	        vmSwitchVO = vmSwitchService.chkVmStatus(vmSwitchVO);
 	        chkResult = vmSwitchVO.getVmStatus();
 
+	        // Step 2. 回傳JSON格式
+	        Map<String, String> vMap = new HashMap<>();
+            vMap.put("VM_STATUS", chkResult);
+
+            String sensorText = "0:正常 / 1:SSH不通 / 2:No subscribers";
+
+	        PrtgJsonResponse prtgRes = new PrtgJsonResponse(vMap, sensorText);
+
+            ObjectMapper mapper = new ObjectMapper();
+            jsonString = mapper.writeValueAsString(prtgRes);
+            System.out.println(new Date() + " >>> " + jsonString);
+
 	    } catch (Exception e) {
             log.error(e.toString(), e);
 	    }
 
-	    return chkResult;
+	    return jsonString;
 	}
 
 	/**

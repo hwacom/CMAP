@@ -81,14 +81,14 @@ function findData(from) {
 		$('#collapseExample').collapse('hide');
 	}
 	
-	if (typeof resutTable !== "undefined") {
-		resutTable.clear().draw();
-		resutTable.ajax.reload();
+	if (typeof resultTable !== "undefined") {
+		resultTable.clear().draw();
+		resultTable.ajax.reload();
 		
 	} else {
 		$(".myTableSection").show();
 		
-		resutTable = $('#resutTable').DataTable(
+		resultTable = $('#resultTable').DataTable(
 		{
 			"autoWidth" 	: true,
 			"paging" 		: true,

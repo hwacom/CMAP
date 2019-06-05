@@ -202,6 +202,7 @@ public class PrtgController extends BaseController {
             String passhash = prtgApiUtils.getPasshash(username, password);
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "Success");
+            app.putData(Constants.USERNAME, username);
             app.putData(Constants.PASSHASH, passhash);
             return app;
 
@@ -209,6 +210,7 @@ public class PrtgController extends BaseController {
             log.error(sle.getMessage());
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_EXPECTATION_FAILED, sle.getMessage());
+            app.putData(Constants.USERNAME, null);
             app.putData(Constants.PASSHASH, null);
             return app;
 
@@ -216,6 +218,7 @@ public class PrtgController extends BaseController {
             log.error(e.toString(), e);
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_EXPECTATION_FAILED, e.getMessage());
+            app.putData(Constants.USERNAME, null);
             app.putData(Constants.PASSHASH, null);
             return app;
         }

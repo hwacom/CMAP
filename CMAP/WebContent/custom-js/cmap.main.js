@@ -5,7 +5,7 @@ feather.replace();
 
 var _ctx = $("meta[name='ctx']").attr("content");
 var _timeout = $("meta[name='timeout']").attr("content");
-var resutTable;					//DataTable
+var resultTable;					//DataTable
 var navAndMenuAndFooterHeight;	//導覽列+Mobile選單+Footer區塊高度
 var deductHeight;				//額外扣除高度 for DataTable資料呈顯區塊高度
 var dataTableHeight;			//DataTable資料呈顯區塊高度
@@ -50,10 +50,10 @@ $(document).ready(function() {
 
 	//縮放視窗大小時，延遲1秒後重算DataTable區塊高度 & 重繪DataTable
     $(window).resize(_.debounce(function() {
-    	if (typeof resutTable !== "undefined") {
+    	if (typeof resultTable !== "undefined") {
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
-			resutTable.ajax.reload();
+			resultTable.ajax.reload();
 			
 			if (typeof $("#checkAll") !== "undefined") {
 				$('input[name=checkAll]').prop('checked', false);
@@ -63,10 +63,10 @@ $(document).ready(function() {
 				initActionBar();
 			}
     	}
-    	if (typeof resutTable_errorLog !== "undefined") {
+    	if (typeof resultTable_errorLog !== "undefined") {
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
-    		resutTable_errorLog.ajax.reload();
+    		resultTable_errorLog.ajax.reload();
 			
 			if (typeof $("#checkAll") !== "undefined") {
 				$('input[name=checkAll]').prop('checked', false);
@@ -76,10 +76,10 @@ $(document).ready(function() {
 				initActionBar();
 			}
     	}
-    	if (typeof resutTable_jobLog !== "undefined") {
+    	if (typeof resultTable_jobLog !== "undefined") {
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
-    		resutTable_jobLog.ajax.reload();
+    		resultTable_jobLog.ajax.reload();
 			
 			if (typeof $("#checkAll") !== "undefined") {
 				$('input[name=checkAll]').prop('checked', false);

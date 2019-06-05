@@ -2,8 +2,8 @@
  * 
  */
 var isModify = false;
-var resutTable_errorLog;		//DataTable
-var resutTable_jobLog;			//DataTable
+var resultTable_errorLog;		//DataTable
+var resultTable_jobLog;			//DataTable
 var remarkShowLength = 50;		//設定欄位顯示內容最大長度
 
 $(document).ready(function() {
@@ -72,12 +72,12 @@ function findErrorLogData(from) {
 	$("#divErrorLog").show();
 	$("#divJobLog").hide();
 		
-	if (typeof resutTable_errorLog !== "undefined") {
-		//resutTable.clear().draw(); server-side is enabled.
-		resutTable_errorLog.ajax.reload();
+	if (typeof resultTable_errorLog !== "undefined") {
+		//resultTable.clear().draw(); server-side is enabled.
+		resultTable_errorLog.ajax.reload();
 		
 	} else {
-		resutTable_errorLog = $("#resutTable_errorLog").DataTable(
+		resultTable_errorLog = $("#resultTable_errorLog").DataTable(
 		{
 			"autoWidth" 	: true,
 			"paging" 		: true,
@@ -192,12 +192,12 @@ function findJobLogData(from) {
 	$("#divErrorLog").hide();
 	$("#divJobLog").show();
 		
-	if (typeof resutTable_jobLog !== "undefined") {
-		//resutTable.clear().draw(); server-side is enabled.
-		resutTable_jobLog.ajax.reload();
+	if (typeof resultTable_jobLog !== "undefined") {
+		//resultTable.clear().draw(); server-side is enabled.
+		resultTable_jobLog.ajax.reload();
 		
 	} else {
-		resutTable_jobLog = $("#resutTable_jobLog").DataTable(
+		resultTable_jobLog = $("#resultTable_jobLog").DataTable(
 		{
 			"autoWidth" 	: true,
 			"paging" 		: true,

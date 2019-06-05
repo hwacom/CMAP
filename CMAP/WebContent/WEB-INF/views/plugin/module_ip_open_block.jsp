@@ -4,26 +4,48 @@
 <section>
 
   <div class="container-fluid">
-      <!-- [START]操作按鈕bar -->
-      <div class="col-12 action-btn-bar">
-        <div class="container-fluid">
-        	<div class="row">
-        		<div class="col-lg-2 action-btn-bar-style" align="center">
-		  	    	<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnDelivery">派送</button>
-		  	    </div>
-        	</div>
-        </div>
-      </div>
-      <!-- [END]操作按鈕bar -->
+  	<!-- [START]操作按鈕bar -->
+    <div class="col-12 action-btn-bar">
+    	<div class="container-fluid">
+       		<div class="row">
+       			<div class="col-lg-2 action-btn-bar-style" align="center">
+	  	    		<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnDelivery">派送</button>
+	  	    	</div>
+       		</div>
+       	</div>
     </div>
-    <!-- [END]查詢欄位&操作按鈕 for 大型解析度螢幕 -->
+    <!-- [END]操作按鈕bar -->
     
   	<input type="hidden" id="onlyOneScript" value="IP_OPEN_BLOCK" />
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
 	  	<div class="col-sm-12 myTableSection" style="display:none;">
-			<table id="resutTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+			<table id="resultTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+		  	<thead class="center">
+		    	<tr>
+			      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="script.name" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="type" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="system.version" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="execute.script.content" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="execute.script.remark" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="check.script.content" /></th>
+			      <th scope="col" nowrap="nowrap"><spring:message code="check.script.remark" /></th>
+			    </tr>
+			  </thead>
+			</table>
+	  	</div>
+		</div>
+  	</div>
+  	
+  	<!-- IP封鎖紀錄 -->
+  	<div class="container-fluid">
+		<!-- 查詢結果TABLE區塊 -->
+		<div class="row">
+	  	<div class="col-sm-12 myTableSection" style="display:none;">
+			<table id="resultTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 		  	<thead class="center">
 		    	<tr>
 			      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
