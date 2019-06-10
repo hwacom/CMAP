@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
@@ -66,7 +67,7 @@ public class FirewallController extends BaseController {
             model.addAttribute("devNameList", devNameListMap);
 
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-            model.addAttribute("timeout", 3600);
+            model.addAttribute("timeout", Env.TIMEOUT_4_FIREWALL_LOG_QUERY);
         }
     }
 

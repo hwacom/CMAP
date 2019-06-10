@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -19,6 +20,7 @@ import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.utils.FileUtils;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
@@ -124,7 +126,43 @@ public class SFtpFileUtils implements FileUtils {
 
 	@Override
 	public FTPFile[] listFiles() throws Exception {
-	    return null;
+	    FTPFile[] fileList = null;
+        try {
+            String currentDir = command.pwd();
+            Vector<?> vector = command.ls(currentDir);
+
+            if (vector != null && vector.size() > 0) {
+                fileList = new FTPFile[vector.size() - 2];  // 去除掉「.」跟「..」
+            }
+
+            FTPFile fFile = null;
+            int idx = 0;
+            for (Object item : vector) {
+                LsEntry entry = (LsEntry) item;
+                String fileName = entry.getFilename();
+
+                if (fileName.equals(".") || fileName.equals("..")) { // 跳過「.」跟「..」
+                    continue;
+                }
+
+                long fileSize = entry.getAttrs().getSize();
+
+                fFile = new FTPFile();
+                fFile.setType(FTPFile.FILE_TYPE);
+                fFile.setName(fileName);
+                fFile.setSize(fileSize);
+
+                fileList[idx] = fFile;
+                idx++;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        } finally {
+
+        }
+        return fileList;
 	}
 
 	@Override

@@ -252,6 +252,8 @@ public class Env {
 	public static String DEFAULT_FILE_LINE_ENDING_SYMBOL;
 
 	public static String TIMEOUT_4_NET_FLOW_QUERY;
+	public static String TIMEOUT_4_FIREWALL_LOG_QUERY;
+
 	public static String ABNORMAL_NET_FLOW_LIMIT_SIZE;
 	public static String DEFAULT_NET_FLOW_FILE_NAME_REGEX;
 	public static String DEFAULT_NET_FLOW_DATA_TYPE;
