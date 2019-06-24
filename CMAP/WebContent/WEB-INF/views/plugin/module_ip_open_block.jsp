@@ -20,7 +20,7 @@
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
-	  	<div class="col-sm-12 myTableSection" style="display:none;">
+	  	<div class="col-sm-12 myTableSection mainTable" style="display:none;">
 			<table id="resultTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 		  	<thead class="center">
 		    	<tr>
@@ -40,14 +40,14 @@
 		</div>
   	</div>
 
-	<div style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">已封鎖IP清單:</div>
+	<div id="divBlockedTitle" style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">已封鎖IP清單:</div>
   	
   	<!-- IP封鎖紀錄 -->
-  	<div class="container-fluid">
+  	<div id="divBlockedIpRecord" class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
 		  	<div class="col-sm-12 myTableSection" style="display:none;">
-				<table id="resultTable_blockIpRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+				<table id="resultTable_blockedIpRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 			  	<thead class="center">
 			    	<tr>
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>

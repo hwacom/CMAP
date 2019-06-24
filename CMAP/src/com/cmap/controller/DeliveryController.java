@@ -21,6 +21,8 @@ import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.plugin.module.iprecord.IpRecordService;
+import com.cmap.plugin.module.iprecord.IpRecordVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.vo.DeliveryParameterVO;
@@ -36,9 +38,13 @@ public class DeliveryController extends BaseController {
 
 	private static final String[] UI_SEARCH_BY_SCRIPT_COLUMNS = new String[] {"","","scriptName","scriptType.scriptTypeName","systemVersion","","","",""};
 	private static final String[] UI_RECORD_COLUMNS = new String[] {"","plm.begin_time","plm.create_by","dl.group_name","dl.device_name","dl.system_version","si.script_name","plm.remark","pls.result"};
+	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","ipAddress","blockTime","blockReason","blockBy"};
 
 	@Autowired
 	private DeliveryService deliveryService;
+
+	@Autowired
+	private IpRecordService ipRecordService;
 
 	private void initMenu(Model model, HttpServletRequest request) {
 		Map<String, String> groupListMap = null;
@@ -127,8 +133,12 @@ public class DeliveryController extends BaseController {
 	@RequestMapping(value = "getBlockedIpData.json", method = RequestMethod.POST)
     public @ResponseBody DatatableResponse getBlockedIpData(
             Model model, HttpServletRequest request, HttpServletResponse response,
-            @RequestParam(name="groupId", required=false, defaultValue="") String groupId,
-            @RequestParam(name="ipAddress", required=false, defaultValue="") String ipAddress,
+            @RequestParam(name="queryGroupId", required=false, defaultValue="") String queryGroupId,
+            @RequestParam(name="queryDeviceId", required=false, defaultValue="") String queryDeviceId,
+            @RequestParam(name="queryIpAddress", required=false, defaultValue="") String queryIpAddress,
+            @RequestParam(name="queryStatusFlag", required=false, defaultValue="") String queryStatusFlag,
+            @RequestParam(name="queryBeginDate", required=false, defaultValue="") String queryBeginDate,
+            @RequestParam(name="queryEndDate", required=false, defaultValue="") String queryEndDate,
             @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
             @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
             @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
@@ -137,11 +147,32 @@ public class DeliveryController extends BaseController {
 
         long total = 0;
         long filterdTotal = 0;
-        List<DeliveryServiceVO> dataList = new ArrayList<>();
-        DeliveryServiceVO dsVO;
+        List<IpRecordVO> dataList = new ArrayList<>();
+        IpRecordVO irVO;
         try {
-            dsVO = new DeliveryServiceVO();
+            irVO = new IpRecordVO();
+            irVO.setQueryGroupId(queryGroupId);
+            irVO.setQueryDeviceId(queryDeviceId);
+            irVO.setQueryIpAddress(queryIpAddress);
+            irVO.setQueryStatusFlag(queryStatusFlag);
+            irVO.setQueryBeginDate(queryBeginDate);
+            irVO.setQueryEndDate(queryEndDate);
+            irVO.setPageLength(pageLength);
+            irVO.setSearchValue(searchValue);
+            irVO.setOrderColumn(UI_BLOCKED_IP_RECORD_COLUMNS[orderColIdx]);  //TODO
+            irVO.setOrderDirection(orderDirection);
 
+            filterdTotal = ipRecordService.countModuleBlockedIpList(irVO);
+
+            if (filterdTotal != 0) {
+                dataList = ipRecordService.findModuleBlockedIpList(irVO, startNum, pageLength);
+            }
+
+            irVO = new IpRecordVO();
+            irVO.setQueryGroupId(queryGroupId);
+            total = ipRecordService.countModuleBlockedIpList(irVO);
+
+        } catch (ServiceLayerException sle) {
         } catch (Exception e) {
 
         } finally {
