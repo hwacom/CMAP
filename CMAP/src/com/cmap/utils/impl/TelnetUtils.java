@@ -4,13 +4,11 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.CommandExecuteException;
@@ -79,12 +77,12 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	public boolean login(final String account, final String password) throws Exception {
 		String output = "";
 		try {
-			output = readUntil("username: ");
+			output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
 			write(account);
 
 			processLog.append(output + account);
 
-			output = readUntil("password: ");
+			output = readUntil(Env.TELNET_LOGIN_PASSWORD_TEXT);
 			write(password);
 
 			processLog.append(output + password);
@@ -127,7 +125,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 				}
 				*/
 
-				if (runTime > 10000) {
+				if (runTime > Env.TELNET_READ_UNTIL_MAX_RUNTIME) {
 					return sb.toString();
 				}
 

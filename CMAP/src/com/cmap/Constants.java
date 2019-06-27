@@ -6,6 +6,8 @@ import com.cmap.comm.enums.ConnectionMode;
 
 public class Constants {
 
+    public static final String LOGIN_FROM_APP = "LOGIN_FROM_APP";
+
 	public static final String ADD_LINE = "[ADD]";
 	public static final String GROUP_DEVICE_MAP = "GROUP_DEVICE_MAP";
 	public static final String CHARSET_UTF8 = "UTF-8";
@@ -161,6 +163,8 @@ public class Constants {
 
 	public static final String DEVICE_CONFIG_BACKUP_MODE_TELNET_SSH_FTP = "STEP.TELNET+DEVICE.SSH+FILE_SERVER.FTP";
 	public static final String DEVICE_CONFIG_BACKUP_MODE_TELNET_SSH_TFTP = "STEP.TELNET+DEVICE.SSH+FILE_SERVER.TFTP";
+	public static final String DEVICE_CONFIG_BACKUP_MODE_TELNET_TELNET_TFTP = "STEP.TELNET+DEVICE.TELNET+FILE_SERVER.TFTP";
+	public static final String DEVICE_CONFIG_BACKUP_MODE_TELNET_TELNET_FTP = "STEP.TELNET+DEVICE.TELNET+FILE_SERVER.FTP";
 	public static final String DEVICE_CONFIG_BACKUP_MODE_FTP_SSH_FTP = "STEP.FTP+DEVICE.SSH+FILE_SERVER.FTP";
 	public static final String DEVICE_CONFIG_BACKUP_MODE_FTP_TELNET_FTP = "STEP.FTP+DEVICE.TELNET+FILE_SERVER.FTP";
 	public static final String DEVICE_CONFIG_BACKUP_MODE_TFTP_SSH_TFTP = "STEP.TFTP+DEVICE.SSH+FILE_SERVER.TFTP";
@@ -263,7 +267,10 @@ public class Constants {
 
 	public static final String MAP_URL_OF_INDEX = "INDEX";
 	public static final String MAP_URL_OF_DASHBOARD = "DASHBOARD";
+	public static final String MAP_URL_OF_TOPOGRAPHY = "TOPOGRAPHY";
+	public static final String MAP_URL_OF_ALARM_SUMMARY = "ALARM_SUMMARY";
 	public static final String MAP_URL_OF_NET_FLOW_SUMMARY = "NET_FLOW_SUMMARY";
+	public static final String MAP_URL_OF_NET_FLOW_OUTPUT = "NET_FLOW_OUTPUT";
 	public static final String MAP_URL_OF_DEVICE_FAILURE = "DEVICE_FAILURE";
 	public static final String MAP_URL_OF_ABNORMAL_TRAFFIC = "ABNORMAL_TRAFFIC";
 

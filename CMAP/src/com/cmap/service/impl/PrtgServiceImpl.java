@@ -41,8 +41,17 @@ public class PrtgServiceImpl implements PrtgService {
 				case Constants.MAP_URL_OF_DASHBOARD:
 					return mapping.getDashboardMapUrl();
 
+				case Constants.MAP_URL_OF_TOPOGRAPHY:
+                    return mapping.getTopographyMapUrl();
+
+				case Constants.MAP_URL_OF_ALARM_SUMMARY:
+                    return mapping.getAlarmSummaryMapUrl();
+
 				case Constants.MAP_URL_OF_NET_FLOW_SUMMARY:
 					return mapping.getNetFlowMapUrl();
+
+				case Constants.MAP_URL_OF_NET_FLOW_OUTPUT:
+                    return mapping.getNetFlowOutputMapUrl();
 
 				case Constants.MAP_URL_OF_DEVICE_FAILURE:
 					return mapping.getDeviceFailureMapUrl();

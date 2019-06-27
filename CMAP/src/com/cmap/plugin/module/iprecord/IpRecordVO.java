@@ -26,6 +26,9 @@ public class IpRecordVO extends CommonServiceVO {
     private String updateTimeStr;
     private String updateBy;
 
+    private String groupName;
+    private String deviceName;
+
     public String getQueryGroupId() {
         return queryGroupId;
     }
@@ -145,5 +148,17 @@ public class IpRecordVO extends CommonServiceVO {
     }
     public void setListId(String listId) {
         this.listId = listId;
+    }
+    public String getGroupName() {
+        return groupName;
+    }
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+    public String getDeviceName() {
+        return deviceName;
+    }
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 }

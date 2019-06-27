@@ -9,7 +9,7 @@
     	<div class="container-fluid">
        		<div class="row">
        			<div class="col-lg-2 action-btn-bar-style" align="center">
-	  	    		<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnDelivery">派送</button>
+	  	    		<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnDelivery"><spring:message code="btn.delivery" /></button>
 	  	    	</div>
        		</div>
        	</div>
@@ -40,8 +40,17 @@
 		</div>
   	</div>
 
-	<div id="divBlockedTitle" style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">已封鎖IP清單:</div>
-  	
+	<div class="row">
+		<div class="col-12">
+			<div id="divBlockedTitle" style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">
+				<spring:message code="blocked.ip.list.sub.title" />:&nbsp;&nbsp;&nbsp;
+				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnIpOpen" disabled="disabled"><spring:message code="btn.ip.open" /></button>
+			</div>
+		</div>
+	</div>
+  	${groupList }
+  	${fn:length(groupList)} 
+  	<c:out value="${groupList[0]}"/>
   	<!-- IP封鎖紀錄 -->
   	<div id="divBlockedIpRecord" class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
@@ -50,12 +59,13 @@
 				<table id="resultTable_blockedIpRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 			  	<thead class="center">
 			    	<tr>
-				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
 				      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-				      <th scope="col" nowrap="nowrap">IP address</th>
-				      <th scope="col" nowrap="nowrap">封鎖時間</th>
-				      <th scope="col" nowrap="nowrap">封鎖原因</th>
-				      <th scope="col" nowrap="nowrap">封鎖人</th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="ip.address" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="block_time" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="block.reason" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="block.by" /></th>
 				    </tr>
 				  </thead>
 				</table>

@@ -23,23 +23,29 @@ public class Env {
 	/**
 	 * 設定MENU TREE功能是否顯示
 	 */
-	public static String SHOW_MENU_TREE_PRTG;					// PRTG index & net_flow & dashboard
-	public static String SHOW_MENU_ITEM_CM_SCRIPT;				// 組態管理 > 腳本管理
-	public static String SHOW_MENU_TREE_ABNORMAL_ALARM;			// 異常告警
-	public static String SHOW_MENU_ITEM_IP_CONFLICT;			// 異常告警 > IP衝突查詢
-	public static String SHOW_MENU_ITEM_UNAUTHORIZED_DHCP;		// 異常告警 > 未授權DHCP設備
-	public static String SHOW_MENU_ITEM_LOOP_LOOP;				// 異常告警 > LOOP迴圈
-	public static String SHOW_MENU_ITEM_DEVICE_FAILURE;			// 異常告警 > 設備故障
-	public static String SHOW_MENU_ITEM_ABNORMAL_TRAFFIC;		// 異常告警 > 流量異常
-	public static String SHOW_MENU_ITEM_OTHER_EXCEPTION;		// 異常告警 > 其他異常
-	public static String SHOW_MENU_TREE_PLUGIN;					// 資安通報
-	public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		// 資安通報 > Wifi查詢
-	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW;		// 資安通報 > Net flow查詢
-	public static String SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT;		// 資安通報 > 開關PORT
-	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			// 資安通報 > IP開通/封鎖
-	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			// 資安通報 > 網卡MAC開通/封鎖
-	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;        // 資安通報 > 防火牆LOG查詢
-	public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;  // PRTG  > 流量統計
+	public static String SHOW_MENU_TREE_CONTROL_PLATFORM;					 // 間控平台
+	public static String SHOW_MENU_ITEM_CM_SCRIPT;				             // 組態管理 > 腳本管理
+	public static String SHOW_MENU_TREE_ABNORMAL_ALARM;			             // 異常告警
+	public static String SHOW_MENU_ITEM_IP_CONFLICT;			             // 異常告警 > IP衝突查詢
+	public static String SHOW_MENU_ITEM_UNAUTHORIZED_DHCP;		             // 異常告警 > 未授權DHCP設備
+	public static String SHOW_MENU_ITEM_LOOP_LOOP;				             // 異常告警 > LOOP迴圈
+	public static String SHOW_MENU_ITEM_DEVICE_FAILURE;			             // 異常告警 > 設備故障
+	public static String SHOW_MENU_ITEM_ABNORMAL_TRAFFIC;		             // 異常告警 > 流量異常
+	public static String SHOW_MENU_ITEM_OTHER_EXCEPTION;		             // 異常告警 > 其他異常
+	public static String SHOW_MENU_TREE_PLUGIN;					             // 資安通報
+	public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 資安通報 > Wifi查詢
+	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW;		             // 資安通報 > Net flow查詢
+	public static String SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT;		             // 資安通報 > 開關PORT
+	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖
+	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
+	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
+	public static String SHOW_MENU_ITEM_PRTG_DASHBOARD;                      // 間控平台 > DASHBOARD
+	public static String SHOW_MENU_ITEM_PRTG_TOPOGRAPHY;                     // 間控平台 > 拓樸圖
+	public static String SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY;                  // 間控平台 > 警報總覽
+	public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;               // 間控平台 > 流量統計
+	public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT;                // 間控平台 > 各校出口端流量圖
+	public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING;            // 間控平台 > 各校即時IP流量排行
+	public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING;        // 間控平台 > 所有學校即時IP流量排行
 
 	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				// 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
 
@@ -167,6 +173,10 @@ public class Env {
 	public static Integer TELNET_CONNECT_TIME_OUT;
 	public static Integer TELNET_DEFAULT_PORT;
 
+	public static String TELNET_LOGIN_USERNAME_TEXT;
+	public static String TELNET_LOGIN_PASSWORD_TEXT;
+	public static Integer TELNET_READ_UNTIL_MAX_RUNTIME;
+
 	public static Integer SSH_CONNECT_TIME_OUT;
 	public static Integer SSH_SOCKET_TIME_OUT;
 	public static Integer SSH_DEFAULT_PORT;
@@ -243,7 +253,10 @@ public class Env {
 	public static String PRTG_INDEX_URI;
 	public static String PRTG_DEFAULT_INDEX_URI;
 	public static String PRTG_DEFAULT_DASHBOARD_URI;
+	public static String PRTG_DEFAULT_TOPOGRAPHY_URI;
+	public static String PRTG_DEFAULT_ALARM_SUMMARY_URI;
 	public static String PRTG_DEFAULT_NET_FLOW_SUMMARY_URI;
+	public static String PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;
 	public static String PRTG_DEFAULT_DEVICE_FAILURE_URI;
 	public static String PRTG_DEFAULT_ABNORMAL_TRAFFIC_URI;
 	public static String PRTG_LOGOUT_URI;

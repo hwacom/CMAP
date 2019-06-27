@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
@@ -80,6 +77,33 @@ public class NetFlowController extends BaseController {
 		}
 		return "plugin/module_net_flow";
 	}
+
+	@RequestMapping(value = "/currentRanking", method = RequestMethod.GET)
+    public String currentRanking(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+        } finally {
+            initMenu(model, request);
+        }
+        return "plugin/module_net_flow_current_ranking";
+    }
+
+	@RequestMapping(value = "/currentRanking/all", method = RequestMethod.GET)
+    public String currentRankingAll(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+        } finally {
+            initMenu(model, request);
+            model.addAttribute("isAll", "Y");
+        }
+        return "plugin/module_net_flow_current_ranking";
+    }
 
 	@RequestMapping(value = "run", method = RequestMethod.GET)
 	public String netFlowRun(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {

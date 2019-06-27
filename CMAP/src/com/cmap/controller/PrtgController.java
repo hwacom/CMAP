@@ -339,6 +339,58 @@ public class PrtgController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "getPrtgTopographyUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getPrtgTopographyUri(
+            Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+        try {
+            final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
+
+            String topographyMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_TOPOGRAPHY);
+
+            if (StringUtils.isBlank(topographyMapUrl)) {
+                topographyMapUrl = Env.PRTG_DEFAULT_TOPOGRAPHY_URI;   //如果沒設定則取得預設MAP
+            }
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", topographyMapUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
+
+	@RequestMapping(value = "getPrtgAlarmSummaryUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getPrtgAlarmSummaryUri(
+            Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+        try {
+            final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
+
+            String alarmSummaryMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_ALARM_SUMMARY);
+
+            if (StringUtils.isBlank(alarmSummaryMapUrl)) {
+                alarmSummaryMapUrl = Env.PRTG_DEFAULT_ALARM_SUMMARY_URI;   //如果沒設定則取得預設MAP
+            }
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", alarmSummaryMapUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
+
 	@RequestMapping(value = "getPrtgNetFlowSummaryUri", method = RequestMethod.POST)
 	public @ResponseBody AppResponse getPrtgNetFlowSummaryUri(
 			Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -364,6 +416,32 @@ public class PrtgController extends BaseController {
 		} finally {
 		}
 	}
+
+	@RequestMapping(value = "getPrtgNetFlowOutputUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getPrtgNetFlowOutputUri(
+            Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+        try {
+            final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
+
+            String netFlowOutputMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_NET_FLOW_OUTPUT);
+
+            if (StringUtils.isBlank(netFlowOutputMapUrl)) {
+                netFlowOutputMapUrl = Env.PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;   //如果沒設定則取得預設MAP
+            }
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", netFlowOutputMapUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
 
 	@RequestMapping(value = "getPrtgDeviceFailureUri", method = RequestMethod.POST)
 	public @ResponseBody AppResponse getPrtgDeviceFailureUri(
@@ -453,8 +531,30 @@ public class PrtgController extends BaseController {
 		return "prtg/dashboard";
 	}
 
+	@RequestMapping(value = "/topography", method = RequestMethod.GET)
+    public String prtgTopography(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/topography";
+    }
+
+	@RequestMapping(value = "/alarmSummary", method = RequestMethod.GET)
+    public String prtgAlarmSummary(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/alarm_summary";
+    }
+
 	@RequestMapping(value = "/netFlowSummary", method = RequestMethod.GET)
-	public String netFlowSummary(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+	public String prtgNetFlowSummary(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			init(model);
 
@@ -464,8 +564,19 @@ public class PrtgController extends BaseController {
 		return "prtg/net_flow_summary";
 	}
 
+	@RequestMapping(value = "/netFlowOutput", method = RequestMethod.GET)
+    public String prtgNetFlowOutput(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/net_flow_output";
+    }
+
 	@RequestMapping(value = "/deviceFailure", method = RequestMethod.GET)
-	public String deviceFailure(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+	public String prtgDeviceFailure(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			init(model);
 
@@ -476,7 +587,7 @@ public class PrtgController extends BaseController {
 	}
 
 	@RequestMapping(value = "/abnormalTraffic", method = RequestMethod.GET)
-	public String abnormalTraffic(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+	public String prtgAbnormalTraffic(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			init(model);
 

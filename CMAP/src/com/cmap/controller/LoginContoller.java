@@ -19,6 +19,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -127,6 +129,34 @@ public class LoginContoller extends BaseController {
 
 		return null;
 	}
+
+	@RequestMapping(value = "login/app", method = RequestMethod.GET)
+    public String loginForApp(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            HttpSession session = request.getSession();
+            session.setAttribute(Constants.LOGIN_FROM_APP, Constants.DATA_Y);
+            session.removeAttribute(Constants.PREVIOUS_URL);
+            return "redirect:/loginOIDC_NTPC";  //TODO:先寫死 for APP測試用
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+
+        return null;
+    }
+
+	@RequestMapping(value = "login/returnApp", method = RequestMethod.GET)
+    public @ResponseBody AppResponse loginReturnApp(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+
+	    HttpSession session = request.getSession();
+	    String username = Objects.toString(session.getAttribute(Constants.PRTG_LOGIN_ACCOUNT));
+	    String passhash = Objects.toString(session.getAttribute(Constants.PASSHASH));
+
+        AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "Success");
+        app.putData(Constants.USERNAME, username);
+        app.putData(Constants.PASSHASH, passhash);
+        return app;
+    }
 
 	@RequestMapping(value = "login", method = {RequestMethod.GET, RequestMethod.POST})
 	public String loginPage(

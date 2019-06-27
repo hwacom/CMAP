@@ -179,7 +179,14 @@ public class BaseController {
 	        Authentication authentication =  new UsernamePasswordAuthenticationToken(securityUser, USER_NAME, authorities);
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-	        return "redirect:" + Env.PRTG_SSH_CONFIRM_PAGE;
+	        final String loginFromApp = Objects.toString(session.getAttribute(Constants.LOGIN_FROM_APP), Constants.DATA_N);
+
+	        if (StringUtils.equals(loginFromApp, Constants.DATA_Y)) {
+	            return "redirect:/login/returnApp";
+
+	        } else {
+	            return "redirect:" + Env.PRTG_SSH_CONFIRM_PAGE;
+	        }
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);

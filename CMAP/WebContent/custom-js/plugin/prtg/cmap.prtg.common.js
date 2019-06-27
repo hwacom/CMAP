@@ -4,7 +4,10 @@
 var URI_LOGIN = "getLoginUri";
 var URI_INDEX = "getPrtgIndexUri";
 var URI_DASHBOARD = "getPrtgDashboardUri";
+var URI_TOPOGRAPHY = "getPrtgTopographyUri";
+var URI_ALARM_SUMMARY = "getPrtgAlarmSummaryUri";
 var URI_NET_FLOW_SUMMARY = "getPrtgNetFlowSummaryUri";
+var URI_NET_FLOW_OUTPUT = "getPrtgNetFlowOutputUri";
 var URI_DEVICE_FAILURE = "getPrtgDeviceFailureUri";
 var URI_ABNORMAL_TRAFFIC = "getPrtgAbnormalTrafficUri";
 

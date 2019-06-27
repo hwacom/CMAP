@@ -71,9 +71,9 @@ public class IpRecordDAOImpl extends BaseDaoHibernate implements IpRecordDAO {
     }
 
     @Override
-    public List<ModuleBlockedIpList> findModuleBlockedIpList(IpRecordVO irVO, Integer startRow, Integer pageLength) {
+    public List<Object[]> findModuleBlockedIpList(IpRecordVO irVO, Integer startRow, Integer pageLength) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" select mbil ")
+        sb.append(" select mbil, dl ")
           .append(" from ModuleBlockedIpList mbil ")
           .append("     ,DeviceList dl ")
           .append(" where 1=1 ")
@@ -130,6 +130,6 @@ public class IpRecordDAOImpl extends BaseDaoHibernate implements IpRecordDAO {
             q.setMaxResults(pageLength);
         }
 
-        return (List<ModuleBlockedIpList>)q.list();
+        return (List<Object[]>)q.list();
     }
 }

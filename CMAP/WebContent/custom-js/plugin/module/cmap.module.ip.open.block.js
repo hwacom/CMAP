@@ -8,8 +8,19 @@ var _deductHeight = 0;
 var blockedIpTableHeight;
 
 $(document).ready(function() {
-	findBlockedIpRecordData();
+	
 });
+
+function checkboxOnChangeEvent() {
+	// 判斷CheckBox有無勾選，決定解鎖按鈕是否可按
+	$('input[name=chkbox]').change(function (e) {
+		if ($('input[name=chkbox]:checked').length > 0) {
+			$('#btnIpOpen').attr('disabled', false);
+		} else {
+			$('#btnIpOpen').attr('disabled', true);
+		}
+	});
+}
 
 /**********************************************************************************************************
  *** 計算BlockedIpList區塊DataTable可呈顯的高度
@@ -27,9 +38,9 @@ function calBlockedIpSectionHeight() {
 	
 	if ($('.search-bar-large').css('display') != 'none' && $('.search-bar-large').css('display') != undefined) {
 		_navAndMenuAndFooterHeight += $('.search-bar-large').outerHeight();
-		_deductHeight = 250;
+		_deductHeight = 110;
 	} else {
-		_deductHeight = 350;
+		_deductHeight = 210;
 	}
 	
 	if ($('.mainTable').css('display') != 'none' && $('.mainTable').css('display') != undefined) {
@@ -40,11 +51,7 @@ function calBlockedIpSectionHeight() {
 		_deductHeight += $('#divBlockedTitle').outerHeight();
 	}
 	
-	console.log("=================================================");
-	console.log("window.innerHeight: " + window.innerHeight + " ... _navAndMenuAndFooterHeight: " + _navAndMenuAndFooterHeight + " ... _deductHeight: " + _deductHeight);
 	blockedIpTableHeight = Math.round(window.innerHeight-_navAndMenuAndFooterHeight-_deductHeight);
-	
-	console.log("blockedIpTableHeight >> " + blockedIpTableHeight);
 	
 	//避免手機裝置橫向狀態下高度縮太小無法閱讀資料，設定最小高度限制為165px
 	blockedIpTableHeight = blockedIpTableHeight < 165 ? 165 : blockedIpTableHeight;
@@ -53,8 +60,7 @@ function calBlockedIpSectionHeight() {
 //查詢按鈕動作
 function findBlockedIpRecordData() {
 	calBlockedIpSectionHeight();
-	console.log("blockedIpTableHeight >> " + blockedIpTableHeight);
-	
+
 	if (typeof resultTable_blockedIpRecord !== "undefined") {
 		//resultTable.clear().draw(); server-side is enabled.
 		resultTable_blockedIpRecord.ajax.reload();
@@ -80,23 +86,17 @@ function findBlockedIpRecordData() {
 	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
 	        },
 	        "createdRow": function( row, data, dataIndex ) {
-	        	   if(data.actionScript != null && data.actionScript.length > scriptShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
+	        	   if(data.blockReason != null && data.blockReason.length > blockReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
 	        	      $(row).children('td').eq(5).attr('onclick','javascript:showFullScript($(this));');
 	        	      $(row).children('td').eq(5).addClass('cursor_zoom_in');
 	        	   }
-	        	   $(row).children('td').eq(5).attr('content', data.actionScript);
-	        	   
-	        	   if(data.checkScript != null && data.checkScript.length > scriptShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
-	        	      $(row).children('td').eq(7).attr('onclick','javascript:showFullScript($(this));');
-	        	      $(row).children('td').eq(7).addClass('cursor_zoom_in');
-	        	   }
-	        	   $(row).children('td').eq(7).attr('content', data.checkScript);
+	        	   $(row).children('td').eq(5).attr('content', data.blockReason);
 	        	},
 			"ajax" : {
 				"url" : _ctx + '/delivery/getBlockedIpData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
-					d.queryGroupId = '3170';
+					d.queryGroupId = '15717';
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
@@ -120,9 +120,13 @@ function findBlockedIpRecordData() {
 				$("div.dataTables_info").parent().addClass('col-sm-6');
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
+				
+				bindTrEvent();
+				checkboxOnChangeEvent();
 			},
 			"columns" : [
 				{},{},
+				{ "data" : "groupName" , "className" : "center" },
 				{ "data" : "ipAddress" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
 				{},
@@ -135,7 +139,7 @@ function findBlockedIpRecordData() {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="checkbox" id="chkbox_blockedIp" name="chkbox_blockedIp" onclick="changeTrBgColor(this)" value='+row.listId+'>';
+								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.listId+'>';
 								 return html;
 							 }
 				},
@@ -149,7 +153,7 @@ function findBlockedIpRecordData() {
 						   	}
 				},
 				{
-					"targets" : [4],
+					"targets" : [5],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,

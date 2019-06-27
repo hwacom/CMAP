@@ -56,7 +56,7 @@ $(document).ready(function() {
 			resultTable.ajax.reload();
 			
 			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false);
+				$('input[name=checkAll]').prop('checked', false).change();
 			}
 			
 			if (typeof initActionBar === 'function') {
@@ -69,7 +69,7 @@ $(document).ready(function() {
     		resultTable_errorLog.ajax.reload();
 			
 			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false);
+				$('input[name=checkAll]').prop('checked', false).change();
 			}
 			
 			if (typeof initActionBar === 'function') {
@@ -82,20 +82,11 @@ $(document).ready(function() {
     		resultTable_jobLog.ajax.reload();
 			
 			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false);
+				$('input[name=checkAll]').prop('checked', false).change();
 			}
 			
 			if (typeof initActionBar === 'function') {
 				initActionBar();
-			}
-    	}
-    	if (typeof resultTable_blockedIpRecord !== "undefined") {
-    		calBlockedIpSectionHeight();
-    		$('#divBlockedIpRecord .dataTables_scrollBody').css('max-height', blockedIpTableHeight);
-    		resultTable_blockedIpRecord.ajax.reload();
-			
-			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false);
 			}
     	}
     	
@@ -120,12 +111,18 @@ $(document).ready(function() {
   	//全選 or 取消全選
     $('#checkAll').click(function (e) {
     	if ($(this).is(':checked')) {
-			$('input[name=chkbox]').prop('checked', true);
-			$('tbody > tr').addClass('mySelected');
+			$('input[name=chkbox]').prop('checked', true).change();
+			
+			if ($('input[name=chkbox]').length > 0) {
+				$($('input[name=chkbox]').get(0)).closest('tbody').find('tr').addClass('mySelected');
+			}
 			
 		} else {
-			$('input[name=chkbox]').prop('checked', false);
-			$('tbody > tr').removeClass('mySelected');
+			$('input[name=chkbox]').prop('checked', false).change();
+			
+			if ($('input[name=chkbox]').length > 0) {
+				$($('input[name=chkbox]').get(0)).closest('tbody').find('tr').removeClass('mySelected');
+			}
 		}
     });
   
@@ -235,7 +232,7 @@ function bindTrEvent() {
 	$('.dataTable tbody tr').click(function(event) {
         if (event.target.tagName !== 'A' && event.target.type !== 'checkbox' && event.target.type !== 'radio') {
           $(':checkbox', this).trigger('click');
-          $(':radio', this).prop('checked', ($(':radio', this).is(':checked') ? false : true));
+          $(':radio', this).prop('checked', ($(':radio', this).is(':checked') ? false : true)).change();
           
           if ($('#chkbox',this).attr('type') === 'radio') {
         	  changeTrBgColor($('#chkbox',this).get(0));
@@ -248,8 +245,8 @@ function bindTrEvent() {
  *** 用來將TABLE內容，所有項目checkbox(含checkAll本身)取消勾選
  **********************************************************************************************************/
 function uncheckAll() {
-	$('input[name=checkAll]').prop('checked', false);
-	$('input[name=chkbox]').prop('checked', false);
+	$('input[name=checkAll]').prop('checked', false).change();
+	$('input[name=chkbox]').prop('checked', false).change();
 	$('tbody > tr').removeClass('mySelected');
 	
 }
@@ -306,7 +303,9 @@ function changeMenuIconColor() {
 function changeTrBgColor(obj) {
 
 	if ($(obj).attr("type") == "radio") {
-		$('tbody > tr').removeClass('mySelected');
+		console.log($(obj));
+		console.log($(obj).closest('tbody').find('tr'));
+		$(obj).closest('tbody').find('tr').removeClass('mySelected');
 	}
 	
 	setTimeout(function() {

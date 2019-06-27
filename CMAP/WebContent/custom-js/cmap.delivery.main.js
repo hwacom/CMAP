@@ -900,8 +900,13 @@ function findData(from) {
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
-				bindTrEvent();
 				initCheckedItems();
+				
+				if (typeof findBlockedIpRecordData === 'function') {
+					findBlockedIpRecordData();
+				} else {
+					bindTrEvent();
+				}
 			},
 			"columns" : [
 				{},{},
@@ -920,7 +925,7 @@ function findData(from) {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="radio" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.scriptInfoId+'>';
+								 var html = '<input type="radio" id="radioBox" name="radioBox" onclick="changeTrBgColor(this)" value='+row.scriptInfoId+'>';
 								 return html;
 							 }
 				},

@@ -62,9 +62,7 @@
 	</script>
 </head>
 
-<%
-	final String __SHOW__ = "Y";
-%>
+<c:set var="__SHOW__" value="Y" scope="request"/>
 
 <body>
 	<div class="loader"></div>
@@ -75,7 +73,7 @@
       <a href="${pageContext.request.contextPath}/index">
       	<!-- Hwacom -->
 		<!-- 
-		<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="30" style="padding-top: 3px" />
+		<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="40" style="padding-top: 3px" />
 		 -->
 		 
 		<!-- Innolux 群創 -->
@@ -125,44 +123,80 @@
         <nav class="web-menu col-md-2 d-none d-md-block sidebar sidebar-bg">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
-              <%
-              	if (Env.SHOW_MENU_TREE_PRTG.equals(__SHOW__)) {
-              %>
-              <li class="nav-item">
-                <a class="nav-link toggleMenuLink" id="toggleMenu_prtg" href="#">
-                  <span data-feather="layout"></span>
-                  	<span><spring:message code="menu.monitor" />&nbsp;<span id="toggleMenu_prtg_icon" data-feather="chevron-down"></span></span>
-                </a>
-                <ul aria-expanded="false" id="toggleMenu_prtg_items" class="collapse">
-                    <li class="subMenu-item">
-                    	<a id="mp_index" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/index')">
-                    	  <span data-feather="home"></span>
-                    		<span><spring:message code="func.prtg.index" /></span>
-                    	</a>
-                    </li>
-                    <li class="subMenu-item">
-                    	<a id="mp_dashboard" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/dashboard')">
-                    	  <span data-feather="grid"></span>
-                    	  	<span><spring:message code="func.prtg.dashboard" /></span>
-                    	</a>
-                    </li>
-                    <%
-			            if (Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS.equals(__SHOW__)) {
-			         %>
-                   	<li class="subMenu-item">
-                    	<a id="mp_netFlowSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowSummary')">
-                    	  <span data-feather="activity"></span>
-                    	  	<span><spring:message code="func.prtg.net.flow.statistics" /></span>
-                    	</a>
-                    </li>
-                    <%
-		            	}
-		            %>
-                </ul>
-	          </li>
-	          <%
-              	}
-              %>
+              <c:if test="${Env.SHOW_MENU_TREE_CONTROL_PLATFORM eq __SHOW__}">
+	              <li class="nav-item">
+	                <a class="nav-link toggleMenuLink" id="toggleMenu_prtg" href="#">
+	                  <span data-feather="layout"></span>
+	                  	<span><spring:message code="menu.monitor" />&nbsp;<span id="toggleMenu_prtg_icon" data-feather="chevron-down"></span></span>
+	                </a>
+	                <ul aria-expanded="false" id="toggleMenu_prtg_items" class="collapse">
+	                    <li class="subMenu-item">
+	                    	<a id="mp_index" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/index')">
+	                    	  <span data-feather="home"></span>
+	                    		<span><spring:message code="func.prtg.index" /></span>
+	                    	</a>
+	                    </li>
+				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_DASHBOARD eq __SHOW__}">
+		                    <li class="subMenu-item">
+		                    	<a id="mp_dashboard" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/dashboard')">
+		                    	  <span data-feather="grid"></span>
+		                    	  	<span><spring:message code="func.prtg.dashboard" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_topography" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/topography')">
+		                    	  <span data-feather="git-merge"></span>
+		                    	  	<span><spring:message code="func.prtg.topography" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_alarmSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/alarmSummary')">
+		                    	  <span data-feather="alert-triangle"></span>
+		                    	  	<span><spring:message code="func.prtg.alarm.summary" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="mp_netFlowSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowSummary')">
+		                    	  <span data-feather="activity"></span>
+		                    	  	<span><spring:message code="func.prtg.net.flow.statistics" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="mp_netFlowOutput" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowOutput')">
+		                    	  <span data-feather="activity"></span>
+		                    	  	<span><spring:message code="func.prtg.net.flow.output" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="mp_netFlowCurrentRanking" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/currentRanking')">
+		                    	  <span data-feather="activity"></span>
+		                    	  	<span><spring:message code="func.net.flow.current.ranking" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING eq __SHOW__}">
+					        	<li class="subMenu-item">
+			                    	<a id="mp_netFlowCurrentRanking_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/currentRanking/all')">
+			                    	  <span data-feather="activity"></span>
+			                    	  	<span><spring:message code="func.net.flow.all.current.ranking" /></span>
+			                    	</a>
+			                    </li>
+					        </c:if>
+	                    </sec:authorize>
+	                </ul>
+		          </li>
+	          </c:if>
 	          <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 	          	<li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_cm" href="#">
@@ -188,18 +222,14 @@
 			                  	<span><spring:message code="func.version.restore" /></span>
 			                </a>
 			            </li>
-			            <%
-			            if (Env.SHOW_MENU_ITEM_CM_SCRIPT.equals(__SHOW__)) {
-			            %>
-			            <li class="subMenu-item">
+			            <c:if test="${Env.SHOW_MENU_ITEM_CM_SCRIPT eq __SHOW__}">
+			            	<li class="subMenu-item">
 			                <a id="cm_script" href="${pageContext.request.contextPath}/script">
 			                  <span data-feather="code"></span>
 			                  	<span><spring:message code="func.script.manage" /></span>
 			                </a>
 			            </li>
-			            <%
-			            	}
-			            %>
+			            </c:if>
 			            <li class="subMenu-item">
 			                <a id="cm_delivery" href="${pageContext.request.contextPath}/delivery">
 			                  <span data-feather="send"></span>
@@ -217,160 +247,128 @@
 	          </sec:authorize>
 	          
 	          <!-- 異常告警 START -->
-              <%
-              if (Env.SHOW_MENU_TREE_ABNORMAL_ALARM.equals(__SHOW__)) {
-              %>
-	              <li class="nav-item">
+              <c:if test="${Env.SHOW_MENU_TREE_ABNORMAL_ALARM eq __SHOW__}">
+              	<li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_abnormalAlarm" href="#">
 	                  <span data-feather="alert-triangle"></span>
 	                  	<span><spring:message code="menu.abnormal.alarm" />&nbsp;<span id="toggleMenu_abnormalAlarm_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_abnormalAlarm_items" class="collapse">
-	                	<%
-			            	if (Env.SHOW_MENU_ITEM_IP_CONFLICT.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipRecord">
-	                    	  <span data-feather="minimize-2"></span>
-	                    		<span><spring:message code="func.plugin.ip.record" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_UNAUTHORIZED_DHCP.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="unauthroized_dhcp" href="${pageContext.request.contextPath}/plugin/module/unauthorizedDHCP">
-	                    	  <span data-feather="user-x"></span>
-	                    	  	<span><spring:message code="func.plugin.unauthorized.dhcp.device" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_LOOP_LOOP.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="loop_loop" href="${pageContext.request.contextPath}/plugin/module/loopLoop">
-	                    	  <span data-feather="refresh-cw"></span>
-	                    	  	<span><spring:message code="func.plugin.loop.loop" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_DEVICE_FAILURE.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="device_failure" href="${pageContext.request.contextPath}/prtg/deviceFailure">
-	                    	  <span data-feather="help-circle"></span>
-	                    	  	<span><spring:message code="func.prtg.device.failure" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_ABNORMAL_TRAFFIC.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="abnormal_traffic" href="${pageContext.request.contextPath}/prtg/abnormalTraffic">
-	                    	  <span data-feather="trending-up"></span>
-	                    	  	<span><spring:message code="func.prtg.abnormal.traffic" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_OTHER_EXCEPTION.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="other_exception" href="${pageContext.request.contextPath}/prtg/otherException">
-	                    	  <span data-feather="zap-off"></span>
-	                    	  	<span><spring:message code="func.prtg.other.exception" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-	                    %>
-	                </ul>
-		          </li>
-	          <%
-              	}
-              %>
+			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
+			            	<li class="subMenu-item">
+		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipRecord">
+		                    	  <span data-feather="minimize-2"></span>
+		                    		<span><spring:message code="func.plugin.ip.record" /></span>
+		                    	</a>
+		                    </li>
+			            </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_UNAUTHORIZED_DHCP eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="unauthroized_dhcp" href="${pageContext.request.contextPath}/plugin/module/unauthorizedDHCP">
+		                    	  <span data-feather="user-x"></span>
+		                    	  	<span><spring:message code="func.plugin.unauthorized.dhcp.device" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_LOOP_LOOP eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="loop_loop" href="${pageContext.request.contextPath}/plugin/module/loopLoop">
+		                    	  <span data-feather="refresh-cw"></span>
+		                    	  	<span><spring:message code="func.plugin.loop.loop" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_DEVICE_FAILURE eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="device_failure" href="${pageContext.request.contextPath}/prtg/deviceFailure">
+		                    	  <span data-feather="help-circle"></span>
+		                    	  	<span><spring:message code="func.prtg.device.failure" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+						<c:if test="${Env.SHOW_MENU_ITEM_ABNORMAL_TRAFFIC eq __SHOW__}">
+							<li class="subMenu-item">
+		                    	<a id="abnormal_traffic" href="${pageContext.request.contextPath}/prtg/abnormalTraffic">
+		                    	  <span data-feather="trending-up"></span>
+		                    	  	<span><spring:message code="func.prtg.abnormal.traffic" /></span>
+		                    	</a>
+		                    </li>
+						</c:if>	                    
+						<c:if test="${Env.SHOW_MENU_ITEM_OTHER_EXCEPTION eq __SHOW__}">
+							<li class="subMenu-item">
+		                    	<a id="other_exception" href="${pageContext.request.contextPath}/prtg/otherException">
+		                    	  <span data-feather="zap-off"></span>
+		                    	  	<span><spring:message code="func.prtg.other.exception" /></span>
+		                    	</a>
+		                    </li>
+						</c:if>	                    
+                	</ul>
+		      	</li>
+              </c:if>
               <!-- 異常告警 END -->
               
-              <%
-              if (Env.SHOW_MENU_TREE_PLUGIN.equals(__SHOW__)) {
-              %>
-	              <li class="nav-item">
+              <!-- 資安通報 START -->
+              <c:if test="${Env.SHOW_MENU_TREE_PLUGIN eq __SHOW__}">
+              	<li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_plugin" href="#">
 	                  <span data-feather="alert-octagon"></span>
 	                  	<span><spring:message code="menu.security" />&nbsp;<span id="toggleMenu_plugin_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_plugin_items" class="collapse">
-	                	<%
-			            	if (Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="cm_wifi" href="${pageContext.request.contextPath}/plugin/module/wifiPoller">
-	                    	  <span data-feather="wifi"></span>
-	                    		<span><spring:message code="func.plugin.wifi.manage" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
-	                    	  <span data-feather="shuffle"></span>
-	                    	  	<span><spring:message code="func.plugin.net.flow" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="cm_switchPort" href="${pageContext.request.contextPath}/delivery/switchPort">
-	                    	  <span data-feather="shield-off"></span>
-	                    	  	<span><spring:message code="func.plugin.switch.port" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock">
-	                    	  <span data-feather="check-square"></span>
-	                    	  	<span><spring:message code="func.ip.open.block" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="cm_macOpenBlock" href="${pageContext.request.contextPath}/delivery/macOpenBlock">
-	                    	  <span data-feather="at-sign"></span>
-	                    	  	<span><spring:message code="func.mac.open.block" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            	if (Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL.equals(__SHOW__)) {
-			            %>
-	                    <li class="subMenu-item">
-	                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
-	                    	  <span data-feather="shield"></span>
-	                    	  	<span><spring:message code="func.plugin.firewall" /></span>
-	                    	</a>
-	                    </li>
-	                    <%
-			            	}
-			            %>
+			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER eq __SHOW__}">
+			            	<li class="subMenu-item">
+		                    	<a id="cm_wifi" href="${pageContext.request.contextPath}/plugin/module/wifiPoller">
+		                    	  <span data-feather="wifi"></span>
+		                    		<span><spring:message code="func.plugin.wifi.manage" /></span>
+		                    	</a>
+		                    </li>
+			            </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
+		                    	  <span data-feather="shuffle"></span>
+		                    	  	<span><spring:message code="func.plugin.net.flow" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_switchPort" href="${pageContext.request.contextPath}/delivery/switchPort">
+		                    	  <span data-feather="shield-off"></span>
+		                    	  	<span><spring:message code="func.plugin.switch.port" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock">
+		                    	  <span data-feather="check-square"></span>
+		                    	  	<span><spring:message code="func.ip.open.block" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_macOpenBlock" href="${pageContext.request.contextPath}/delivery/macOpenBlock">
+		                    	  <span data-feather="at-sign"></span>
+		                    	  	<span><spring:message code="func.mac.open.block" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
+		                    	  <span data-feather="shield"></span>
+		                    	  	<span><spring:message code="func.plugin.firewall" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
 	                </ul>
-		          </li>
-	          <%
-              	}
-              %>
+		      	</li>
+              </c:if>
+              <!-- 資安通報 END -->
+              
+              <!-- 後台管理 START -->
               <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
               	  <li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_admin" href="#">
@@ -405,6 +403,7 @@
 	                </ul>
 	              </li>
               </sec:authorize>
+              <!-- 後台管理 END -->
             </ul>
           </div>
         </nav>
@@ -513,7 +512,7 @@
 		</div>
         
         <footer role="footer" class="ml-sm-auto col-md-10 footer">
-        	<span class="copyright"><spring:message code="contact.us" /> | Copyright &copy; 2018-2019 HwaCom Systems Inc. All Rights Reserved.</span>	
+        	<span class="copyright"><spring:message code="contact.us" /> | Copyright &copy; <spring:message code="copyright" /></span>	
         </footer>
         
       </div>

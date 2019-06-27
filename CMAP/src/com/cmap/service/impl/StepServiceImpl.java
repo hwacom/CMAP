@@ -150,6 +150,18 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						fileServerMode = ConnectionMode.TFTP;
 						break;
 
+					case Constants.DEVICE_CONFIG_BACKUP_MODE_TELNET_TELNET_TFTP:
+                        steps = Env.BACKUP_BY_TELNET;
+                        deviceMode = ConnectionMode.TELNET;
+                        fileServerMode = ConnectionMode.TFTP;
+                        break;
+
+					case Constants.DEVICE_CONFIG_BACKUP_MODE_TELNET_TELNET_FTP:
+                        steps = Env.BACKUP_BY_TELNET;
+                        deviceMode = ConnectionMode.TELNET;
+                        fileServerMode = ConnectionMode.FTP;
+                        break;
+
 					case Constants.DEVICE_CONFIG_BACKUP_MODE_TFTP_SSH_TFTP:
 						steps = Env.BACKUP_BY_TFTP;
 						deviceMode = ConnectionMode.SSH;
