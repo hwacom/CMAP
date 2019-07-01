@@ -66,7 +66,7 @@
 		</div>
 		<div class="row">
             <div class="col-12">
-            	<span class="font-weight-bold copyright" style="color: gray">Copyright &copy; 2018-2019 HwaCom Systems Inc. All Rights Reserved.</span>	
+            	<span class="font-weight-bold copyright" style="color: gray">Copyright &copy; <spring:message code="copyright" /></span>	
             </div>
         </div>
 	</div>

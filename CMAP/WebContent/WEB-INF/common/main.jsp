@@ -82,8 +82,10 @@
 		 -->
 		 
 		<!-- 新北 -->
+		<!-- 
       	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_icon.png" width="auto" height="40" style="padding-top: 3px" />
   		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_taipei_word.png" width="auto" height="40" style="padding-top: 3px" />
+		-->
 		
       	<!-- 苗栗 -->
       	<!-- 
@@ -102,6 +104,10 @@
  		<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />
 		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_word_short.png" width="auto" height="40" style="padding-top: 3px" />
  		 -->
+ 		 
+ 		<!-- 台灣大哥大 -->
+      	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_icon.png" width="auto" height="40" style="padding-top: 3px" />
+  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
  		 
  		<span class="font-weight-bold title-font" style="color:#000079"><spring:message code="cmap.title" /></span>	
       </a>
@@ -123,6 +129,7 @@
         <nav class="web-menu col-md-2 d-none d-md-block sidebar sidebar-bg">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
+              <!-- [間控平台] START -->
               <c:if test="${Env.SHOW_MENU_TREE_CONTROL_PLATFORM eq __SHOW__}">
 	              <li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_prtg" href="#">
@@ -130,12 +137,18 @@
 	                  	<span><spring:message code="menu.monitor" />&nbsp;<span id="toggleMenu_prtg_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_prtg_items" class="collapse">
-	                    <li class="subMenu-item">
-	                    	<a id="mp_index" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/index')">
-	                    	  <span data-feather="home"></span>
-	                    		<span><spring:message code="func.prtg.index" /></span>
-	                    	</a>
-	                    </li>
+	                	<!-- [首頁] START -->
+	                	<c:if test="${Env.SHOW_MENU_ITEM_PRTG_INDEX eq __SHOW__}">
+	                		<li class="subMenu-item">
+		                    	<a id="mp_index" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/index')">
+		                    	  <span data-feather="home"></span>
+		                    		<span><spring:message code="func.prtg.index" /></span>
+		                    	</a>
+		                    </li>
+	                	</c:if>
+	                	<!-- [首頁] END -->
+	                    
+	                    <!-- [DASHBOARD] START -->
 				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_DASHBOARD eq __SHOW__}">
 		                    <li class="subMenu-item">
 		                    	<a id="mp_dashboard" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/dashboard')">
@@ -144,6 +157,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [DASHBOARD] END -->
+	                    
+	                    <!-- [拓樸圖] START -->
 				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
 				        	<li class="subMenu-item">
 		                    	<a id="mp_topography" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/topography')">
@@ -152,6 +168,9 @@
 		                    	</a>
 		                    </li>
 				        </c:if>
+				        <!-- [拓樸圖] END -->
+				        
+				        <!-- [警報總覽] START -->
 				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY eq __SHOW__}">
 				        	<li class="subMenu-item">
 		                    	<a id="mp_alarmSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/alarmSummary')">
@@ -160,6 +179,9 @@
 		                    	</a>
 		                    </li>
 				        </c:if>
+				        <!-- [警報總覽] END -->
+				        
+				        <!-- [流量統計] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="mp_netFlowSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowSummary')">
@@ -168,6 +190,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [流量統計] END -->
+	                    
+	                    <!-- [各校出口端流量圖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="mp_netFlowOutput" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowOutput')">
@@ -176,6 +201,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [各校出口端流量圖] END -->
+	                    
+	                    <!-- [各校即時IP流量排行] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="mp_netFlowCurrentRanking" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/currentRanking')">
@@ -184,6 +212,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [各校即時IP流量排行] END -->
+	                    
+	                    <!-- [所有學校即時IP流量排行] START -->
 	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING eq __SHOW__}">
 					        	<li class="subMenu-item">
@@ -194,59 +225,93 @@
 			                    </li>
 					        </c:if>
 	                    </sec:authorize>
+	                    <!-- [所有學校即時IP流量排行] END -->
 	                </ul>
 		          </li>
 	          </c:if>
-	          <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
-	          	<li class="nav-item">
-	                <a class="nav-link toggleMenuLink" id="toggleMenu_cm" href="#">
-	                  <span data-feather="file-text"></span>
-	                  	<span><spring:message code="menu.cm.manage" />&nbsp;<span id="toggleMenu_cm_icon" data-feather="chevron-down"></span></span>
-	                </a>
-	                <ul aria-expanded="false" id="toggleMenu_cm_items" class="collapse">
-	                    <li class="subMenu-item">
-	                    	<a id="cm_manage" href="${pageContext.request.contextPath}/version/manage">
-	                    	  <span data-feather="file-text"></span>
-	                    		<span><spring:message code="func.version.manage" /></span>
-	                    	</a>
-	                    </li> 
-	                    <li class="subMenu-item">
-			                <a id="cm_backup" href="${pageContext.request.contextPath}/version/backup">
-			                  <span data-feather="download"></span>
-			                  	<span><spring:message code="func.version.backup" /></span>
-			                </a>
-			            </li>
-			            <li class="subMenu-item">
-			                <a id="cm_restore" href="${pageContext.request.contextPath}/version/restore">
-			                  <span data-feather="upload"></span>
-			                  	<span><spring:message code="func.version.restore" /></span>
-			                </a>
-			            </li>
-			            <c:if test="${Env.SHOW_MENU_ITEM_CM_SCRIPT eq __SHOW__}">
-			            	<li class="subMenu-item">
-			                <a id="cm_script" href="${pageContext.request.contextPath}/script">
-			                  <span data-feather="code"></span>
-			                  	<span><spring:message code="func.script.manage" /></span>
-			                </a>
-			            </li>
-			            </c:if>
-			            <li class="subMenu-item">
-			                <a id="cm_delivery" href="${pageContext.request.contextPath}/delivery">
-			                  <span data-feather="send"></span>
-			                  	<span><spring:message code="func.provision.delivery" /></span>
-			                </a>
-			            </li>
-			            <li class="subMenu-item">
-			                <a id="cm_record" href="${pageContext.request.contextPath}/delivery/record">
-			                  <span data-feather="search"></span>
-			                  	<span><spring:message code="func.provision.record" /></span>
-			                </a>
-			            </li>
-	                </ul>
-	              </li>
-	          </sec:authorize>
+	          <!-- [間控平台] END -->
 	          
-	          <!-- 異常告警 START -->
+	          <!-- [組態管理] START -->
+	          <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	          	<c:if test="${Env.SHOW_MENU_TREE_CONFIG_MANAGEMENT eq __SHOW__}">
+	          		<li class="nav-item">
+		            	<a class="nav-link toggleMenuLink" id="toggleMenu_cm" href="#">
+		                  <span data-feather="file-text"></span>
+		                  	<span><spring:message code="menu.cm.manage" />&nbsp;<span id="toggleMenu_cm_icon" data-feather="chevron-down"></span></span>
+		                </a>
+		                <ul aria-expanded="false" id="toggleMenu_cm_items" class="collapse">
+		                	<!-- [版本管理] START -->
+		                	<c:if test="${Env.SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="cm_manage" href="${pageContext.request.contextPath}/version/manage">
+			                    	  <span data-feather="file-text"></span>
+			                    		<span><spring:message code="func.version.manage" /></span>
+			                    	</a>
+			                    </li> 
+		                	</c:if>
+		                	<!-- [版本管理] END -->
+		                	
+		                	<!-- [版本備份] START -->
+		                    <c:if test="${Env.SHOW_MENU_ITEM_CM_VERSION_BACKUP eq __SHOW__}">
+		                		<li class="subMenu-item">
+					                <a id="cm_backup" href="${pageContext.request.contextPath}/version/backup">
+					                  <span data-feather="download"></span>
+					                  	<span><spring:message code="func.version.backup" /></span>
+					                </a>
+					            </li>
+		                	</c:if>
+		                	<!-- [版本備份] END -->
+		                	
+		                	<!-- [版本還原] START -->
+				            <c:if test="${Env.SHOW_MENU_ITEM_CM_VERSION_RESTORE eq __SHOW__}">
+		                		<li class="subMenu-item">
+					                <a id="cm_restore" href="${pageContext.request.contextPath}/version/restore">
+					                  <span data-feather="upload"></span>
+					                  	<span><spring:message code="func.version.restore" /></span>
+					                </a>
+					            </li>
+		                	</c:if>
+		                	<!-- [版本還原] END -->
+		                	
+		                	<!-- [腳本管理] START -->
+				            <c:if test="${Env.SHOW_MENU_ITEM_CM_SCRIPT eq __SHOW__}">
+				            	<li class="subMenu-item">
+				                <a id="cm_script" href="${pageContext.request.contextPath}/script">
+				                  <span data-feather="code"></span>
+				                  	<span><spring:message code="func.script.manage" /></span>
+				                </a>
+				            </li>
+				            </c:if>
+				            <!-- [腳本管理] END -->
+				            
+				            <!-- [供裝派送] START -->
+				            <c:if test="${Env.SHOW_MENU_ITEM_CM_PROVISION_DELIVERY eq __SHOW__}">
+		                		<li class="subMenu-item">
+					                <a id="cm_delivery" href="${pageContext.request.contextPath}/delivery">
+					                  <span data-feather="send"></span>
+					                  	<span><spring:message code="func.provision.delivery" /></span>
+					                </a>
+					            </li>
+		                	</c:if>
+		                	<!-- [供裝派送] END -->
+		                	
+		                	<!-- [供裝紀錄] START -->
+				            <c:if test="${Env.SHOW_MENU_ITEM_CM_PROVISION_RECORD eq __SHOW__}">
+		                		<li class="subMenu-item">
+					                <a id="cm_record" href="${pageContext.request.contextPath}/delivery/record">
+					                  <span data-feather="search"></span>
+					                  	<span><spring:message code="func.provision.record" /></span>
+					                </a>
+					            </li>
+		                	</c:if>
+		                	<!-- [供裝紀錄] END -->
+		                </ul>
+		            </li>
+	          	</c:if>
+	          </sec:authorize>
+	          <!-- [組態管理] END -->
+	          
+	          <!-- [異常告警] START -->
               <c:if test="${Env.SHOW_MENU_TREE_ABNORMAL_ALARM eq __SHOW__}">
               	<li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_abnormalAlarm" href="#">
@@ -254,6 +319,7 @@
 	                  	<span><spring:message code="menu.abnormal.alarm" />&nbsp;<span id="toggleMenu_abnormalAlarm_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_abnormalAlarm_items" class="collapse">
+			            <!-- [IP衝突查詢] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
 			            	<li class="subMenu-item">
 		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipRecord">
@@ -262,6 +328,9 @@
 		                    	</a>
 		                    </li>
 			            </c:if>
+			            <!-- [IP衝突查詢] END -->
+			            
+			            <!-- [未授權DHCP設備] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_UNAUTHORIZED_DHCP eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="unauthroized_dhcp" href="${pageContext.request.contextPath}/plugin/module/unauthorizedDHCP">
@@ -270,6 +339,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [未授權DHCP設備] END -->
+	                    
+	                    <!-- [LOOP迴圈] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_LOOP_LOOP eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="loop_loop" href="${pageContext.request.contextPath}/plugin/module/loopLoop">
@@ -278,6 +350,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [LOOP迴圈] END -->
+	                    
+	                    <!-- [設備故障] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_DEVICE_FAILURE eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="device_failure" href="${pageContext.request.contextPath}/prtg/deviceFailure">
@@ -286,6 +361,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [設備故障] END -->
+	                    
+	                    <!-- [流量異常] START -->
 						<c:if test="${Env.SHOW_MENU_ITEM_ABNORMAL_TRAFFIC eq __SHOW__}">
 							<li class="subMenu-item">
 		                    	<a id="abnormal_traffic" href="${pageContext.request.contextPath}/prtg/abnormalTraffic">
@@ -293,7 +371,10 @@
 		                    	  	<span><spring:message code="func.prtg.abnormal.traffic" /></span>
 		                    	</a>
 		                    </li>
-						</c:if>	                    
+						</c:if>	 
+						<!-- [流量異常] END -->
+						
+						<!-- [其他異常] START -->                   
 						<c:if test="${Env.SHOW_MENU_ITEM_OTHER_EXCEPTION eq __SHOW__}">
 							<li class="subMenu-item">
 		                    	<a id="other_exception" href="${pageContext.request.contextPath}/prtg/otherException">
@@ -301,13 +382,14 @@
 		                    	  	<span><spring:message code="func.prtg.other.exception" /></span>
 		                    	</a>
 		                    </li>
-						</c:if>	                    
+						</c:if>	      
+						<!-- [其他異常] END -->              
                 	</ul>
 		      	</li>
               </c:if>
-              <!-- 異常告警 END -->
+              <!-- [異常告警] END -->
               
-              <!-- 資安通報 START -->
+              <!-- [資安通報] START -->
               <c:if test="${Env.SHOW_MENU_TREE_PLUGIN eq __SHOW__}">
               	<li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_plugin" href="#">
@@ -315,6 +397,7 @@
 	                  	<span><spring:message code="menu.security" />&nbsp;<span id="toggleMenu_plugin_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_plugin_items" class="collapse">
+	                	<!-- [Wifi查詢] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER eq __SHOW__}">
 			            	<li class="subMenu-item">
 		                    	<a id="cm_wifi" href="${pageContext.request.contextPath}/plugin/module/wifiPoller">
@@ -323,6 +406,9 @@
 		                    	</a>
 		                    </li>
 			            </c:if>
+			            <!-- [Wifi查詢] END -->
+			            
+			            <!-- [Net flow查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
@@ -331,6 +417,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [Net flow查詢] END -->
+	                    
+	                    <!-- [開關PORT] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="cm_switchPort" href="${pageContext.request.contextPath}/delivery/switchPort">
@@ -339,6 +428,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [開關PORT] END -->
+	                    
+	                    <!-- [IP開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock">
@@ -347,6 +439,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [IP開通/封鎖] END -->
+	                    
+	                    <!-- [網卡MAC開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="cm_macOpenBlock" href="${pageContext.request.contextPath}/delivery/macOpenBlock">
@@ -355,6 +450,9 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [網卡MAC開通/封鎖] END -->
+	                    
+	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
@@ -363,47 +461,69 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+	                    <!-- [防火牆LOG查詢] END -->
 	                </ul>
 		      	</li>
               </c:if>
-              <!-- 資安通報 END -->
+              <!-- [資安通報] END -->
               
-              <!-- 後台管理 START -->
+              <!-- [後台管理] START -->
               <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
-              	  <li class="nav-item">
-	                <a class="nav-link toggleMenuLink" id="toggleMenu_admin" href="#">
-	                  <span data-feather="settings"></span>
-	                  	<span><spring:message code="menu.backend" />&nbsp;<span id="toggleMenu_admin_icon" data-feather="chevron-down"></span></span>
-	                </a>
-	                <ul aria-expanded="false" id="toggleMenu_admin_items" class="collapse">
-	                    <li class="subMenu-item">
-	                    	<a id="bk_env" href="${pageContext.request.contextPath}/admin/env/main">
-	                    	  <span data-feather="command"></span> 
-	                    		<span><spring:message code="func.sys.env.manage" /></span>
-	                    	</a>
-	                    </li>
-	                    <li class="subMenu-item">
-	                    	<a id="bk_script" href="${pageContext.request.contextPath}/admin/script/main">
-	                    	  <span data-feather="hash"></span> 
-	                    	  	<span><spring:message code="func.default.script.manage" /></span>
-	                    	</a>
-	                    </li>
-	                    <li class="subMenu-item">
-	                    	<a id="bk_job" href="${pageContext.request.contextPath}/admin/job/main">
-	                    	  <span data-feather="check-square"></span> 
-	                    	  	<span><spring:message code="func.job.manage" /></span>
-	                    	</a>
-	                    </li>
-	                    <li class="subMenu-item">
-	                    	<a id="bk_log" href="${pageContext.request.contextPath}/admin/log/main">
-	                    	  <span data-feather="alert-triangle"></span> 
-	                    	  	<span><spring:message code="func.sys.log.inquiry" /></span>
-	                    	</a>
-	                    </li>
-	                </ul>
-	              </li>
+              	<c:if test="${Env.SHOW_MENU_TREE_BACKEND eq __SHOW__}">
+              		<li class="nav-item">
+		                <a class="nav-link toggleMenuLink" id="toggleMenu_admin" href="#">
+		                  <span data-feather="settings"></span>
+		                  	<span><spring:message code="menu.backend" />&nbsp;<span id="toggleMenu_admin_icon" data-feather="chevron-down"></span></span>
+		                </a>
+		                <ul aria-expanded="false" id="toggleMenu_admin_items" class="collapse">
+		                	<!-- [系統參數維護] START -->
+		                	<c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_ENV eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_env" href="${pageContext.request.contextPath}/admin/env/main">
+			                    	  <span data-feather="command"></span> 
+			                    		<span><spring:message code="func.sys.env.manage" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	<!-- [系統參數維護] END -->
+		                	
+		                	<!-- [預設腳本維護] START -->
+		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_script" href="${pageContext.request.contextPath}/admin/script/main">
+			                    	  <span data-feather="hash"></span> 
+			                    	  	<span><spring:message code="func.default.script.manage" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	<!-- [預設腳本維護] END -->
+		                	
+		                	<!-- [排程設定維護] START -->
+		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_JOB eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_job" href="${pageContext.request.contextPath}/admin/job/main">
+			                    	  <span data-feather="check-square"></span> 
+			                    	  	<span><spring:message code="func.job.manage" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	<!-- [排程設定維護] END -->
+		                	
+		                	<!-- [系統紀錄查詢] END -->
+		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_LOG eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_log" href="${pageContext.request.contextPath}/admin/log/main">
+			                    	  <span data-feather="alert-triangle"></span> 
+			                    	  	<span><spring:message code="func.sys.log.inquiry" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	<!-- [系統紀錄查詢] END -->
+		                </ul>
+		            </li>
+              	</c:if>
               </sec:authorize>
-              <!-- 後台管理 END -->
+              <!-- [後台管理] END -->
             </ul>
           </div>
         </nav>

@@ -221,7 +221,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
-								ciVO = findDeviceConfigInfo(ciVO, deviceListId, null);
+								ciVO = findDeviceConfigInfo(ciVO, deviceListId, null, deviceMode);
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
@@ -256,7 +256,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case CONNECT_DEVICE:
 							try {
-								connectUtils = connect2Device(connectUtils, deviceMode, ciVO);
+								connectUtils = connect2Device(connectUtils, ciVO);
 								break;
 
 							} catch (Exception e) {
@@ -637,7 +637,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	private ConfigInfoVO findDeviceConfigInfo(ConfigInfoVO configInfoVO, String deviceListId, Map<String, String> deviceInfo) throws ServiceLayerException {
+	private ConfigInfoVO findDeviceConfigInfo(ConfigInfoVO configInfoVO, String deviceListId, Map<String, String> deviceInfo, ConnectionMode connectionMode) throws ServiceLayerException {
 		configInfoVO = new ConfigInfoVO();
 
 		if (deviceListId != null) {
@@ -696,6 +696,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		configInfoVO.settFtpIP(Env.TFTP_HOST_IP);
 		configInfoVO.settFtpPort(Env.TFTP_HOST_PORT);
 
+		configInfoVO.setConnectionMode(connectionMode);
+
 		return configInfoVO;
 	}
 
@@ -734,6 +736,18 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				ciVO.setEnablePassword(loginInfo.getEnablePassword());
 			}
 
+			/**
+             * 判斷該設備是否有指定連線模式(Connection_Mode)，有的話則替換掉廣域設定
+             */
+			String deviceConnectionMode = loginInfo.getConnectionMode();
+			if (StringUtils.isNotBlank(deviceConnectionMode)) {
+			    if (StringUtils.equals(deviceConnectionMode, Constants.SSH)) {
+			        ciVO.setConnectionMode(ConnectionMode.SSH);
+
+                } else if (StringUtils.equals(deviceConnectionMode, Constants.TELNET)) {
+                    ciVO.setConnectionMode(ConnectionMode.TELNET);
+                }
+			}
 		}
 	}
 
@@ -745,10 +759,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws Exception
 	 */
-	private ConnectUtils connect2Device(ConnectUtils connectUtils, ConnectionMode _mode, ConfigInfoVO ciVO) throws Exception {
+	private ConnectUtils connect2Device(ConnectUtils connectUtils, ConfigInfoVO ciVO) throws Exception {
 	    final String deviceIp = ciVO.getDeviceIp();
 	    final Integer devicePort = ciVO.getDevicePort();
 
+	    ConnectionMode _mode = ciVO.getConnectionMode();
 		switch (_mode) {
 			case TELNET:
 				connectUtils = new TelnetUtils();
@@ -1621,7 +1636,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
-								ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo);
+								ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo, deviceMode);
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
@@ -1662,7 +1677,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case CONNECT_DEVICE:
 							try {
-								connectUtils = connect2Device(connectUtils, deviceMode, ciVO);
+								connectUtils = connect2Device(connectUtils, ciVO);
 								break;
 
 							} catch (Exception e) {
@@ -1852,7 +1867,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                     switch (_step) {
                         case FIND_DEVICE_CONNECT_INFO:
                             try {
-                                ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo);
+                                ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo, deviceMode);
                                 ciVO.setTimes(String.valueOf(round));
 
                                 /*
@@ -1893,7 +1908,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                         case CONNECT_DEVICE:
                             try {
-                                connectUtils = connect2Device(connectUtils, deviceMode, ciVO);
+                                connectUtils = connect2Device(connectUtils, ciVO);
                                 break;
 
                             } catch (Exception e) {
@@ -2313,7 +2328,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得要還原的目標設備相關連線資訊
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
-								ciVO = findDeviceConfigInfo(ciVO, deviceListId, null);
+								ciVO = findDeviceConfigInfo(ciVO, deviceListId, null, deviceMode);
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
@@ -2353,7 +2368,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 連線至要還原的目標設備
 						case CONNECT_DEVICE:
 							try {
-								connectUtils = connect2Device(connectUtils, deviceMode, ciVO);
+								connectUtils = connect2Device(connectUtils, ciVO);
 								break;
 
 							} catch (Exception e) {
@@ -2733,7 +2748,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
         ConnectUtils connectUtils = null; // 連線裝置物件
         try {
-            connectUtils = connect2Device(connectUtils, ConnectionMode.SSH, ciVO);
+            ciVO.setConnectionMode(ConnectionMode.SSH);
+            connectUtils = connect2Device(connectUtils, ciVO);
             sshEnable = true;
 
         } catch (Exception e) {

@@ -312,6 +312,9 @@ public class CommonUtils {
 			throw e;
 		}
 
+		System.out.println("====================================================================");
+		System.out.println(retString);
+		System.out.println("====================================================================");
 		return retString;
 	}
 

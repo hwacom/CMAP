@@ -24,7 +24,23 @@ public class Env {
 	 * 設定MENU TREE功能是否顯示
 	 */
 	public static String SHOW_MENU_TREE_CONTROL_PLATFORM;					 // 間控平台
+	public static String SHOW_MENU_ITEM_PRTG_INDEX;                          // 間控平台 > 首頁
+	public static String SHOW_MENU_ITEM_PRTG_DASHBOARD;                      // 間控平台 > DASHBOARD
+    public static String SHOW_MENU_ITEM_PRTG_TOPOGRAPHY;                     // 間控平台 > 拓樸圖
+    public static String SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY;                  // 間控平台 > 警報總覽
+    public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;               // 間控平台 > 流量統計
+    public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT;                // 間控平台 > 各校出口端流量圖
+    public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING;            // 間控平台 > 各校即時IP流量排行
+    public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING;        // 間控平台 > 所有學校即時IP流量排行
+
+    public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
+	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
+	public static String SHOW_MENU_ITEM_CM_VERSION_BACKUP;                   // 組態管理 > 版本備份
+	public static String SHOW_MENU_ITEM_CM_VERSION_RESTORE;                  // 組態管理 > 版本還原
 	public static String SHOW_MENU_ITEM_CM_SCRIPT;				             // 組態管理 > 腳本管理
+	public static String SHOW_MENU_ITEM_CM_PROVISION_DELIVERY;               // 組態管理 > 供裝派送
+	public static String SHOW_MENU_ITEM_CM_PROVISION_RECORD;                 // 組態管理 > 供裝紀錄
+
 	public static String SHOW_MENU_TREE_ABNORMAL_ALARM;			             // 異常告警
 	public static String SHOW_MENU_ITEM_IP_CONFLICT;			             // 異常告警 > IP衝突查詢
 	public static String SHOW_MENU_ITEM_UNAUTHORIZED_DHCP;		             // 異常告警 > 未授權DHCP設備
@@ -32,6 +48,7 @@ public class Env {
 	public static String SHOW_MENU_ITEM_DEVICE_FAILURE;			             // 異常告警 > 設備故障
 	public static String SHOW_MENU_ITEM_ABNORMAL_TRAFFIC;		             // 異常告警 > 流量異常
 	public static String SHOW_MENU_ITEM_OTHER_EXCEPTION;		             // 異常告警 > 其他異常
+
 	public static String SHOW_MENU_TREE_PLUGIN;					             // 資安通報
 	public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 資安通報 > Wifi查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW;		             // 資安通報 > Net flow查詢
@@ -39,13 +56,12 @@ public class Env {
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
-	public static String SHOW_MENU_ITEM_PRTG_DASHBOARD;                      // 間控平台 > DASHBOARD
-	public static String SHOW_MENU_ITEM_PRTG_TOPOGRAPHY;                     // 間控平台 > 拓樸圖
-	public static String SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY;                  // 間控平台 > 警報總覽
-	public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;               // 間控平台 > 流量統計
-	public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT;                // 間控平台 > 各校出口端流量圖
-	public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING;            // 間控平台 > 各校即時IP流量排行
-	public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING;        // 間控平台 > 所有學校即時IP流量排行
+
+	public static String SHOW_MENU_TREE_BACKEND;                             // 後台管理
+    public static String SHOW_MENU_ITEM_BK_SYS_ENV;                          // 後台管理 > 系統參數維護
+    public static String SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT;                   // 後台管理 > 預設腳本維護
+    public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
+    public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
 
 	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				// 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
 

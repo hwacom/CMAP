@@ -2,6 +2,7 @@ package com.cmap.service.vo;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.cmap.comm.enums.ConnectionMode;
 
 public class ConfigInfoVO implements Cloneable {
 
@@ -28,6 +29,7 @@ public class ConfigInfoVO implements Cloneable {
 	private String account;
 	private String password;
 	private String enablePassword;
+	private ConnectionMode connectionMode;
 
 	private String tFtpIP;
 	private Integer tFtpPort;
@@ -347,5 +349,13 @@ public class ConfigInfoVO implements Cloneable {
 
     public void setDevicePort(Integer devicePort) {
         this.devicePort = devicePort;
+    }
+
+    public ConnectionMode getConnectionMode() {
+        return connectionMode;
+    }
+
+    public void setConnectionMode(ConnectionMode connectionMode) {
+        this.connectionMode = connectionMode;
     }
 }

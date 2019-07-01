@@ -80,12 +80,12 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 			output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
 			write(account);
 
-			processLog.append(output + account);
+			processLog.append(output);
 
 			output = readUntil(Env.TELNET_LOGIN_PASSWORD_TEXT);
 			write(password);
 
-			processLog.append(output + password);
+			processLog.append(output);
 
 		} catch (Exception e) {
 

@@ -274,6 +274,10 @@ public class LoginContoller extends BaseController {
         } else {
             return "redirect:/login";
         }
+        //TODO:先寫死for新北教網
+        /*
+        return "login_openid_ntpc";
+        */
     }
 
 	@RequestMapping(value = "login/authByOIDC", method = {RequestMethod.GET, RequestMethod.POST})
