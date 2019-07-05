@@ -1085,3 +1085,11 @@ button {
   font-size: 1.2em;
   margin-bottom: 6px;
 }
+
+/*##########################################################################################################################################*/
+.td-na {
+  background-color: #cdcdcd;
+  border-width: 1px !important;
+  border-style: solid;
+  border-color: #797979;
+}

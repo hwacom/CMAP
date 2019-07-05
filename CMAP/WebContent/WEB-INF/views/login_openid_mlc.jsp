@@ -8,7 +8,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="${pageContext.request.contextPath}/resources/images/icon.ico">
+    <link rel="icon" href="${pageContext.request.contextPath}/resources/images/icon_maoli.ico">
 
     <title><spring:message code="cmap.title" /></title>
 

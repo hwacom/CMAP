@@ -327,6 +327,33 @@ public class DataPollerServiceImpl implements DataPollerService {
 		return dpsVO;
 	}
 
+	private void moveFile2ErrorFolder(File targetFile) {
+	    //處理過程若有失敗，將檔案移至ERROR資料夾下
+        if (targetFile != null) {
+            final String fileDir = targetFile.getParentFile().getPath();
+            final String errorFolder = fileDir + File.separator + "error";
+            Path errorPath = Paths.get(errorFolder);
+
+            if (!Files.exists(errorPath)) {
+                try {
+                    Files.createDirectories(errorPath);
+
+                } catch (IOException ioe) {
+                    log.error(ioe.toString(), ioe);
+                }
+            }
+
+            try {
+                final String errorFileFullName = errorFolder + File.separator + targetFile.getName();
+
+                Files.move(Paths.get(targetFile.getPath()), Paths.get(errorFileFullName), StandardCopyOption.REPLACE_EXISTING);
+
+            } catch (IOException e1) {
+                log.error(e1.toString(), e1);
+            }
+        }
+	}
+
 	private Map<String, String> transKeySetting2Map(String executeKeySetting) {
 		Map<String, String> retMap = new HashMap<>();
 		String[] keyMappings = executeKeySetting.split(Env.COMM_SEPARATE_SYMBOL);
@@ -653,33 +680,14 @@ public class DataPollerServiceImpl implements DataPollerService {
 					retVO = readFileContents2CSVFormat4File(recordListMap, targetFile, setting, mappingMap, specialSetFieldMap);
 				}
 
+				//塞入targetFile物件 for 後續流程發生異常時可將檔案移至error資料夾
+				retVO.setTargetFile(targetFile);
+
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 
 				//處理過程若有失敗，將檔案移至ERROR資料夾下
-				if (targetFile != null) {
-					final String fileDir = targetFile.getParentFile().getPath();
-					final String errorFolder = fileDir + File.separator + "error";
-					Path errorPath = Paths.get(errorFolder);
-
-					if (!Files.exists(errorPath)) {
-						try {
-							Files.createDirectories(errorPath);
-
-						} catch (IOException ioe) {
-							log.error(ioe.toString(), ioe);
-						}
-					}
-
-					try {
-						final String errorFileFullName = errorFolder + File.separator + targetFile.getName();
-
-						Files.move(Paths.get(targetFile.getPath()), Paths.get(errorFileFullName), StandardCopyOption.REPLACE_EXISTING);
-
-					} catch (IOException e1) {
-						log.error(e1.toString(), e1);
-					}
-				}
+				moveFile2ErrorFolder(targetFile);
 
 			} finally {
 				targetFile = null;	// for GC
@@ -907,12 +915,12 @@ public class DataPollerServiceImpl implements DataPollerService {
 			final String fileName = file.getName();
 
 			// 定義 Thread Pool 數量 (看 Setting 中 Special_Var_Setting 有無設定 THREAD_COUNT，若無則取預設值)
-			String settingThreadCount = specialFieldMap.get(Constants.THREAD_COUNT);
+			String settingThreadCount = specialFieldMap != null ? specialFieldMap.get(Constants.THREAD_COUNT) : null;
 			final int threadCount = StringUtils.isBlank(settingThreadCount)
 			                            ? Env.THREAD_COUNT_OF_DATA_POLLER : Integer.parseInt(settingThreadCount);
 			ExecutorService executor = Executors.newFixedThreadPool(threadCount);
 
-			String settingSkipHeadLinesCount = specialFieldMap.get(Constants.SKIP_HEAD_LINES_COUNT);
+			String settingSkipHeadLinesCount = specialFieldMap != null ? specialFieldMap.get(Constants.SKIP_HEAD_LINES_COUNT) : null;
 			int skipHeadLinesCount = StringUtils.isNotBlank(settingSkipHeadLinesCount)
 			                            ? Integer.parseInt(settingSkipHeadLinesCount) : 0;
 
@@ -923,8 +931,15 @@ public class DataPollerServiceImpl implements DataPollerService {
 			int sliceSize =
 			        ((new BigDecimal(ttlSize)).divide(new BigDecimal(threadCount), RoundingMode.CEILING)).intValue();
 			int row = 0;
-			InputStreamReader isr = new InputStreamReader(new FileInputStream(file), Charset.forName(charset));
-			try (BufferedReader br = new BufferedReader(isr)) {
+
+			FileInputStream fis = null;
+			BufferedReader br = null;
+			InputStreamReader isr = null;
+			try {
+			    fis = new FileInputStream(file);
+			    isr = new InputStreamReader(fis, Charset.forName(charset));
+			    br = new BufferedReader(isr);
+
 			    String line;
 			    while ((line = br.readLine()) != null) {
 			        if (row < skipHeadLinesCount) {
@@ -944,6 +959,24 @@ public class DataPollerServiceImpl implements DataPollerService {
 
 	                row++;
 			    }
+
+			} catch (Exception e) {
+
+			} finally {
+			    // 將 BufferedReader / InputStreamReader / FileInputStream 關閉，釋放資源
+			    if (br != null) {
+                    br.close();
+                }
+			    if (isr != null) {
+			        isr.close();
+			    }
+			    if (fis != null) {
+			        fis.close();
+			    }
+
+			    br = null;
+			    isr = null;
+			    fis = null;
 			}
 
 			for (List<String> slice : sliceList) {

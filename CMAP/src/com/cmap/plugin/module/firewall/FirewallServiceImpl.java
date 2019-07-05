@@ -2,6 +2,7 @@ package com.cmap.plugin.module.firewall;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,10 +94,11 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
     }
 
     @Override
-    public long countFirewallLogRecordFromDB(FirewallVO fVO, List<String> searchLikeField)
+    public long countFirewallLogRecordFromDB(FirewallVO fVO, Map<String, List<String>> fieldsMap)
             throws ServiceLayerException {
         long retCount = 0;
         try {
+            List<String> searchLikeField = fieldsMap.get(fVO.getQueryType());
             retCount = firewallDAO.countFirewallLogFromDB(fVO, searchLikeField, getQueryTableName(fVO));
 
         } catch (Exception e) {
@@ -108,77 +110,185 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
 
     @Override
     public List<FirewallVO> findFirewallLogRecordFromDB(FirewallVO fVO, Integer startRow,
-            Integer pageLength, List<String> searchLikeField) throws ServiceLayerException {
-        List<FirewallVO> retList = new ArrayList<>();
+            Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException {
+        List<FirewallVO> retList = null;
         try {
             List<String> tableTitleField = getFieldNameList(fVO.getQueryType(), DataPollerService.FIELD_TYPE_TARGET);
-
-            StringBuffer queryFieldsSQL = new StringBuffer();
-            for (int i=0; i<tableTitleField.size(); i++) {
-                String fieldName = tableTitleField.get(i);
-                queryFieldsSQL.append("`").append(fieldName).append("`");
-
-                if (i < tableTitleField.size() - 1) {
-                    queryFieldsSQL.append(", ");
-                }
-            }
-
-            Map<Integer, CommonServiceVO> protocolMap = getProtoclSpecMap();
+            String queryFieldsSQL = composeQueryFieldsStr(tableTitleField);
 
             final String queryTable = getQueryTableName(fVO);
-            List<Object[]> dataList = firewallDAO.findFirewallLogFromDB(fVO, startRow, pageLength, searchLikeField, queryTable, queryFieldsSQL.toString());
+            List<String> searchLikeField = fieldsMap.get(fVO.getQueryType());
+            List<Object[]> dataList = firewallDAO.findFirewallLogFromDB(fVO, startRow, pageLength, searchLikeField, queryTable, queryFieldsSQL);
 
             if (dataList != null && !dataList.isEmpty()) {
                 List<String> fieldList = getFieldNameList(fVO.getQueryType(), DataPollerService.FIELD_TYPE_SOURCE);
+                retList = composeOutputVO(fieldList, dataList);
 
-                if (fieldList == null || (fieldList != null && fieldList.isEmpty())) {
-                    throw new ServiceLayerException("查無欄位標題設定");
+            } else {
+                retList = new ArrayList<>();
+            }
 
-                } else {
-                    FirewallVO vo;
-                    for (Object[] data : dataList) {
-                        vo = new FirewallVO();
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("查詢失敗，請重新操作");
+        }
+        return retList;
+    }
 
-                        for (int i=0; i<fieldList.size(); i++) {
-                            int fieldIdx = i;
-                            int dataIdx = i;
+    private List<FirewallVO> composeOutputVO(List<String> fieldList, List<Object[]> dataList) throws ServiceLayerException {
+        List<FirewallVO> retList = new ArrayList<>();
 
-                            final String oriName = fieldList.get(fieldIdx);
-                            String fName = oriName.substring(0, 1).toLowerCase() + oriName.substring(1, oriName.length());
+        if (fieldList == null || (fieldList != null && fieldList.isEmpty())) {
+            throw new ServiceLayerException("查無欄位標題設定");
 
-                            String fValue = "";
-                            if (oriName.equals("date")) {
-                                if (data[dataIdx] != null) {
-                                    fValue = Constants.FORMAT_YYYY_MM_DD.format(data[dataIdx]);
-                                }
+        } else {
+            Map<Integer, CommonServiceVO> protocolMap = getProtoclSpecMap();
 
-                            } else if (oriName.equals("time")) {
-                                if (data[dataIdx] != null) {
-                                    fValue = Constants.FORMAT_HH24_MI_SS.format(data[dataIdx]);
-                                }
+            FirewallVO vo;
+            for (Object[] data : dataList) {
+                vo = new FirewallVO();
 
-                            } else if (oriName.equals("sentByte") || oriName.equals("rcvdByte")) {
-                                BigDecimal sizeByte = new BigDecimal(Objects.toString(data[dataIdx], "0"));
+                for (int i=0; i<fieldList.size(); i++) {
+                    int fieldIdx = i;
+                    int dataIdx = i;
 
-                                fValue = convertByteSizeUnit(sizeByte, Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE);
+                    final String oriName = fieldList.get(fieldIdx);
+                    String fName = oriName.substring(0, 1).toLowerCase() + oriName.substring(1, oriName.length());
 
-                            } else if (oriName.equals("proto")) {
-                                String tmpStr = Objects.toString(data[dataIdx]);
-                                Integer protocolNo = tmpStr != null ? Integer.valueOf(tmpStr) : null;
-                                String protocolName = protocolMap.get(protocolNo).getProtocolName();
-
-                                fValue = protocolName;
-
-                            } else {
-                                fValue = Objects.toString(data[dataIdx]);
-                            }
-
-                            BeanUtils.setProperty(vo, fName, fValue);
+                    String fValue = "";
+                    if (oriName.equals("date")) {
+                        if (data[dataIdx] != null) {
+                            fValue = Constants.FORMAT_YYYY_MM_DD.format(data[dataIdx]);
                         }
 
-                        retList.add(vo);
+                    } else if (oriName.equals("time")) {
+                        if (data[dataIdx] != null) {
+                            fValue = Constants.FORMAT_HH24_MI_SS.format(data[dataIdx]);
+                        }
+
+                    } else if (oriName.equals("sentByte") || oriName.equals("rcvdByte")) {
+                        fValue = null;
+                        if (StringUtils.isNotBlank(Objects.toString(data[dataIdx], null))) {
+                            BigDecimal sizeByte = new BigDecimal(Objects.toString(data[dataIdx], "0"));
+
+                            fValue = convertByteSizeUnit(sizeByte, Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE);
+                        }
+
+                    } else if (oriName.equals("proto")) {
+                        String tmpStr = Objects.toString(data[dataIdx]);
+                        Integer protocolNo = StringUtils.isNotBlank(tmpStr) ? Integer.valueOf(tmpStr) : null;
+                        String protocolName = protocolNo == null ? null : protocolMap.get(protocolNo).getProtocolName();
+
+                        fValue = protocolName;
+
+                    } else {
+                        fValue = Objects.toString(data[dataIdx]);
+                    }
+
+                    try {
+                        BeanUtils.setProperty(vo, fName, fValue);
+
+                    } catch (Exception e) {
+                        log.error(e.toString(), e);
+                        throw new ServiceLayerException("查詢結果轉換過程異常");
                     }
                 }
+
+                retList.add(vo);
+            }
+        }
+
+        return retList;
+    }
+
+    private String composeQueryFieldsStr(List<String> fieldsList) {
+        StringBuffer queryFieldsSQL = new StringBuffer();
+        for (int i=0; i<fieldsList.size(); i++) {
+            String fieldName = fieldsList.get(i);
+            queryFieldsSQL.append("`").append(fieldName).append("`");
+
+            if (i < fieldsList.size() - 1) {
+                queryFieldsSQL.append(", ");
+            }
+        }
+
+        return queryFieldsSQL.toString();
+    }
+
+    private String composeQueryFieldsStr(List<String> targetFieldsList, List<String> referFieldsList) {
+        StringBuffer queryFieldsSQL = new StringBuffer();
+        for (int i=0; i<referFieldsList.size(); i++) {
+            String rField = referFieldsList.get(i);
+
+            boolean exist = false;
+            for (String tField : targetFieldsList) {
+                if (tField.equals(rField)) {
+                    exist = true;
+                    break;
+                }
+            }
+
+            if (exist) {
+                queryFieldsSQL.append("`").append(rField).append("`");
+            } else {
+                queryFieldsSQL.append("'' ").append(rField);
+            }
+
+
+            if (i < referFieldsList.size() - 1) {
+                queryFieldsSQL.append(", ");
+            }
+        }
+
+        return queryFieldsSQL.toString();
+    }
+
+    @Override
+    public long countFirewallLogRecordFromDBbyAll(FirewallVO fVO, Map<String, List<String>> fieldsMap) throws ServiceLayerException {
+        long retCount = 0;
+        try {
+            retCount = firewallDAO.countFirewallLogFromDBbyAll(fVO, fieldsMap);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("查詢失敗，請重新操作");
+        }
+        return retCount;
+    }
+
+    @Override
+    public List<FirewallVO> findFirewallLogRecordFromDBbyAll(FirewallVO fVO, Integer startRow,
+            Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException {
+        List<FirewallVO> retList = new ArrayList<>();
+        try {
+            List<String> allTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_ALL);
+            List<String> appTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_APP);
+            List<String> forwardingTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING);
+            List<String> intrusionTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION);
+            List<String> systemTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM);
+            List<String> webfilterTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
+
+            String appSelectSql = composeQueryFieldsStr(appTitleField, allTitleField);
+            String forwardingSelectSql = composeQueryFieldsStr(forwardingTitleField, allTitleField);
+            String intrusionSelectSql = composeQueryFieldsStr(intrusionTitleField, allTitleField);
+            String systemSelectSql = composeQueryFieldsStr(systemTitleField, allTitleField);
+            String webfilterSelectSql = composeQueryFieldsStr(webfilterTitleField, allTitleField);
+
+            Map<String, String> selectSqlMap = new HashMap<>();
+            selectSqlMap.put(Constants.FIREWALL_LOG_TYPE_APP, appSelectSql);
+            selectSqlMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, forwardingSelectSql);
+            selectSqlMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, intrusionSelectSql);
+            selectSqlMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, systemSelectSql);
+            selectSqlMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, webfilterSelectSql);
+
+            List<Object[]> dataList = firewallDAO.findFirewallLogFromDBbyAll(fVO, startRow, pageLength, selectSqlMap, fieldsMap);
+
+            if (dataList != null && !dataList.isEmpty()) {
+                List<String> fieldList = getFieldNameList(Constants.FIREWALL_LOG_TYPE_ALL, DataPollerService.FIELD_TYPE_SOURCE);
+                retList = composeOutputVO(fieldList, dataList);
+
+            } else {
+                retList = new ArrayList<>();
             }
 
         } catch (Exception e) {

@@ -47,6 +47,8 @@ $(document).ready(function() {
 	
 	$("#queryDateBegin").val(cDate);
 	$("#queryDateEnd").val(cDate);
+	$("#queryTimeBegin").val("00:00");
+	$("#queryTimeEnd").val("23:59");
 	
 	$("#queryType").change(function() {
 		var option = $(this).val();
@@ -83,10 +85,13 @@ function countDown(status) {
 function findData(from) {
 	$('#queryFrom').val(from);
 	
+	/*
+	 * 類別改為可以選ALL，不檢核
 	if ($("#queryType").val().trim().length == 0) {
 		alert(msg_chooseType);
 		return;
 	}
+	*/
 	if ($("#queryDateBegin").val().trim().length == 0) {
 		alert(msg_chooseDate);
 		return;
@@ -106,7 +111,7 @@ function findData(from) {
 		
 	} else {
 		$(".myTableSection").show();
-		$('[data-field]').hide();
+		/*$('[data-field]').hide();*/
 		
 		resultTable = $('#resultTable').DataTable(
 		{
@@ -204,10 +209,13 @@ function findData(from) {
 				
 				bindTrEvent();
 				
+				/*
 				$('[data-field]').hide();
-				
+				*/
+				$('[data-field]').removeClass('td-na');
 				var queryType = $("#queryType").val();
 				if (queryType == "APP") {
+					/*
 					$('[data-field="srcIp"]').show();
 					$('[data-field="srcPort"]').show();
 					$('[data-field="dstIp"]').show();
@@ -227,8 +235,21 @@ function findData(from) {
 					$('[data-field="user"]').hide();
 					$('[data-field="message"]').hide();
 					$('[data-field="attack"]').hide();
+					*/
+					$('[data-field="severity"]').eq(0).addClass('td-na');
+					$('[data-field="srcCountry"]').eq(0).addClass('td-na');
+					$('[data-field="service"]').eq(0).addClass('td-na');
+					$('[data-field="url"]').eq(0).addClass('td-na');
+					$('[data-field="sentByte"]').eq(0).addClass('td-na');
+					$('[data-field="rcvdByte"]').eq(0).addClass('td-na');
+					$('[data-field="utmAction"]').eq(0).addClass('td-na');
+					$('[data-field="level"]').eq(0).addClass('td-na');
+					$('[data-field="user"]').eq(0).addClass('td-na');
+					$('[data-field="message"]').eq(0).addClass('td-na');
+					$('[data-field="attack"]').eq(0).addClass('td-na');
 					
 				} else if (queryType == "FORWARDING") {
+					/*
 					$('[data-field="srcIp"]').show();
 					$('[data-field="srcPort"]').show();
 					$('[data-field="dstIp"]').show();
@@ -239,13 +260,42 @@ function findData(from) {
 					$('[data-field="sentByte"]').show();
 					$('[data-field="rcvdByte"]').show();
 					$('[data-field="utmAction"]').show();
+					*/
+					
+					$('[data-field="severity"]').eq(0).addClass('td-na');
+					$('[data-field="srcCountry"]').eq(0).addClass('td-na');
+					$('[data-field="service"]').eq(0).addClass('td-na');
+					$('[data-field="url"]').eq(0).addClass('td-na');
+					$('[data-field="level"]').eq(0).addClass('td-na');
+					$('[data-field="user"]').eq(0).addClass('td-na');
+					$('[data-field="message"]').eq(0).addClass('td-na');
+					$('[data-field="attack"]').eq(0).addClass('td-na');
 					
 				} else if (queryType == "SYSTEM") {
+					/*
 					$('[data-field="level"]').show();
 					$('[data-field="user"]').show();
 					$('[data-field="message"]').show();
+					*/
+					
+					$('[data-field="severity"]').eq(0).addClass('td-na');
+					$('[data-field="srcIp"]').eq(0).addClass('td-na');
+					$('[data-field="srcPort"]').eq(0).addClass('td-na');
+					$('[data-field="srcCountry"]').eq(0).addClass('td-na');
+					$('[data-field="dstIp"]').eq(0).addClass('td-na');
+					$('[data-field="dstPort"]').eq(0).addClass('td-na');
+					$('[data-field="proto"]').eq(0).addClass('td-na');
+					$('[data-field="service"]').eq(0).addClass('td-na');
+					$('[data-field="url"]').eq(0).addClass('td-na');
+					$('[data-field="app"]').eq(0).addClass('td-na');
+					$('[data-field="action"]').eq(0).addClass('td-na');
+					$('[data-field="sentByte"]').eq(0).addClass('td-na');
+					$('[data-field="rcvdByte"]').eq(0).addClass('td-na');
+					$('[data-field="utmAction"]').eq(0).addClass('td-na');
+					$('[data-field="attack"]').eq(0).addClass('td-na');
 					
 				} else if (queryType == "INTRUSION") {
+					/*
 					$('[data-field="severity"]').show();
 					$('[data-field="srcIp"]').show();
 					$('[data-field="srcPort"]').show();
@@ -255,8 +305,20 @@ function findData(from) {
 					$('[data-field="proto"]').show();
 					$('[data-field="attack"]').show();
 					$('[data-field="action"]').show();
+					*/
+					
+					$('[data-field="service"]').eq(0).addClass('td-na');
+					$('[data-field="url"]').eq(0).addClass('td-na');
+					$('[data-field="app"]').eq(0).addClass('td-na');
+					$('[data-field="sentByte"]').eq(0).addClass('td-na');
+					$('[data-field="rcvdByte"]').eq(0).addClass('td-na');
+					$('[data-field="utmAction"]').eq(0).addClass('td-na');
+					$('[data-field="level"]').eq(0).addClass('td-na');
+					$('[data-field="user"]').eq(0).addClass('td-na');
+					$('[data-field="message"]').eq(0).addClass('td-na');
 					
 				} else if (queryType == "WEBFILTER") {
+					/*
 					$('[data-field="srcIp"]').show();
 					$('[data-field="srcPort"]').show();
 					$('[data-field="dstIp"]').show();
@@ -267,6 +329,16 @@ function findData(from) {
 					$('[data-field="url"]').show();
 					$('[data-field="sentByte"]').show();
 					$('[data-field="rcvdByte"]').show();
+					*/
+					
+					$('[data-field="severity"]').eq(0).addClass('td-na');
+					$('[data-field="srcCountry"]').eq(0).addClass('td-na');
+					$('[data-field="app"]').eq(0).addClass('td-na');
+					$('[data-field="utmAction"]').eq(0).addClass('td-na');
+					$('[data-field="level"]').eq(0).addClass('td-na');
+					$('[data-field="user"]').eq(0).addClass('td-na');
+					$('[data-field="message"]').eq(0).addClass('td-na');
+					$('[data-field="attack"]').eq(0).addClass('td-na');
 				}
 				
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();

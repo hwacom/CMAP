@@ -146,6 +146,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 			checkTelnetStatus();
 
 			try {
+			    long sleepTime = Env.SEND_COMMAND_SLEEP_TIME != null ? Env.SEND_COMMAND_SLEEP_TIME : 1000;
 				String cmd;
 				String output;
 				CommonServiceVO csVO = new CommonServiceVO();
@@ -184,6 +185,8 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 							csVO = processOutput(csVO, scriptVO, output, cmdOutputs);
 						}
 					}
+
+					Thread.sleep(sleepTime); // 執行命令間格時間
 				}
 
 				/*

@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.firewall;
 
 import java.util.List;
+import java.util.Map;
 import com.cmap.exception.ServiceLayerException;
 
 public interface FirewallService {
@@ -9,9 +10,13 @@ public interface FirewallService {
 
     public List<FirewallVO> findFirewallLogSetting(String settingName);
 
-    public long countFirewallLogRecordFromDB(FirewallVO fVO, List<String> searchLikeField) throws ServiceLayerException;
+    public long countFirewallLogRecordFromDB(FirewallVO fVO, Map<String, List<String>> fieldsMap) throws ServiceLayerException;
 
     public List<FirewallVO> findFirewallLogRecordFromDB(
-            FirewallVO fVO, Integer startRow, Integer pageLength, List<String> searchLikeField) throws ServiceLayerException;
+            FirewallVO fVO, Integer startRow, Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException;
 
+    public long countFirewallLogRecordFromDBbyAll(FirewallVO fVO, Map<String, List<String>> fieldsMap) throws ServiceLayerException;
+
+    public List<FirewallVO> findFirewallLogRecordFromDBbyAll(
+            FirewallVO fVO, Integer startRow, Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException;
 }

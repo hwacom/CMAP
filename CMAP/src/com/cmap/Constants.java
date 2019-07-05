@@ -274,6 +274,13 @@ public class Constants {
 	public static final String MAP_URL_OF_DEVICE_FAILURE = "DEVICE_FAILURE";
 	public static final String MAP_URL_OF_ABNORMAL_TRAFFIC = "ABNORMAL_TRAFFIC";
 
+	public static final String FIREWALL_LOG_TYPE_ALL = "ALL";
+	public static final String FIREWALL_LOG_TYPE_APP = "APP";
+	public static final String FIREWALL_LOG_TYPE_FORWARDING = "FORWARDING";
+	public static final String FIREWALL_LOG_TYPE_INTRUSION = "INTRUSION";
+	public static final String FIREWALL_LOG_TYPE_SYSTEM = "SYSTEM";
+	public static final String FIREWALL_LOG_TYPE_WEBFILTER = "WEBFILTER";
+
 	/*
 	 * OIDC
 	 */

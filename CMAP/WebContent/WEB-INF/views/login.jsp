@@ -8,8 +8,19 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="${pageContext.request.contextPath}/resources/images/icon.ico">
-
+    <!-- 台灣大哥大 -->
+    <!-- 
+    <link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_taiwan_mobile.ico">
+	 -->
+	 
+	<!-- 桃機 -->
+	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_t3.ico">
+	 
+	<!-- 亞太 -->
+	<!-- 
+	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_apt.ico">
+	 -->
+	 
     <title><spring:message code="cmap.title" /></title>
 
     <!-- Bootstrap core CSS -->
@@ -48,14 +59,14 @@
 			  			 -->
 			  			 
 			  			<!-- 桃機 -->
-			  			<!--
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />
       					<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_word_short.png" width="auto" height="40" style="padding-top: 3px" />
-			  			-->
 			  			
 			  			<!-- 台灣大哥大 -->
+			  			<!--
 				      	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_icon.png" width="auto" height="40" style="padding-top: 3px" />
 				  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
+			  			-->
 			  			
 			  			<span class="h3" style="color:#1C2269"><spring:message code="cmap.title" /></span>	
 			  		</div>

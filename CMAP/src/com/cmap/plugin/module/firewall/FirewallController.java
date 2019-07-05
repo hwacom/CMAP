@@ -2,6 +2,7 @@ package com.cmap.plugin.module.firewall;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class FirewallController extends BaseController {
     @RequestMapping(value = "getFirewallLogData.json", method = RequestMethod.POST)
     public @ResponseBody DatatableResponse getFirewallLogData(
             Model model, HttpServletRequest request, HttpServletResponse response,
-            @RequestParam(name="queryType", required=true, defaultValue="") String queryType,
+            @RequestParam(name="queryType", required=false, defaultValue=Constants.FIREWALL_LOG_TYPE_ALL) String queryType,
             @RequestParam(name="queryDevName", required=true, defaultValue="") String queryDevName,
             @RequestParam(name="querySrcIp", required=false, defaultValue="") String querySrcIp,
             @RequestParam(name="querySrcPort", required=false, defaultValue="") String querySrcPort,
@@ -148,10 +149,12 @@ public class FirewallController extends BaseController {
         List<FirewallVO> dataList = new ArrayList<>();
         FirewallVO fVO;
         try {
+            /* 類別改為可以選ALL，不檢核
             if (StringUtils.isBlank(queryType)) {
                 String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("firewall.type", Locale.TAIWAN, null);
                 return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
             }
+            */
             if (StringUtils.isBlank(queryDateBegin)) {
                 String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("date", Locale.TAIWAN, null);
                 return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
@@ -161,7 +164,38 @@ public class FirewallController extends BaseController {
                 return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
             }
 
-            List<String> targetFieldList = getFieldNameList(queryType);
+            /*
+             * 取得各TABLE的查詢欄位LIST for 後續查詢SQL的「select」及「where like」部分使用
+             */
+            Map<String, List<String>> fieldsMap = new HashMap<>();
+            List<String> targetFieldList = null;
+            List<String> allTitleField = null;
+            List<String> appTitleField = null;
+            List<String> forwardingTitleField = null;
+            List<String> intrusionTitleField = null;
+            List<String> systemTitleField = null;
+            List<String> webfilterTitleField = null;
+
+            if (!StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)) {
+                targetFieldList = getFieldNameList(queryType);
+
+                fieldsMap.put(queryType, targetFieldList);
+
+            } else {
+                allTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_ALL);
+                appTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_APP);
+                forwardingTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_FORWARDING);
+                intrusionTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_INTRUSION);
+                systemTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_SYSTEM);
+                webfilterTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
+
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_ALL, allTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_APP, appTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, forwardingTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, intrusionTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, systemTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, webfilterTitleField);
+            }
 
             fVO = new FirewallVO();
             fVO.setQueryType(queryType);
@@ -191,16 +225,25 @@ public class FirewallController extends BaseController {
                 /*
                  * Option 2. 走 DB 模式查詢
                  */
-                filterdTotal = firewallService.countFirewallLogRecordFromDB(fVO, targetFieldList);
+                filterdTotal =
+                        StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
+                            ? firewallService.countFirewallLogRecordFromDBbyAll(fVO, fieldsMap)
+                            : firewallService.countFirewallLogRecordFromDB(fVO, fieldsMap);
 
                 if (filterdTotal != 0) {
-                    dataList = firewallService.findFirewallLogRecordFromDB(fVO, startNum, pageLength, targetFieldList);
+                    dataList =
+                            StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
+                            ? firewallService.findFirewallLogRecordFromDBbyAll(fVO, startNum, pageLength, fieldsMap)
+                            : firewallService.findFirewallLogRecordFromDB(fVO, startNum, pageLength, fieldsMap);
                 }
 
                 FirewallVO newVO = new FirewallVO();
                 newVO.setQueryType(queryType);
                 newVO.setQueryDevName(queryDevName);
-                total = firewallService.countFirewallLogRecordFromDB(newVO, targetFieldList);
+                total =
+                    StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
+                        ? firewallService.countFirewallLogRecordFromDBbyAll(newVO, fieldsMap)
+                        : firewallService.countFirewallLogRecordFromDB(newVO, fieldsMap);
             }
 
         } catch (ServiceLayerException sle) {

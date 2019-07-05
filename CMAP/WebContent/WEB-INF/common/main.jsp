@@ -17,8 +17,29 @@
     <meta name="timeout" content="${timeout}" />
     
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon.ico">
-    
+    <!-- 台灣大哥大 -->
+    <!-- 
+    <link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_taiwan_mobile.ico">
+	 -->
+	 
+	<!-- 桃機 -->
+	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_t3.ico">
+	 
+	<!-- 亞太 -->
+	<!-- 
+	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_apt.ico">
+	 -->
+	 
+	<!-- 苗栗 -->
+	<!-- 
+	<link rel="icon" href="${pageContext.request.contextPath}/resources/images/icon_maoli.ico">
+	 -->
+	 
+	<!-- 新北市 -->
+	<!-- 
+	<link rel="icon" href="${pageContext.request.contextPath}/resources/images/icon_new_taipei_city.ico">
+	-->
+	   
     <!-- Bootstrap Core CSS -->
     <link href="${pageContext.request.contextPath}/resources/css/bootstrap/bootstrap.min.css" rel="stylesheet">
     <!-- JQuery-UI -->
@@ -100,15 +121,15 @@
  		 -->
  		 
  		<!-- 桃機 -->
- 		<!-- 
  		<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />
 		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_word_short.png" width="auto" height="40" style="padding-top: 3px" />
- 		 -->
  		 
  		<!-- 台灣大哥大 -->
+ 		<!-- 
       	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_icon.png" width="auto" height="40" style="padding-top: 3px" />
   		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
- 		 
+ 		-->
+ 		  
  		<span class="font-weight-bold title-font" style="color:#000079"><spring:message code="cmap.title" /></span>	
       </a>
       <ul class="navbar-nav">

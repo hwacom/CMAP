@@ -76,6 +76,8 @@ public class Env {
 	public static String MAIL_SERVER_ACCOUNT;
 	public static String MAIL_SERVER_PASSWORD;
 
+	public static Integer SEND_COMMAND_SLEEP_TIME;     // 設定發送多條命令的間格時間(毫秒)
+
 	/**
 	 * GROUP_NAME下拉選單排序相關設定
 	 */

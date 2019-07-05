@@ -226,10 +226,12 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			CommonServiceVO csVO = new CommonServiceVO();
 			StringBuilder processLog = new StringBuilder();
 			try {
+			    long sleepTime = Env.SEND_COMMAND_SLEEP_TIME != null ? Env.SEND_COMMAND_SLEEP_TIME : 1000;
+
 				for (ScriptServiceVO scriptVO : scriptList) {
 					// 送出命令
 					csVO = sendCommand(csVO, expect, configInfoVO, scriptVO, processLog, cmdOutputs);
-					Thread.sleep(1000); // 執行命令間格時間
+					Thread.sleep(sleepTime); // 執行命令間格時間
 				}
 
 				/*
