@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.firewall;
 
+import java.util.Map;
 import com.cmap.service.vo.CommonServiceVO;
 
 public class FirewallVO extends CommonServiceVO {
@@ -19,6 +20,7 @@ public class FirewallVO extends CommonServiceVO {
     private String settingValue;
     private Integer orderNo;
     private String remark;
+    private Map<String, String> typeNameMap;
 
     private String type;
     private String devName;
@@ -258,5 +260,11 @@ public class FirewallVO extends CommonServiceVO {
     }
     public void setOrderNo(Integer orderNo) {
         this.orderNo = orderNo;
+    }
+    public Map<String, String> getTypeNameMap() {
+        return typeNameMap;
+    }
+    public void setTypeNameMap(Map<String, String> typeNameMap) {
+        this.typeNameMap = typeNameMap;
     }
 }

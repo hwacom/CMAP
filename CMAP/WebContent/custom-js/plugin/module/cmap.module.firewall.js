@@ -365,6 +365,7 @@ function findData(from) {
 			},
 			"columns" : [
 				{},
+				{ "data" : "type" },
 				{ "data" : "devName" },
 				{ "data" : "dateStr" },
 				{ "data" : "timeStr" },

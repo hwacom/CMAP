@@ -190,11 +190,12 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             sb.append(sfb);
         }
 
-        if (StringUtils.isNotBlank(fVO.getOrderColumn())) {
-            sb.append(" order by mfl.").append(fVO.getOrderColumn()).append(" ").append(fVO.getOrderDirection());
-
+        String orderColumnName = fVO.getOrderColumn();
+        String orderDirection = fVO.getOrderDirection();
+        if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+            sb.append(" order by mfl.").append(orderColumnName).append(" ").append(orderDirection);
         } else {
-            sb.append(" order by mfl.date desc, mfl.time desc ");
+            sb.append(" order by mfl.date ").append(orderDirection).append(", mfl.time ").append(orderDirection);
         }
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
@@ -728,7 +729,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             sb.append(" order by alltb.").append(orderColumnName).append(" ").append(orderDirection);
 
         } else {
-            sb.append(" order by alltb.date desc, alltb.time ").append(orderDirection);
+            sb.append(" order by alltb.date ").append(orderDirection).append(", alltb.time ").append(orderDirection);
         }
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();

@@ -147,6 +147,7 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="firewall.type" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="dev.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="date" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="time" /></th>

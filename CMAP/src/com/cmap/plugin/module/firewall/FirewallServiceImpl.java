@@ -16,6 +16,7 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.service.DataPollerService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.vo.CommonServiceVO;
@@ -31,6 +32,9 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
 
     @Autowired
     private FirewallDAO firewallDAO;
+
+    @Autowired
+    private DatabaseMessageSourceBase messageSource;
 
     @Override
     public List<String> getFieldNameList(String queryType, String fieldType) {
@@ -113,8 +117,10 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
             Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException {
         List<FirewallVO> retList = null;
         try {
-            List<String> tableTitleField = getFieldNameList(fVO.getQueryType(), DataPollerService.FIELD_TYPE_TARGET);
-            String queryFieldsSQL = composeQueryFieldsStr(tableTitleField);
+            Map<String, String> typeNameMap = fVO.getTypeNameMap();
+            String queryType = fVO.getQueryType();
+            List<String> tableTitleField = getFieldNameList(queryType, DataPollerService.FIELD_TYPE_TARGET);
+            String queryFieldsSQL = composeQueryFieldsStr(queryType, typeNameMap, tableTitleField);
 
             final String queryTable = getQueryTableName(fVO);
             List<String> searchLikeField = fieldsMap.get(fVO.getQueryType());
@@ -194,6 +200,9 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
                     }
                 }
 
+                String typeName = Objects.toString(data[data.length - 1], "");
+                vo.setType(typeName);
+
                 retList.add(vo);
             }
         }
@@ -201,22 +210,28 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
         return retList;
     }
 
-    private String composeQueryFieldsStr(List<String> fieldsList) {
+    private String composeQueryFieldsStr(String queryType, Map<String, String> typeNameMap, List<String> fieldsList) {
         StringBuffer queryFieldsSQL = new StringBuffer();
+
         for (int i=0; i<fieldsList.size(); i++) {
             String fieldName = fieldsList.get(i);
             queryFieldsSQL.append("`").append(fieldName).append("`");
 
+            /*
             if (i < fieldsList.size() - 1) {
                 queryFieldsSQL.append(", ");
             }
+            */
+            queryFieldsSQL.append(", ");
         }
 
+        queryFieldsSQL.append(" '").append(typeNameMap.get(queryType)).append("' TYPE ");
         return queryFieldsSQL.toString();
     }
 
-    private String composeQueryFieldsStr(List<String> targetFieldsList, List<String> referFieldsList) {
+    private String composeQueryFieldsStr(String queryType, Map<String, String> typeNameMap, List<String> targetFieldsList, List<String> referFieldsList) {
         StringBuffer queryFieldsSQL = new StringBuffer();
+
         for (int i=0; i<referFieldsList.size(); i++) {
             String rField = referFieldsList.get(i);
 
@@ -234,12 +249,15 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
                 queryFieldsSQL.append("'' ").append(rField);
             }
 
-
+            /*
             if (i < referFieldsList.size() - 1) {
                 queryFieldsSQL.append(", ");
             }
+            */
+            queryFieldsSQL.append(", ");
         }
 
+        queryFieldsSQL.append(" '").append(typeNameMap.get(queryType)).append("' TYPE ");
         return queryFieldsSQL.toString();
     }
 
@@ -261,6 +279,7 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
             Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException {
         List<FirewallVO> retList = new ArrayList<>();
         try {
+            Map<String, String> typeNameMap = fVO.getTypeNameMap();
             List<String> allTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_ALL);
             List<String> appTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_APP);
             List<String> forwardingTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING);
@@ -268,11 +287,11 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
             List<String> systemTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM);
             List<String> webfilterTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
 
-            String appSelectSql = composeQueryFieldsStr(appTitleField, allTitleField);
-            String forwardingSelectSql = composeQueryFieldsStr(forwardingTitleField, allTitleField);
-            String intrusionSelectSql = composeQueryFieldsStr(intrusionTitleField, allTitleField);
-            String systemSelectSql = composeQueryFieldsStr(systemTitleField, allTitleField);
-            String webfilterSelectSql = composeQueryFieldsStr(webfilterTitleField, allTitleField);
+            String appSelectSql = composeQueryFieldsStr(Constants.FIREWALL_LOG_TYPE_APP, typeNameMap, appTitleField, allTitleField);
+            String forwardingSelectSql = composeQueryFieldsStr(Constants.FIREWALL_LOG_TYPE_FORWARDING, typeNameMap, forwardingTitleField, allTitleField);
+            String intrusionSelectSql = composeQueryFieldsStr(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameMap, intrusionTitleField, allTitleField);
+            String systemSelectSql = composeQueryFieldsStr(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameMap, systemTitleField, allTitleField);
+            String webfilterSelectSql = composeQueryFieldsStr(Constants.FIREWALL_LOG_TYPE_WEBFILTER, typeNameMap, webfilterTitleField, allTitleField);
 
             Map<String, String> selectSqlMap = new HashMap<>();
             selectSqlMap.put(Constants.FIREWALL_LOG_TYPE_APP, appSelectSql);

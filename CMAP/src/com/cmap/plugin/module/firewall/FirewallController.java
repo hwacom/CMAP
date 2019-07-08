@@ -88,7 +88,7 @@ public class FirewallController extends BaseController {
     }
 
     private String getOrderColumnName(String queryType, Integer orderColIdx) {
-        String retVal = "TIME";
+        String retVal = "TYPE";
         try {
             List<String> typeFieldList = firewallService.getFieldNameList(queryType, DataPollerService.FIELD_TYPE_TARGET);
             /*
@@ -103,11 +103,17 @@ public class FirewallController extends BaseController {
                     if (orderColIdx < voList.size()) {
                         String settingVal = voList.get(orderColIdx).getSettingValue();
 
+                        boolean hasField = false;
                         for (String fName : typeFieldList) {
                             if (StringUtils.equals(settingVal, fName)) {
                                 retVal = fName;
+                                hasField = true;
                                 break;
                             }
+                        }
+
+                        if (!hasField) {
+                            retVal = "DATE";
                         }
                     }
                 }
@@ -164,6 +170,19 @@ public class FirewallController extends BaseController {
                 return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
             }
 
+            String typeNameApp = messageSource.getMessage("firewall.log.type.app", Locale.TAIWAN, null);
+            String typeNameForwarding = messageSource.getMessage("firewall.log.type.forwarding", Locale.TAIWAN, null);
+            String typeNameSystem = messageSource.getMessage("firewall.log.type.system", Locale.TAIWAN, null);
+            String typeNameIntrusion = messageSource.getMessage("firewall.log.type.intrusion", Locale.TAIWAN, null);
+            String typeNameWebFilter = messageSource.getMessage("firewall.log.type.web", Locale.TAIWAN, null);
+
+            Map<String, String> typeNameMap = new HashMap<>();
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_APP, typeNameApp);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, typeNameForwarding);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameSystem);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameIntrusion);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, typeNameWebFilter);
+
             /*
              * 取得各TABLE的查詢欄位LIST for 後續查詢SQL的「select」及「where like」部分使用
              */
@@ -213,6 +232,7 @@ public class FirewallController extends BaseController {
             fVO.setSearchValue(searchValue);
             fVO.setOrderColumn(getOrderColumnName(queryType, orderColIdx));
             fVO.setOrderDirection(orderDirection);
+            fVO.setTypeNameMap(typeNameMap);
 
             String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_FIREWALL_LOG);
 
