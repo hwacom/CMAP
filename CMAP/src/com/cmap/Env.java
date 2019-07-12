@@ -19,6 +19,7 @@ public class Env {
 	 * 設定 OIDC 登入後先跳轉至 PRTG 頁面 FOR 第一次連線的使用者，需先允許自簽憑證的SSL
 	 */
 	public static String PRTG_SSH_CONFIRM_PAGE;
+	public static Boolean ENABLE_PRTG_SSH_CONFIRM_PAGE;
 
 	/**
 	 * 設定MENU TREE功能是否顯示

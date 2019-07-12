@@ -283,23 +283,13 @@ public class PrtgController extends BaseController {
 		try {
 			final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
 
-			/*
 			String indexUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_INDEX);
 
 			if (StringUtils.isBlank(indexUrl)) {
-				indexUrl = Env.PRTG_DEFAULT_INDEX_URI;	//如果沒設定則取得預設MAP
-			}
-			*/
+			    indexUrl = Env.PRTG_DEFAULT_INDEX_URI;   //如果沒設定則取得預設MAP
+            }
 
-			PrtgAccountMapping mapping = prtgService.getMappingBySourceId(schoolId);
-			String indexUrl = null;
-
-			if (StringUtils.isBlank(mapping.getIndexUrl())) {
-				indexUrl = Env.PRTG_DEFAULT_INDEX_URI;	//如果沒設定則取得預設MAP
-
-			} else {
-				indexUrl = mapping.getIndexUrl() + "&username=" + mapping.getPrtgAccount() + "&password=" + mapping.getPrtgPassword();
-			}
+			indexUrl = composePrtgUrl(request, indexUrl);
 
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
 			app.putData("uri", indexUrl);
@@ -311,6 +301,22 @@ public class PrtgController extends BaseController {
 
 		} finally {
 		}
+	}
+
+	/**
+	 * 組合最終 API URL for 設定的URL內是否有加上參數
+	 * @param request
+	 * @param oriUrl
+	 * @return
+	 */
+	private String composePrtgUrl(HttpServletRequest request, String oriUrl) {
+	    String username = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), null);
+	    String password = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_PASSWORD), null);
+	    String passhash = Objects.toString(request.getSession().getAttribute(Constants.PASSHASH), null);
+	    oriUrl = StringUtils.replace(oriUrl, "{username}", username);
+	    oriUrl = StringUtils.replace(oriUrl, "{password}", password);
+	    oriUrl = StringUtils.replace(oriUrl, "{passhash}", passhash);
+	    return oriUrl;
 	}
 
 	@RequestMapping(value = "getPrtgDashboardUri", method = RequestMethod.POST)
@@ -326,6 +332,8 @@ public class PrtgController extends BaseController {
 			if (StringUtils.isBlank(dashboardMapUrl)) {
 				dashboardMapUrl = Env.PRTG_DEFAULT_DASHBOARD_URI;	//如果沒設定則取得預設MAP
 			}
+
+			dashboardMapUrl = composePrtgUrl(request, dashboardMapUrl);
 
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
 			app.putData("uri", dashboardMapUrl);
@@ -353,6 +361,8 @@ public class PrtgController extends BaseController {
                 topographyMapUrl = Env.PRTG_DEFAULT_TOPOGRAPHY_URI;   //如果沒設定則取得預設MAP
             }
 
+            topographyMapUrl = composePrtgUrl(request, topographyMapUrl);
+
             AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
             app.putData("uri", topographyMapUrl);
             return app;
@@ -378,6 +388,8 @@ public class PrtgController extends BaseController {
             if (StringUtils.isBlank(alarmSummaryMapUrl)) {
                 alarmSummaryMapUrl = Env.PRTG_DEFAULT_ALARM_SUMMARY_URI;   //如果沒設定則取得預設MAP
             }
+
+            alarmSummaryMapUrl = composePrtgUrl(request, alarmSummaryMapUrl);
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
             app.putData("uri", alarmSummaryMapUrl);
@@ -405,6 +417,8 @@ public class PrtgController extends BaseController {
 				netFlowSummaryMapUrl = Env.PRTG_DEFAULT_NET_FLOW_SUMMARY_URI;	//如果沒設定則取得預設MAP
 			}
 
+			netFlowSummaryMapUrl = composePrtgUrl(request, netFlowSummaryMapUrl);
+
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
 			app.putData("uri", netFlowSummaryMapUrl);
 			return app;
@@ -430,6 +444,8 @@ public class PrtgController extends BaseController {
             if (StringUtils.isBlank(netFlowOutputMapUrl)) {
                 netFlowOutputMapUrl = Env.PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;   //如果沒設定則取得預設MAP
             }
+
+            netFlowOutputMapUrl = composePrtgUrl(request, netFlowOutputMapUrl);
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
             app.putData("uri", netFlowOutputMapUrl);
@@ -458,6 +474,8 @@ public class PrtgController extends BaseController {
 				deviceFailureMapUrl = Env.PRTG_DEFAULT_DEVICE_FAILURE_URI;	//如果沒設定則取得預設MAP
 			}
 
+			deviceFailureMapUrl = composePrtgUrl(request, deviceFailureMapUrl);
+
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
 			app.putData("uri", deviceFailureMapUrl);
 			return app;
@@ -484,6 +502,8 @@ public class PrtgController extends BaseController {
 			if (StringUtils.isBlank(abnormalTrafficMapUrl)) {
 				abnormalTrafficMapUrl = Env.PRTG_DEFAULT_ABNORMAL_TRAFFIC_URI;	//如果沒設定則取得預設MAP
 			}
+
+			abnormalTrafficMapUrl = composePrtgUrl(request, abnormalTrafficMapUrl);
 
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
 			app.putData("uri", abnormalTrafficMapUrl);

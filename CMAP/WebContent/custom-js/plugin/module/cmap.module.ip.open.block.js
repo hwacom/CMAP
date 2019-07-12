@@ -8,7 +8,9 @@ var _deductHeight = 0;
 var blockedIpTableHeight;
 
 $(document).ready(function() {
-	
+	$("#btnIpOpen").click(function(e) {
+		doConfirmIpOpenByBtn();
+	});
 });
 
 function checkboxOnChangeEvent() {
@@ -57,6 +59,56 @@ function calBlockedIpSectionHeight() {
 	blockedIpTableHeight = blockedIpTableHeight < 165 ? 165 : blockedIpTableHeight;
 }
 
+function doConfirmIpOpenByBtn() {
+	var check = confirm("按下確認後將立即執行IP開通作業，請再次確認是否執行?");
+	
+	if (check) {
+		doIpOpenByBtn();
+	}
+}
+
+/**
+ * 執行IP開通 by 「IP開通/封鎖」功能中的「解鎖」按鈕
+ */
+function doIpOpenByBtn() {
+	var listId = new Array();
+	
+	var checkedItem = $('input[name=chkbox]:checked');
+	for (var i=0; i<checkedItem.length; i++) {
+		listId.push(checkedItem[i].value);
+	}
+	
+	$.ajax({
+		url : _ctx + '/delivery/doIpOpenByBtn.json',
+		data : {
+			"listId" : listId
+		},
+		type : "POST",
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {
+				alert(resp.message);
+				
+				setTimeout(function() {
+					$('#stepModal').modal('hide');
+				}, 500);
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
+
 //查詢按鈕動作
 function findBlockedIpRecordData() {
 	calBlockedIpSectionHeight();
@@ -96,7 +148,7 @@ function findBlockedIpRecordData() {
 				"url" : _ctx + '/delivery/getBlockedIpData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
-					d.queryGroupId = '15717';
+					d.queryGroupId = $("#group").val()
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
@@ -121,7 +173,7 @@ function findBlockedIpRecordData() {
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
-				bindTrEvent();
+				bindTrEventOnlyCheckbox();
 				checkboxOnChangeEvent();
 			},
 			"columns" : [

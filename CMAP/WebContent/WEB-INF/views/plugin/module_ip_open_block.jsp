@@ -44,13 +44,21 @@
 		<div class="col-12">
 			<div id="divBlockedTitle" style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">
 				<spring:message code="blocked.ip.list.sub.title" />:&nbsp;&nbsp;&nbsp;
+				
+				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
+				<c:if test="${fn:length(groupList) gt 1}">
+		   	    	<form:select path="group" id="group" style="width: 200px;" onchange="findBlockedIpRecordData()">
+		               	<form:option value="" label="=== ALL ===" />
+		                <form:options items="${groupList}" />
+		            </form:select>
+		            &nbsp;&nbsp;&nbsp;
+	            </c:if>
+	            
+	            <!-- 解鎖Button -->
 				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnIpOpen" disabled="disabled"><spring:message code="btn.ip.open" /></button>
 			</div>
 		</div>
 	</div>
-  	${groupList }
-  	${fn:length(groupList)} 
-  	<c:out value="${groupList[0]}"/>
   	<!-- IP封鎖紀錄 -->
   	<div id="divBlockedIpRecord" class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->

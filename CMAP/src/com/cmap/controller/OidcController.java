@@ -135,12 +135,12 @@ public class OidcController extends BaseController {
 	    final String ipAddr = SecurityUtil.getIpAddr(request);
 	    session.setAttribute(Constants.IP_ADDR, ipAddr);
 
-        callback = new URI(session.getAttribute(Constants.OIDC_REDIRECT_URI).toString());
-        clientID = new ClientID(session.getAttribute(Constants.OIDC_CLIENT_ID).toString());
-        clientSecret = new Secret(session.getAttribute(Constants.OIDC_CLIENT_SECRET).toString());
-        tokenEndpoint = new URI(session.getAttribute(Constants.OIDC_TOKEN_ENDPOINT).toString());
-
 		try {
+		    callback = new URI(session.getAttribute(Constants.OIDC_REDIRECT_URI).toString());
+	        clientID = new ClientID(session.getAttribute(Constants.OIDC_CLIENT_ID).toString());
+	        clientSecret = new Secret(session.getAttribute(Constants.OIDC_CLIENT_SECRET).toString());
+	        tokenEndpoint = new URI(session.getAttribute(Constants.OIDC_TOKEN_ENDPOINT).toString());
+
 			//authCode 如果還沒取得,表示要從Auth Server 發過來
             if (session.getAttribute("code") == null) {
                 //log.info(request.getQueryString());
@@ -158,7 +158,7 @@ public class OidcController extends BaseController {
 
                 if (code == null || (code != null && StringUtils.isBlank(code.getValue()))) {
                 	session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "取得教育雲授權失敗，請重新操作或聯絡系統管理員");
-                    return "redirect:/login";
+                    return "redirect:/loginOIDC";
     			}
 
                 log.info("3. auth code grant.");
@@ -170,7 +170,7 @@ public class OidcController extends BaseController {
                 // 驗證Session連續性
     			if (!successResponse.getState().toString().equals(state)) {
     				session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "取得教育雲授權失敗，請重新操作或聯絡系統管理員");
-    	            return "redirect:/login";
+    	            return "redirect:/loginOIDC";
     			}
                 log.info("the same state");
 
@@ -183,11 +183,11 @@ public class OidcController extends BaseController {
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+			session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "取得教育雲授權失敗，請重新操作或聯絡系統管理員");
+            return "redirect:/loginOIDC";
 
 		} finally {
 		}
-
-		return "";
 	}
 
 	public String getToken(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -213,7 +213,7 @@ public class OidcController extends BaseController {
             log.error(String.format("%d", errorResponse.getErrorObject().getHTTPStatusCode()));
 
             session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "取得教育雲授權失敗，請重新操作或聯絡系統管理員");
-            return "redirect:/login";
+            return "redirect:/loginOIDC";
 
         } else {
             OIDCTokenResponse accessTokenResponse = (OIDCTokenResponse) tokenResponse;

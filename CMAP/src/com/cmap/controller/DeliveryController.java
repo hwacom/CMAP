@@ -29,6 +29,7 @@ import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Controller
 @RequestMapping("/delivery")
@@ -46,10 +47,11 @@ public class DeliveryController extends BaseController {
 	@Autowired
 	private IpRecordService ipRecordService;
 
+	private Map<String, String> groupListMap = null;
+	private Map<String, String> deviceListMap = null;
+	private Map<String, String> scriptTypeMap = null;
+
 	private void initMenu(Model model, HttpServletRequest request) {
-		Map<String, String> groupListMap = null;
-		Map<String, String> deviceListMap = null;
-		Map<String, String> scriptTypeMap = null;
 		try {
 			groupListMap = getGroupList(request);
 			scriptTypeMap = getScriptTypeList(Constants.DEFAULT_FLAG_N);
@@ -168,15 +170,23 @@ public class DeliveryController extends BaseController {
                 dataList = ipRecordService.findModuleBlockedIpList(irVO, startNum, pageLength);
             }
 
-            irVO = new IpRecordVO();
-            irVO.setQueryGroupId(queryGroupId);
-            total = ipRecordService.countModuleBlockedIpList(irVO);
+            if (StringUtils.isBlank(queryDeviceId) && StringUtils.isBlank(queryIpAddress)
+                    && StringUtils.isBlank(queryStatusFlag) && StringUtils.isBlank(queryBeginDate)
+                    && StringUtils.isBlank(queryEndDate)) {
+                //如果只有傳入GroupId條件，不需再另外查詢只有GroupId下的筆數 (即等於前面篩選的筆數)
+                total = filterdTotal;
+
+            } else {
+                irVO = new IpRecordVO();
+                irVO.setQueryGroupId(queryGroupId);
+                total = ipRecordService.countModuleBlockedIpList(irVO);
+            }
 
         } catch (ServiceLayerException sle) {
         } catch (Exception e) {
 
         } finally {
-            initMenu(model, request);
+            //initMenu(model, request);
         }
 
         return new DatatableResponse(total, dataList, filterdTotal);
@@ -231,7 +241,7 @@ public class DeliveryController extends BaseController {
 		} catch (Exception e) {
 
 		} finally {
-			initMenu(model, request);
+			//initMenu(model, request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -388,6 +398,34 @@ public class DeliveryController extends BaseController {
 		}
 	}
 
+	/**
+	 * 執行IP開通 by 「IP開通/封鎖」功能中的「解鎖」按鈕
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param listId
+	 * @return
+	 */
+	@RequestMapping(value = "doIpOpenByBtn.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse doIpOpenByBtn(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="listId", required=true) String[] listId) {
+
+        try {
+            //TODO
+
+
+            return new AppResponse(HttpServletResponse.SC_OK, null);
+
+        /*
+        } catch (ServiceLayerException sle) {
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, sle.getMessage());
+        */
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
 	@RequestMapping(value = "getDeliveryRecordData.json", method = RequestMethod.POST)
 	public @ResponseBody DatatableResponse getDeliveryRecordData(
 			Model model, HttpServletRequest request, HttpServletResponse response,
@@ -429,7 +467,7 @@ public class DeliveryController extends BaseController {
 		} catch (Exception e) {
 
 		} finally {
-			initMenu(model, request);
+			//initMenu(model, request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -454,7 +492,7 @@ public class DeliveryController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查找供裝紀錄發生錯誤，請重新操作");
 
 		} finally {
-			initMenu(model, request);
+			//initMenu(model, request);
 		}
 	}
 }

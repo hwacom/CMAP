@@ -185,7 +185,11 @@ public class BaseController {
 	            return "redirect:/login/returnApp";
 
 	        } else {
-	            return "redirect:" + Env.PRTG_SSH_CONFIRM_PAGE;
+	            if (Env.ENABLE_PRTG_SSH_CONFIRM_PAGE) {
+	                return "redirect:" + Env.PRTG_SSH_CONFIRM_PAGE;
+	            } else {
+	                return "redirect:" + Env.HOME_PAGE;
+	            }
 	        }
 
 		} catch (Exception e) {

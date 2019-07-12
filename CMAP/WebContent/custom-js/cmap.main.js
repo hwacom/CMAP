@@ -200,7 +200,6 @@ $(document).ready(function() {
 	      return;
 	    }
 	    $(this).css('display','none');
-	    //console.log(e.nodeName)
 	});
 });
 
@@ -237,6 +236,26 @@ function bindTrEvent() {
           if ($('#chkbox',this).attr('type') === 'radio') {
         	  changeTrBgColor($('#chkbox',this).get(0));
           }
+        }
+    });
+}
+
+function bindTrEventOnlyRadio() {
+	$('.dataTable tbody tr').click(function(event) {
+        if (event.target.tagName !== 'A' && event.target.type !== 'checkbox' && event.target.type !== 'radio') {
+            $(':radio', this).prop('checked', ($(':radio', this).is(':checked') ? false : true)).change();
+            
+            if ($('#chkbox',this).attr('type') === 'radio') {
+          	  changeTrBgColor($('#chkbox',this).get(0));
+            }
+        }
+    });
+}
+
+function bindTrEventOnlyCheckbox() {
+	$('.dataTable tbody tr').click(function(event) {
+        if (event.target.tagName !== 'A' && event.target.type !== 'checkbox' && event.target.type !== 'radio') {
+          $(':checkbox', this).trigger('click');
         }
     });
 }
@@ -301,10 +320,7 @@ function changeMenuIconColor() {
  *** 勾選項目時調整該列資料<TR>底色
  **********************************************************************************************************/
 function changeTrBgColor(obj) {
-
 	if ($(obj).attr("type") == "radio") {
-		console.log($(obj));
-		console.log($(obj).closest('tbody').find('tr'));
 		$(obj).closest('tbody').find('tr').removeClass('mySelected');
 	}
 	
