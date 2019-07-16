@@ -69,4 +69,28 @@ public interface NetFlowDAO extends BaseDAO {
 	public void updateNetFlowIpStat(NetFlowIpStat netFlowIpStat);
 
 	public List<NetFlowIpStat> findNetFlowIpStat4Resend(String nowDateStr, String sendPRTGFlag);
+
+	/**
+	 * 查找IP流量資料
+	 * @param groupId
+	 * @param statDate
+	 * @param ipAddress
+	 * @return
+	 */
+	public List<ModuleIpStatistics> findModuleIpStatistics(String groupId, String statDate, String ipAddress);
+
+	/**
+	 * 新增 or 修改IP流量資料
+	 * @param entities
+	 */
+	public void saveOrUpdateModuleIpStatistics(List<ModuleIpStatistics> entities);
+
+	/**
+	 * 查找IP流量排行榜
+	 * @param groupId
+	 * @param statBeginDate
+	 * @param statEndDate
+	 * @return
+	 */
+	public List<ModuleIpStatistics> findModuleIpStatisticsRanking(String groupId, String statBeginDate, String statEndDate);
 }

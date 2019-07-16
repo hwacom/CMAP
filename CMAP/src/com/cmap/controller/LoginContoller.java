@@ -269,15 +269,15 @@ public class LoginContoller extends BaseController {
             session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
         }
 
+        /*
         if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
             return "login_openid_ntpc";
         } else {
             return "redirect:/login";
         }
-        //TODO:先寫死for新北教網
-        /*
-        return "login_openid_ntpc";
         */
+        //TODO:先寫死for新北教網
+        return "login_openid_ntpc";
     }
 
 	@RequestMapping(value = "login/authByOIDC", method = {RequestMethod.GET, RequestMethod.POST})
