@@ -1,8 +1,8 @@
-package com.cmap.plugin.module.iprecord;
+package com.cmap.plugin.module.ip.blocked.record;
 
 import com.cmap.service.vo.CommonServiceVO;
 
-public class IpRecordVO extends CommonServiceVO {
+public class IpBlockedRecordVO extends CommonServiceVO {
 
     private String queryGroupId;
     private String queryDeviceId;

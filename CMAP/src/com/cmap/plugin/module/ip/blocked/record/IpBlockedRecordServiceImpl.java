@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.iprecord;
+package com.cmap.plugin.module.ip.blocked.record;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +15,16 @@ import com.cmap.service.impl.CommonServiceImpl;
 
 @Service("ipRecordService")
 @Transactional
-public class IpRecordServiceImpl extends CommonServiceImpl implements IpRecordService {
+public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpBlockedRecordService {
     @Log
     private static Logger log;
 
     @Autowired
-    private IpRecordDAO ipRecordDAO;
+    private IpBlockedRecordDAO ipRecordDAO;
 
 
     @Override
-    public long countModuleBlockedIpList(IpRecordVO irVO) throws ServiceLayerException {
+    public long countModuleBlockedIpList(IpBlockedRecordVO irVO) throws ServiceLayerException {
         long retVal = 0;
         try {
             retVal = ipRecordDAO.countModuleBlockedIpList(irVO);
@@ -37,9 +37,9 @@ public class IpRecordServiceImpl extends CommonServiceImpl implements IpRecordSe
     }
 
     @Override
-    public List<IpRecordVO> findModuleBlockedIpList(IpRecordVO irVO, Integer startRow, Integer pageLength)
+    public List<IpBlockedRecordVO> findModuleBlockedIpList(IpBlockedRecordVO irVO, Integer startRow, Integer pageLength)
             throws ServiceLayerException {
-        List<IpRecordVO> retList = new ArrayList<>();
+        List<IpBlockedRecordVO> retList = new ArrayList<>();
         try {
             List<Object[]> entities = ipRecordDAO.findModuleBlockedIpList(irVO, startRow, pageLength);
 
@@ -49,11 +49,11 @@ public class IpRecordServiceImpl extends CommonServiceImpl implements IpRecordSe
 
             ModuleBlockedIpList bilEntity;
             DeviceList dlEntity;
-            IpRecordVO vo;
+            IpBlockedRecordVO vo;
             for (Object[] entity : entities) {
                 bilEntity = (ModuleBlockedIpList)entity[0];
                 dlEntity = (DeviceList)entity[1];
-                vo = new IpRecordVO();
+                vo = new IpBlockedRecordVO();
 
                 BeanUtils.copyProperties(bilEntity, vo);
                 vo.setBlockTimeStr(Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getBlockTime()));

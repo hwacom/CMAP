@@ -10,11 +10,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import com.cmap.configuration.filter.RequestBodyReaderAuthenticationFilter;
 import com.cmap.security.AuthSuccessHandler;
 import com.cmap.security.AuthUnsuccessHandler;
+import com.cmap.security.CustomAccessDeniedHandler;
 import com.cmap.security.CustomLogoutHandler;
 import com.cmap.security.UserDetailsServiceImpl;
 
@@ -109,6 +111,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	*/
 
+	@Bean
+	public AccessDeniedHandler accessDeniedHandler(){
+	    return new CustomAccessDeniedHandler();
+	}
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
@@ -122,6 +129,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/login/app").permitAll()                                       // 提供給APP呼叫的登入入口 (Y190603, Case No.C46001804008 >> 新北前瞻計畫-教育網路基礎建設 (網管支援))
 			.antMatchers("/prtg/getPasshash/**").permitAll()                             // 提供給APP呼叫取得PRTG passhash (Y190603, Case No.C46001804008 >> 新北前瞻計畫-教育網路基礎建設 (網管支援))
 			.antMatchers("/admin/env/refreshAll").permitAll()
+			.antMatchers("/admin/**").hasAnyRole("ADMIN")
 			.antMatchers("/i18n/reload").permitAll()
 			.antMatchers("/___test___/**").permitAll()
 			.antMatchers("/plugin/module/vmswitch/chkVmStatus/**").permitAll()           // 提供PRTG呼叫切換VM備援 (Y190117, Case No.C31001704016 >> APT HeNBGW & ePDG-LI Expansion)
@@ -139,6 +147,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //			.successHandler(authSuccessHandler())
 //			.failureHandler(authUnsuccessHandler())
 			.and()
+			.exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+            .and()
 		.logout()
 		.addLogoutHandler(customLogoutHandler())
 	    .permitAll()

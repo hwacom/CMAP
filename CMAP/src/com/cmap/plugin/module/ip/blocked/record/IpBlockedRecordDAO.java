@@ -1,15 +1,15 @@
-package com.cmap.plugin.module.iprecord;
+package com.cmap.plugin.module.ip.blocked.record;
 
 import java.util.List;
 
-public interface IpRecordDAO {
+public interface IpBlockedRecordDAO {
 
     /**
      * 取得符合條件資料筆數
      * @param irVO
      * @return
      */
-    public long countModuleBlockedIpList(IpRecordVO irVO);
+    public long countModuleBlockedIpList(IpBlockedRecordVO irVO);
 
     /**
      * 取得符合條件資料
@@ -19,5 +19,5 @@ public interface IpRecordDAO {
      * @return Object[0]:ModuleBlockedIpList
      *         Object[1]:DeviceList
      */
-    public List<Object[]> findModuleBlockedIpList(IpRecordVO irVO, Integer startRow, Integer pageLength);
+    public List<Object[]> findModuleBlockedIpList(IpBlockedRecordVO irVO, Integer startRow, Integer pageLength);
 }

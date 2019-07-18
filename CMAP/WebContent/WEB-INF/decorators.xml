@@ -6,23 +6,21 @@
 	</decorator>
 	<decorator name="login" page="views/login.jsp">
 		<pattern>/login</pattern>
-		<pattern>/accessdenied*</pattern>
 	</decorator>
 	<decorator name="loginOIDC_MLC" page="views/login_openid_mlc.jsp">
 		<pattern>/loginOIDC</pattern>
-		<pattern>/accessdenied*</pattern>
 	</decorator>
 	<decorator name="loginOIDC_NTPC" page="views/login_openid_ntpc.jsp">
 		<pattern>/loginOIDC_NTPC</pattern>
-		<pattern>/accessdenied*</pattern>
 	</decorator>
 	<decorator name="formredirection" page="views/formredirection.jsp">
 		<pattern>/login/authByOIDC_NTPC</pattern>
-		<pattern>/accessdenied*</pattern>
+	</decorator>
+	<decorator name="accessDenied" page="views/access_denied.jsp">
+		<pattern>/accessDenied*</pattern>
 	</decorator>
 	<decorator name="test" page="views/test/test.jsp">
 		<pattern>/___test___</pattern>
-		<pattern>/accessdenied*</pattern>
 	</decorator>
 	<decorator name="outsite" page="common/blank.jsp">
 		<pattern>/outsite*</pattern>

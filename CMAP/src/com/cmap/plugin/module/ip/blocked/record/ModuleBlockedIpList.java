@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.iprecord;
+package com.cmap.plugin.module.ip.blocked.record;
 
 import java.sql.Timestamp;
 import javax.persistence.Column;

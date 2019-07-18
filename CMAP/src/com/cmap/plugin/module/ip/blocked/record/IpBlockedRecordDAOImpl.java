@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.iprecord;
+package com.cmap.plugin.module.ip.blocked.record;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -13,12 +13,12 @@ import com.cmap.dao.impl.BaseDaoHibernate;
 
 @Repository("ipRecordDAO")
 @Transactional
-public class IpRecordDAOImpl extends BaseDaoHibernate implements IpRecordDAO {
+public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlockedRecordDAO {
     @Log
     private static Logger log;
 
     @Override
-    public long countModuleBlockedIpList(IpRecordVO irVO) {
+    public long countModuleBlockedIpList(IpBlockedRecordVO irVO) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select count(mbil.listId) ")
           .append(" from ModuleBlockedIpList mbil ")
@@ -71,7 +71,7 @@ public class IpRecordDAOImpl extends BaseDaoHibernate implements IpRecordDAO {
     }
 
     @Override
-    public List<Object[]> findModuleBlockedIpList(IpRecordVO irVO, Integer startRow, Integer pageLength) {
+    public List<Object[]> findModuleBlockedIpList(IpBlockedRecordVO irVO, Integer startRow, Integer pageLength) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select mbil, dl ")
           .append(" from ModuleBlockedIpList mbil ")

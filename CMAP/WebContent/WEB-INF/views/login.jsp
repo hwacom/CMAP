@@ -43,9 +43,7 @@
 	  			<div class="row">
 			  		<div class="col-md-6 col-sm-12 offset-md-3 m-t-5 login-title">
 			  			<!-- Hwacom -->
-			  			<!-- 
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="40" style="padding-top: 3px" />
-			  			-->
 			  			
 			  			<!-- Innolux 群創 -->
 			  			<!-- 
@@ -59,8 +57,10 @@
 			  			 -->
 			  			 
 			  			<!-- 桃機 -->
+			  			<!-- 
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_new_icon.png" width="auto" height="40" style="padding-top: 3px" />
       					<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_new_word_short.png" width="auto" height="40" style="padding-top: 3px" />
+			  			-->
 			  			
 			  			<!-- 台灣大哥大 -->
 			  			<!--

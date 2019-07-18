@@ -58,6 +58,16 @@ public class Env {
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
 
+    public static String SHOW_MENU_TREE_ABNORMAL_MANAGEMENT;                 // 障礙管理
+    public static String SHOW_MENU_ITEM_ABNORMAL_REPORT;                     // 障礙管理 > 管理報表
+
+    public static String SHOW_MENU_TREE_PERFORMANCE_MANAGEMENT;              // 效能管理
+    public static String SHOW_MENU_ITEM_PERFORMANCE_MONITOR;                 // 效能管理 > 即時監控
+    public static String SHOW_MENU_ITEM_PERFORMANCE_REPORT;                  // 效能管理 > 管理報表
+
+    public static String SHOW_MENU_TREE_PROVISION;                           // 供裝功能模組
+    public static String SHOW_MENU_TREE_OTHER_SYSTEM;                        // 其他系統
+
 	public static String SHOW_MENU_TREE_BACKEND;                             // 後台管理
     public static String SHOW_MENU_ITEM_BK_SYS_ENV;                          // 後台管理 > 系統參數維護
     public static String SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT;                   // 後台管理 > 預設腳本維護

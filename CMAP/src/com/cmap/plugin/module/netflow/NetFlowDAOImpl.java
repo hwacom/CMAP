@@ -77,8 +77,8 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
             //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date_str = :queryDateStr ")
-              .append(" and (nfrd.from_date_time_str >= :queryTimeBeginStr and nfrd.from_date_time_str < :queryTimeEndStr) ");
+            sb.append(" and nfrd.from_date = :queryDateStr ")
+              .append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
         }
         /*
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
@@ -189,8 +189,8 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
             //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date_str = :queryDateStr ")
-              .append(" and (nfrd.from_date_time_str >= :queryTimeBeginStr and nfrd.from_date_time_str < :queryTimeEndStr) ");
+            sb.append(" and nfrd.from_date = :queryDateStr ")
+              .append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
         }
         /*
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
@@ -597,8 +597,8 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
             //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date_str = :queryDateStr ")
-              .append(" and (nfrd.from_date_time_str >= :queryTimeBeginStr and nfrd.from_date_time_str < :queryTimeEndStr) ");
+            sb.append(" and nfrd.from_date = :queryDateStr ")
+              .append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
         }
         /*
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
@@ -828,25 +828,5 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         q.setParameter("statId", statId);
 
         return (NetFlowIpStat)q.uniqueResult();
-    }
-
-    @Override
-    public List<ModuleIpStatistics> findModuleIpStatistics(String groupId, String statDate,
-            String ipAddress) {
-        // TODO 自動產生的方法 Stub
-        return null;
-    }
-
-    @Override
-    public void saveOrUpdateModuleIpStatistics(List<ModuleIpStatistics> entities) {
-        // TODO 自動產生的方法 Stub
-
-    }
-
-    @Override
-    public List<ModuleIpStatistics> findModuleIpStatisticsRanking(String groupId,
-            String statBeginDate, String statEndDate) {
-        // TODO 自動產生的方法 Stub
-        return null;
     }
 }

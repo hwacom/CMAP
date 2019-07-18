@@ -8,8 +8,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.cmap.plugin.module.netflow.NetFlowService;
 import com.cmap.plugin.module.netflow.NetFlowVO;
+import com.cmap.plugin.module.netflow.statistics.NetFlowStatisticsService;
 import com.cmap.service.BaseJobService;
 import com.cmap.service.impl.jobs.BaseJobImpl;
 import com.cmap.service.impl.jobs.JobDataPoller;
@@ -19,7 +19,7 @@ import com.cmap.utils.impl.ApplicationContextUtil;
 public class JobNetFlowIpStat extends BaseJobImpl implements BaseJobService {
     private static Logger log = LoggerFactory.getLogger(JobDataPoller.class);
 
-    private NetFlowService netFlowService;
+    private NetFlowStatisticsService netFlowStatisticsService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -27,10 +27,10 @@ public class JobNetFlowIpStat extends BaseJobImpl implements BaseJobService {
         Timestamp startTime = new Timestamp((new Date()).getTime());
         NetFlowVO nfVO = new NetFlowVO();
 
-        netFlowService = (NetFlowService)ApplicationContextUtil.getBean("netFlowService");
+        netFlowStatisticsService = (NetFlowStatisticsService)ApplicationContextUtil.getBean("netFlowStatisticsService");
 
         try {
-            nfVO = netFlowService.executeNetFlowIpStat();
+            nfVO = netFlowStatisticsService.executeNetFlowIpStat();
 
         } catch (Exception e) {
             log.error("JID:["+JOB_ID+"] >> "+e.toString(), e);

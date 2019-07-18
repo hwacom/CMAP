@@ -21,8 +21,8 @@ import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
-import com.cmap.plugin.module.iprecord.IpRecordService;
-import com.cmap.plugin.module.iprecord.IpRecordVO;
+import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
+import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.vo.DeliveryParameterVO;
@@ -45,7 +45,7 @@ public class DeliveryController extends BaseController {
 	private DeliveryService deliveryService;
 
 	@Autowired
-	private IpRecordService ipRecordService;
+	private IpBlockedRecordService ipRecordService;
 
 	private Map<String, String> groupListMap = null;
 	private Map<String, String> deviceListMap = null;
@@ -149,10 +149,10 @@ public class DeliveryController extends BaseController {
 
         long total = 0;
         long filterdTotal = 0;
-        List<IpRecordVO> dataList = new ArrayList<>();
-        IpRecordVO irVO;
+        List<IpBlockedRecordVO> dataList = new ArrayList<>();
+        IpBlockedRecordVO irVO;
         try {
-            irVO = new IpRecordVO();
+            irVO = new IpBlockedRecordVO();
             irVO.setQueryGroupId(queryGroupId);
             irVO.setQueryDeviceId(queryDeviceId);
             irVO.setQueryIpAddress(queryIpAddress);
@@ -177,7 +177,7 @@ public class DeliveryController extends BaseController {
                 total = filterdTotal;
 
             } else {
-                irVO = new IpRecordVO();
+                irVO = new IpBlockedRecordVO();
                 irVO.setQueryGroupId(queryGroupId);
                 total = ipRecordService.countModuleBlockedIpList(irVO);
             }

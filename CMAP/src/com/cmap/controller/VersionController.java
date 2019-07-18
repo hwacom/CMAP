@@ -155,7 +155,6 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 
 		} finally {
-			initMenu(model, request);
 		}
 	}
 
@@ -217,7 +216,6 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 
 		} finally {
-			initMenu(model, request);
 		}
 	}
 
@@ -282,7 +280,6 @@ public class VersionController extends BaseController {
 			log.error(e.toString(), e);
 
 		} finally {
-			initMenu(model, request);
 		}
 
 		return new AppResponse(HttpServletResponse.SC_OK, "刪除成功");
@@ -484,7 +481,6 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "備份失敗，請重新操作");
 
 		} finally {
-			initMenu(model, request);
 		}
 	}
 
@@ -533,7 +529,6 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "備份失敗，請重新操作");
 
 		} finally {
-			initMenu(model, request);
 		}
 	}
 
@@ -573,7 +568,6 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "還原失敗，請重新操作");
 
 		} finally {
-			initMenu(model, request);
 		}
 	}
 }

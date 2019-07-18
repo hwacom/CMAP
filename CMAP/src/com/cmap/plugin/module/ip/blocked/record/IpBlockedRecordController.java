@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.iprecord;
+package com.cmap.plugin.module.ip.blocked.record;
 
 import java.security.Principal;
 import java.util.Map;
@@ -15,13 +15,13 @@ import com.cmap.controller.BaseController;
 import com.cmap.security.SecurityUtil;
 
 @Controller
-@RequestMapping("/plugin/module/ipRecord")
-public class IpRecordController extends BaseController {
+@RequestMapping("/plugin/module/ipBlockedRecord")
+public class IpBlockedRecordController extends BaseController {
 	@Log
 	private static Logger log;
 
 	@Autowired
-	private IpRecordService ipRecordService;
+	private IpBlockedRecordService ipBlockedRecordService;
 
 	/**
 	 * 初始化選單
@@ -54,6 +54,6 @@ public class IpRecordController extends BaseController {
 		} finally {
 			initMenu(model, request);
 		}
-		return "plugin/module_ip_record";
+		return "plugin/module_ip_blocked_record";
 	}
 }

@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.netflow;
+package com.cmap.plugin.module.netflow.statistics;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;

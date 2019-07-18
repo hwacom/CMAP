@@ -588,7 +588,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 					vo = new DeliveryServiceVO();
 					vo.setLogStepId(logStepId);
-					vo.setDeliveryBeginTime(beginTime != null ? Constants.FORMAT_YYYYMMDD_HH24MI.format(beginTime) : "");
+					vo.setDeliveryBeginTime(beginTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(beginTime) : "");
 					vo.setCreateBy(userName);
 					vo.setGroupName(groupName);
 					vo.setDeviceName(deviceName);
