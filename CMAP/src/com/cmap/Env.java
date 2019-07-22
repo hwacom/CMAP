@@ -74,27 +74,33 @@ public class Env {
     public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
     public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
 
-	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				// 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
+	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				             // 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
 
-	public static String TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;	// 設定防火牆黑名單紀錄TABLE名稱
+	public static String TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;	         // 設定防火牆黑名單紀錄TABLE名稱
 
-	public static String ENABLE_CMD_LOG;						// 設定是否開啟對設備下的CMD LOG
+	public static String ENABLE_CMD_LOG;						             // 設定是否開啟對設備下的CMD LOG
 
 	public static String MAIL_SERVER_HOST;
 	public static String MAIL_SERVER_PORT;
-	public static String MAIL_FROM_ADDRESS;               // 設定Email from address
+	public static String MAIL_FROM_ADDRESS;                                  // 設定Email from address
 	public static String MAIL_FROM_USERNAME;
 	public static String MAIL_SERVER_ACCOUNT;
 	public static String MAIL_SERVER_PASSWORD;
 
-	public static Integer SEND_COMMAND_SLEEP_TIME;     // 設定發送多條命令的間格時間(毫秒)
+	public static Integer SEND_COMMAND_SLEEP_TIME;                           // 設定發送多條命令的間格時間(毫秒)
+
+	public static String ENABLE_NET_FLOW_IP_STATISTICS;                      // 設定是否啟用 NET_FLOW IP流量統計
+	public static String NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP;               // 設定 NET_FLOW IP流量統計的對象是否只計算 GROUP(學校)清單內的範圍
+	public static String NET_FLOW_SOURCE_COLUMN_NAME_OF_SOURCE_IP;           // 設定 NET_FLOW 檔案中「Source_IP」(來源IP)欄位名稱
+	public static String NET_FLOW_SOURCE_COLUMN_NAME_OF_DESTINATION_IP;      // 設定 NET_FLOW 檔案中「Destination_IP」(目的IP)欄位名稱
+	public static String NET_FLOW_SOURCE_COLUMN_NAME_OF_SIZE;                // 設定 NET_FLOW 檔案中「Size」(大小)欄位名稱
 
 	/**
 	 * GROUP_NAME下拉選單排序相關設定
 	 */
-	public static Boolean SORT_GROUP_MENU_BY_GROUP_NAME_INCLUDED_SEQ_NO;	// 以GROUP_NAME內含的序碼做排序 (e.g. 030.XX國小)，目前for苗栗縣教網使用
-	public static String GROUP_NAME_SPLIT_SEQ_NO_SYMBOL;		// 設定GROUP_NAME用來切割序碼的符號 (搭配SORT_GROUP_MENU_BY_GROUP_NAME_INCLUDED_SEQ_NO使用)
-	public static Integer GROUP_NAME_SPLITTED_SEQ_NO_INDEX;		// 設定GROUP_NAME切割後序碼所在陣列的INDEX (搭配GROUP_NAME_SPLIT_SEQ_NO_SYMBOL使用)
+	public static Boolean SORT_GROUP_MENU_BY_GROUP_NAME_INCLUDED_SEQ_NO;	 // 以GROUP_NAME內含的序碼做排序 (e.g. 030.XX國小)，目前for苗栗縣教網使用
+	public static String GROUP_NAME_SPLIT_SEQ_NO_SYMBOL;		             // 設定GROUP_NAME用來切割序碼的符號 (搭配SORT_GROUP_MENU_BY_GROUP_NAME_INCLUDED_SEQ_NO使用)
+	public static Integer GROUP_NAME_SPLITTED_SEQ_NO_INDEX;		             // 設定GROUP_NAME切割後序碼所在陣列的INDEX (搭配GROUP_NAME_SPLIT_SEQ_NO_SYMBOL使用)
 
 	public static List<String> DECODE_FIELDS = new ArrayList<>();
 	public static ConnectionMode FILE_TRANSFER_MODE;

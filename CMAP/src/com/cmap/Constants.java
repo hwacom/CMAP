@@ -51,6 +51,9 @@ public class Constants {
 
 	public static final DecimalFormat NUMBER_FORMAT_THOUSAND_SIGN = new DecimalFormat("###,###,###,###.##");
 
+	public static final String DOWNLOAD = "DOWNLOAD";
+	public static final String UPLOAD = "UPLOAD";
+
 	public static final String FTP = "FTP";
 	public static final String TFTP = "TFTP";
 	public static final String TELNET = "TELNET";

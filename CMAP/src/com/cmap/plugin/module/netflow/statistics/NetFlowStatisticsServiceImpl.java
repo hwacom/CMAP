@@ -6,8 +6,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -41,8 +43,11 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
     @Autowired
     private NetFlowDAO netFlowDAO;
 
+    @Autowired
+    private NetFlowStatisticsDAO netFlowStatisticsDAO;
+
     @Override
-    public NetFlowVO executeNetFlowIpStat() throws ServiceLayerException {
+    public NetFlowVO executeNetFlowIpStatistics() throws ServiceLayerException {
         NetFlowVO retVO = new NetFlowVO();
         try {
             // Step 1. 取得流量異常設定值
@@ -310,5 +315,47 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
         };
 
         httpclient.execute(httpGet, responseHandler);
+    }
+
+    @Override
+    public void calculateIpTrafficStatistics(
+            String groupId, Date statDate, Map<String, Map<String, Integer>> ipTrafficMap) throws ServiceLayerException {
+
+        if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
+            String dateStr = Constants.FORMAT_YYYY_MM_DD.format(statDate);
+            List<ModuleIpTrafficStatistics> entities = new ArrayList<>();
+
+            ipTrafficMap.forEach(new BiConsumer<String, Map<String, Integer>>() {
+
+                @Override
+                public void accept(String ipAddress, Map<String, Integer> trafficMap) {
+                    Integer downloadSize = trafficMap.get(Constants.DOWNLOAD);
+                    Integer uploadSize = trafficMap.get(Constants.UPLOAD);
+
+                    // Step 1. 查找是否已有紀錄
+                    ModuleIpTrafficStatistics entity =
+                            netFlowStatisticsDAO.findModuleIpStatisticsByUK(groupId, dateStr, ipAddress);
+
+                    if (entity != null) {
+                        entity.setDownloadTraffic(entity.getDownloadTraffic() + downloadSize);
+                        entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
+
+                    } else {
+                        entity = new ModuleIpTrafficStatistics();
+                        entity.setGroupId(groupId);
+                        entity.setStatDate(statDate);
+                        entity.setIpAddress(ipAddress);
+                        entity.setCreateTime(currentTimestamp());
+                        entity.setCreateBy(getUserName());
+                    }
+
+                    entity.setUpdateTime(currentTimestamp());
+                    entity.setUpdateBy(getUserName());
+                    entities.add(entity);
+                }
+            });
+
+            netFlowStatisticsDAO.saveOrUpdateModuleIpStatistics(entities);
+        }
     }
 }

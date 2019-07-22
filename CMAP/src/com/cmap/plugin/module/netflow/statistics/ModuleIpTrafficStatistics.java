@@ -1,6 +1,5 @@
 package com.cmap.plugin.module.netflow.statistics;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
 import javax.persistence.Column;
@@ -13,12 +12,12 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(
-		name = "module_ip_statistics",
+		name = "module_ip_traffic_statistics",
 		uniqueConstraints = {
 				@UniqueConstraint(columnNames = {"id"})
 		}
 )
-public class ModuleIpStatistics {
+public class ModuleIpTrafficStatistics {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -34,10 +33,10 @@ public class ModuleIpStatistics {
 	private String ipAddress;
 
 	@Column(name = "upload_traffic", nullable = true)
-	private BigInteger uploadTraffic;
+	private Long uploadTraffic;
 
 	@Column(name = "download_traffic", nullable = true)
-    private BigInteger downloadTraffic;
+    private Long downloadTraffic;
 
 	@Column(name = "create_time", nullable = false)
 	private Timestamp createTime;
@@ -51,12 +50,12 @@ public class ModuleIpStatistics {
 	@Column(name = "update_by", nullable = false)
 	private String updateBy;
 
-	public ModuleIpStatistics() {
+	public ModuleIpTrafficStatistics() {
 		super();
 	}
 
-    public ModuleIpStatistics(Integer id, String groupId, Date statDate, String ipAddress,
-            BigInteger uploadTraffic, BigInteger downloadTraffic, Timestamp createTime,
+    public ModuleIpTrafficStatistics(Integer id, String groupId, Date statDate, String ipAddress,
+            Long uploadTraffic, Long downloadTraffic, Timestamp createTime,
             String createBy, Timestamp updateTime, String updateBy) {
         super();
         this.id = id;
@@ -103,19 +102,19 @@ public class ModuleIpStatistics {
         this.ipAddress = ipAddress;
     }
 
-    public BigInteger getUploadTraffic() {
+    public Long getUploadTraffic() {
         return uploadTraffic;
     }
 
-    public void setUploadTraffic(BigInteger uploadTraffic) {
+    public void setUploadTraffic(Long uploadTraffic) {
         this.uploadTraffic = uploadTraffic;
     }
 
-    public BigInteger getDownloadTraffic() {
+    public Long getDownloadTraffic() {
         return downloadTraffic;
     }
 
-    public void setDownloadTraffic(BigInteger downloadTraffic) {
+    public void setDownloadTraffic(Long downloadTraffic) {
         this.downloadTraffic = downloadTraffic;
     }
 

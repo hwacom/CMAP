@@ -49,6 +49,7 @@ import com.cmap.model.DataPollerScriptSetting;
 import com.cmap.model.DataPollerSetting;
 import com.cmap.model.DataPollerTargetSetting;
 import com.cmap.plugin.module.netflow.NetFlowDAO;
+import com.cmap.plugin.module.netflow.statistics.NetFlowStatisticsService;
 import com.cmap.service.DataPollerService;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.impl.jobs.BaseJobImpl.Result;
@@ -69,6 +70,9 @@ public class DataPollerServiceImpl implements DataPollerService {
 
 	@Autowired
 	private DeliveryService deliveryService;
+
+	@Autowired
+	private NetFlowStatisticsService netFlowStatisticsService;
 
 	private String getTodayTableName(String interval, String tableBaseName) {
 		String tableName = tableBaseName;
@@ -121,6 +125,9 @@ public class DataPollerServiceImpl implements DataPollerService {
 
 		Map<String, List<String>> recordListMap = null;
 		try {
+		    // 執行時間
+		    final Date EXECUTE_DATE = new Date();
+
 			// Step 1. 查找設定檔
 			DataPollerSetting setting = dataPollerDAO.findDataPollerSettingBySettingId(settingId);
 
@@ -234,11 +241,11 @@ public class DataPollerServiceImpl implements DataPollerService {
 										DeliveryParameterVO dpVO = null;
 										for (DataPollerScriptSetting script : scriptList) {
 											try {
-												final String executeKeySetting = script.getExecuteKeySetting();
-												final String executeKeyType = script.getExecuteKeyType();
-												final List<Map<String, String>> sourceEntryMapList = retVO.getSourceEntryMapList();
-												final String scriptCode = script.getExecuteScriptCode();
-												final String reason = script.getExecuteReason();
+												String executeKeySetting = script.getExecuteKeySetting();
+												String executeKeyType = script.getExecuteKeyType();
+												List<Map<String, String>> sourceEntryMapList = retVO.getSourceEntryMapList();
+												String scriptCode = script.getExecuteScriptCode();
+												String reason = script.getExecuteReason();
 
 												List<String> varKey = transSourceEntryMap2KeyList(executeKeySetting);
 												List<List<String>> varValue = transSourceEntryMap2ValueList(executeKeyType, executeKeySetting, sourceEntryMapList);
@@ -292,6 +299,41 @@ public class DataPollerServiceImpl implements DataPollerService {
 					}
 				}
 
+				String dataType = setting.getDataType();
+
+				// 若 DATA_TYPE = NET_FLOW
+				if (StringUtils.equals(dataType, Constants.DATA_TYPE_OF_NET_FLOW)) {
+				    // Step 7. 若有設定要統計IP流量
+	                if (StringUtils.equals(Env.ENABLE_NET_FLOW_IP_STATISTICS, Constants.DATA_Y)) {
+	                    List<Map<String, String>> sourceEntryMapList = retVO.getSourceEntryMapList();
+
+	                    final String SOURCE_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SOURCE_IP;
+	                    final String DESTINATION_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_DESTINATION_IP;
+	                    final String SIZE = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SIZE;
+
+	                    Map<String, Map<String, Integer>> ipTrafficMap = new HashMap<>();
+	                    for (Map<String, String> sourceEntryMap : sourceEntryMapList) {
+	                        String sourceIP = sourceEntryMap.get(SOURCE_IP);
+	                        String destinationIP = sourceEntryMap.get(DESTINATION_IP);
+	                        Integer size = StringUtils.isNotBlank(sourceEntryMap.get(SIZE)) ? Integer.parseInt(sourceEntryMap.get(SIZE)) : 0;
+
+	                        // Source_IP 角度 >>> 上傳流量
+	                        ipTrafficMap = calculateIPTraffic(ipTrafficMap, sourceIP, size, Constants.UPLOAD);
+
+	                        // Destination_IP 角度 >>> 下載流量
+	                        ipTrafficMap = calculateIPTraffic(ipTrafficMap, destinationIP, size, Constants.DOWNLOAD);
+	                    }
+
+	                    if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
+	                        Map<String, String> specialSettingMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
+	                        String groupId = specialSettingMap.get(Constants.GROUP_ID);
+
+	                        // 寫入TABLE
+	                        netFlowStatisticsService.calculateIpTrafficStatistics(groupId, EXECUTE_DATE, ipTrafficMap);
+	                    }
+	                }
+				}
+
 				if (success) {
 					dpsVO.setJobExcuteResult(Result.SUCCESS);
 
@@ -325,6 +367,22 @@ public class DataPollerServiceImpl implements DataPollerService {
 			System.gc();
 		}
 		return dpsVO;
+	}
+
+	private Map<String, Map<String, Integer>> calculateIPTraffic(Map<String, Map<String, Integer>> ipTrafficMap, String ip, Integer size, String direction) {
+	    Map<String, Integer> tmpMap = null;
+	    if (StringUtils.isNotBlank(ip)) {
+            if (ipTrafficMap.containsKey(ip)) {
+                tmpMap = ipTrafficMap.get(ip);
+            } else {
+                tmpMap = new HashMap<>();
+            }
+
+            tmpMap.put(direction, tmpMap.get(direction) + size);
+            ipTrafficMap.put(ip, tmpMap);
+        }
+
+	    return ipTrafficMap;
 	}
 
 	private void moveFile2ErrorFolder(File targetFile) {

@@ -12,13 +12,22 @@ public interface NetFlowStatisticsDAO extends BaseDAO {
      * @param ipAddress
      * @return
      */
-    public List<ModuleIpStatistics> findModuleIpStatistics(String groupId, String statDate, String ipAddress);
+    public List<ModuleIpTrafficStatistics> findModuleIpStatistics(String groupId, String statDate, String ipAddress);
+
+    /**
+     * 查找IP流量資料 by UK
+     * @param groupId
+     * @param statDate
+     * @param ipAddress
+     * @return
+     */
+    public ModuleIpTrafficStatistics findModuleIpStatisticsByUK(String groupId, String statDate, String ipAddress);
 
     /**
      * 新增 or 修改IP流量資料
      * @param entities
      */
-    public void saveOrUpdateModuleIpStatistics(List<ModuleIpStatistics> entities);
+    public void saveOrUpdateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities);
 
     /**
      * 查找IP流量排行榜
@@ -27,5 +36,5 @@ public interface NetFlowStatisticsDAO extends BaseDAO {
      * @param statEndDate
      * @return
      */
-    public List<ModuleIpStatistics> findModuleIpStatisticsRanking(String groupId, String statBeginDate, String statEndDate);
+    public List<ModuleIpTrafficStatistics> findModuleIpStatisticsRanking(String groupId, String statBeginDate, String statEndDate);
 }

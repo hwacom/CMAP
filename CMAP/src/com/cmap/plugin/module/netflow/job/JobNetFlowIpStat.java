@@ -30,7 +30,7 @@ public class JobNetFlowIpStat extends BaseJobImpl implements BaseJobService {
         netFlowStatisticsService = (NetFlowStatisticsService)ApplicationContextUtil.getBean("netFlowStatisticsService");
 
         try {
-            nfVO = netFlowStatisticsService.executeNetFlowIpStat();
+            nfVO = netFlowStatisticsService.executeNetFlowIpStatistics();
 
         } catch (Exception e) {
             log.error("JID:["+JOB_ID+"] >> "+e.toString(), e);
