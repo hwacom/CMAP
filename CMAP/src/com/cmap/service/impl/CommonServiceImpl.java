@@ -37,6 +37,7 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.DeviceDAO;
+import com.cmap.dao.GroupSubnetDAO;
 import com.cmap.dao.MenuItemDAO;
 import com.cmap.dao.ProtocolDAO;
 import com.cmap.dao.PrtgDAO;
@@ -44,6 +45,7 @@ import com.cmap.dao.ScriptTypeDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
+import com.cmap.model.GroupSubnetSetting;
 import com.cmap.model.MenuItem;
 import com.cmap.model.ProtocolSpec;
 import com.cmap.model.PrtgAccountMapping;
@@ -79,6 +81,9 @@ public class CommonServiceImpl implements CommonService {
 
 	@Autowired
     private JavaMailSenderImpl mailSender;
+
+	@Autowired
+	private GroupSubnetDAO groupSubnetDAO;
 
 	@Override
     public String convertByteSizeUnit(BigDecimal sizeByte, Integer targetUnit) {
@@ -518,5 +523,89 @@ public class CommonServiceImpl implements CommonService {
             log.error(e.toString(), e);
             throw new ServiceLayerException("發信失敗 (" + e.getMessage() + ")");
         }
+    }
+
+    @Override
+    public String getGroupSubnetSetting(String groupId, String ipVersion) {
+        String retVal = null;
+        try {
+            GroupSubnetSetting setting = groupSubnetDAO.getGroupSubnetSettingByGroupId(groupId);
+
+            if (setting == null) {
+                log.error("GROUP_ID = " + groupId + " >>> 查無網段設定(GroupSubnetSetting) !!");
+                return retVal;
+            }
+
+            switch (ipVersion) {
+                case Constants.IPV4:
+                    retVal = setting.getIpv4Subnet();
+                    break;
+
+                case Constants.IPV6:
+                    retVal = setting.getIpv6Subnet();
+                    break;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVal;
+    }
+
+    @Override
+    public boolean chkIpInGroupSubnet(String cidr, String ip, String ipVersion) {
+        boolean retVal = false;
+
+        try {
+            switch (ipVersion) {
+                case Constants.IPV4:
+                    retVal = chkIpInGroupSubnetForIPv4(cidr, ip);
+                    break;
+
+                case Constants.IPV6:
+                    retVal = chkIpInGroupSubnetForIPv6(cidr, ip);
+                    break;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVal;
+    }
+
+    /**
+     * 確認IP是否位在設定的網段(cidr)內 for IPv4版本
+     * @param cidr
+     * @param ip
+     * @return
+     */
+    private boolean chkIpInGroupSubnetForIPv4(String cidr, String ip) {
+        String[] ips = ip.split("\\.");
+        int ipAddr = (Integer.parseInt(ips[0]) << 24)
+                        | (Integer.parseInt(ips[1]) << 16)
+                        | (Integer.parseInt(ips[2]) << 8)
+                        | Integer.parseInt(ips[3]);
+
+        int type = Integer.parseInt(cidr.replaceAll(".*/", ""));
+        int mask = 0xFFFFFFFF << (32 - type);
+
+        String cidrIp = cidr.replaceAll("/.*", "");
+        String[] cidrIps = cidrIp.split("\\.");
+        int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24)
+                            | (Integer.parseInt(cidrIps[1]) << 16)
+                            | (Integer.parseInt(cidrIps[2]) << 8)
+                            | Integer.parseInt(cidrIps[3]);
+
+        return (ipAddr & mask) == (cidrIpAddr & mask);
+    }
+
+    /**
+     * 確認IP是否位在設定的網段(cidr)內 for IPv6版本
+     * @param cidr
+     * @param ip
+     * @return
+     */
+    private boolean chkIpInGroupSubnetForIPv6(String cidr, String ip) {
+        return false;
     }
 }

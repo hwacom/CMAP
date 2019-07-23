@@ -227,7 +227,7 @@
 	                    <!-- [各校即時IP流量排行] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING eq __SHOW__}">
 	                    	<li class="subMenu-item">
-		                    	<a id="mp_netFlowCurrentRanking" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/currentRanking')">
+		                    	<a id="mp_netFlowCurrentRanking" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking')">
 		                    	  <span data-feather="activity"></span>
 		                    	  	<span><spring:message code="func.net.flow.current.ranking" /></span>
 		                    	</a>
@@ -239,7 +239,7 @@
 	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING eq __SHOW__}">
 					        	<li class="subMenu-item">
-			                    	<a id="mp_netFlowCurrentRanking_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/currentRanking/all')">
+			                    	<a id="mp_netFlowCurrentRanking_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/all')">
 			                    	  <span data-feather="activity"></span>
 			                    	  	<span><spring:message code="func.net.flow.all.current.ranking" /></span>
 			                    	</a>

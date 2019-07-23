@@ -72,4 +72,20 @@ public interface CommonService {
 	 * @return
 	 */
 	public String getUserName();
+
+	/**
+	 * 取得學校群組(GROUP)的IP網段設定
+	 * @param groupId
+	 * @param ipVersion
+	 * @return
+	 */
+	public String getGroupSubnetSetting(String groupId, String ipVersion);
+
+	/**
+	 * 判斷IP是否在網段內
+	 * @param gSubnet
+	 * @param ipAddress
+	 * @return
+	 */
+	public boolean chkIpInGroupSubnet(String cidr, String ip, String ipVersion);
 }

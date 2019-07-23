@@ -185,63 +185,6 @@
   
 </section>
 
-<!-- Modal [Compare] start -->
-<div class="modal fade" id="viewProvisionLogModal" tabindex="-1" role="dialog" aria-labelledby="viewProvisionLogModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-mid" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="viewProvisionLogModalLabel"><span id="msgModal_title"><spring:message code="provision.execute.result.detail" /></span></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-     	<div class="form-group row">
-        	<label for="viewModal_beginTime" class="col-md-2 col-sm-12 col-form-label"><spring:message code="execute.time" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_beginTime" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_userName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="user" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_userName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_groupName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_deviceName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_deviceName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_systemVersion" class="col-md-2 col-sm-12 col-form-label"><spring:message code="system.version" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_systemVersion" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_scriptName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="script.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_scriptName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_reason" class="col-md-2 col-sm-12 col-form-label"><spring:message code="provision.reason" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_reason" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_result" class="col-md-2 col-sm-12 col-form-label"><spring:message code="execute.result" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_result" readonly>
-        </div>
-        <div>
-        	<hr>
-        </div>
-        <div class="form-group row">
-        	<div class="form-control form-control-sm col-12 script" id="viewModal_provisionLog"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal [Compare] end -->
-	
 <c:set var="val"><spring:message code="group.name"/></c:set>
 
 <script>

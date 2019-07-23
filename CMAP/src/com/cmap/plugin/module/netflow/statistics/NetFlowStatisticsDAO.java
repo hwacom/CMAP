@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.netflow.statistics;
 
+import java.util.Date;
 import java.util.List;
 import com.cmap.dao.BaseDAO;
 
@@ -21,7 +22,7 @@ public interface NetFlowStatisticsDAO extends BaseDAO {
      * @param ipAddress
      * @return
      */
-    public ModuleIpTrafficStatistics findModuleIpStatisticsByUK(String groupId, String statDate, String ipAddress);
+    public ModuleIpTrafficStatistics findModuleIpStatisticsByUK(String groupId, Date statDate, String ipAddress);
 
     /**
      * 新增 or 修改IP流量資料

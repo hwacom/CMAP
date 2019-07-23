@@ -20,7 +20,7 @@ import javax.persistence.UniqueConstraint;
 public class ModuleIpTrafficStatistics {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
 
 	@Column(name = "group_id", nullable = false)
@@ -33,10 +33,10 @@ public class ModuleIpTrafficStatistics {
 	private String ipAddress;
 
 	@Column(name = "upload_traffic", nullable = true)
-	private Long uploadTraffic;
+	private Long uploadTraffic = new Long(0);
 
 	@Column(name = "download_traffic", nullable = true)
-    private Long downloadTraffic;
+    private Long downloadTraffic = new Long(0);
 
 	@Column(name = "create_time", nullable = false)
 	private Timestamp createTime;

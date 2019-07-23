@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.netflow.statistics;
 
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
@@ -57,7 +58,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
     }
 
     @Override
-    public ModuleIpTrafficStatistics findModuleIpStatisticsByUK(String groupId, String statDate, String ipAddress) {
+    public ModuleIpTrafficStatistics findModuleIpStatisticsByUK(String groupId, Date statDate, String ipAddress) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select mits ")
           .append(" from ModuleIpTrafficStatistics mits ")
@@ -77,8 +78,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
 
     @Override
     public void saveOrUpdateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
-        // TODO 自動產生的方法 Stub
-
+        insertEntities(entities);
     }
 
     @Override

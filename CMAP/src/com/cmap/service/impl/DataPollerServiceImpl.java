@@ -58,7 +58,7 @@ import com.cmap.service.vo.DeliveryParameterVO;
 
 @Service("dataPollerService")
 @Transactional
-public class DataPollerServiceImpl implements DataPollerService {
+public class DataPollerServiceImpl extends CommonServiceImpl implements DataPollerService {
 	@Log
 	private static Logger log;
 
@@ -126,7 +126,13 @@ public class DataPollerServiceImpl implements DataPollerService {
 		Map<String, List<String>> recordListMap = null;
 		try {
 		    // 執行時間
-		    final Date EXECUTE_DATE = new Date();
+		    Calendar cal = Calendar.getInstance();
+		    cal.setTime(new Date());
+		    cal.set(Calendar.HOUR_OF_DAY, 0);
+		    cal.set(Calendar.MINUTE, 0);
+		    cal.set(Calendar.SECOND, 0);
+		    cal.set(Calendar.MILLISECOND, 0);
+		    final Date EXECUTE_DATE = cal.getTime();
 
 			// Step 1. 查找設定檔
 			DataPollerSetting setting = dataPollerDAO.findDataPollerSettingBySettingId(settingId);
@@ -311,6 +317,11 @@ public class DataPollerServiceImpl implements DataPollerService {
 	                    final String DESTINATION_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_DESTINATION_IP;
 	                    final String SIZE = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SIZE;
 
+	                    Map<String, String> specialSettingMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
+                        String groupId = specialSettingMap.get(Constants.GROUP_ID);
+	                    String groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
+
+	                    long beginTime = System.currentTimeMillis();
 	                    Map<String, Map<String, Integer>> ipTrafficMap = new HashMap<>();
 	                    for (Map<String, String> sourceEntryMap : sourceEntryMapList) {
 	                        String sourceIP = sourceEntryMap.get(SOURCE_IP);
@@ -318,19 +329,29 @@ public class DataPollerServiceImpl implements DataPollerService {
 	                        Integer size = StringUtils.isNotBlank(sourceEntryMap.get(SIZE)) ? Integer.parseInt(sourceEntryMap.get(SIZE)) : 0;
 
 	                        // Source_IP 角度 >>> 上傳流量
-	                        ipTrafficMap = calculateIPTraffic(ipTrafficMap, sourceIP, size, Constants.UPLOAD);
+	                        if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
+	                                && chkIpInGroupSubnet(groupSubnet, sourceIP, Constants.IPV4)
+	                            ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
+	                            ipTrafficMap = calculateIPTraffic(ipTrafficMap, sourceIP, size, Constants.UPLOAD);
+	                        }
 
 	                        // Destination_IP 角度 >>> 下載流量
-	                        ipTrafficMap = calculateIPTraffic(ipTrafficMap, destinationIP, size, Constants.DOWNLOAD);
+	                        if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
+                                    && chkIpInGroupSubnet(groupSubnet, destinationIP, Constants.IPV4)
+                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
+	                            ipTrafficMap = calculateIPTraffic(ipTrafficMap, destinationIP, size, Constants.DOWNLOAD);
+	                        }
 	                    }
+	                    long endTime = System.currentTimeMillis();
+	                    log.info("******************* NET_FLOW_IP_STATISTICS > for-loop takes " + (endTime-beginTime) + " ms");
 
+	                    beginTime = System.currentTimeMillis();
 	                    if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
-	                        Map<String, String> specialSettingMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
-	                        String groupId = specialSettingMap.get(Constants.GROUP_ID);
-
 	                        // 寫入TABLE
 	                        netFlowStatisticsService.calculateIpTrafficStatistics(groupId, EXECUTE_DATE, ipTrafficMap);
 	                    }
+	                    endTime = System.currentTimeMillis();
+	                    log.info("******************* NET_FLOW_IP_STATISTICS > write-table takes " + (endTime-beginTime) + " ms");
 	                }
 				}
 
@@ -378,7 +399,8 @@ public class DataPollerServiceImpl implements DataPollerService {
                 tmpMap = new HashMap<>();
             }
 
-            tmpMap.put(direction, tmpMap.get(direction) + size);
+            Integer preTraffic = tmpMap.containsKey(direction) ? tmpMap.get(direction) : 0;
+            tmpMap.put(direction, (preTraffic + size));
             ipTrafficMap.put(ip, tmpMap);
         }
 

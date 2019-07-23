@@ -322,25 +322,20 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
             String groupId, Date statDate, Map<String, Map<String, Integer>> ipTrafficMap) throws ServiceLayerException {
 
         if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
-            String dateStr = Constants.FORMAT_YYYY_MM_DD.format(statDate);
             List<ModuleIpTrafficStatistics> entities = new ArrayList<>();
 
             ipTrafficMap.forEach(new BiConsumer<String, Map<String, Integer>>() {
 
                 @Override
                 public void accept(String ipAddress, Map<String, Integer> trafficMap) {
-                    Integer downloadSize = trafficMap.get(Constants.DOWNLOAD);
-                    Integer uploadSize = trafficMap.get(Constants.UPLOAD);
+                    Integer downloadSize = trafficMap.containsKey(Constants.DOWNLOAD) ? trafficMap.get(Constants.DOWNLOAD) : 0;
+                    Integer uploadSize = trafficMap.containsKey(Constants.UPLOAD) ? trafficMap.get(Constants.UPLOAD) : 0;
 
                     // Step 1. 查找是否已有紀錄
                     ModuleIpTrafficStatistics entity =
-                            netFlowStatisticsDAO.findModuleIpStatisticsByUK(groupId, dateStr, ipAddress);
+                            netFlowStatisticsDAO.findModuleIpStatisticsByUK(groupId, statDate, ipAddress);
 
-                    if (entity != null) {
-                        entity.setDownloadTraffic(entity.getDownloadTraffic() + downloadSize);
-                        entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
-
-                    } else {
+                    if (entity == null) {
                         entity = new ModuleIpTrafficStatistics();
                         entity.setGroupId(groupId);
                         entity.setStatDate(statDate);
@@ -349,6 +344,8 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         entity.setCreateBy(getUserName());
                     }
 
+                    entity.setDownloadTraffic(entity.getDownloadTraffic() + downloadSize);
+                    entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
                     entity.setUpdateTime(currentTimestamp());
                     entity.setUpdateBy(getUserName());
                     entities.add(entity);
@@ -357,5 +354,28 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
 
             netFlowStatisticsDAO.saveOrUpdateModuleIpStatistics(entities);
         }
+    }
+
+    @Override
+    public long countModuleIpTrafficStatistics(NetFlowStatisticsVO nfsVO)
+            throws ServiceLayerException {
+        long retVal = 0;
+        try {
+
+        } catch (Exception e) {
+
+        }
+        return retVal;
+    }
+
+    @Override
+    public List<NetFlowStatisticsVO> findModuleIpTrafficStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException {
+        List<NetFlowStatisticsVO> retList = new ArrayList<>();
+        try {
+
+        } catch (Exception e) {
+
+        }
+        return retList;
     }
 }
