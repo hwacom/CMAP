@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.netflow.statistics;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -9,8 +10,10 @@ import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
@@ -82,9 +85,124 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
     }
 
     @Override
-    public List<ModuleIpTrafficStatistics> findModuleIpStatisticsRanking(String groupId,
-            String statBeginDate, String statEndDate) {
-        // TODO 自動產生的方法 Stub
-        return null;
+    public long countModuleIpStatisticsRanking(NetFlowStatisticsVO nfsVO) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append(" select count(mits.id) ")
+              .append(" from ModuleIpTrafficStatistics mits ")
+              .append(" where 1=1 ");
+
+            if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
+                sb.append(" and mits.groupId = :groupId ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateBegin())) {
+                sb.append(" and mits.statDate >= :queryDateBegin ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateEnd())) {
+                sb.append(" and mits.statDate <= :queryDateEnd ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
+                sb.append(" and mits.ipAddress like :searchValue ");
+            }
+
+            Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+            Query<?> q = session.createQuery(sb.toString());
+            if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
+                q.setParameter("groupId", nfsVO.getQueryGroupId());
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateBegin())) {
+                q.setParameter("queryDateBegin", Constants.FORMAT_YYYY_MM_DD.parse(nfsVO.getQueryDateBegin()));
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateEnd())) {
+                q.setParameter("queryDateEnd", Constants.FORMAT_YYYY_MM_DD.parse(nfsVO.getQueryDateEnd()));
+            }
+            if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
+                q.setParameter("searchValue", "%".concat(nfsVO.getSearchValue()).concat("%"));
+            }
+            return DataAccessUtils.longResult(q.list());
+
+        } catch (ParseException pe) {
+            log.error(pe.toString(), pe);
+            return 0;
+        }
+    }
+
+    @Override
+    public List<Object[]> findModuleIpStatisticsRanking(NetFlowStatisticsVO nfsVO, Integer startRow, Integer pageLength) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append(" select mits1.ip_address ")
+              .append("       ,mits1.group_id ")
+              .append("       ,(mits1.total_traffic / mits2.sum_total * 100) as percent ")
+              .append("       ,mits1.total_traffic ")
+              .append("       ,mits1.upload_traffic ")
+              .append("       ,mits1.download_traffic ")
+              .append("       ,mits2.sum_total as ttl_totalTraffic ")
+              .append("       ,mits2.sum_upload as ttl_uploadTraffic ")
+              .append("       ,mits2.sum_download as ttl_downloadTraffic ")
+              .append(" from Module_Ip_Traffic_Statistics as mits1 ")
+              .append("     ,(select sum(mits.total_traffic) as sum_total ")
+              .append("             ,sum(mits.upload_traffic) as sum_upload ")
+              .append("             ,sum(mits.download_traffic) as sum_download ")
+              .append("       from Module_Ip_Traffic_Statistics as mits ")
+              .append("       where 1=1 ");
+              if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
+                  sb.append(" and mits.group_id = :groupId ");
+              }
+              if (StringUtils.isNotBlank(nfsVO.getQueryDateBegin())) {
+                  sb.append(" and mits.stat_date >= :queryDateBegin ");
+              }
+              if (StringUtils.isNotBlank(nfsVO.getQueryDateEnd())) {
+                  sb.append(" and mits.stat_date <= :queryDateEnd ");
+              }
+              if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
+                  sb.append(" and mits.ip_address like :searchValue ");
+              }
+            sb.append("      ) as mits2 ")
+              .append(" where 1=1 ");
+
+            if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
+                sb.append(" and mits1.group_id = :groupId ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateBegin())) {
+                sb.append(" and mits1.stat_date >= :queryDateBegin ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateEnd())) {
+                sb.append(" and mits1.stat_date <= :queryDateEnd ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
+                sb.append(" and mits1.ip_address like :searchValue ");
+            }
+            if (StringUtils.isNotBlank(nfsVO.getOrderColumn())) {
+                sb.append(" order by ").append(nfsVO.getOrderColumn()).append(" ").append(nfsVO.getOrderDirection());
+
+            } else {
+                sb.append(" order by mits1.total_traffic desc ");
+            }
+
+            Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+            Query<?> q = session.createNativeQuery(sb.toString());
+            if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
+                q.setParameter("groupId", nfsVO.getQueryGroupId());
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateBegin())) {
+                q.setParameter("queryDateBegin", Constants.FORMAT_YYYY_MM_DD.parse(nfsVO.getQueryDateBegin()));
+            }
+            if (StringUtils.isNotBlank(nfsVO.getQueryDateEnd())) {
+                q.setParameter("queryDateEnd", Constants.FORMAT_YYYY_MM_DD.parse(nfsVO.getQueryDateEnd()));
+            }
+            if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
+                q.setParameter("searchValue", "%".concat(nfsVO.getSearchValue()).concat("%"));
+            }
+            if (startRow != null && pageLength != null) {
+                q.setFirstResult(startRow);
+                q.setMaxResults(pageLength);
+            }
+            return (List<Object[]>)q.list();
+
+        } catch (ParseException pe) {
+            log.error(pe.toString(), pe);
+            return null;
+        }
     }
 }

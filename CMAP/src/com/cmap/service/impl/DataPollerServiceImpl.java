@@ -401,6 +401,10 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
             Integer preTraffic = tmpMap.containsKey(direction) ? tmpMap.get(direction) : 0;
             tmpMap.put(direction, (preTraffic + size));
+
+            Integer preTtlTraffic = tmpMap.containsKey(Constants.TOTAL) ? tmpMap.get(Constants.TOTAL) : 0;
+            tmpMap.put(Constants.TOTAL, (preTtlTraffic + size));
+
             ipTrafficMap.put(ip, tmpMap);
         }
 

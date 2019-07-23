@@ -32,6 +32,9 @@ public class ModuleIpTrafficStatistics {
 	@Column(name = "ip_address", nullable = false)
 	private String ipAddress;
 
+	@Column(name = "total_traffic", nullable = true)
+    private Long totalTraffic = new Long(0);
+
 	@Column(name = "upload_traffic", nullable = true)
 	private Long uploadTraffic = new Long(0);
 
@@ -55,13 +58,14 @@ public class ModuleIpTrafficStatistics {
 	}
 
     public ModuleIpTrafficStatistics(Integer id, String groupId, Date statDate, String ipAddress,
-            Long uploadTraffic, Long downloadTraffic, Timestamp createTime,
+            Long totalTraffic, Long uploadTraffic, Long downloadTraffic, Timestamp createTime,
             String createBy, Timestamp updateTime, String updateBy) {
         super();
         this.id = id;
         this.groupId = groupId;
         this.statDate = statDate;
         this.ipAddress = ipAddress;
+        this.totalTraffic = totalTraffic;
         this.uploadTraffic = uploadTraffic;
         this.downloadTraffic = downloadTraffic;
         this.createTime = createTime;
@@ -100,6 +104,14 @@ public class ModuleIpTrafficStatistics {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public Long getTotalTraffic() {
+        return totalTraffic;
+    }
+
+    public void setTotalTraffic(Long totalTraffic) {
+        this.totalTraffic = totalTraffic;
     }
 
     public Long getUploadTraffic() {

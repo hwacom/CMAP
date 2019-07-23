@@ -31,11 +31,18 @@ public interface NetFlowStatisticsDAO extends BaseDAO {
     public void saveOrUpdateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities);
 
     /**
-     * 查找IP流量排行榜
-     * @param groupId
-     * @param statBeginDate
-     * @param statEndDate
+     * 取得符合條件資料筆數
+     * @param nfsVO
      * @return
      */
-    public List<ModuleIpTrafficStatistics> findModuleIpStatisticsRanking(String groupId, String statBeginDate, String statEndDate);
+    public long countModuleIpStatisticsRanking(NetFlowStatisticsVO nfsVO);
+
+    /**
+     * 查找IP流量排行榜
+     * @param nfsVO
+     * @param startRow
+     * @param pageLength
+     * @return
+     */
+    public List<Object[]> findModuleIpStatisticsRanking(NetFlowStatisticsVO nfsVO, Integer startRow, Integer pageLength);
 }

@@ -2,6 +2,8 @@ package com.cmap.plugin.module.netflow.statistics;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -31,7 +34,7 @@ public class NetFlowStatisticsController extends BaseController {
     @Autowired
     private NetFlowStatisticsService netFlowStatisticsService;
 
-    private static final String[] UI_TABLE_COLUMNS = new String[] {"","","dl.group_Name","dl.device_Name","dl.system_Version","cvi.config_Version","cvi.config_Type","cvi.create_Time"};
+    private static final String[] UI_TABLE_COLUMNS = new String[] {"","mits1.ip_Address","mits1.group_Id","percent","mits1.total_Traffic","mits1.upload_Traffic","mits1.download_Traffic"};
 
     /**
      * 初始化選單
@@ -102,8 +105,37 @@ public class NetFlowStatisticsController extends BaseController {
         try {
             nfsVO = new NetFlowStatisticsVO();
             nfsVO.setQueryGroupId(queryGroup);
-            nfsVO.setQueryDateBegin(queryDateBegin);
-            nfsVO.setQueryDateEnd(queryDateEnd);
+
+            Calendar nowDate = Calendar.getInstance();
+            nowDate.setTime(new Date());
+            nowDate.set(Calendar.HOUR_OF_DAY, 0);
+            nowDate.set(Calendar.MINUTE, 0);
+            nowDate.set(Calendar.SECOND, 0);
+            nowDate.set(Calendar.MILLISECOND, 0);
+
+            String beginDate = null;
+            String endDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
+            switch (queryDatePeriod) {
+                case "1":
+                    break;
+
+                case "3":
+                    nowDate.add(Calendar.DAY_OF_MONTH, -3);
+                    break;
+
+                case "7":
+                    nowDate.add(Calendar.DAY_OF_MONTH, -7);
+                    break;
+
+                default:
+                    nowDate.add(Calendar.DAY_OF_MONTH, Integer.valueOf(queryDatePeriod)*-1);
+                    break;
+            }
+
+            beginDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
+
+            nfsVO.setQueryDateBegin(beginDate);
+            nfsVO.setQueryDateEnd(endDate);
             nfsVO.setStartNum(startNum);
             nfsVO.setPageLength(pageLength);
             nfsVO.setSearchValue(searchValue);

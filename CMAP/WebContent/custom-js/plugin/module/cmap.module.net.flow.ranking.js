@@ -5,9 +5,10 @@
 var timer, startTime, timer_start, timer_end;
 
 $(document).ready(function() {
-	if ($("#isAll").val() === "Y") {
+	var pathname = window.location.pathname;
+	var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
+	if (lastPath === "/all") {
 		initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_netFlowCurrentRanking_all");
-		
 	} else {
 		initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_netFlowCurrentRanking");
 	}
@@ -35,6 +36,7 @@ $(document).ready(function() {
 //查詢按鈕動作
 function findData(from, period) {
 	$('#queryFrom').val(from);
+	$("#queryDatePeriod").val(period);
 	
 	if (from == 'MOBILE') {
 		$('#collapseExample').collapse('hide');
@@ -72,14 +74,11 @@ function findData(from, period) {
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
-						d.queryGroup = $("#queryGroup").val(),
-						d.queryDatePeriod = period
-					
+						d.queryGroup = $("#queryGroup").val();
 					} else if ($('#queryFrom').val() == 'MOBILE') {
-						d.queryGroup = $("#queryGroup_mobile").val(),
-						d.queryDatePeriod = period
+						d.queryGroup = $("#queryGroup_mobile").val();
 					}
-					
+					d.queryDatePeriod = $("#queryDatePeriod").val();
 					return d;
 				},
 				beforeSend : function() {
@@ -108,7 +107,7 @@ function findData(from, period) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			/*"order": [[6 , 'desc' ]],*/
+			"order": [[3 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -128,15 +127,19 @@ function findData(from, period) {
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
 				bindTrEvent();
+				
+				if ($("#resultTable > tbody > tr").length > 1) {
+					$("#resultTable > tbody > tr:eq(0)").addClass("summary-tr");
+				}
 			},
 			"columns" : [
 				{},
 				{ "data" : "ipAddress" },
-				{ "data" : "groupName" },
-				{ "data" : "percent" },
-				{ "data" : "totalTraffic" },
-				{ "data" : "uploadTraffic" },
-				{ "data" : "downloadTraffic" }
+				{ "data" : "groupName" , "searchable" : false },
+				{ "data" : "percent" , "searchable" : false },
+				{ "data" : "totalTraffic" , "searchable" : false },
+				{ "data" : "uploadTraffic" , "searchable" : false },
+				{ "data" : "downloadTraffic" , "searchable" : false }
 			],
 			"columnDefs" : [
 				{
@@ -145,7 +148,11 @@ function findData(from, period) {
 					"searchable": false,
 					"orderable": false,
 					"render": function (data, type, row, meta) {
-						       	return meta.row + meta.settings._iDisplayStart + 1;
+								if (meta.row == 0) {
+									return "";
+								} else {
+									return meta.row + meta.settings._iDisplayStart;
+								}
 						   	}
 				}
 			],

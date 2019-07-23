@@ -93,6 +93,12 @@ nav > ul > li {
   color: #D20A0A !important;
 }
 
+.summary-tr {
+  font-weight: bold;
+  background-color: #b1aeae !important;
+  font-size: 1rem;
+}
+
 /*
 @font-face {
   font-family: MicrosoftJhengHei;

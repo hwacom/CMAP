@@ -5,11 +5,13 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -25,8 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.DeviceDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DataPollerSetting;
+import com.cmap.model.DeviceList;
 import com.cmap.plugin.module.netflow.NetFlowDAO;
 import com.cmap.plugin.module.netflow.NetFlowIpStat;
 import com.cmap.plugin.module.netflow.NetFlowVO;
@@ -45,6 +49,9 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
 
     @Autowired
     private NetFlowStatisticsDAO netFlowStatisticsDAO;
+
+    @Autowired
+    private DeviceDAO deviceDAO;
 
     @Override
     public NetFlowVO executeNetFlowIpStatistics() throws ServiceLayerException {
@@ -325,9 +332,9 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
             List<ModuleIpTrafficStatistics> entities = new ArrayList<>();
 
             ipTrafficMap.forEach(new BiConsumer<String, Map<String, Integer>>() {
-
                 @Override
                 public void accept(String ipAddress, Map<String, Integer> trafficMap) {
+                    Integer totalSize = trafficMap.containsKey(Constants.TOTAL) ? trafficMap.get(Constants.TOTAL) : 0;
                     Integer downloadSize = trafficMap.containsKey(Constants.DOWNLOAD) ? trafficMap.get(Constants.DOWNLOAD) : 0;
                     Integer uploadSize = trafficMap.containsKey(Constants.UPLOAD) ? trafficMap.get(Constants.UPLOAD) : 0;
 
@@ -344,6 +351,7 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         entity.setCreateBy(getUserName());
                     }
 
+                    entity.setTotalTraffic(entity.getTotalTraffic() + totalSize);
                     entity.setDownloadTraffic(entity.getDownloadTraffic() + downloadSize);
                     entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
                     entity.setUpdateTime(currentTimestamp());
@@ -357,13 +365,13 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
     }
 
     @Override
-    public long countModuleIpTrafficStatistics(NetFlowStatisticsVO nfsVO)
-            throws ServiceLayerException {
+    public long countModuleIpTrafficStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException {
         long retVal = 0;
         try {
+            retVal = netFlowStatisticsDAO.countModuleIpStatisticsRanking(nfsVO);
 
         } catch (Exception e) {
-
+            log.error(e.toString(), e);
         }
         return retVal;
     }
@@ -372,9 +380,71 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
     public List<NetFlowStatisticsVO> findModuleIpTrafficStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException {
         List<NetFlowStatisticsVO> retList = new ArrayList<>();
         try {
+            List<Object[]> entities = netFlowStatisticsDAO.findModuleIpStatisticsRanking(nfsVO, nfsVO.getStartNum(), nfsVO.getPageLength());
+
+            if (entities != null && !entities.isEmpty()) {
+                Map<String, String> groupNameMap = new HashMap<>();
+
+                // Step 1. 第一筆塞入 Total 列
+                String ttlTotalTraffic = Objects.toString(entities.get(0)[6], "0");
+                String ttlUploadTraffic = Objects.toString(entities.get(0)[7], "0");
+                String ttlDownloadTraffic = Objects.toString(entities.get(0)[8], "0");
+                NetFlowStatisticsVO vo = new NetFlowStatisticsVO();
+                vo.setIpAddress("總計");
+                vo.setPercent("100%");
+                vo.setTotalTraffic(convertByteSizeUnit(new BigDecimal(ttlTotalTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                vo.setUploadTraffic(convertByteSizeUnit(new BigDecimal(ttlUploadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                vo.setDownloadTraffic(convertByteSizeUnit(new BigDecimal(ttlDownloadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                retList.add(vo);
+
+                // Step 2. 第二筆開始塞入 Raw data
+                entities.forEach(new Consumer<Object[]>() {
+                    @Override
+                    public void accept(Object[] entity) {
+                        String ipAddress = Objects.toString(entity[0]);
+                        String groupId = Objects.toString(entity[1]);
+                        String percent = Objects.toString(entity[2], "0");
+                        String totalTraffic = Objects.toString(entity[3], "0");
+                        String uploadTraffic = Objects.toString(entity[4], "0");
+                        String downloadTraffic = Objects.toString(entity[5], "0");
+
+                        if (StringUtils.isBlank(ipAddress) || StringUtils.isBlank(groupId)) {
+                            return;
+                        }
+
+                        NetFlowStatisticsVO vo = new NetFlowStatisticsVO();
+                        vo.setIpAddress(ipAddress);
+                        vo.setGroupId(groupId);
+
+                        String groupName = "N/A";
+                        /*
+                         *  為避免每一筆查詢結果都要再查詢一次群組名稱(DeviceList.GroupName)
+                         *  使用MAP紀錄下已查詢過的群組ID(groupId)，下一次就不須再做DB query
+                         */
+                        if (groupNameMap.containsKey(groupId)) {
+                            groupName = groupNameMap.get(groupId);
+
+                        } else {
+                            DeviceList device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+
+                            if (device != null) {
+                                groupName = device.getGroupName();
+                                groupNameMap.put(groupId, groupName);
+                            }
+                        }
+                        vo.setGroupName(groupName);
+                        vo.setPercent(new BigDecimal(percent).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "%");
+                        vo.setTotalTraffic(convertByteSizeUnit(new BigDecimal(totalTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                        vo.setUploadTraffic(convertByteSizeUnit(new BigDecimal(uploadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                        vo.setDownloadTraffic(convertByteSizeUnit(new BigDecimal(downloadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                        retList.add(vo);
+                    }
+                });
+            }
 
         } catch (Exception e) {
-
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("查詢異常，請重新操作!");
         }
         return retList;
     }

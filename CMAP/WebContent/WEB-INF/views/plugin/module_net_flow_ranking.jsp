@@ -84,6 +84,8 @@
 	  </div>
 	</div>
 	
+	<input type="hidden" id="queryDatePeriod" name="queryDatePeriod" />
+	
 	<!-- 查詢結果TABLE區塊 -->
 	<div class="row">
 	  <div class="col-sm-12 myTableSection" style="display:none;">

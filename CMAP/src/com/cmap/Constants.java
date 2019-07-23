@@ -53,6 +53,7 @@ public class Constants {
 
 	public static final String DOWNLOAD = "DOWNLOAD";
 	public static final String UPLOAD = "UPLOAD";
+	public static final String TOTAL = "TOTAL";
 
 	public static final String IPV4 = "IPv4";
 	public static final String IPV6 = "IPv6";
