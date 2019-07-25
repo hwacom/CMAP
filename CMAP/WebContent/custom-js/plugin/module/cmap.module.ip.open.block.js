@@ -3,6 +3,7 @@
  */
 var resultTable_blockedIpRecord;	//DataTable
 var blockReasonShowLength = 30;
+var openReasonShowLength = 30;
 var _navAndMenuAndFooterHeight = 0;
 var _deductHeight = 0;
 var blockedIpTableHeight;
@@ -148,7 +149,12 @@ function findBlockedIpRecordData() {
 				"url" : _ctx + '/delivery/getBlockedIpData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
-					d.queryGroupId = $("#group").val()
+					if ($('#queryFrom').val() == 'WEB') {
+						d.queryGroupId = $("#queryGroup").val()
+						
+					} else if ($('#queryFrom').val() == 'MOBILE') {
+						d.queryGroupId = $("#queryGroup_mobile").val()
+					}
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
@@ -162,7 +168,7 @@ function findBlockedIpRecordData() {
             },
             */
 			"drawCallback" : function(settings) {
-				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
+				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				$("div.dataTables_length").parent().removeClass('col-sm-12');
 				$("div.dataTables_length").parent().addClass('col-sm-6');
 				$("div.dataTables_filter").parent().removeClass('col-sm-12');
@@ -175,14 +181,41 @@ function findBlockedIpRecordData() {
 				
 				bindTrEventOnlyCheckbox();
 				checkboxOnChangeEvent();
+				
+				var pathname = window.location.pathname;
+				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
+				if (lastPath === "/ipOpenBlock") {
+					$('[data-field="status"]').hide();
+					$('[data-field="openTime"]').hide();
+					$('[data-field="openReason"]').hide();
+					$('[data-field="openBy"]').hide();
+				}
+				
+				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
+			},
+			"rowCallback": function( row, data ) {
+				$('td:eq(1)', row).attr('data-field', 'seq');
+				$('td:eq(2)', row).attr('data-field', 'groupName');
+				$('td:eq(3)', row).attr('data-field', 'ipAddress');
+				$('td:eq(4)', row).attr('data-field', 'status');
+				$('td:eq(5)', row).attr('data-field', 'blockTime');
+				$('td:eq(6)', row).attr('data-field', 'blockReason');
+				$('td:eq(7)', row).attr('data-field', 'blockBy');
+				$('td:eq(8)', row).attr('data-field', 'openTime');
+				$('td:eq(9)', row).attr('data-field', 'openReason');
+				$('td:eq(10)', row).attr('data-field', 'openBy');
 			},
 			"columns" : [
 				{},{},
-				{ "data" : "groupName" , "className" : "center" },
-				{ "data" : "ipAddress" , "className" : "center" },
+				{ "data" : "groupName" , "className" : "left" },
+				{ "data" : "ipAddress" , "className" : "left" },
+				{ "data" : "statusFlag" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
 				{},
 				{ "data" : "blockBy" , "className" : "center" },
+				{ "data" : "openTimeStr" , "className" : "center" },
+				{},
+				{ "data" : "openBy" , "className" : "center" },
 			],
 			"columnDefs" : [ 
 				{
@@ -205,7 +238,7 @@ function findBlockedIpRecordData() {
 						   	}
 				},
 				{
-					"targets" : [5],
+					"targets" : [6],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,
@@ -214,6 +247,20 @@ function findBlockedIpRecordData() {
 							 return getPartialContentHtml(row.blockReason, blockReasonShowLength); 	//內容長度超出設定，僅顯示部分內容
 						} else {
 							return row.blockReason; 							//未超出設定則全部顯示
+						}
+					}
+				}
+				,
+				{
+					"targets" : [9],
+					"className" : "left",
+					"searchable": true,
+					"orderable": false,
+					"render" : function(data, type, row) {
+						if (row.openReason != null && row.openReason.length > openReasonShowLength) {
+							 return getPartialContentHtml(row.openReason, openReasonShowLength); 	//內容長度超出設定，僅顯示部分內容
+						} else {
+							return row.openReason; 							//未超出設定則全部顯示
 						}
 					}
 				}

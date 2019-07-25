@@ -2,6 +2,7 @@ package com.cmap.plugin.module.ip.blocked.record;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,9 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                 vo.setOpenTimeStr(bilEntity.getOpenTime() != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getOpenTime()) : null);
                 vo.setUpdateTimeStr(Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getUpdateTime()));
                 vo.setGroupName(dlEntity.getGroupName());
+                vo.setStatusFlag(StringUtils.equals(bilEntity.getStatusFlag(), "B")
+                                    ? "B-封鎖"
+                                    : StringUtils.equals(bilEntity.getStatusFlag(), "O") ? "O-開通" : "N/A");
 
                 retList.add(vo);
             }

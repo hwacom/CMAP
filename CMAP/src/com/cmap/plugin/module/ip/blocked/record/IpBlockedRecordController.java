@@ -38,6 +38,7 @@ public class IpBlockedRecordController extends BaseController {
 
 		} finally {
 			model.addAttribute("queryGroup", "");
+			model.addAttribute("group", "");
 			model.addAttribute("groupList", groupListMap);
 
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());

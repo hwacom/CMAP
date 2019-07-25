@@ -462,6 +462,17 @@
 	                    </c:if>
 	                    <!-- [IP開通/封鎖] END -->
 	                    
+	                    <!-- [IP封鎖紀錄查詢] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_BLOCKED_RECORD eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_ipBlockedRecord" href="${pageContext.request.contextPath}/record/ipBlocked">
+		                    	  <span data-feather="check-square"></span>
+		                    	  	<span><spring:message code="func.ip.open.block.record" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [IP封鎖紀錄查詢] END -->
+	                    
 	                    <!-- [網卡MAC開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK eq __SHOW__}">
 	                    	<li class="subMenu-item">

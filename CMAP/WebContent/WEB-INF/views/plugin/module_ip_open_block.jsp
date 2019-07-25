@@ -47,7 +47,7 @@
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select path="group" id="group" style="width: 200px;" onchange="findBlockedIpRecordData()">
+		   	    	<form:select path="group" id="queryGroup" style="width: 200px;" onchange="findBlockedIpRecordData()">
 		               	<form:option value="" label="=== ALL ===" />
 		                <form:options items="${groupList}" />
 		            </form:select>
@@ -68,12 +68,16 @@
 			  	<thead class="center">
 			    	<tr>
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
-				      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-				      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
-				      <th scope="col" nowrap="nowrap"><spring:message code="ip.address" /></th>
-				      <th scope="col" nowrap="nowrap"><spring:message code="block_time" /></th>
-				      <th scope="col" nowrap="nowrap"><spring:message code="block.reason" /></th>
-				      <th scope="col" nowrap="nowrap"><spring:message code="block.by" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.address" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
 				    </tr>
 				  </thead>
 				</table>

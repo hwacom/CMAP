@@ -54,41 +54,30 @@ $(document).ready(function() {
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
 			resultTable.ajax.reload();
-			
-			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false).change();
-			}
-			
-			if (typeof initActionBar === 'function') {
-				initActionBar();
-			}
     	}
     	if (typeof resultTable_errorLog !== "undefined") {
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
     		resultTable_errorLog.ajax.reload();
-			
-			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false).change();
-			}
-			
-			if (typeof initActionBar === 'function') {
-				initActionBar();
-			}
     	}
     	if (typeof resultTable_jobLog !== "undefined") {
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
     		resultTable_jobLog.ajax.reload();
-			
-			if (typeof $("#checkAll") !== "undefined") {
-				$('input[name=checkAll]').prop('checked', false).change();
-			}
-			
-			if (typeof initActionBar === 'function') {
-				initActionBar();
-			}
     	}
+    	if (typeof resultTable_blockedIpRecord !== "undefined") {
+    		calBlockedIpSectionHeight();
+    		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
+    		resultTable_blockedIpRecord.ajax.reload();
+    	}
+    	
+    	if (typeof $("#checkAll") !== "undefined") {
+			$('input[name=checkAll]').prop('checked', false).change();
+		}
+		
+		if (typeof initActionBar === 'function') {
+			initActionBar();
+		}
     	
     	if ($('#chkbox').length > 0) {
     		var chooseIdx = [];
