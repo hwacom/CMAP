@@ -311,47 +311,52 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 				if (StringUtils.equals(dataType, Constants.DATA_TYPE_OF_NET_FLOW)) {
 				    // Step 7. 若有設定要統計IP流量
 	                if (StringUtils.equals(Env.ENABLE_NET_FLOW_IP_STATISTICS, Constants.DATA_Y)) {
-	                    List<Map<String, String>> sourceEntryMapList = retVO.getSourceEntryMapList();
+	                    if (retVO != null && retVO.getSourceEntryMapList() != null && !retVO.getSourceEntryMapList().isEmpty()) {
+	                        List<Map<String, String>> sourceEntryMapList = retVO.getSourceEntryMapList();
 
-	                    final String SOURCE_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SOURCE_IP;
-	                    final String DESTINATION_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_DESTINATION_IP;
-	                    final String SIZE = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SIZE;
+	                        final String SOURCE_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SOURCE_IP;
+	                        final String DESTINATION_IP = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_DESTINATION_IP;
+	                        final String SIZE = Env.NET_FLOW_SOURCE_COLUMN_NAME_OF_SIZE;
 
-	                    Map<String, String> specialSettingMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
-                        String groupId = specialSettingMap.get(Constants.GROUP_ID);
-	                    String groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
+	                        Map<String, String> specialSettingMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
+	                        String groupId = specialSettingMap.get(Constants.GROUP_ID);
+	                        String groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
 
-	                    long beginTime = System.currentTimeMillis();
-	                    Map<String, Map<String, Integer>> ipTrafficMap = new HashMap<>();
-	                    for (Map<String, String> sourceEntryMap : sourceEntryMapList) {
-	                        String sourceIP = sourceEntryMap.get(SOURCE_IP);
-	                        String destinationIP = sourceEntryMap.get(DESTINATION_IP);
-	                        Integer size = StringUtils.isNotBlank(sourceEntryMap.get(SIZE)) ? Integer.parseInt(sourceEntryMap.get(SIZE)) : 0;
+	                        long beginTime = System.currentTimeMillis();
+	                        Map<String, Map<String, Long>> ipTrafficMap = new HashMap<>();
+	                        for (Map<String, String> sourceEntryMap : sourceEntryMapList) {
+	                            String sourceIP = sourceEntryMap.get(SOURCE_IP);
+	                            String destinationIP = sourceEntryMap.get(DESTINATION_IP);
+	                            Long size = StringUtils.isNotBlank(sourceEntryMap.get(SIZE)) ? Long.valueOf(sourceEntryMap.get(SIZE)) : 0;
 
-	                        // Source_IP 角度 >>> 上傳流量
-	                        if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
-	                                && chkIpInGroupSubnet(groupSubnet, sourceIP, Constants.IPV4)
-	                            ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
-	                            ipTrafficMap = calculateIPTraffic(ipTrafficMap, sourceIP, size, Constants.UPLOAD);
+	                            if (size < 0) {
+	                                log.error("************ [Net_Flow_Statistic.ERROR] sourceIP: " + sourceIP + " >> destinationIP: " + destinationIP + " >> size: " + size);
+	                            }
+	                            // Source_IP 角度 >>> 上傳流量
+	                            if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
+	                                    && chkIpInGroupSubnet(groupSubnet, sourceIP, Constants.IPV4)
+	                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
+	                                ipTrafficMap = calculateIPTraffic(ipTrafficMap, sourceIP, size, Constants.UPLOAD);
+	                            }
+
+	                            // Destination_IP 角度 >>> 下載流量
+	                            if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
+	                                    && chkIpInGroupSubnet(groupSubnet, destinationIP, Constants.IPV4)
+	                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
+	                                ipTrafficMap = calculateIPTraffic(ipTrafficMap, destinationIP, size, Constants.DOWNLOAD);
+	                            }
 	                        }
+	                        long endTime = System.currentTimeMillis();
+	                        log.info("******************* NET_FLOW_IP_STATISTICS > for-loop takes " + (endTime-beginTime) + " ms");
 
-	                        // Destination_IP 角度 >>> 下載流量
-	                        if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
-                                    && chkIpInGroupSubnet(groupSubnet, destinationIP, Constants.IPV4)
-                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
-	                            ipTrafficMap = calculateIPTraffic(ipTrafficMap, destinationIP, size, Constants.DOWNLOAD);
+	                        beginTime = System.currentTimeMillis();
+	                        if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
+	                            // 寫入TABLE
+	                            netFlowStatisticsService.calculateIpTrafficStatistics(groupId, EXECUTE_DATE, ipTrafficMap);
 	                        }
+	                        endTime = System.currentTimeMillis();
+	                        log.info("******************* NET_FLOW_IP_STATISTICS > write-table takes " + (endTime-beginTime) + " ms");
 	                    }
-	                    long endTime = System.currentTimeMillis();
-	                    log.info("******************* NET_FLOW_IP_STATISTICS > for-loop takes " + (endTime-beginTime) + " ms");
-
-	                    beginTime = System.currentTimeMillis();
-	                    if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
-	                        // 寫入TABLE
-	                        netFlowStatisticsService.calculateIpTrafficStatistics(groupId, EXECUTE_DATE, ipTrafficMap);
-	                    }
-	                    endTime = System.currentTimeMillis();
-	                    log.info("******************* NET_FLOW_IP_STATISTICS > write-table takes " + (endTime-beginTime) + " ms");
 	                }
 				}
 
@@ -390,8 +395,8 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 		return dpsVO;
 	}
 
-	private Map<String, Map<String, Integer>> calculateIPTraffic(Map<String, Map<String, Integer>> ipTrafficMap, String ip, Integer size, String direction) {
-	    Map<String, Integer> tmpMap = null;
+	private Map<String, Map<String, Long>> calculateIPTraffic(Map<String, Map<String, Long>> ipTrafficMap, String ip, Long size, String direction) {
+	    Map<String, Long> tmpMap = null;
 	    if (StringUtils.isNotBlank(ip)) {
             if (ipTrafficMap.containsKey(ip)) {
                 tmpMap = ipTrafficMap.get(ip);
@@ -399,11 +404,23 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                 tmpMap = new HashMap<>();
             }
 
-            Integer preTraffic = tmpMap.containsKey(direction) ? tmpMap.get(direction) : 0;
-            tmpMap.put(direction, (preTraffic + size));
+            Long preTraffic = tmpMap.containsKey(direction) ? tmpMap.get(direction) : 0;
+            Long newTraffic = preTraffic + size;
 
-            Integer preTtlTraffic = tmpMap.containsKey(Constants.TOTAL) ? tmpMap.get(Constants.TOTAL) : 0;
-            tmpMap.put(Constants.TOTAL, (preTtlTraffic + size));
+            if (preTraffic < 0 || newTraffic < 0) {
+                log.error("******* [Net_Flow_Statistic.ERROR] ip: " + ip + " >> preTraffic: " + preTraffic + " >> size: " + size + " >> newTraffic: " + newTraffic);
+            } else {
+                tmpMap.put(direction, newTraffic);
+            }
+
+            Long preTtlTraffic = tmpMap.containsKey(Constants.TOTAL) ? tmpMap.get(Constants.TOTAL) : 0;
+            Long newTtlTraffic = preTtlTraffic + size;
+
+            if (preTtlTraffic < 0 || newTtlTraffic < 0) {
+                log.error("******* [Net_Flow_Statistic.ERROR] ip: " + ip + " >> preTtlTraffic: " + preTtlTraffic + " >> size: " + size + " >> newTtlTraffic: " + newTtlTraffic);
+            } else {
+                tmpMap.put(Constants.TOTAL, newTtlTraffic);
+            }
 
             ipTrafficMap.put(ip, tmpMap);
         }

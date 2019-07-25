@@ -26,6 +26,7 @@ $(document).ready(function() {
 	});
 
 	$("#btnDelete").click(function() {
+		isModify = false;
 		confirm("確認是否刪除?", "doDelete");
 	});
 	
@@ -146,6 +147,10 @@ function jobAction(action) {
 					}
 					
 				} else {
+					// hidden欄位清空，避免仍保留住前一次按修改按鈕時的排程資料，導致後續若是要add會判斷成modify
+					$("#jobKeyName").val("");
+					$("#jobKeyGroup").val("");
+					
 					alert(resp.message);
 					findData('WEB');
 				}
@@ -295,10 +300,10 @@ function findData(from) {
 				"type" : "POST",
 				"data" : function ( d ) {},
 				"beforeSend" : function() {
-					showProcessing();
+					//showProcessing();
 				},
 				"complete" : function() {
-					hideProcessing();
+					//hideProcessing();
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();

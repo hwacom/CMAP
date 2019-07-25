@@ -23,7 +23,6 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -39,7 +38,6 @@ import com.cmap.service.impl.jobs.BaseJobImpl.Result;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
 
 @Service("netFlowStatisticsService")
-@Transactional
 public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements NetFlowStatisticsService {
     @Log
     private static Logger log;
@@ -326,17 +324,17 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
 
     @Override
     public void calculateIpTrafficStatistics(
-            String groupId, Date statDate, Map<String, Map<String, Integer>> ipTrafficMap) throws ServiceLayerException {
+            String groupId, Date statDate, Map<String, Map<String, Long>> ipTrafficMap) throws ServiceLayerException {
 
         if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
             List<ModuleIpTrafficStatistics> entities = new ArrayList<>();
 
-            ipTrafficMap.forEach(new BiConsumer<String, Map<String, Integer>>() {
+            ipTrafficMap.forEach(new BiConsumer<String, Map<String, Long>>() {
                 @Override
-                public void accept(String ipAddress, Map<String, Integer> trafficMap) {
-                    Integer totalSize = trafficMap.containsKey(Constants.TOTAL) ? trafficMap.get(Constants.TOTAL) : 0;
-                    Integer downloadSize = trafficMap.containsKey(Constants.DOWNLOAD) ? trafficMap.get(Constants.DOWNLOAD) : 0;
-                    Integer uploadSize = trafficMap.containsKey(Constants.UPLOAD) ? trafficMap.get(Constants.UPLOAD) : 0;
+                public void accept(String ipAddress, Map<String, Long> trafficMap) {
+                    Long totalSize = trafficMap.containsKey(Constants.TOTAL) ? trafficMap.get(Constants.TOTAL) : 0;
+                    Long downloadSize = trafficMap.containsKey(Constants.DOWNLOAD) ? trafficMap.get(Constants.DOWNLOAD) : 0;
+                    Long uploadSize = trafficMap.containsKey(Constants.UPLOAD) ? trafficMap.get(Constants.UPLOAD) : 0;
 
                     // Step 1. 查找是否已有紀錄
                     ModuleIpTrafficStatistics entity =
@@ -351,12 +349,24 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         entity.setCreateBy(getUserName());
                     }
 
-                    entity.setTotalTraffic(entity.getTotalTraffic() + totalSize);
-                    entity.setDownloadTraffic(entity.getDownloadTraffic() + downloadSize);
-                    entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
-                    entity.setUpdateTime(currentTimestamp());
-                    entity.setUpdateBy(getUserName());
-                    entities.add(entity);
+                    long newTotalTraffic = entity.getTotalTraffic() + totalSize;
+                    long newDownloadTraffic = entity.getDownloadTraffic() + downloadSize;
+                    long newUploadTraffic = entity.getUploadTraffic() + uploadSize;
+
+                    if (newTotalTraffic < 0 || newDownloadTraffic < 0 || newUploadTraffic < 0) {
+                        log.error("************ [Net_Flow_Statistic.ERROR] "
+                                + "ipAddress: " + ipAddress + " >> preTotalTraffic: " + entity.getTotalTraffic() + " >> totalSize: " + totalSize
+                                + " >> preDownloadTraffic: " + entity.getDownloadTraffic() + " >> downloadSize: " + downloadSize
+                                + " >> preUploadTraffic: " + entity.getUploadTraffic() + " >> uploadSize: " + uploadSize);
+
+                    } else {
+                        entity.setTotalTraffic(entity.getTotalTraffic() + totalSize);
+                        entity.setDownloadTraffic(entity.getDownloadTraffic() + downloadSize);
+                        entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
+                        entity.setUpdateTime(currentTimestamp());
+                        entity.setUpdateBy(getUserName());
+                        entities.add(entity);
+                    }
                 }
             });
 

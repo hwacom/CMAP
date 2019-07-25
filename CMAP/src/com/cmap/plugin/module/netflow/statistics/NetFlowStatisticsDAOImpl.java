@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,7 +45,12 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
             sb.append(" and mits.ipAddress = :ipAddress ");
         }
 
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Session session = secondSessionFactory.getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+
         Query<?> q = session.createQuery(sb.toString());
 
         if (StringUtils.isNotBlank(groupId)) {
@@ -88,25 +94,34 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
     public long countModuleIpStatisticsRanking(NetFlowStatisticsVO nfsVO) {
         try {
             StringBuffer sb = new StringBuffer();
-            sb.append(" select count(mits.id) ")
-              .append(" from ModuleIpTrafficStatistics mits ")
-              .append(" where 1=1 ");
+            sb.append(" select count(0) ")
+              .append(" from ( ")
+              .append("   select 1 ")
+              .append("   from Module_Ip_Traffic_Statistics mits ")
+              .append("   where 1=1 ");
 
             if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
-                sb.append(" and mits.groupId = :groupId ");
+                sb.append(" and mits.group_Id = :groupId ");
             }
             if (StringUtils.isNotBlank(nfsVO.getQueryDateBegin())) {
-                sb.append(" and mits.statDate >= :queryDateBegin ");
+                sb.append(" and mits.stat_Date >= :queryDateBegin ");
             }
             if (StringUtils.isNotBlank(nfsVO.getQueryDateEnd())) {
-                sb.append(" and mits.statDate <= :queryDateEnd ");
+                sb.append(" and mits.stat_Date <= :queryDateEnd ");
             }
             if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
-                sb.append(" and mits.ipAddress like :searchValue ");
+                sb.append(" and mits.ip_Address like :searchValue ");
+            }
+            sb.append("   group by mits.group_id, mits.ip_address ")
+              .append(" ) subQuery ");
+
+            Session session = secondSessionFactory.getCurrentSession();
+
+            if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                session.beginTransaction();
             }
 
-            Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-            Query<?> q = session.createQuery(sb.toString());
+            Query<?> q = session.createNativeQuery(sb.toString());
             if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
                 q.setParameter("groupId", nfsVO.getQueryGroupId());
             }
@@ -133,10 +148,10 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
             StringBuffer sb = new StringBuffer();
             sb.append(" select mits1.ip_address ")
               .append("       ,mits1.group_id ")
-              .append("       ,(mits1.total_traffic / mits2.sum_total * 100) as percent ")
-              .append("       ,mits1.total_traffic ")
-              .append("       ,mits1.upload_traffic ")
-              .append("       ,mits1.download_traffic ")
+              .append("       ,(sum(mits1.total_traffic) / mits2.sum_total * 100) as percent ")
+              .append("       ,sum(mits1.total_traffic) ")
+              .append("       ,sum(mits1.upload_traffic) ")
+              .append("       ,sum(mits1.download_traffic) ")
               .append("       ,mits2.sum_total as ttl_totalTraffic ")
               .append("       ,mits2.sum_upload as ttl_uploadTraffic ")
               .append("       ,mits2.sum_download as ttl_downloadTraffic ")
@@ -173,6 +188,8 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
             if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
                 sb.append(" and mits1.ip_address like :searchValue ");
             }
+            sb.append(" group by mits1.ip_address, mits1.group_id ");
+
             if (StringUtils.isNotBlank(nfsVO.getOrderColumn())) {
                 sb.append(" order by ").append(nfsVO.getOrderColumn()).append(" ").append(nfsVO.getOrderDirection());
 
@@ -180,7 +197,12 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
                 sb.append(" order by mits1.total_traffic desc ");
             }
 
-            Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+            Session session = secondSessionFactory.getCurrentSession();
+
+            if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                session.beginTransaction();
+            }
+
             Query<?> q = session.createNativeQuery(sb.toString());
             if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
                 q.setParameter("groupId", nfsVO.getQueryGroupId());

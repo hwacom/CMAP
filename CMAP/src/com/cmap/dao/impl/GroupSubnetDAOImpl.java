@@ -1,5 +1,6 @@
 package com.cmap.dao.impl;
 
+import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import com.cmap.model.GroupSubnetSetting;
 public class GroupSubnetDAOImpl extends BaseDaoHibernate implements GroupSubnetDAO {
 
     @Override
-    public GroupSubnetSetting getGroupSubnetSettingByGroupId(String groupId) {
+    public List<GroupSubnetSetting> getGroupSubnetSettingByGroupId(String groupId) {
         StringBuffer sb = new StringBuffer();
         sb.append(" from GroupSubnetSetting gss ")
           .append(" where 1=1 ")
@@ -22,6 +23,6 @@ public class GroupSubnetDAOImpl extends BaseDaoHibernate implements GroupSubnetD
         Query<?> q = session.createQuery(sb.toString());
         q.setParameter("groupId", groupId);
 
-        return (GroupSubnetSetting)q.uniqueResult();
+        return (List<GroupSubnetSetting>)q.list();
     }
 }

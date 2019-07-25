@@ -18,7 +18,7 @@ public interface NetFlowStatisticsService {
      * @throws ServiceLayerException
      */
     public void calculateIpTrafficStatistics(
-            String groupId, Date statDate, Map<String, Map<String, Integer>> ipTrafficMap) throws ServiceLayerException;
+            String groupId, Date statDate, Map<String, Map<String, Long>> ipTrafficMap) throws ServiceLayerException;
 
     /**
      * 取得 NET_FLOW 流量統計資料筆數

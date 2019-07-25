@@ -527,23 +527,31 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public String getGroupSubnetSetting(String groupId, String ipVersion) {
-        String retVal = null;
+        String retVal = "";
         try {
-            GroupSubnetSetting setting = groupSubnetDAO.getGroupSubnetSettingByGroupId(groupId);
+            List<GroupSubnetSetting> settings = groupSubnetDAO.getGroupSubnetSettingByGroupId(groupId);
 
-            if (setting == null) {
+            if (settings == null || (settings != null && settings.isEmpty())) {
                 log.error("GROUP_ID = " + groupId + " >>> 查無網段設定(GroupSubnetSetting) !!");
                 return retVal;
             }
 
-            switch (ipVersion) {
-                case Constants.IPV4:
-                    retVal = setting.getIpv4Subnet();
-                    break;
+            int idx = 1;
+            for (GroupSubnetSetting setting : settings) {
+                switch (ipVersion) {
+                    case Constants.IPV4:
+                        retVal += setting.getIpv4Subnet();
+                        break;
 
-                case Constants.IPV6:
-                    retVal = setting.getIpv6Subnet();
-                    break;
+                    case Constants.IPV6:
+                        retVal += setting.getIpv6Subnet();
+                        break;
+                }
+
+                if (idx < settings.size()) {
+                    retVal += Env.COMM_SEPARATE_SYMBOL;
+                }
+                idx++;
             }
 
         } catch (Exception e) {
@@ -580,23 +588,38 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     private boolean chkIpInGroupSubnetForIPv4(String cidr, String ip) {
-        String[] ips = ip.split("\\.");
-        int ipAddr = (Integer.parseInt(ips[0]) << 24)
-                        | (Integer.parseInt(ips[1]) << 16)
-                        | (Integer.parseInt(ips[2]) << 8)
-                        | Integer.parseInt(ips[3]);
+        if (StringUtils.isBlank(cidr)) {
+            return false;
+        }
 
-        int type = Integer.parseInt(cidr.replaceAll(".*/", ""));
-        int mask = 0xFFFFFFFF << (32 - type);
+        // 一個群組可能會有多組網段設定
+        String[] cidrs = cidr.split(Env.COMM_SEPARATE_SYMBOL);
 
-        String cidrIp = cidr.replaceAll("/.*", "");
-        String[] cidrIps = cidrIp.split("\\.");
-        int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24)
-                            | (Integer.parseInt(cidrIps[1]) << 16)
-                            | (Integer.parseInt(cidrIps[2]) << 8)
-                            | Integer.parseInt(cidrIps[3]);
+        boolean result = false;
+        for (String cidrStr : cidrs) {
+            String[] ips = ip.split("\\.");
+            int ipAddr = (Integer.parseInt(ips[0]) << 24)
+                            | (Integer.parseInt(ips[1]) << 16)
+                            | (Integer.parseInt(ips[2]) << 8)
+                            | Integer.parseInt(ips[3]);
 
-        return (ipAddr & mask) == (cidrIpAddr & mask);
+            int type = Integer.parseInt(cidrStr.replaceAll(".*/", ""));
+            int mask = 0xFFFFFFFF << (32 - type);
+
+            String cidrIp = cidrStr.replaceAll("/.*", "");
+            String[] cidrIps = cidrIp.split("\\.");
+            int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24)
+                                | (Integer.parseInt(cidrIps[1]) << 16)
+                                | (Integer.parseInt(cidrIps[2]) << 8)
+                                | Integer.parseInt(cidrIps[3]);
+            result = (ipAddr & mask) == (cidrIpAddr & mask);
+
+            if (result) {
+                // 只要IP落在其中一組網段內則終止迴圈
+                break;
+            }
+        }
+        return result;
     }
 
     /**

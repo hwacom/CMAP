@@ -137,9 +137,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            q.setParameter("queryDateStr", nfVO.getQueryDateStr());
-            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBeginStr());
-            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEndStr());
+            q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
+            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
+            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
             q.setParameter("endDate", nfVO.getQueryDateEnd());
@@ -256,9 +256,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            q.setParameter("queryDateStr", nfVO.getQueryDateStr());
-            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBeginStr());
-            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEndStr());
+            q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
+            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
+            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
             q.setParameter("endDate", nfVO.getQueryDateEnd());
@@ -657,9 +657,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            q.setParameter("queryDateStr", nfVO.getQueryDateStr());
-            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBeginStr());
-            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEndStr());
+            q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
+            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
+            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
             q.setParameter("endDate", nfVO.getQueryDateEnd());

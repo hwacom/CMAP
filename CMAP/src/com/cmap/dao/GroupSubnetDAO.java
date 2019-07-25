@@ -1,5 +1,6 @@
 package com.cmap.dao;
 
+import java.util.List;
 import com.cmap.model.GroupSubnetSetting;
 
 public interface GroupSubnetDAO {
@@ -9,5 +10,5 @@ public interface GroupSubnetDAO {
      * @param groupId
      * @return
      */
-    public GroupSubnetSetting getGroupSubnetSettingByGroupId(String groupId);
+    public List<GroupSubnetSetting> getGroupSubnetSettingByGroupId(String groupId);
 }
