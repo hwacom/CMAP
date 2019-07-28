@@ -223,7 +223,7 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
             sb.append(" order by nfrd.").append(nfVO.getOrderColumn()).append(" ").append(nfVO.getOrderDirection());
 
         } else {
-            sb.append(" order by nfrd.size desc ");
+            sb.append(" order by nfrd.from_time desc ");
         }
 
         Session session = secondSessionFactory.getCurrentSession();

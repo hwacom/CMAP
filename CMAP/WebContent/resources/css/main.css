@@ -27,6 +27,11 @@ img {
   vertical-align: middle;
 }
 
+.stop-scrolling {
+  height: 100%;
+  overflow: hidden;
+}
+
 .must {
   color: blue;
 }

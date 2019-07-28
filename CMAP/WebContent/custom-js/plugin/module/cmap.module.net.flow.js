@@ -68,6 +68,76 @@ function countDown(status) {
 	}
 }
 
+function bindScrollEvent() {
+	$(".dataTables_scrollBody").scroll(function(e) {
+		var scrollTop = $(this).prop("scrollTop");
+		var scrollTopMax = $(".dataTables_scrollBody").prop("scrollTopMax");
+		if (scrollTop > scrollTopMax - 300) {
+			console.log("...");
+		}
+	});
+}
+
+function findNextData() {
+	$.ajax({
+		url : _ctx + '/plugin/module/netFlow/getNetFlowData.json',
+		data : function ( d ) {
+			if ($('#queryFrom').val() == 'WEB') {
+				d.queryGroup = $("#queryGroup").val(),
+				d.querySourceIp = $("#query_SourceIp").val(),
+				d.queryDestinationIp = $("#query_DestinationIp").val(),
+				d.querySenderIp = $("#query_SenderIp").val(),
+				d.querySourcePort = $("#query_SourcePort").val(),
+				d.queryDestinationPort = $("#query_DestinationPort").val(),
+				//d.queryMac = $("#queryMac").val(),
+				d.queryDateBegin = $("#queryDateBegin").val(),
+				//d.queryDateEnd = $("#queryDateEnd").val()
+				d.queryTimeBegin = $("#queryTimeBegin").val(),
+				d.queryTimeEnd = $("#queryTimeEnd").val()
+			
+			} else if ($('#queryFrom').val() == 'MOBILE') {
+				d.queryGroup = $("#queryGroup_mobile").val(),
+				d.querySourceIp = $("#query_SourceIp_mobile").val(),
+				d.queryDestinationIp = $("#query_DestinationIp_mobile").val(),
+				d.querySenderIp = $("#query_SenderIp_mobile").val(),
+				d.querySourcePort = $("#query_SourcePort_mobile").val(),
+				d.queryDestinationPort = $("#query_DestinationPort_mobile").val(),
+				//d.queryMac = $("#queryMac_mobile").val();
+				d.queryDateBegin = $("#queryDateBegin_mobile").val(),
+				//d.queryDateEnd = $("#queryDateEnd_mobile").val()
+				d.queryTimeBegin = $("#queryTimeBegin").val(),
+				d.queryTimeEnd = $("#queryTimeEnd").val()
+			}
+			
+			return d;
+		},
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function(xhr) {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {
+				console.log(resp.length);
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
+
 //查詢按鈕動作
 function findData(from) {
 	$('#queryFrom').val(from);
@@ -96,7 +166,7 @@ function findData(from) {
 		resultTable = $('#resultTable').DataTable(
 		{
 			"autoWidth" 	: true,
-			"paging" 		: true,
+			"paging" 		: false,
 			"bFilter" 		: true,
 			"ordering" 		: true,
 			"info" 			: true,
@@ -107,7 +177,7 @@ function findData(from) {
 			"scrollX"		: true,
 			"scrollY"		: dataTableHeight,
 			"scrollCollapse": true,
-			"pageLength"	: 100,
+			"pageLength"	: 300,
 			"language" : {
 	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
 	        },
@@ -171,7 +241,7 @@ function findData(from) {
 				},
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			/*"order": [[6 , 'desc' ]],*/
+			"order": [[3 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -191,35 +261,36 @@ function findData(from) {
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
 				bindTrEvent();
+				bindScrollEvent();
 			},
 			"columns" : [
 				{},
-				{ "data" : "groupName" },
-				{ "data" : "now" },
+				{ "data" : "groupName" , "orderable" : false },
+				{ "data" : "now" , "orderable" : false },
 				{ "data" : "fromDateTime" },
-				{ "data" : "toDateTime" },
-				{ "data" : "ethernetType" },
-				{ "data" : "protocol" },
-				{ "data" : "sourceIP" },
-				{ "data" : "sourcePort" },
-				{ "data" : "sourceMAC" },
-				{ "data" : "destinationIP" },
-				{ "data" : "destinationPort" },
-				{ "data" : "destinationMAC" },
-				{ "data" : "size" },
-				{ "data" : "channelID" },
-				{ "data" : "toS" },
-				{ "data" : "senderIP" },
-				{ "data" : "inboundInterface" },
-				{ "data" : "outboundInterface" },
-				{ "data" : "sourceASI" },
-				{ "data" : "destinationASI" },
-				{ "data" : "sourceMask" },
-				{ "data" : "destinationMask" },
-				{ "data" : "nextHop" },
-				{ "data" : "sourceVLAN" },
-				{ "data" : "destinationVLAN" },
-				{ "data" : "flowID" }
+				{ "data" : "toDateTime" , "orderable" : false },
+				{ "data" : "ethernetType" , "orderable" : false },
+				{ "data" : "protocol" , "orderable" : false },
+				{ "data" : "sourceIP" , "orderable" : false },
+				{ "data" : "sourcePort" , "orderable" : false },
+				{ "data" : "sourceMAC" , "orderable" : false },
+				{ "data" : "destinationIP" , "orderable" : false },
+				{ "data" : "destinationPort" , "orderable" : false },
+				{ "data" : "destinationMAC" , "orderable" : false },
+				{ "data" : "size" , "orderable" : false },
+				{ "data" : "channelID" , "orderable" : false },
+				{ "data" : "toS" , "orderable" : false },
+				{ "data" : "senderIP" , "orderable" : false },
+				{ "data" : "inboundInterface" , "orderable" : false },
+				{ "data" : "outboundInterface" , "orderable" : false },
+				{ "data" : "sourceASI" , "orderable" : false },
+				{ "data" : "destinationASI" , "orderable" : false },
+				{ "data" : "sourceMask" , "orderable" : false },
+				{ "data" : "destinationMask" , "orderable" : false },
+				{ "data" : "nextHop" , "orderable" : false },
+				{ "data" : "sourceVLAN" , "orderable" : false },
+				{ "data" : "destinationVLAN" , "orderable" : false },
+				{ "data" : "flowID" , "orderable" : false }
 			],
 			"columnDefs" : [
 				{

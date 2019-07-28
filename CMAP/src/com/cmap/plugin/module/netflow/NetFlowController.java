@@ -102,8 +102,27 @@ public class NetFlowController extends BaseController {
 //			tableTitleField.add("Group_Id");
 			tableTitleField.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
 
-			if (tableTitleField != null && !tableTitleField.isEmpty()) {
-				retVal = (orderColIdx < tableTitleField.size()) ? tableTitleField.get(orderColIdx) : retVal;
+			List<String> newTableTitleField = new ArrayList<>();
+			for (String columnName : tableTitleField) {
+			    String newName = null;
+			    switch (columnName) {
+			        case "Now":
+			            newName = "Now_Time";
+			            break;
+			        case "From_Date_Time":
+			            newName = "From_Time";
+                        break;
+			        case "To_Date_Time":
+			            newName = "To_Time";
+                        break;
+                    default:
+                        newName = columnName;
+                        break;
+			    }
+			    newTableTitleField.add(newName);
+			}
+			if (newTableTitleField != null && !newTableTitleField.isEmpty()) {
+				retVal = (orderColIdx < newTableTitleField.size()) ? newTableTitleField.get(orderColIdx) : retVal;
 			}
 
 		} catch (ServiceLayerException e) {
@@ -128,7 +147,7 @@ public class NetFlowController extends BaseController {
 			@RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
 			@RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
-			@RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+			@RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
 			@RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
 			@RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
 			@RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
@@ -172,7 +191,8 @@ public class NetFlowController extends BaseController {
 			nfVO.setStartNum(startNum);
 			nfVO.setPageLength(pageLength);
 			nfVO.setSearchValue(searchValue);
-			nfVO.setOrderColumn(getOrderColumnName(orderColIdx));
+			//nfVO.setOrderColumn(getOrderColumnName(orderColIdx)); //效能issue，暫定限制僅能用From_Date_Time排序
+			nfVO.setOrderColumn("From_Time");
 			nfVO.setOrderDirection(orderDirection);
 
 			String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_NET_FLOW);
@@ -188,20 +208,30 @@ public class NetFlowController extends BaseController {
 				total = retVO.getTotalCount();
 
 			} else if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_DB)) {
+			    long sTime = System.currentTimeMillis();
+			    long eTime = sTime;
 				/*
 				 * Option 2. 走 DB 模式查詢
 				 */
-				filterdTotal = netFlowService.countNetFlowRecordFromDB(nfVO, targetFieldList);
+				//filterdTotal = netFlowService.countNetFlowRecordFromDB(nfVO, targetFieldList);
+				eTime = System.currentTimeMillis();
+				System.out.println("[Step 1. count filter] " + (eTime-sTime) + " (ms)");
 
-				if (filterdTotal != 0) {
+				//if (filterdTotal != 0) {
+				    sTime = System.currentTimeMillis();
 					dataList = netFlowService.findNetFlowRecordFromDB(nfVO, startNum, pageLength, targetFieldList);
 
 					totalFlow = dataList.get(0).getTotalFlow();	// 總流量記在第一筆資料VO內
-				}
+					eTime = System.currentTimeMillis();
+	                System.out.println("[Step 2. select data] " + (eTime-sTime) + " (ms)");
+				//}
 
+				sTime = System.currentTimeMillis();
 				NetFlowVO newVO = new NetFlowVO();
 				newVO.setQueryGroupId(queryGroup);
-				total = netFlowService.countNetFlowRecordFromDB(newVO, targetFieldList);
+				//total = netFlowService.countNetFlowRecordFromDB(newVO, targetFieldList);
+				eTime = System.currentTimeMillis();
+                System.out.println("[Step 3. count all] " + (eTime-sTime) + " (ms)");
 			}
 
 		} catch (ServiceLayerException sle) {

@@ -217,6 +217,7 @@ function initCheckedItems() {
  *** 將TABLE查詢結果，各資料內容TR加上click事件 (點擊該列資料任一位置時將該筆資料checkbox勾選)
  **********************************************************************************************************/
 function bindTrEvent() {
+	$('.dataTable tbody tr').off('click');
 	$('.dataTable tbody tr').click(function(event) {
         if (event.target.tagName !== 'A' && event.target.type !== 'checkbox' && event.target.type !== 'radio') {
           $(':checkbox', this).trigger('click');
