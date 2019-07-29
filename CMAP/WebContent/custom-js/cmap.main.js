@@ -51,6 +51,10 @@ $(document).ready(function() {
 	//縮放視窗大小時，延遲1秒後重算DataTable區塊高度 & 重繪DataTable
     $(window).resize(_.debounce(function() {
     	if (typeof resultTable !== "undefined") {
+    		if (typeof startNum !== "undefined") {
+        		startNum = 0;
+        	}
+    		
     		calHeight();
     		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
 			resultTable.ajax.reload();

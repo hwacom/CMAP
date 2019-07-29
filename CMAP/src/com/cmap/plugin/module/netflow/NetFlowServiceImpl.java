@@ -150,11 +150,8 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 
 			Map<Integer, CommonServiceVO> protocolMap = getProtoclSpecMap();
 
-			long sTime = System.currentTimeMillis();
 			final String queryTable = getQueryTableName(nfVO);
 			List<Object[]> dataList = netFlowDAO.findNetFlowDataFromDB(nfVO, startRow, pageLength, searchLikeField, queryTable, queryFieldsSQL.toString());
-			long eTime = System.currentTimeMillis();
-            System.out.println("[Step 2-1. findNetFlowDataFromDB] " + (eTime-sTime) + " (ms)");
 
 			if (dataList != null && !dataList.isEmpty()) {
 				List<String> fieldList = dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_SOURCE);
@@ -167,7 +164,6 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 				    boolean hasGetDevice = false;
                     DeviceList device = null;
 
-                    sTime = System.currentTimeMillis();
 					NetFlowVO vo;
 					for (Object[] data : dataList) {
 						vo = new NetFlowVO();
@@ -248,16 +244,13 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 
 						retList.add(vo);
 					}
-					eTime = System.currentTimeMillis();
-		            System.out.println("[Step 2-2. for-loop] " + (eTime-sTime) + " (ms)");
 
-		            sTime = System.currentTimeMillis();
-					//BigDecimal flowSum = netFlowDAO.getTotalFlowOfQueryConditionsFromDB(nfVO, searchLikeField, queryTable);
-		            BigDecimal flowSum = new BigDecimal(0);
+					/*
+					 * Y190729, 總流量透過另一個AJAX查詢，提升查詢效率
+					BigDecimal flowSum = netFlowDAO.getTotalFlowOfQueryConditionsFromDB(nfVO, searchLikeField, queryTable);
 					String totalFlow = (flowSum == null) ? "N/A" : convertByteSizeUnit(flowSum, Env.NET_FLOW_SHOW_UNIT_OF_TOTOAL_FLOW);
 					retList.get(0).setTotalFlow(totalFlow);	// 塞入總流量至第一筆VO內
-					eTime = System.currentTimeMillis();
-                    System.out.println("[Step 2-3. getTotalFlowOfQueryConditionsFromDB] " + (eTime-sTime) + " (ms)");
+					*/
 				}
 			}
 
@@ -369,4 +362,26 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 		}
 		return retVO;
 	}
+
+    @Override
+    public String getTotalTraffic(NetFlowVO nfVO, List<String> searchLikeField)
+            throws ServiceLayerException {
+
+        String totalFlow = "N/A";
+        try {
+            final String queryTable = getQueryTableName(nfVO);
+            BigDecimal flowSum = netFlowDAO.getTotalFlowOfQueryConditionsFromDB(nfVO, searchLikeField, queryTable);
+
+            if (flowSum != null) {
+                totalFlow = convertByteSizeUnit(flowSum, Env.NET_FLOW_SHOW_UNIT_OF_TOTOAL_FLOW);
+
+            } else {
+                totalFlow = "EMPTY";
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return totalFlow;
+    }
 }

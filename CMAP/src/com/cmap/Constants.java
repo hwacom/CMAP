@@ -126,6 +126,9 @@ public class Constants {
     public static final String RESULT_ERROR = "E";
     public static final String RESULT_PARTIAL = "P";
 
+    public static final String APP_DATA_KEY_TTL_TRAFFIC = "TTL_TRAFFIC";
+    public static final String APP_DATA_KEY_FILTERED_COUNT = "FILTERED_COUNT";
+
 	public static final String GROUP_ID = "GROUP_ID";
 	public static final String GROUP_NAME = "GROUP_NAME";
 	public static final String GROUP_ENG_NAME = "GROUP_ENG_NAME";

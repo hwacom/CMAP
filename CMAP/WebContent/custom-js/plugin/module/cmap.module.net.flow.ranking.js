@@ -113,6 +113,7 @@ function findData(from, period) {
 					$(".myTableSection").hide();
 					alert(json.msg);
 				}
+				bindTrEvent();
             },
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -125,8 +126,6 @@ function findData(from, period) {
 				$("div.dataTables_info").parent().addClass('col-sm-6');
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
-				
-				bindTrEvent();
 				
 				if ($("#resultTable > tbody > tr").length > 1) {
 					$("#resultTable > tbody > tr:eq(0)").addClass("summary-tr");

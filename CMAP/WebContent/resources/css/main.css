@@ -1008,6 +1008,11 @@ button {
   width: 35px;
 }
 
+.img_searchWaiting {
+  height: 35px;
+  width: 35px;
+}
+
 .multi-select {
   width: 95%;
   background-color: #000000;

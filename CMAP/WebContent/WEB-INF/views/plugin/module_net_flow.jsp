@@ -2,7 +2,8 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ include file="../../common/taglib.jsp" %>
 <section>
-
+  <input type="hidden" id="pageLength" name="pageLength" value="${pageLength }" />
+  
   <div id="content" class="container-fluid">
     <!-- [START]查詢欄位&操作按鈕 for 大型解析度螢幕 -->
 	<div id="search-bar-large" class="row search-bar-large">
@@ -68,6 +69,7 @@
 				</div>
 				<div class="col-lg-3 group-field-other" id="div_TotalFlow" style="display: none">
 					<span id="result_TotalFlow" class="warning bold"></span>
+					<img src="${pageContext.request.contextPath}/resources/images/Processing_4.gif" id="searchWaiting" class="img_searchWaiting" alt="loading..." style="display: none">
 				</div>
 			  </div>
 			  <!-- 

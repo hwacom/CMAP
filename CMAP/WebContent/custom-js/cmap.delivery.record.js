@@ -76,10 +76,9 @@ function findData(from) {
 			},
 			"order" : [[1 , 'desc' ]],
 			"pageLength" : 100,
-			/*
 			"initComplete": function(settings, json){
+				bindTrEvent();
             },
-            */
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				$("div.dataTables_length").parent().removeClass('col-sm-12');
@@ -92,7 +91,6 @@ function findData(from) {
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
-				bindTrEvent();
 				initCheckedItems();
 				unfoldMobileMenu();
 			},

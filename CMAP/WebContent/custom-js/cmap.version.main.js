@@ -321,6 +321,7 @@ function findData(from) {
 			},
 			/*"order": [[6 , 'desc' ]],*/
 			"initComplete": function(settings, json){
+				bindTrEvent();
             },
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -334,7 +335,6 @@ function findData(from) {
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
-				bindTrEvent();
 				initCheckedItems();
 			},
 			"columns" : [
