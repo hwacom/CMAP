@@ -218,6 +218,8 @@ public class Env {
 	public static Integer SSH_SOCKET_TIME_OUT;
 	public static Integer SSH_DEFAULT_PORT;
 
+	public static Integer SNMP_CONNECT_TIME_OUT;
+
 	public static String DEFAULT_DEVICE_LOGIN_ACCOUNT;
 	public static String DEFAULT_DEVICE_LOGIN_PASSWORD;
 	public static String DEFAULT_DEVICE_ENABLE_PASSWORD;

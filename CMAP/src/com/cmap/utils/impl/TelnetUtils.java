@@ -4,11 +4,13 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snmp4j.smi.VariableBinding;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.CommandExecuteException;
@@ -240,5 +242,17 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 
 		return result;
 	}
+
+    @Override
+    public boolean connect(String udpAddress, String community) throws Exception {
+        // TODO 自動產生的方法 Stub
+        return false;
+    }
+
+    @Override
+    public Map<String, List<VariableBinding>> pollData(List<String> oids, SNMP pollMethod) throws Exception {
+        // TODO 自動產生的方法 Stub
+        return null;
+    }
 
 }

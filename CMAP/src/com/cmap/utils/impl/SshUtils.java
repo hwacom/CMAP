@@ -6,10 +6,12 @@ import static net.sf.expectit.matcher.Matchers.contains;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snmp4j.smi.VariableBinding;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.CommandExecuteException;
@@ -299,4 +301,15 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 		return true;
 	}
 
+	@Override
+    public boolean connect(String udpAddress, String community) throws Exception {
+        // TODO 自動產生的方法 Stub
+        return false;
+    }
+
+    @Override
+    public Map<String, List<VariableBinding>> pollData(List<String> oids, SNMP pollMethod) throws Exception {
+        // TODO 自動產生的方法 Stub
+        return null;
+    }
 }
