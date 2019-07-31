@@ -340,7 +340,7 @@
 	                  	<span><spring:message code="menu.abnormal.alarm" />&nbsp;<span id="toggleMenu_abnormalAlarm_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_abnormalAlarm_items" class="collapse">
-			            <!-- [IP衝突查詢] START -->
+			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
 			            	<li class="subMenu-item">
 		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipRecord">
@@ -349,9 +349,9 @@
 		                    	</a>
 		                    </li>
 			            </c:if>
-			            <!-- [IP衝突查詢] END -->
+			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
 			            
-			            <!-- [未授權DHCP設備] START -->
+			            <!-- [未授權DHCP設備(私接分享器)] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_UNAUTHORIZED_DHCP eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="unauthroized_dhcp" href="${pageContext.request.contextPath}/plugin/module/unauthorizedDHCP">
@@ -360,7 +360,7 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
-	                    <!-- [未授權DHCP設備] END -->
+	                    <!-- [未授權DHCP設備(私接分享器)] END -->
 	                    
 	                    <!-- [LOOP迴圈] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_LOOP_LOOP eq __SHOW__}">

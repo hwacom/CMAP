@@ -12,12 +12,11 @@ import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.plugin.module.netflow.statistics.NetFlowStatisticsService;
 import com.cmap.service.BaseJobService;
 import com.cmap.service.impl.jobs.BaseJobImpl;
-import com.cmap.service.impl.jobs.JobDataPoller;
 import com.cmap.utils.impl.ApplicationContextUtil;
 
 @DisallowConcurrentExecution
 public class JobNetFlowIpStat extends BaseJobImpl implements BaseJobService {
-    private static Logger log = LoggerFactory.getLogger(JobDataPoller.class);
+    private static Logger log = LoggerFactory.getLogger(JobNetFlowIpStat.class);
 
     private NetFlowStatisticsService netFlowStatisticsService;
 

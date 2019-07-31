@@ -194,7 +194,6 @@ function findData(from) {
 					$(".myTableSection").hide();
 					alert(json.msg);
 				}
-				bindTrEvent();
             },
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -341,6 +340,7 @@ function findData(from) {
 				}
 				
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
+				bindTrEvent();
 			},
 			"rowCallback": function( row, data ) {
 				$('td:eq(4)', row).attr('data-field', 'severity');

@@ -435,7 +435,6 @@ function findData(from) {
 					$(".myTableSection").hide();
 					alert(json.msg);
 				}
-				bindTrEvent();
 				bindScrollEvent();
             },
 			"drawCallback" : function(settings) {
@@ -465,6 +464,7 @@ function findData(from) {
 				$("#resultTable_filter").find("input").prop("placeholder","(模糊查詢速度較慢)")
 				getTotalTraffic();
 				getTotalFilteredCount();
+				bindTrEvent();
 			},
 			"columns" : [
 				{},

@@ -2,35 +2,8 @@
  * 
  */
 
-var timer, startTime, timer_start, timer_end;
-
 $(document).ready(function() {
-	var pathname = window.location.pathname;
-	var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
-	if (lastPath === "/all") {
-		initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_netFlowCurrentRanking_all");
-	} else {
-		initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_netFlowCurrentRanking");
-	}
-	
-	$("#btnSearch_1_web").click(function(e) {
-		findData('WEB', 1);
-	});
-	$("#btnSearch_3_web").click(function(e) {
-		findData('WEB', 3);
-	});
-	$("#btnSearch_7_web").click(function(e) {
-		findData('WEB', 7);
-	});
-	$("#btnSearch_1_mobile").click(function(e) {
-		findData('MOBILE', 1);
-	});
-	$("#btnSearch_3_mobile").click(function(e) {
-		findData('MOBILE', 3);
-	});
-	$("#btnSearch_7_mobile").click(function(e) {
-		findData('MOBILE', 7);
-	});
+
 });
 
 //查詢按鈕動作

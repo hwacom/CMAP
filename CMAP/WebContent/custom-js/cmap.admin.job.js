@@ -311,7 +311,6 @@ function findData(from) {
 			},
 			"order": [[7 , "desc" ]],
 			"initComplete": function(settings, json){
-				bindTrEvent();
             },
 			"drawCallback" : function(settings) {
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -326,6 +325,7 @@ function findData(from) {
 				$("div.dataTables_paginate").parent().addClass("col-sm-6");
 
 				feather.replace();
+				bindTrEvent();
 			},
 			"columns" : [
 				{},{},{},

@@ -77,7 +77,6 @@ function findData(from) {
 			"order" : [[1 , 'desc' ]],
 			"pageLength" : 100,
 			"initComplete": function(settings, json){
-				bindTrEvent();
             },
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -93,6 +92,7 @@ function findData(from) {
 				
 				initCheckedItems();
 				unfoldMobileMenu();
+				bindTrEvent();
 			},
 			"columns" : [
 				{},

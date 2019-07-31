@@ -12,12 +12,11 @@ import com.cmap.plugin.module.clustermigrate.ClusterMigrateService;
 import com.cmap.plugin.module.clustermigrate.ClusterMigrateVO;
 import com.cmap.service.BaseJobService;
 import com.cmap.service.impl.jobs.BaseJobImpl;
-import com.cmap.service.impl.jobs.JobDataPoller;
 import com.cmap.utils.impl.ApplicationContextUtil;
 
 @DisallowConcurrentExecution
 public class JobClusterMigrate extends BaseJobImpl implements BaseJobService {
-    private static Logger log = LoggerFactory.getLogger(JobDataPoller.class);
+    private static Logger log = LoggerFactory.getLogger(JobClusterMigrate.class);
 
     private ClusterMigrateService clusterMigrateService;
 

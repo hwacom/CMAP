@@ -43,8 +43,8 @@ public class Env {
 	public static String SHOW_MENU_ITEM_CM_PROVISION_RECORD;                 // 組態管理 > 供裝紀錄
 
 	public static String SHOW_MENU_TREE_ABNORMAL_ALARM;			             // 異常告警
-	public static String SHOW_MENU_ITEM_IP_CONFLICT;			             // 異常告警 > IP衝突查詢
-	public static String SHOW_MENU_ITEM_UNAUTHORIZED_DHCP;		             // 異常告警 > 未授權DHCP設備
+	public static String SHOW_MENU_ITEM_IP_CONFLICT;			             // 異常告警 > IP衝突查詢(IP/MAC/Port異動查詢)
+	public static String SHOW_MENU_ITEM_UNAUTHORIZED_DHCP;		             // 異常告警 > 未授權DHCP設備(私接分享器)
 	public static String SHOW_MENU_ITEM_LOOP_LOOP;				             // 異常告警 > LOOP迴圈
 	public static String SHOW_MENU_ITEM_DEVICE_FAILURE;			             // 異常告警 > 設備故障
 	public static String SHOW_MENU_ITEM_ABNORMAL_TRAFFIC;		             // 異常告警 > 流量異常
