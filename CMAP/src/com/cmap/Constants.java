@@ -138,6 +138,8 @@ public class Constants {
 	public static final String DEVICE_IP = "DEVICE_IP";
 	public static final String DEVICE_PORT = "DEVICE_PORT";
 	public static final String DEVICE_SYSTEM = "DEVICE_SYSTEM";
+	public static final String DEVICE_MODEL = "DEVICE_MODEL";
+	public static final String DEVICE_LAYER = "DEVICE_LAYER";
 	public static final String DEVICE_LOGIN_ACCOUNT = "DEVICE_LOGIN_ACCOUNT";
 	public static final String DEVICE_LOGIN_PASSWORD = "DEVICE_LOGIN_PASSWORD";
 	public static final String DEVICE_ENABLE_PASSWORD = "DEVICE_ENABLE_PASSWORD";

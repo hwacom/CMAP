@@ -281,7 +281,19 @@ public class PrtgApiUtils implements ApiUtils {
 			deviceInfoMap.put(Constants.DEVICE_NAME, getName(device.getName(), Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME));
 			deviceInfoMap.put(Constants.DEVICE_ENG_NAME, getName(device.getName(), Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME));
 			deviceInfoMap.put(Constants.DEVICE_IP, device.getHost());
-			deviceInfoMap.put(Constants.DEVICE_SYSTEM, device.getTags());
+
+			String tags = device.getTags();
+			/*
+			 * tags格式 = [型號] [層級(L3/L2)] (中間用空格隔開)
+			 */
+			String[] tag = StringUtils.split(tags);
+			if (tag != null) {
+			    deviceInfoMap.put(Constants.DEVICE_MODEL, tag[0]);
+			    deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+			} else {
+			    deviceInfoMap.put(Constants.DEVICE_MODEL, null);
+                deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+			}
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);

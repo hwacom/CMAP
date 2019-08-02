@@ -238,8 +238,12 @@ public class CommonServiceImpl implements CommonService {
 									}
 									if (noNeedToAddOrModify) {
 										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getSystemVersion()) ? "" : dl.getSystemVersion()).equals(deviceInfoMap.get(Constants.DEVICE_SYSTEM));
+												(StringUtils.isBlank(dl.getDeviceModel()) ? "" : dl.getDeviceModel()).equals(deviceInfoMap.get(Constants.DEVICE_MODEL));
 									}
+									if (noNeedToAddOrModify) {
+                                        noNeedToAddOrModify =
+                                                (StringUtils.isBlank(dl.getDeviceLayer()) ? "" : dl.getDeviceLayer()).equals(deviceInfoMap.get(Constants.DEVICE_LAYER));
+                                    }
 									if (noNeedToAddOrModify) {
 										noNeedToAddOrModify =
 												(StringUtils.isBlank(dl.getConfigFileDirPath()) ? "" : dl.getConfigFileDirPath()).equals(localFileDirPath);
@@ -256,7 +260,8 @@ public class CommonServiceImpl implements CommonService {
 									dl.setDeviceName(deviceInfoMap.get(Constants.DEVICE_NAME));
 									dl.setDeviceEngName(deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
 									dl.setDeviceIp(deviceInfoMap.get(Constants.DEVICE_IP));
-									dl.setSystemVersion(deviceInfoMap.get(Constants.DEVICE_SYSTEM));
+									dl.setDeviceModel(deviceInfoMap.get(Constants.DEVICE_MODEL));
+									dl.setDeviceLayer(deviceInfoMap.get(Constants.DEVICE_LAYER));
 									dl.setConfigFileDirPath(localFileDirPath);
 									dl.setRemoteFileDirPath(remoteFileDirPath);
 									dl.setUpdateBy(Constants.SYS);

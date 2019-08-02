@@ -141,7 +141,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             final String groupId = deviceList.getGroupId();
             final String deviceId = deviceList.getDeviceId();
-            final String systemVersion = deviceList.getSystemVersion();
+            final String deviceModel = deviceList.getDeviceModel();
             final String deviceEngName = deviceList.getDeviceEngName();
             final String deviceIp = deviceList.getDeviceIp();
 

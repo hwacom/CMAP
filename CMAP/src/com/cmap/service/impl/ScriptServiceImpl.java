@@ -63,13 +63,13 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
 		}
 
-		String systemVersion = device != null ? device.getSystemVersion() : Env.MEANS_ALL_SYMBOL;
-		final String scriptCode = scriptListDefaultDAO.findDefaultScriptCodeBySystemVersion(type, systemVersion);
+		String deviceModel = device != null ? device.getDeviceModel() : Env.MEANS_ALL_SYMBOL;
+		final String scriptCode = scriptListDefaultDAO.findDefaultScriptCodeBySystemVersion(type, deviceModel);
 
 		List<ScriptDAOVO> daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(null, scriptCode);
 
 		if (daovoList == null || (daovoList != null && daovoList.isEmpty())) {
-			if (!StringUtils.equals(systemVersion, Env.MEANS_ALL_SYMBOL)) {
+			if (!StringUtils.equals(deviceModel, Env.MEANS_ALL_SYMBOL)) {
 				script = loadDefaultScript("*", script, type);	//帶入機器系統版本號查不到腳本時，將版本調整為*號後再查找一次預設腳本
 
 			} else {
