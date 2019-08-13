@@ -59,6 +59,9 @@ public class PrtgServiceImpl implements PrtgService {
 				case Constants.MAP_URL_OF_ABNORMAL_TRAFFIC:
 					return mapping.getAbnormalTrafficMapUrl();
 
+				case Constants.MAP_URL_OF_EMAIL_UPDATE:
+                    return mapping.getEmailUpdateMapUrl();
+
 				default:
 					return null;
 			}

@@ -1,8 +1,6 @@
 package com.cmap.utils;
 
 import java.util.List;
-import java.util.Map;
-import org.snmp4j.smi.VariableBinding;
 import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.service.vo.ScriptServiceVO;
 import com.cmap.service.vo.StepServiceVO;
@@ -12,6 +10,7 @@ public interface ConnectUtils {
     enum SNMP {
         GET
        ,WALK
+       ,TABLE_VIEW
     }
 
     /**
@@ -57,7 +56,7 @@ public interface ConnectUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, List<VariableBinding>> pollData(List<String> oids, SNMP pollMethod) throws Exception;
+	public Object pollData(List<String> oids, SNMP pollMethod) throws Exception;
 
 	/**
 	 * 登出設備

@@ -10,6 +10,7 @@ var URI_NET_FLOW_SUMMARY = "getPrtgNetFlowSummaryUri";
 var URI_NET_FLOW_OUTPUT = "getPrtgNetFlowOutputUri";
 var URI_DEVICE_FAILURE = "getPrtgDeviceFailureUri";
 var URI_ABNORMAL_TRAFFIC = "getPrtgAbnormalTrafficUri";
+var URI_EMAIL_UPDATE = "getEmailUpdateUri";
 
 var OPEN_METHOD_IFRAME = "IFRAME";
 var OPEN_METHOD_WINDOW = "WINDOW";

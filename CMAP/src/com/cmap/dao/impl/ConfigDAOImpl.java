@@ -88,7 +88,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 			  .append("       or ")
 			  .append("       cvi.device_name like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.system_version like :searchValue ")
+			  .append("       cvi.device_model like :searchValue ")
 			  .append("       or ")
 			  .append("       cvi.config_version like :searchValue ")
 			  .append("		  or ")
@@ -229,7 +229,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 			  .append("       or ")
 			  .append("       cvi.device_name like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.system_version like :searchValue ")
+			  .append("       cvi.device_model like :searchValue ")
 			  .append("       or ")
 			  .append("       cvi.config_version like :searchValue ")
 			  .append("       or ")
@@ -356,7 +356,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 			  .append("       or ")
 			  .append("       cvi.device_name like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.system_version like :searchValue ")
+			  .append("       cvi.device_model like :searchValue ")
 			  .append("       or ")
 			  .append("       cvi.config_version like :searchValue ")
 			  .append("       or ")
@@ -532,7 +532,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 			  .append("       or ")
 			  .append("       cvi.device_name like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.system_version like :searchValue ")
+			  .append("       cvi.device_model like :searchValue ")
 			  .append("       or ")
 			  .append("       cvi.config_version like :searchValue ")
 			  .append("       or ")
@@ -667,7 +667,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	}
 
 	@Override
-	public List<ConfigContentSetting> findConfigContentSetting(String settingType, String systemVersion, String deviceNameLike, String deviceListId) {
+	public List<ConfigContentSetting> findConfigContentSetting(String settingType, String deviceModel, String deviceNameLike, String deviceListId) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from ConfigContentSetting ccs ")
 		  .append(" where 1=1 ");
@@ -675,8 +675,8 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 		if (StringUtils.isNotBlank(settingType)) {
 			sb.append(" and settingType = :settingType ");
 		}
-		if (StringUtils.isNotBlank(systemVersion)) {
-			sb.append(" and systemVersion = :systemVersion ");
+		if (StringUtils.isNotBlank(deviceModel)) {
+			sb.append(" and deviceModel = :deviceModel ");
 		}
 		if (StringUtils.isNotBlank(deviceNameLike)) {
 			sb.append(" and deviceNameLike like :deviceNameLike ");
@@ -690,8 +690,8 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	    if (StringUtils.isNotBlank(settingType)) {
 			q.setParameter("settingType", settingType);
 		}
-		if (StringUtils.isNotBlank(systemVersion)) {
-			q.setParameter("systemVersion", systemVersion);
+		if (StringUtils.isNotBlank(deviceModel)) {
+			q.setParameter("deviceModel", deviceModel);
 		}
 		if (StringUtils.isNotBlank(deviceNameLike)) {
 			q.setParameter("deviceNameLike", "%"+deviceNameLike+"%");

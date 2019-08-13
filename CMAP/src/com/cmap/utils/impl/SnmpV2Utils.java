@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.GenericAddress;
@@ -72,14 +73,15 @@ public class SnmpV2Utils implements ConnectUtils {
 	}
 
 	@Override
-	public Map<String, List<VariableBinding>> pollData(List<String> oids, SNMP pollMethod) throws Exception {
-		Map<String, List<VariableBinding>> retMap;
+	public Object pollData(List<String> oids, SNMP pollMethod) throws Exception {
 		try {
 		    switch (pollMethod) {
 		        case GET:
 		            return doSnmpGet(oids);
 		        case WALK:
 		            return doSnmpWalk(oids);
+		        case TABLE_VIEW:
+		            return doSnmpTableView(oids);
 		        default:
 		            return null;
 		    }
@@ -245,6 +247,112 @@ public class SnmpV2Utils implements ConnectUtils {
 		return finished;
 
 	}
+
+	public List<Map<String, String>> doSnmpTableView(List<String> oids) throws Exception {
+        //结果集合
+        List<Map<String,String>> mibOidToValueMap = new ArrayList<Map<String,String>>();
+        //获取设备上指定OID的主键index的集合。
+        List<String> instances = selectInstance(target, oids.get(0));
+
+        DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
+        Snmp snmp = new Snmp(transport);
+        try {
+            snmp.listen();
+            int instanceSize = instances.size();
+            int oidSize = oids.size();
+            //生成PDU
+            PDU pdu = new PDU();
+            //设置为GET操作
+            pdu.setType(PDU.GET);
+            for(int i = 0 ; i < instanceSize; i++){
+                String index = instances.get(i);
+                for(int j = 0; j < oidSize; j++){
+                    //合成OID+主键index，加入到PDU中。
+                    pdu.add(new VariableBinding(new OID(oids.get(j)+index)));
+                }
+                ResponseEvent respEvent = snmp.send(pdu, target);
+                //解析响应数据
+                PDU response = respEvent.getResponse();
+                if (response != null) {
+                    int reSize = response.size();
+                    //创建TableView的一行数据
+                    Map<String,String> row = new HashMap<String,String>(reSize);
+                    //将主键加入到一行中
+                    row.put("index", index.substring(1));
+                    for (int k = 0; k < reSize; k++) {
+                        VariableBinding vb = response.get(k);
+                        //删除主键
+                        String oid = vb.getOid().toString();
+                        oid = oid.substring(0, oid.lastIndexOf('.'));
+                        String value = vb.getVariable().toString();
+                        //加入到一行中
+                        row.put(oid, value);
+
+                    }
+                    mibOidToValueMap.add(row);
+                }
+                pdu.clear();
+                pdu.setType(PDU.GET);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+            snmp.close();
+        }
+        return mibOidToValueMap;
+    }
+
+	private List<String> selectInstance(CommunityTarget target,String targetOid) throws Exception {
+        List<String> instances = new ArrayList<String>();
+        TransportMapping transport = null;
+        try {
+            transport = new DefaultUdpTransportMapping();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Snmp snmp = new Snmp(transport);
+
+        try{
+            transport.listen();
+            // 创建 PDU
+            PDU pdu = new PDU();
+            OID targetOID = new OID(targetOid);
+            pdu.add(new VariableBinding(targetOID));
+
+            boolean finished = false;
+            //walk操作
+            while (!finished) {
+                VariableBinding vb = null;
+                /** 向Agent发送PDU实施getNext操作，并接收Response*/
+                ResponseEvent respEvent = snmp.getNext(pdu, target);
+                /** 解析Response数据*/
+                PDU response = respEvent.getResponse();
+                if (null == response) {
+                    finished = true;
+                    break;
+                } else {
+                    vb = response.get(0);
+                }
+                /** 检查是否结束*/
+                finished = checkWalkFinished(targetOID, pdu, vb);
+                if (!finished) {
+                    /**保存索引数据*/
+                    String fullOid = vb.getOid().toString();
+                    String index = fullOid.replace(targetOid, "");
+                    instances.add(index);
+
+                    /** 将variable binding设置到下一个*/
+                    pdu.setRequestID(new Integer32(0));
+                    pdu.set(0, vb);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            snmp.close();
+        }
+        return instances;
+    }
 
 	@Override
 	public boolean logout() throws Exception {

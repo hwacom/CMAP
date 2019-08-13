@@ -16,6 +16,8 @@ public interface DeviceDAO extends BaseDAO {
 
 	public DeviceList findDeviceListByGroupAndDeviceId(String groupId, String deviceId);
 
+	public List<DeviceList> findDeviceListByDAOVO(DeviceDAOVO dlDAOVO);
+
 	public long countDeviceListAndLastestVersionByDAOVO(DeviceDAOVO dlDAOVO);
 
 	public List<Object[]> findDeviceListAndLastestVersionByDAOVO(DeviceDAOVO dlDAOVO, Integer startRow, Integer pageLength);

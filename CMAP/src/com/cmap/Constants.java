@@ -51,6 +51,15 @@ public class Constants {
 
 	public static final DecimalFormat NUMBER_FORMAT_THOUSAND_SIGN = new DecimalFormat("###,###,###,###.##");
 
+	public static final String FILE_PERMISSIONS_RWXRWXRWX = "rwxrwxrwx";
+	public static final String FILE_PERMISSIONS_RWXR__R__ = "rwxr--r--";
+	public static final String FILE_PERMISSIONS_RWXR_X___ = "rwxr-x---";
+
+	public static final String INTERVAL_DAY_OF_MONTH = "DAY_OF_MONTH";
+	public static final String INTERVAL_DAY_OF_YEAR = "DAY_OF_YEAR";
+	public static final String INTERVAL_WEEK = "WEEK";
+	public static final String INTERVAL_MONTH = "MONTH";
+
 	public static final String DOWNLOAD = "DOWNLOAD";
 	public static final String UPLOAD = "UPLOAD";
 	public static final String TOTAL = "TOTAL";
@@ -285,6 +294,7 @@ public class Constants {
 	public static final String MAP_URL_OF_NET_FLOW_OUTPUT = "NET_FLOW_OUTPUT";
 	public static final String MAP_URL_OF_DEVICE_FAILURE = "DEVICE_FAILURE";
 	public static final String MAP_URL_OF_ABNORMAL_TRAFFIC = "ABNORMAL_TRAFFIC";
+	public static final String MAP_URL_OF_EMAIL_UPDATE = "EMAIL_UPDATE";
 
 	public static final String FIREWALL_LOG_TYPE_ALL = "ALL";
 	public static final String FIREWALL_LOG_TYPE_APP = "APP";
@@ -323,11 +333,11 @@ public class Constants {
 	public static final String PRTG_LOGIN_PASSWORD = "PRTG_LOGIN_PASSWORD";
 
 	public static final String[] NATIVE_FIELD_NAME_FOR_VERSION = new String[] {
-			"version_id", "group_id", "group_name", "device_id", "device_name", "system_version", "config_type", "config_version", "file_full_name", "create_time"
+			"version_id", "group_id", "group_name", "device_id", "device_name", "device_model", "config_type", "config_version", "file_full_name", "create_time"
 	};
 
 	public static final String[] HQL_FIELD_NAME_FOR_VERSION = new String[] {
-			"versionId", "groupId", "groupName", "deviceId", "deviceName", "systemVersion", "configType", "configVersion", "fileFullName", "createTime"
+			"versionId", "groupId", "groupName", "deviceId", "deviceName", "deviceModel", "configType", "configVersion", "fileFullName", "createTime"
 	};
 
 	public static final String[] NATIVE_FIELD_NAME_FOR_VERSION_2 = new String[] {
@@ -347,10 +357,10 @@ public class Constants {
 	};
 
 	public static final String[] NATIVE_FIELD_NAME_FOR_DEVICE_2 = new String[] {
-			"device_list_id", "group_id", "group_name", "device_id", "device_name", "system_version", "device_ip", "config_file_dir_path", "remote_file_dir_path"
+			"device_list_id", "group_id", "group_name", "device_id", "device_name", "device_model", "device_ip", "config_file_dir_path", "remote_file_dir_path"
 	};
 
 	public static final String[] HQL_FIELD_NAME_FOR_DEVICE_2 = new String[] {
-			"deviceListId", "groupId", "groupName", "deviceId", "deviceName", "systemVersion","deviceIp", "configFileDirPath", "remoteFileDirPath"
+			"deviceListId", "groupId", "groupName", "deviceId", "deviceName", "deviceModel","deviceIp", "configFileDirPath", "remoteFileDirPath"
 	};
 }

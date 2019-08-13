@@ -23,6 +23,12 @@ public class DevicePortInfo {
 	@Column(name = "info_id", unique = true)
 	private String infoId;
 
+	@Column(name = "group_id", nullable = false)
+    private String groupId;
+
+	@Column(name = "device_id", nullable = false)
+    private String deviceId;
+
 	@Column(name = "device_model", nullable = false)
 	private String deviceModel;
 
@@ -51,11 +57,13 @@ public class DevicePortInfo {
 		super();
 	}
 
-    public DevicePortInfo(String infoId, String deviceModel, String portId, String portName,
-            String remark, Timestamp createTime, String createBy, Timestamp updateTime,
-            String updateBy) {
+    public DevicePortInfo(String infoId, String groupId, String deviceId, String deviceModel,
+            String portId, String portName, String remark, Timestamp createTime, String createBy,
+            Timestamp updateTime, String updateBy) {
         super();
         this.infoId = infoId;
+        this.groupId = groupId;
+        this.deviceId = deviceId;
         this.deviceModel = deviceModel;
         this.portId = portId;
         this.portName = portName;
@@ -72,6 +80,22 @@ public class DevicePortInfo {
 
     public void setInfoId(String infoId) {
         this.infoId = infoId;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getDeviceModel() {

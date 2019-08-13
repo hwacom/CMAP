@@ -283,16 +283,23 @@ public class PrtgApiUtils implements ApiUtils {
 			deviceInfoMap.put(Constants.DEVICE_IP, device.getHost());
 
 			String tags = device.getTags();
-			/*
-			 * tags格式 = [型號] [層級(L3/L2)] (中間用空格隔開)
-			 */
-			String[] tag = StringUtils.split(tags);
-			if (tag != null) {
-			    deviceInfoMap.put(Constants.DEVICE_MODEL, tag[0]);
-			    deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+
+			if (StringUtils.isNotBlank(tags)) {
+			    /*
+	             * tags格式 = [型號] [層級(L3/L2)] (中間用空格隔開)
+	             */
+	            String[] tag = StringUtils.split(tags);
+	            if (tag != null) {
+	                deviceInfoMap.put(Constants.DEVICE_MODEL, tag[0]);
+	                deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+	            } else {
+	                deviceInfoMap.put(Constants.DEVICE_MODEL, null);
+	                deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+	            }
 			} else {
+			    //如果PRTG內沒設定tag情況則預設塞入null
 			    deviceInfoMap.put(Constants.DEVICE_MODEL, null);
-                deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+                deviceInfoMap.put(Constants.DEVICE_LAYER, null);
 			}
 
 		} catch (Exception e) {

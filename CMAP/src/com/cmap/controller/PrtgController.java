@@ -465,8 +465,8 @@ public class PrtgController extends BaseController {
 
 		HttpSession session = request.getSession();
 		try {
-			//final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
-			final String schoolId = "054649";
+			final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
+			//final String schoolId = "054649";
 
 			String deviceFailureMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_DEVICE_FAILURE);
 
@@ -494,8 +494,8 @@ public class PrtgController extends BaseController {
 
 		HttpSession session = request.getSession();
 		try {
-			//final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
-			final String schoolId = "054649";
+			final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
+			//final String schoolId = "054649";
 
 			String abnormalTrafficMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_ABNORMAL_TRAFFIC);
 
@@ -516,6 +516,35 @@ public class PrtgController extends BaseController {
 		} finally {
 		}
 	}
+
+	@RequestMapping(value = "getEmailUpdateUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getEmailUpdateUri(
+            Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+        try {
+            //final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
+            final String schoolId = "054649";
+
+            String emailUpdateMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_EMAIL_UPDATE);
+
+            if (StringUtils.isBlank(emailUpdateMapUrl)) {
+                emailUpdateMapUrl = Env.PRTG_DEFAULT_EMAIL_UPDATE_URI;  //如果沒設定則取得預設MAP
+            }
+
+            emailUpdateMapUrl = composePrtgUrl(request, emailUpdateMapUrl);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", emailUpdateMapUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
 
 	@RequestMapping(value = "/index/login", method = RequestMethod.GET)
 	public String prtgIndexAndLogin(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
@@ -616,4 +645,15 @@ public class PrtgController extends BaseController {
 		}
 		return "prtg/abnormal_traffic";
 	}
+
+	@RequestMapping(value = "/email/update", method = RequestMethod.GET)
+    public String prtgEmailUpdate(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/email_update";
+    }
 }

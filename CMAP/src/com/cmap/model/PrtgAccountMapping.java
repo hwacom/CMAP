@@ -56,6 +56,9 @@ public class PrtgAccountMapping {
 	@Column(name = "abnormal_traffic_map_url", nullable = true)
 	private String abnormalTrafficMapUrl;
 
+	@Column(name = "email_update_map_url", nullable = true)
+    private String emailUpdateMapUrl;
+
 	@Column(name = "remark", nullable = true)
 	private String remark;
 
@@ -72,8 +75,8 @@ public class PrtgAccountMapping {
     public PrtgAccountMapping(String id, String sourceId, String prtgAccount, String prtgPassword,
             String indexUrl, String dashboardMapUrl, String topographyMapUrl,
             String alarmSummaryMapUrl, String netFlowMapUrl, String netFlowOutputMapUrl,
-            String deviceFailureMapUrl, String abnormalTrafficMapUrl, String remark,
-            Timestamp createTime, String createBy) {
+            String deviceFailureMapUrl, String abnormalTrafficMapUrl, String emailUpdateMapUrl,
+            String remark, Timestamp createTime, String createBy) {
         super();
         this.id = id;
         this.sourceId = sourceId;
@@ -87,6 +90,7 @@ public class PrtgAccountMapping {
         this.netFlowOutputMapUrl = netFlowOutputMapUrl;
         this.deviceFailureMapUrl = deviceFailureMapUrl;
         this.abnormalTrafficMapUrl = abnormalTrafficMapUrl;
+        this.emailUpdateMapUrl = emailUpdateMapUrl;
         this.remark = remark;
         this.createTime = createTime;
         this.createBy = createBy;
@@ -186,6 +190,14 @@ public class PrtgAccountMapping {
 
     public void setAbnormalTrafficMapUrl(String abnormalTrafficMapUrl) {
         this.abnormalTrafficMapUrl = abnormalTrafficMapUrl;
+    }
+
+    public String getEmailUpdateMapUrl() {
+        return emailUpdateMapUrl;
+    }
+
+    public void setEmailUpdateMapUrl(String emailUpdateMapUrl) {
+        this.emailUpdateMapUrl = emailUpdateMapUrl;
     }
 
     public String getRemark() {

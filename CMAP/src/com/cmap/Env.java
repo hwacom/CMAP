@@ -33,6 +33,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT;                // 間控平台 > 各校出口端流量圖
     public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING;            // 間控平台 > 各校即時IP流量排行
     public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING;        // 間控平台 > 所有學校即時IP流量排行
+    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                        // 間控平台 > Email修改
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
@@ -80,6 +81,9 @@ public class Env {
 	public static String TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;	         // 設定防火牆黑名單紀錄TABLE名稱
 
 	public static String ENABLE_CMD_LOG;						             // 設定是否開啟對設備下的CMD LOG
+
+	public static String DEVICE_LAYER_L3;                                    // 設定PRTG中設定的tag，表示device layer為L3的字串
+	public static String DEVICE_LAYER_L2;                                    // 設定PRTG中設定的tag，表示device layer為L2的字串
 
 	public static String MAIL_SERVER_HOST;
 	public static String MAIL_SERVER_PORT;
@@ -298,6 +302,7 @@ public class Env {
 	public static String PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;
 	public static String PRTG_DEFAULT_DEVICE_FAILURE_URI;
 	public static String PRTG_DEFAULT_ABNORMAL_TRAFFIC_URI;
+	public static String PRTG_DEFAULT_EMAIL_UPDATE_URI;
 	public static String PRTG_LOGOUT_URI;
 
 	public static String DEFAULT_INSERT_DB_FILE_DIR;

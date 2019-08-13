@@ -93,8 +93,10 @@
     <nav class="navbar navbar-dark fixed-top flex-md-nowrap p-0 shadow navbar-bg">
       <a href="${pageContext.request.contextPath}/index">
       	<!-- Hwacom -->
+      	<!-- 
 		<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="40" style="padding-top: 3px" />
-		 
+		 -->
+		  
 		<!-- Innolux 群創 -->
 		<!-- 
 		<img class="img" src="${pageContext.request.contextPath}/resources/images/innolux_logo.png" width="auto" height="30" style="padding-top: 3px" />
@@ -125,10 +127,8 @@
  		 -->
  		 
  		<!-- 台灣大哥大 -->
- 		<!-- 
       	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_icon.png" width="auto" height="40" style="padding-top: 3px" />
   		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
- 		 -->
  		 
  		<span class="font-weight-bold title-font" style="color:#000079"><spring:message code="cmap.title" /></span>	
       </a>
@@ -247,6 +247,17 @@
 					        </c:if>
 	                    </sec:authorize>
 	                    <!-- [所有學校即時IP流量排行] END -->
+	                    
+	                    <!-- [Email修改] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_EMAIL_UPDATE eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_emailUpdate" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/email/update')">
+		                    	  <span data-feather="activity"></span>
+		                    	  	<span><spring:message code="func.prtg.email.update" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+	                    <!-- [Email修改] END -->
 	                </ul>
 		          </li>
 	          </c:if>
@@ -343,7 +354,7 @@
 			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
 			            	<li class="subMenu-item">
-		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipRecord">
+		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipMapping/change">
 		                    	  <span data-feather="minimize-2"></span>
 		                    		<span><spring:message code="func.plugin.ip.record" /></span>
 		                    	</a>

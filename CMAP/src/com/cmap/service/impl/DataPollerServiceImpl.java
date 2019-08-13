@@ -81,36 +81,51 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 		 * 因資料量過於龐大，拆分不同星期寫入不同TABLE，一張TABLE儲存一天資料
 		 */
 		Calendar cal = Calendar.getInstance();
-
-		switch (interval) {
-			case "WEEK":	//By星期紀錄
-				int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);	//取得當前系統時間是星期幾 (Sunday=1、Monday=2、...)
-				tableName += "_" + dayOfWeek;
-				break;
-		}
-
+		tableName = getTableName(tableBaseName, interval, cal);
 		return tableName;
 	}
 
-	private String getSpecifyDayTableName(String interval, String tableBaseName, String date) throws ServiceLayerException {
+	private synchronized String getTableName(String tableName, String interval, Calendar cal) {
+	    Integer tableSeq = null;
+	    switch (interval) {
+	        case Constants.INTERVAL_DAY_OF_MONTH:           //By日of月 (1~31)
+	            tableSeq = cal.get(Calendar.DAY_OF_MONTH);
+	            break;
+
+	        case Constants.INTERVAL_DAY_OF_YEAR:            //By日of年 (1~365)
+                tableSeq = cal.get(Calendar.DAY_OF_YEAR);
+                break;
+
+            case Constants.INTERVAL_WEEK:                   //By星期紀錄
+                tableSeq = cal.get(Calendar.DAY_OF_WEEK);   //取得當前系統時間是星期幾 (Sunday=1、Monday=2、...)
+                break;
+
+            case Constants.INTERVAL_MONTH:                  //By月紀錄
+                tableSeq = cal.get(Calendar.MONTH) + 1;     //一月=0、...
+                break;
+        }
+
+	    if (tableSeq != null) {
+	        tableName += "_" + tableSeq;
+	    }
+
+	    return tableName;
+	}
+
+	private synchronized String getSpecifyDayTableName(String interval, String tableBaseName, String date) throws ServiceLayerException {
 		String tableName = tableBaseName;
 		try {
-			Date queryDate = Constants.FORMAT_YYYY_MM_DD.parse(date);
+		    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date queryDate = sdf.parse(date);
 			/*
 			 * Y181207, Ken Lin
 			 * 因資料量過於龐大，拆分不同星期寫入不同TABLE，一張TABLE儲存一天資料
 			 */
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(queryDate);
+			tableName = getTableName(tableBaseName, interval, cal);
 
-			switch (interval) {
-				case "WEEK":	//By星期紀錄
-					int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);	//取得當前系統時間是星期幾 (Sunday=1、Monday=2、...)
-					tableName += "_" + dayOfWeek;
-					break;
-			}
-
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			log.error(e.toString(), e);
 			throw new ServiceLayerException("轉換查詢日期成Date物件時異常，queryDate >> " + date);
 		}
@@ -829,6 +844,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	    final String splitBy = setting.getSplitSymbol();
 
 	    try {
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	        sourceEntryMap = new HashMap<>();
 
             String[] lineData = line.split(splitBy);
@@ -868,7 +884,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
                         try {
                             Date valueDate = transSourceDateColumnFormat2DateObj(dataDate, sourceColumnJavaFormat);
-                            String dateYyymmdd = Constants.FORMAT_YYYY_MM_DD.format(valueDate);
+                            String dateYyymmdd = sdf.format(valueDate);
 
                             String retTableName = getSpecifyDayTableName(recordByDayInterval, targetTableName, dateYyymmdd);
                             recordDateTableName = retTableName;
@@ -887,7 +903,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                     if (StringUtils.startsWith(sourceColumnType, Constants.FIELD_TYPE_OF_TIMESTAMP)) {
                         if (sourceColumnIdx >= lineData.length) {
                             // 若日期欄位為空則預設寫入當下系統時間
-                            targetValue = Constants.FORMAT_YYYY_MM_DD.format(new Date());
+                            targetValue = sdf.format(new Date());
 
                         } else {
                             targetValue = lineData[sourceColumnIdx];
@@ -1172,6 +1188,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
 		final String recordByDayReferField = setting.getRecordByDayReferField();
 		final String fileName = file.getName();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		try (Stream<String> stream = Files.lines(Paths.get(file.getPath()), Charset.forName(charset))) {
 			stream.forEach(line -> {
@@ -1204,7 +1221,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 								case Constants.FIELD_TYPE_OF_TIMESTAMP:
 									if (fieldName.equals(recordByDayReferField)) {
 										Date valueDate = transSourceDateColumnFormat2DateObj(fieldValue, fieldJavaFormat);
-										String dateYyymmdd = Constants.FORMAT_YYYY_MM_DD.format(valueDate);
+										String dateYyymmdd = sdf.format(valueDate);
 										recordByDayReferFieldValue = dateYyymmdd;
 									}
 
@@ -1290,6 +1307,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 		retVO.setRetOriFileName(retOriFileName);
 
 		SimpleDateFormat dateFormat;
+		SimpleDateFormat sdf_yyyyMMdd = new SimpleDateFormat("yyyy-MM-dd");
 		BufferedReader br = null;
 		try {
 			final String recordByDayReferField = setting.getRecordByDayReferField(); // By日期拆檔案所使用的參考日期欄位
@@ -1358,7 +1376,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 								targetValue = Constants.FORMAT_YYYYMMDD_HH24MISS.format(sourceDate);
 
 								if (StringUtils.equals(sourceColumnName, recordByDayReferField)) {
-									recordDay = Constants.FORMAT_YYYY_MM_DD.format(sourceDate);
+									recordDay = sdf_yyyyMMdd.format(sourceDate);
 			        			}
 							}
 
@@ -1589,7 +1607,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 			Path targetFilePath = Paths.get(insertFileDir + File.separator + fileName);
 
 			if (!Paths.get(insertFileDir).toFile().exists()) {
-					Files.createDirectories(Paths.get(insertFileDir));
+				Files.createDirectories(Paths.get(insertFileDir));
 			}
 
 			final String fileCharset = setting.getFileCharset();

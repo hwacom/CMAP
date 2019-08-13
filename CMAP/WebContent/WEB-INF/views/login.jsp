@@ -9,12 +9,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- 台灣大哥大 -->
-    <!-- 
     <link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_taiwan_mobile.ico">
-	 -->
 	 
 	<!-- 桃機 -->
+	<!-- 
 	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_t3.ico">
+	 -->
 	 
 	<!-- 亞太 -->
 	<!-- 
@@ -43,7 +43,9 @@
 	  			<div class="row">
 			  		<div class="col-md-6 col-sm-12 offset-md-3 m-t-5 login-title">
 			  			<!-- Hwacom -->
+			  			<!--
 			  			<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="40" style="padding-top: 3px" />
+			  			-->
 			  			
 			  			<!-- Innolux 群創 -->
 			  			<!-- 
@@ -63,10 +65,8 @@
 			  			-->
 			  			
 			  			<!-- 台灣大哥大 -->
-			  			<!--
 				      	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_icon.png" width="auto" height="40" style="padding-top: 3px" />
 				  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
-			  			-->
 			  			
 			  			<span class="h3" style="color:#1C2269"><spring:message code="cmap.title" /></span>	
 			  		</div>
