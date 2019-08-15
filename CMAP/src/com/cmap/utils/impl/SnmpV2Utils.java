@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
-import org.snmp4j.TransportMapping;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.GenericAddress;
@@ -19,8 +19,14 @@ import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.Null;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.snmp4j.util.DefaultPDUFactory;
+import org.snmp4j.util.PDUFactory;
+import org.snmp4j.util.TableEvent;
+import org.snmp4j.util.TableUtils;
+
 import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.vo.ConfigInfoVO;
@@ -73,18 +79,31 @@ public class SnmpV2Utils implements ConnectUtils {
 	}
 
 	@Override
-	public Object pollData(List<String> oids, SNMP pollMethod) throws Exception {
+	public Map<String, List<VariableBinding>> pollData(List<String> oids, SNMP pollMethod) throws Exception {
 		try {
 		    switch (pollMethod) {
 		        case GET:
 		            return doSnmpGet(oids);
 		        case WALK:
 		            return doSnmpWalk(oids);
-		        case TABLE_VIEW:
-		            return doSnmpTableView(oids);
 		        default:
 		            return null;
 		    }
+
+		} catch (ServiceLayerException sle) {
+		    throw sle;
+
+		} catch (Exception e) {
+		    log.error(e.toString(), e);
+			throw e;
+		}
+	}
+	
+	@Override
+	public Map<String, Map<String, String>> pollTableView(String oid, Map<String, String> entryMap) throws Exception {
+		try {
+			return snmpGetTable(oid, entryMap);
+			//return doSnmpTableView(oids);
 
 		} catch (ServiceLayerException sle) {
 		    throw sle;
@@ -247,6 +266,64 @@ public class SnmpV2Utils implements ConnectUtils {
 		return finished;
 
 	}
+	
+	public Map<String, Map<String, String>> snmpGetTable(String oid, Map<String, String> entryMap) throws Exception {
+		Map<String, Map<String, String>> tableMap = new HashMap<>();
+        try {
+            int maxRepetitions = 100;
+
+            PDUFactory pF = new DefaultPDUFactory(PDU.GETNEXT);
+
+            TableUtils tableUtils = new TableUtils(snmp, pF);
+            tableUtils.setMaxNumRowsPerPDU(maxRepetitions);
+
+            OID[] columns = new OID[1];
+            columns[0] = new VariableBinding(new OID(oid)).getOid();
+            //OID lowerBoundIndex = new OID(lowerBound);
+            //OID upperBoundIndex = new OID(upperBound);
+
+            //System.out.println("Vector Bulk SNMP oid= " + columns[0]);
+            //System.out.println("Vector Bulk SNMP lower= " + lowerBoundIndex);
+            //System.out.println("Vector Bulk SNMP upper= " + upperBoundIndex);
+
+            List<TableEvent> snmpList = tableUtils.getTable(target, columns, null, null);
+            //System.out.println("snmpList size : " + snmpList.size());
+
+            for (int j = 0; j < snmpList.size(); j++) {
+            	TableEvent event = snmpList.get(j);
+            	VariableBinding[] vbs = event.getColumns();
+            	
+            	for (VariableBinding vb : vbs) {
+            		String vbOID = vb.getOid().toString();
+            		String vbValue = vb.getVariable().toString();
+            		
+            		for (Map.Entry<String, String> entry : entryMap.entrySet()) {
+            			String oidKey = entry.getValue().substring(1);
+            			String oidName = entry.getKey();
+            			
+            			if (vbOID.startsWith(oidKey)) {
+            				String tableKey = vbOID.split(oidKey)[1];
+            				
+            				Map<String, String> tableEntry = null;
+            				if (tableMap.containsKey(tableKey)) {
+            					tableEntry = tableMap.get(tableKey);
+            				} else {
+            					tableEntry = new HashMap<>();
+            				}
+            				tableEntry.put(oidName, vbValue);
+            				tableMap.put(tableKey, tableEntry);
+            			}
+            		}
+            	}
+            	//System.out.println("snmpList : " + snmpList.get(j));
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(),e);
+            throw e;
+        }
+        return tableMap;
+    }
 
 	public List<Map<String, String>> doSnmpTableView(List<String> oids) throws Exception {
         //结果集合
@@ -254,8 +331,10 @@ public class SnmpV2Utils implements ConnectUtils {
         //获取设备上指定OID的主键index的集合。
         List<String> instances = selectInstance(target, oids.get(0));
 
+        /*
         DefaultUdpTransportMapping transport = new DefaultUdpTransportMapping();
         Snmp snmp = new Snmp(transport);
+        */
         try {
             snmp.listen();
             int instanceSize = instances.size();
@@ -295,8 +374,8 @@ public class SnmpV2Utils implements ConnectUtils {
                 pdu.setType(PDU.GET);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        }finally{
+        	log.error(e.toString(), e);
+        } finally{
             snmp.close();
         }
         return mibOidToValueMap;
@@ -304,16 +383,18 @@ public class SnmpV2Utils implements ConnectUtils {
 
 	private List<String> selectInstance(CommunityTarget target,String targetOid) throws Exception {
         List<String> instances = new ArrayList<String>();
+        /*
         TransportMapping transport = null;
         try {
             transport = new DefaultUdpTransportMapping();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.toString(), e);
         }
         Snmp snmp = new Snmp(transport);
+        */
 
-        try{
-            transport.listen();
+        try {
+            //transport.listen();
             // 创建 PDU
             PDU pdu = new PDU();
             OID targetOID = new OID(targetOid);
@@ -346,9 +427,9 @@ public class SnmpV2Utils implements ConnectUtils {
                     pdu.set(0, vb);
                 }
             }
-        }catch(Exception e){
-            e.printStackTrace();
-        }finally{
+        } catch (Exception e) {
+        	log.error(e.toString(), e);
+        } finally {
             snmp.close();
         }
         return instances;

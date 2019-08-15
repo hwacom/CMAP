@@ -55,4 +55,10 @@ public class SnmpV3Utils implements ConnectUtils {
         // TODO 自動產生的方法 Stub
         return null;
     }
+
+	@Override
+	public Map<String, Map<String, String>> pollTableView(String oid, Map<String, String> entryMap) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

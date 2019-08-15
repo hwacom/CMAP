@@ -2,12 +2,14 @@ package com.cmap.plugin.module.ip.mapping;
 
 import java.sql.Timestamp;
 import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name="module_mac_table")
@@ -15,10 +17,14 @@ public class ModuleMacTable implements java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
     @Column(name = "data_id", unique = true)
     private String dataId;
 
+    @Column(name = "job_id", nullable = false)
+    private String jobId;
+    
     @Column(name = "p_date", nullable = false)
     private Date pDate;
 
@@ -56,117 +62,126 @@ public class ModuleMacTable implements java.io.Serializable {
         super();
     }
 
-    public ModuleMacTable(String dataId, Date pDate, Date pTime, String groupId, String deviceId,
-            String macAddr, String portId, String remark, Timestamp createTime, String createBy,
-            Timestamp updateTime, String updateBy) {
-        super();
-        this.dataId = dataId;
-        this.pDate = pDate;
-        this.pTime = pTime;
-        this.groupId = groupId;
-        this.deviceId = deviceId;
-        this.macAddr = macAddr;
-        this.portId = portId;
-        this.remark = remark;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-    }
+	public ModuleMacTable(String dataId, String jobId, Date pDate, Date pTime, String groupId, String deviceId,
+			String macAddr, String portId, String remark, Timestamp createTime, String createBy, Timestamp updateTime,
+			String updateBy) {
+		super();
+		this.dataId = dataId;
+		this.jobId = jobId;
+		this.pDate = pDate;
+		this.pTime = pTime;
+		this.groupId = groupId;
+		this.deviceId = deviceId;
+		this.macAddr = macAddr;
+		this.portId = portId;
+		this.remark = remark;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+	}
 
-    public String getDataId() {
-        return dataId;
-    }
+	public String getDataId() {
+		return dataId;
+	}
 
-    public void setDataId(String dataId) {
-        this.dataId = dataId;
-    }
+	public void setDataId(String dataId) {
+		this.dataId = dataId;
+	}
 
-    public Date getpDate() {
-        return pDate;
-    }
+	public String getJobId() {
+		return jobId;
+	}
 
-    public void setpDate(Date pDate) {
-        this.pDate = pDate;
-    }
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
 
-    public Date getpTime() {
-        return pTime;
-    }
+	public Date getpDate() {
+		return pDate;
+	}
 
-    public void setpTime(Date pTime) {
-        this.pTime = pTime;
-    }
+	public void setpDate(Date pDate) {
+		this.pDate = pDate;
+	}
 
-    public String getGroupId() {
-        return groupId;
-    }
+	public Date getpTime() {
+		return pTime;
+	}
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
+	public void setpTime(Date pTime) {
+		this.pTime = pTime;
+	}
 
-    public String getDeviceId() {
-        return deviceId;
-    }
+	public String getGroupId() {
+		return groupId;
+	}
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
 
-    public String getMacAddr() {
-        return macAddr;
-    }
+	public String getDeviceId() {
+		return deviceId;
+	}
 
-    public void setMacAddr(String macAddr) {
-        this.macAddr = macAddr;
-    }
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
 
-    public String getPortId() {
-        return portId;
-    }
+	public String getMacAddr() {
+		return macAddr;
+	}
 
-    public void setPortId(String portId) {
-        this.portId = portId;
-    }
+	public void setMacAddr(String macAddr) {
+		this.macAddr = macAddr;
+	}
 
-    public String getRemark() {
-        return remark;
-    }
+	public String getPortId() {
+		return portId;
+	}
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
+	public void setPortId(String portId) {
+		this.portId = portId;
+	}
 
-    public Timestamp getCreateTime() {
-        return createTime;
-    }
+	public String getRemark() {
+		return remark;
+	}
 
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
-    }
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
-    public String getCreateBy() {
-        return createBy;
-    }
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
 
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
 
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
+	public String getCreateBy() {
+		return createBy;
+	}
 
-    public void setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
-    }
+	public void setCreateBy(String createBy) {
+		this.createBy = createBy;
+	}
 
-    public String getUpdateBy() {
-        return updateBy;
-    }
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
 
-    public void setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
-    }
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
 }

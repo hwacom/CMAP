@@ -711,21 +711,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	        return;
 	    }
 
-		DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, groupId, deviceId);
+		DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
 
-		if (loginInfo == null) {
-		    if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)
-		            && !(StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL))) {
-		        // 若by【資料ID + 設備ID】查找不到，則再往上一層by【群組ID + 設備ID】查找
-		        findDeviceLoginInfo(ciVO, Constants.DATA_STAR_SYMBOL, groupId, deviceId);
-
-		    } else if (StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)
-                    && !(StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL))) {
-		        // 若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
-		        findDeviceLoginInfo(ciVO, Constants.DATA_STAR_SYMBOL, groupId, Constants.DATA_STAR_SYMBOL);
-		    }
-
-		} else if (loginInfo != null) {
+		if (loginInfo != null) {
 			if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
 				ciVO.setAccount(loginInfo.getLoginAccount());
 			}

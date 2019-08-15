@@ -228,6 +228,8 @@ public class Env {
 	public static String DEFAULT_DEVICE_LOGIN_PASSWORD;
 	public static String DEFAULT_DEVICE_ENABLE_PASSWORD;
 	public static String DEFAULT_DEVICE_FLASH_DIR_PATH;
+	public static String DEFAULT_DEVICE_COMMUNITY_STRING;
+	public static Integer DEFAULT_DEVICE_UDP_PORT;
 
 	public static String DEFAULT_RESTORE_SCRIPT_CODE;
 	public static String DEFAULT_DEVICE_CONFIG_BACKUP_MODE;	//預設設備組態檔備份模式 (DEVICE -> TFTP SERVER1)
@@ -239,6 +241,15 @@ public class Env {
 	public static String COMM_SEPARATE_SYMBOL;
 
 	public static Integer QUARTZ_DEFAULT_PRIORITY;
+	
+	public static String OID_NAME_OF_ARP_TABLE;
+	public static String OID_NAME_OF_ARP_TABLE_INTERFACE_ID;
+	public static String OID_NAME_OF_ARP_TABLE_MAC_ADDRESS;
+	public static String OID_NAME_OF_ARP_TABLE_IP_ADDRESS;
+	
+	public static String OID_NAME_OF_MAC_TABLE;
+	public static String OID_NAME_OF_MAC_TABLE_PORT_ID;
+	public static String OID_NAME_OF_MAC_TABLE_MAC_ADDRESS;
 
 	public static String CLI_VAR_ENABLE_PWD;
 	public static String CLI_VAR_PWD;

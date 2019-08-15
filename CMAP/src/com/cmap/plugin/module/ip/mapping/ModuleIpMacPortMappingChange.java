@@ -2,12 +2,14 @@ package com.cmap.plugin.module.ip.mapping;
 
 import java.sql.Timestamp;
 import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name="module_ip_mac_port_mapping_change")
@@ -15,18 +17,25 @@ public class ModuleIpMacPortMappingChange implements java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
     @Column(name = "mapping_id", unique = true)
     private String mappingId;
-
-    @Column(name = "group_id", nullable = false)
-    private String groupId;
+    
+    @Column(name = "job_id", nullable = false)
+    private String jobId;
 
     @Column(name = "record_date", nullable = false)
     private Date recordDate;
 
     @Column(name = "record_time", nullable = false)
     private Date recordTime;
+    
+    @Column(name = "group_id", nullable = false)
+    private String groupId;
+    
+    @Column(name = "device_id", nullable = false)
+    private String deviceId;
 
     @Column(name = "ip_address", nullable = false)
     private String ipAddress;
@@ -34,8 +43,8 @@ public class ModuleIpMacPortMappingChange implements java.io.Serializable {
     @Column(name = "mac_address", nullable = false)
     private String macAddress;
 
-    @Column(name = "port_number", nullable = false)
-    private Integer portNumber;
+    @Column(name = "port_id", nullable = false)
+    private String portId;
 
     @Column(name = "remark", nullable = true)
     private String remark;
@@ -56,117 +65,135 @@ public class ModuleIpMacPortMappingChange implements java.io.Serializable {
         super();
     }
 
-    public ModuleIpMacPortMappingChange(String mappingId, String groupId, Date recordDate,
-            Date recordTime, String ipAddress, String macAddress, Integer portNumber, String remark,
-            Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
-        super();
-        this.mappingId = mappingId;
-        this.groupId = groupId;
-        this.recordDate = recordDate;
-        this.recordTime = recordTime;
-        this.ipAddress = ipAddress;
-        this.macAddress = macAddress;
-        this.portNumber = portNumber;
-        this.remark = remark;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-    }
+	public ModuleIpMacPortMappingChange(String mappingId, String jobId, Date recordDate, Date recordTime,
+			String groupId, String deviceId, String ipAddress, String macAddress, String portId, String remark,
+			Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+		super();
+		this.mappingId = mappingId;
+		this.jobId = jobId;
+		this.recordDate = recordDate;
+		this.recordTime = recordTime;
+		this.groupId = groupId;
+		this.deviceId = deviceId;
+		this.ipAddress = ipAddress;
+		this.macAddress = macAddress;
+		this.portId = portId;
+		this.remark = remark;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+	}
 
-    public String getMappingId() {
-        return mappingId;
-    }
+	public String getMappingId() {
+		return mappingId;
+	}
 
-    public void setMappingId(String mappingId) {
-        this.mappingId = mappingId;
-    }
+	public void setMappingId(String mappingId) {
+		this.mappingId = mappingId;
+	}
 
-    public String getGroupId() {
-        return groupId;
-    }
+	public String getJobId() {
+		return jobId;
+	}
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
 
-    public Date getRecordDate() {
-        return recordDate;
-    }
+	public Date getRecordDate() {
+		return recordDate;
+	}
 
-    public void setRecordDate(Date recordDate) {
-        this.recordDate = recordDate;
-    }
+	public void setRecordDate(Date recordDate) {
+		this.recordDate = recordDate;
+	}
 
-    public Date getRecordTime() {
-        return recordTime;
-    }
+	public Date getRecordTime() {
+		return recordTime;
+	}
 
-    public void setRecordTime(Date recordTime) {
-        this.recordTime = recordTime;
-    }
+	public void setRecordTime(Date recordTime) {
+		this.recordTime = recordTime;
+	}
 
-    public String getIpAddress() {
-        return ipAddress;
-    }
+	public String getGroupId() {
+		return groupId;
+	}
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
 
-    public String getMacAddress() {
-        return macAddress;
-    }
+	public String getDeviceId() {
+		return deviceId;
+	}
 
-    public void setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
-    }
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
 
-    public Integer getPortNumber() {
-        return portNumber;
-    }
+	public String getIpAddress() {
+		return ipAddress;
+	}
 
-    public void setPortNumber(Integer portNumber) {
-        this.portNumber = portNumber;
-    }
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
 
-    public String getRemark() {
-        return remark;
-    }
+	public String getMacAddress() {
+		return macAddress;
+	}
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
+	}
 
-    public Timestamp getCreateTime() {
-        return createTime;
-    }
+	public String getPortId() {
+		return portId;
+	}
 
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
-    }
+	public void setPortId(String portId) {
+		this.portId = portId;
+	}
 
-    public String getCreateBy() {
-        return createBy;
-    }
+	public String getRemark() {
+		return remark;
+	}
 
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
 
-    public void setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
-    }
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
 
-    public String getUpdateBy() {
-        return updateBy;
-    }
+	public String getCreateBy() {
+		return createBy;
+	}
 
-    public void setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
-    }
+	public void setCreateBy(String createBy) {
+		this.createBy = createBy;
+	}
+
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
 }

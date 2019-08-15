@@ -45,6 +45,7 @@ import com.cmap.dao.ScriptTypeDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
+import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.GroupSubnetSetting;
 import com.cmap.model.MenuItem;
 import com.cmap.model.ProtocolSpec;
@@ -334,11 +335,15 @@ public class CommonServiceImpl implements CommonService {
 	}
 
 	protected String currentUserName() {
-	    if (SecurityUtil.getSecurityUser() == null) {
-	        return Env.USER_NAME_JOB;
-	    } else {
-	        return SecurityUtil.getSecurityUser().getUsername();
-	    }
+		try {
+			if (SecurityUtil.getSecurityUser() == null) {
+		        return Env.USER_NAME_JOB;
+		    } else {
+		        return SecurityUtil.getSecurityUser().getUsername();
+		    }
+		} catch (Exception e) {
+			return Env.USER_NAME_JOB;
+		}
 	}
 
 	protected Timestamp currentTimestamp() {
@@ -636,4 +641,38 @@ public class CommonServiceImpl implements CommonService {
     private boolean chkIpInGroupSubnetForIPv6(String cidr, String ip) {
         return false;
     }
+
+	@Override
+	public DeviceLoginInfo findDeviceLoginInfo(String deviceListId, String groupId, String deviceId) {
+		try {
+			DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, groupId, deviceId);
+
+			if (loginInfo == null) {
+			    if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)) {
+			        // 若by【資料ID + 設備ID】查找不到，則再往上一層by【群組ID + 設備ID】查找
+			    	deviceListId = Constants.DATA_STAR_SYMBOL;
+
+			    } else if (!StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL)) {
+			        // 若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
+			    	deviceId = Constants.DATA_STAR_SYMBOL;
+			    	
+			    } else if (!StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL)) {
+			    	// 若by【群組ID】查找不到，則再往上一層by【* + * + *】查找
+			    	groupId = Constants.DATA_STAR_SYMBOL;
+			    	
+			    } else {
+			    	return null;
+			    }
+			    
+			    return findDeviceLoginInfo(deviceListId, groupId, deviceId);
+
+			} else {
+				return loginInfo;
+			}
+			
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return null;
+		}
+	}
 }

@@ -3,6 +3,8 @@ package com.cmap.plugin.module.ip.mapping.job;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -10,6 +12,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.cmap.Constants;
+import com.cmap.exception.ServiceLayerException;
 import com.cmap.plugin.module.ip.mapping.IpMappingService;
 import com.cmap.plugin.module.ip.mapping.IpMappingServiceVO;
 import com.cmap.service.BaseJobService;
@@ -30,14 +33,18 @@ public class JobIpMappingPoller extends BaseJobImpl implements BaseJobService {
         IpMappingServiceVO imsVO = new IpMappingServiceVO();
 
         JobDataMap jMap = context.getJobDetail().getJobDataMap();
-        final String groupIdVar = jMap.getString(Constants.QUARTZ_PARA_GROUP_ID);
+        final String groupIdVar = jMap.getString(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID);
+        
+        if (StringUtils.isBlank(groupIdVar)) {
+        	throw new JobExecutionException("JobIpMappingPoller >> Group_ID為空!!");
+        }
         String[] groupIds = groupIdVar.split(",");
 
         ipMappingService = (IpMappingService)ApplicationContextUtil.getBean("ipMappingService");
 
         for (String groupId : groupIds) {
             try {
-                imsVO = ipMappingService.executeIpMappingPolling(groupId, startDate);
+                imsVO = ipMappingService.executeIpMappingPolling(JOB_ID, startDate, groupId);
 
             } catch (Exception e) {
                 log.error("JID:["+JOB_ID+"] >> "+e.toString(), e);

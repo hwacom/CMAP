@@ -29,6 +29,7 @@ public class JobServiceVO extends CommonServiceVO {
 	private String inputDataPollerOperatorSettingId;
 	private String inputLocalFileOperationSettingId;
 	private String inputMailSenderSettingId;
+	private String inputIpMacPortMappingPollerGroupId;
 
 	private List<JobServiceVO> jobKeySet = new ArrayList<>();
 	private String jobKeyName;
@@ -48,6 +49,7 @@ public class JobServiceVO extends CommonServiceVO {
 	private String dataPollerSettingId;
 	private String localFileOperationSettingId;
 	private String mailSenderSettingId;
+	private String ipMacPortMappingPollerGroupId;
 
 	private String schedType;
 	private String schedTypeName;
@@ -456,4 +458,16 @@ public class JobServiceVO extends CommonServiceVO {
     public void setMailSenderSettingId(String mailSenderSettingId) {
         this.mailSenderSettingId = mailSenderSettingId;
     }
+	public String getInputIpMacPortMappingPollerGroupId() {
+		return inputIpMacPortMappingPollerGroupId;
+	}
+	public void setInputIpMacPortMappingPollerGroupId(String inputIpMacPortMappingPollerGroupId) {
+		this.inputIpMacPortMappingPollerGroupId = inputIpMacPortMappingPollerGroupId;
+	}
+	public String getIpMacPortMappingPollerGroupId() {
+		return ipMacPortMappingPollerGroupId;
+	}
+	public void setIpMacPortMappingPollerGroupId(String ipMacPortMappingPollerGroupId) {
+		this.ipMacPortMappingPollerGroupId = ipMacPortMappingPollerGroupId;
+	}
 }

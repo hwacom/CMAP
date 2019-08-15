@@ -311,6 +311,20 @@
 	            </div>
 	            <!-- [END]MAIL Sender -->
 	            
+	            <!-- IP/MAC/Port Poller -->
+	            <div id="sec_ipMacPortMappingPoller" style="display: none">
+	            	<div class="form-group row">
+		              	<label for="inputDataPollerNames" class="col-12 col-form-label"><span style="color:blue">*** IP/MAC/Port Poller 參數設定 ***</span></label>
+		            </div>
+		            <div class="form-group row">
+		            	<label for="inputIpMacPortMappingPollerGroupId" class="col-md-2 col-sm-3 col-form-label">Group IDs<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-10 col-sm-9">
+		            		<input type="text" class="form-control form-control-sm" id="inputIpMacPortMappingPollerGroupId" name="inputIpMacPortMappingPollerGroupId" placeholder="多組ID以「,」區隔；區間以「ID1~ID2」表示"></input>
+		                </div>
+		            </div>
+	            </div>
+	            <!-- [END]IP/MAC/Port Poller -->
+	            
 	            <input type="hidden" id="jobKeyName" name="jobKeyName">
 	            <input type="hidden" id="jobKeyGroup" name="jobKeyGroup">
 	            
@@ -467,6 +481,17 @@
 	            </div>
        	  	</div>
        	  	<!-- [END]Mail Sender -->
+       	  	
+       	  	<!-- IP/MAC/Port Poller -->
+       	  	<div id="sec_detail_ipMacPortMappingPoller" style="display: none">
+	            <div class="form-group row">
+	            	<label for="viewIpMacPortMappingPollerGroupId" class="col-md-2 col-sm-3 col-form-label">IP/MAC/Port_Poller_Group.ID:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<textarea rows="5" class="form-control form-control-sm" id="viewIpMacPortMappingPollerGroupId" readonly></textarea>
+	                </div>
+	            </div>
+       	  	</div>
+       	  	<!-- [END]IP/MAC/Port Poller -->
             
           </div>
 		</div>

@@ -139,6 +139,7 @@ public class JobServiceImpl implements JobService {
 						final String dataPollerSettingId = (String)jobDataMap.get(Constants.QUARTZ_PARA_DATA_POLLER_SETTING_ID);
 						final String localFileOperationSettingId = (String)jobDataMap.get(Constants.QUARTZ_PARA_JOB_FILE_OPERATION_SETTING_ID);
 						final String mailSenderSettingId = (String)jobDataMap.get(Constants.QUARTZ_PARA_MAIL_LIST_SETTING_ID);
+						final String ipMacPortMappingPollerGroupId = (String)jobDataMap.get(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID);
 
 						final String sqlsStr = sqls != null ? String.join("\n", sqls) : "";
 
@@ -159,6 +160,7 @@ public class JobServiceImpl implements JobService {
 						retVO.setDataPollerSettingId(dataPollerSettingId);
 						retVO.setLocalFileOperationSettingId(localFileOperationSettingId);
 						retVO.setMailSenderSettingId(mailSenderSettingId);
+						retVO.setIpMacPortMappingPollerGroupId(ipMacPortMappingPollerGroupId);
 					}
 
 					retList.add(retVO);
@@ -193,6 +195,7 @@ public class JobServiceImpl implements JobService {
 			final String dataPollerSettingId = (String)jdm.get(Constants.QUARTZ_PARA_DATA_POLLER_SETTING_ID);
 			final String localFileOperationSettingId = (String)jdm.get(Constants.QUARTZ_PARA_JOB_FILE_OPERATION_SETTING_ID);
 			final String mailSenderSettingId = (String)jdm.get(Constants.QUARTZ_PARA_MAIL_LIST_SETTING_ID);
+			final String ipMacPortMappingPollerGroupId = (String)jdm.get(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID);
 
 			ObjectMapper mapper = new ObjectMapper();
 			List<String> groupIds = groupId != null ? mapper.readValue(groupId, new TypeReference<List<String>>(){}) : null;
@@ -211,6 +214,7 @@ public class JobServiceImpl implements JobService {
 			retMap.put(Constants.QUARTZ_PARA_DATA_POLLER_SETTING_ID, dataPollerSettingId);
 			retMap.put(Constants.QUARTZ_PARA_JOB_FILE_OPERATION_SETTING_ID, localFileOperationSettingId);
 			retMap.put(Constants.QUARTZ_PARA_MAIL_LIST_SETTING_ID, mailSenderSettingId);
+			retMap.put(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID, ipMacPortMappingPollerGroupId);
 		}
 
 		return retMap;
@@ -308,7 +312,8 @@ public class JobServiceImpl implements JobService {
 
 					} else if (StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_DATA_POLLER)
 							|| StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_LOCAL_FILE_OPERATION)
-							|| StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_MAIL_SENDER)) {
+							|| StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_MAIL_SENDER)
+							|| StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_IP_MAC_PORT_MAPPING_POLLER)) {
 
 						String dataPollerSettingId =
 								jobDataMap.containsKey(Constants.QUARTZ_PARA_DATA_POLLER_SETTING_ID) ?
@@ -321,10 +326,15 @@ public class JobServiceImpl implements JobService {
 						String mailSenderSettingId =
                                 jobDataMap.containsKey(Constants.QUARTZ_PARA_MAIL_LIST_SETTING_ID) ?
                                         (String)jobDataMap.get(Constants.QUARTZ_PARA_MAIL_LIST_SETTING_ID) : null;
+                                        
+                        String ipMacPortMappingPollerGroupId =
+                                jobDataMap.containsKey(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID) ?
+                                        (String)jobDataMap.get(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID) : null;
 
 						retVO.setDataPollerSettingId(dataPollerSettingId);
 						retVO.setLocalFileOperationSettingId(localFileOperationSettingId);
 						retVO.setMailSenderSettingId(mailSenderSettingId);
+						retVO.setIpMacPortMappingPollerGroupId(ipMacPortMappingPollerGroupId);;
 					}
 
 					retVO.setSchedType(schedType);
@@ -396,6 +406,10 @@ public class JobServiceImpl implements JobService {
 
 			case Constants.QUARTZ_SCHED_TYPE_MAIL_SENDER:
                 jobDataMap.put(Constants.QUARTZ_PARA_MAIL_LIST_SETTING_ID, jsVO.getInputMailSenderSettingId());
+                break;
+                
+			case Constants.QUARTZ_SCHED_TYPE_IP_MAC_PORT_MAPPING_POLLER:
+				jobDataMap.put(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID, jsVO.getInputIpMacPortMappingPollerGroupId());
                 break;
 		}
 

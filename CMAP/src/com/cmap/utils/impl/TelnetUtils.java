@@ -255,4 +255,10 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
         return null;
     }
 
+	@Override
+	public Map<String, Map<String, String>> pollTableView(String oid, Map<String, String> entryMap) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

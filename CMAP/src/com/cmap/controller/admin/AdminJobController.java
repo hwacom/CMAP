@@ -204,6 +204,7 @@ public class AdminJobController extends BaseController {
 			retMap.put("inputDataPollerSettingId", retVO.getDataPollerSettingId());
 			retMap.put("inputLocalFileOperationSettingId", retVO.getLocalFileOperationSettingId());
 			retMap.put("inputMailSenderSettingId", retVO.getMailSenderSettingId());
+			retMap.put("inputIpMacPortMappingPollerGroupId", retVO.getIpMacPortMappingPollerGroupId());
 
 			return new AppResponse(HttpServletResponse.SC_OK, "OK", retMap);
 
@@ -363,6 +364,7 @@ public class AdminJobController extends BaseController {
 				retMap.put("dataPollerSettingId", jsVO.getDataPollerSettingId());
 				retMap.put("localFileOperationSettingId", jsVO.getLocalFileOperationSettingId());
 				retMap.put("mailSenderSettingId", jsVO.getMailSenderSettingId());
+				retMap.put("ipMacPortMappingPollerGroupId", jsVO.getIpMacPortMappingPollerGroupId());
 			}
 
 			return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);

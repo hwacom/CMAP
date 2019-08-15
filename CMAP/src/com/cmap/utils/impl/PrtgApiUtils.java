@@ -294,7 +294,7 @@ public class PrtgApiUtils implements ApiUtils {
 	                deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
 	            } else {
 	                deviceInfoMap.put(Constants.DEVICE_MODEL, null);
-	                deviceInfoMap.put(Constants.DEVICE_LAYER, tag.length > 1 ? tag[1] : null);
+	                deviceInfoMap.put(Constants.DEVICE_LAYER, null);
 	            }
 			} else {
 			    //如果PRTG內沒設定tag情況則預設塞入null

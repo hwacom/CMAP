@@ -93,9 +93,7 @@
     <nav class="navbar navbar-dark fixed-top flex-md-nowrap p-0 shadow navbar-bg">
       <a href="${pageContext.request.contextPath}/index">
       	<!-- Hwacom -->
-      	<!-- 
 		<img class="img" src="${pageContext.request.contextPath}/resources/images/hwacom.png" width="auto" height="40" style="padding-top: 3px" />
-		 -->
 		  
 		<!-- Innolux 群創 -->
 		<!-- 
@@ -127,8 +125,10 @@
  		 -->
  		 
  		<!-- 台灣大哥大 -->
+ 		<!-- 
       	<img class="img" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_icon.png" width="auto" height="40" style="padding-top: 3px" />
   		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
+ 		 -->
  		 
  		<span class="font-weight-bold title-font" style="color:#000079"><spring:message code="cmap.title" /></span>	
       </a>
