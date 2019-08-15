@@ -322,6 +322,48 @@ function findNextData() {
 	});
 }
 
+function viewIpPort(groupId, dataId, type) {
+	var obj = new Object();
+	obj.groupId = groupId;
+	obj.dataId = dataId;
+	obj.type = type;
+	
+	$.ajax({
+		url : _ctx + '/plugin/module/ipMapping/getMappingRecordFromNetFlow.json',
+		data : JSON.stringify(obj),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {
+				$('#viewIpMappingPortModal_groupName').val(resp.data.groupName);
+				$('#viewIpMappingPortModal_deviceName').val(resp.data.deviceName);
+				$('#viewIpMappingPortModal_deviceModel').val(resp.data.deviceModel);
+				$('#viewIpMappingPortModal_ipAddress').val(resp.data.ipAddress);
+				$('#viewIpMappingPortModal_portName').val(resp.data.portName);
+				$('#viewIpMappingPortModal_showMsg').val(resp.data.showMsg);
+				
+				$('#viewIpMappingPortModal').modal('show');
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
+
 //查詢按鈕動作
 function findData(from) {
 	$('#queryFrom').val(from);
@@ -474,10 +516,10 @@ function findData(from) {
 				{ "data" : "toDateTime" , "orderable" : false },
 				{ "data" : "ethernetType" , "orderable" : false },
 				{ "data" : "protocol" , "orderable" : false },
-				{ "data" : "sourceIP" , "orderable" : false },
+				{},
 				{ "data" : "sourcePort" , "orderable" : false },
 				{ "data" : "sourceMAC" , "orderable" : false },
-				{ "data" : "destinationIP" , "orderable" : false },
+				{},
 				{ "data" : "destinationPort" , "orderable" : false },
 				{ "data" : "destinationMAC" , "orderable" : false },
 				{ "data" : "size" , "orderable" : false },
@@ -504,6 +546,26 @@ function findData(from) {
 					"render": function (data, type, row, meta) {
 						       	return meta.row + meta.settings._iDisplayStart + 1;
 						   	}
+				},
+				{
+					"targets" : [7],
+					"className" : "left",
+					"searchable": true,
+					"orderable": true,
+					"render" : function(data, type, row) {
+								 var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\'S\')">'+row.sourceIP+'</a>';
+								 return html;
+							 }
+				},
+				{
+					"targets" : [10],
+					"className" : "left",
+					"searchable": true,
+					"orderable": true,
+					"render" : function(data, type, row) {
+								 var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\'D\')">'+row.destinationIP+'</a>';
+								 return html;
+							 }
 				}
 			],
 		});

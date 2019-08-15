@@ -313,4 +313,47 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 	    }
 		return (List<Object[]>)q.list();
 	}
+
+	@Override
+	public List<Object[]> findNearlyModuleIpMacPortMappingByTime(String groupId, String ipAddress, String date, String time) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" SELECT ")
+		  .append("   mimpm.mapping_id ")
+		  .append("  ,mimpm.group_id ")
+		  .append("  ,dl.group_name ")
+		  .append("  ,mimpm.device_id ")
+		  .append("  ,dl.device_name ")
+		  .append("  ,dl.device_model ")
+		  .append("  ,mimpm.port_id ")
+		  .append("  ,dpi.port_name ")
+		  .append(" FROM Module_Ip_Mac_Port_Mapping mimpm ")
+		  .append("     ,Device_List dl ")
+		  .append("     ,Device_Port_Info dpi ")
+		  .append(" WHERE 1=1 ")
+          .append(" AND mimpm.group_id = dl.GROUP_ID ")
+          .append(" AND mimpm.device_id = dl.DEVICE_ID ")
+          .append(" AND dl.device_model = dpi.DEVICE_MODEL ")
+          .append(" AND mimpm.port_id = dpi.PORT_ID ")
+          .append(" AND mimpm.GROUP_ID = :groupId ")
+          .append(" AND mimpm.IP_ADDRESS = :ipAddress ")
+          .append(" AND mimpm.RECORD_DATE = :queryDate ")
+          .append(" AND mimpm.RECORD_TIME < :queryTime ")
+          .append(" ORDER BY ")
+          .append(" 	mimpm.RECORD_TIME DESC ")
+          .append(" LIMIT 1 ");
+		
+		Session session = secondSessionFactory.getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+        
+		Query<?> q = session.createNativeQuery(sb.toString());
+		q.setParameter("groupId", groupId);
+		q.setParameter("ipAddress", ipAddress);
+		q.setParameter("queryDate", date);
+		q.setParameter("queryTime", time);
+		
+		return (List<Object[]>)q.list();
+	}
 }

@@ -165,6 +165,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         sb.append(" from ").append(tableName).append(" nfrd ")
           .append(" where 1=1 ");
 
+        if (StringUtils.isNotBlank(nfVO.getQueryDataId())) {
+            sb.append(" and nfrd.data_id = :dataId ");
+        }
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             sb.append(" and nfrd.group_id = :groupId ");
         }
@@ -234,6 +237,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
 
         Query<?> q = session.createNativeQuery(sb.toString());
 
+        if (StringUtils.isNotBlank(nfVO.getQueryDataId())) {
+            q.setParameter("dataId", nfVO.getQueryDataId());
+        }
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             q.setParameter("groupId", nfVO.getQueryGroupId());
         }

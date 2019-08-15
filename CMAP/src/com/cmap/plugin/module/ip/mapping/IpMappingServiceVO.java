@@ -24,6 +24,8 @@ public class IpMappingServiceVO extends CommonServiceVO {
     private String portId;
     private String portName;
     
+    private String showMsg;
+    
 	public String getQueryGroup() {
 		return queryGroup;
 	}
@@ -125,5 +127,11 @@ public class IpMappingServiceVO extends CommonServiceVO {
 	}
 	public void setPortName(String portName) {
 		this.portName = portName;
+	}
+	public String getShowMsg() {
+		return showMsg;
+	}
+	public void setShowMsg(String showMsg) {
+		this.showMsg = showMsg;
 	}
 }

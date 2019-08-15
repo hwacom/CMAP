@@ -187,6 +187,49 @@
   
 </section>
 
+<!-- Modal [View IP_Address 來源/目的 port] start -->
+<div class="modal fade" id="viewIpMappingPortModal" tabindex="-1" role="dialog" aria-labelledby="viewIpMappingPortLabel" aria-hidden="true">
+  <div class="modal-dialog modal-mid" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewIpMappingPortLabel"><span id="msgModal_title">IP_Address 來源/目的 port</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+     	<div class="form-group row">
+        	<label for="viewIpMappingPortModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
+    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_groupName" readonly>
+        </div>
+        <div class="form-group row">
+        	<label for="viewIpMappingPortModal_deviceName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.name" /> :</label>
+        	<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_deviceName" readonly>
+        </div>
+        <div class="form-group row">
+        	<label for="viewIpMappingPortModal_deviceModel" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.model" /> :</label>
+    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_deviceModel" readonly>
+        </div>
+        <div class="form-group row">
+        	<label for="viewIpMappingPortModal_ipAddress" class="col-md-2 col-sm-12 col-form-label"><spring:message code="ip.address" /> :</label>
+    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_ipAddress" readonly>
+        </div>
+        <div class="form-group row">
+        	<label for="viewIpMappingPortModal_portName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="port.name" /> :</label>
+    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_portName" readonly>
+        </div>
+        <div class="form-group row">
+        	<label for="viewIpMappingPortModal_showMsg" class="col-md-2 col-sm-12 col-form-label">Message :</label>
+    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_showMsg" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [View IP_Address 來源/目的 port] end -->
+
 <c:set var="val"><spring:message code="group.name"/></c:set>
 
 <script>

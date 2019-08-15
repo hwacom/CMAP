@@ -24,6 +24,8 @@ import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.MibOidMapping;
+import com.cmap.plugin.module.netflow.NetFlowService;
+import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.utils.ConnectUtils;
 import com.cmap.utils.impl.SnmpV2Utils;
@@ -32,12 +34,15 @@ import com.cmap.utils.impl.SnmpV2Utils;
 public class IpMappingServiceImpl extends CommonServiceImpl implements IpMappingService {
     @Log
     private static Logger log;
-
+    
     @Autowired
     private DeviceDAO deviceDAO;
 
     @Autowired
     private IpMappingDAO ipMappingDAO;
+    
+    @Autowired
+    private NetFlowService netFlowService;
 
     /**
      * 逐筆Device撈取ArpTable資料
@@ -576,4 +581,76 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         }
         return retList;
     }
+
+	@Override
+	public IpMappingServiceVO findMappingDataFromNetFlow(String groupId, String dataId, String type) throws ServiceLayerException {
+		IpMappingServiceVO retVO = new IpMappingServiceVO();
+		try {
+			// Step 1. 先取得該筆 NET_FLOW 資料
+			NetFlowVO nfVO = netFlowService.findNetFlowRecordByGroupIdAndDataId(groupId, dataId);
+			
+			if (nfVO == null) {
+				// 若查不到 NET_FLOW 則無法繼續流程
+				throw new ServiceLayerException("取不到 NET_FLOW 資料!! (groupId: " + groupId + ", dataId: " + dataId + ")");
+			}
+			
+			String ipAddress = null;
+			switch (type) {
+				case "S":	//Source_IP
+					ipAddress = nfVO.getSourceIP();
+					break;
+					
+				case "D":	//Destination_IP
+					ipAddress = nfVO.getDestinationIP();
+					break;
+			}
+			
+			if (StringUtils.isBlank(ipAddress)) {
+				// 若 IP 為空則無法繼續流程
+				throw new ServiceLayerException("NET_FLOW 資料 IP_ADDRESS 為空!! (groupId: " + groupId + ", dataId: " + dataId + ", type: " + type + ")");
+			}
+			
+			SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			SimpleDateFormat FORMAT_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
+			SimpleDateFormat FORMAT_HH24_MI_SS = new SimpleDateFormat("HH:mm:ss");
+			
+			String fromDateTime = nfVO.getFromDateTime();
+			Date dateTime = FORMAT_YYYYMMDD_HH24MISS.parse(fromDateTime);
+			
+			String date = FORMAT_YYYY_MM_DD.format(dateTime);
+			String time = FORMAT_HH24_MI_SS.format(dateTime);
+			
+			List<Object[]> dataList = ipMappingDAO.findNearlyModuleIpMacPortMappingByTime(groupId, ipAddress, date, time);
+			
+			if (dataList == null || (dataList != null && dataList.isEmpty())) {
+				// 若查無 MAPPING 資料
+				List<Object[]> groupList = deviceDAO.getGroupIdAndNameByGroupIds(Arrays.asList(groupId));
+				
+				String groupName = "N/A";
+				if (groupList != null && !groupList.isEmpty()) {
+					groupName = Objects.toString(groupList.get(0)[1]);
+				}
+				
+				retVO.setGroupName(groupName);
+				retVO.setDeviceName("N/A");
+				retVO.setDeviceModel("N/A");
+				retVO.setIpAddress(ipAddress);
+				retVO.setPortName("N/A");
+				retVO.setShowMsg("查無此IP對應Port紀錄");
+				
+			} else {
+				Object[] data = dataList.get(0);
+				retVO.setGroupName(Objects.toString(data[2]));
+				retVO.setDeviceName(Objects.toString(data[4]));
+				retVO.setDeviceModel(Objects.toString(data[5]));
+				retVO.setIpAddress(ipAddress);
+				retVO.setPortName(Objects.toString(data[7]));
+			}
+			
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			retVO.setShowMsg("查找資料異常，請重新操作");
+		}
+		return retVO;
+	}
 }

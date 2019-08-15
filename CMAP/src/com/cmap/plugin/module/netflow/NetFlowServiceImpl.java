@@ -141,12 +141,15 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 
 			for (int i=0; i<tableTitleField.size(); i++) {
 				String fieldName = tableTitleField.get(i);
-				queryFieldsSQL.append("`").append(fieldName).append("`");
+				queryFieldsSQL.append("`").append(fieldName).append("`, ");
 
+				/*
 				if (i < tableTitleField.size() - 1) {
 					queryFieldsSQL.append(", ");
 				}
+				*/
 			}
+			queryFieldsSQL.append("data_id");
 
 			Map<Integer, CommonServiceVO> protocolMap = getProtoclSpecMap();
 
@@ -242,6 +245,8 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 							BeanUtils.setProperty(vo, fName, fValue);
 						}
 
+						vo.setDataId(Objects.toString(data[data.length - 1]));
+						vo.setGroupId(nfVO.getQueryGroupId());
 						retList.add(vo);
 					}
 
@@ -384,4 +389,33 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
         }
         return totalFlow;
     }
+
+	@Override
+	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId) throws ServiceLayerException {
+		NetFlowVO retVO = null;
+		try {
+			String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_NET_FLOW);
+
+			if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_FILE)) {
+				/*
+				 * Option 1. 走 FILE 模式查詢
+				 */
+				//TODO
+
+			} else if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_DB)) {
+				NetFlowVO nfVO = new NetFlowVO();
+				nfVO.setQueryDataId(dataId);
+				nfVO.setQueryGroupId(groupId);
+				List<NetFlowVO> dataList = findNetFlowRecordFromDB(nfVO, null, null, null);
+				
+				if (dataList != null && !dataList.isEmpty()) {
+					retVO = dataList.get(0);
+				}
+			}
+			
+		} catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+		return retVO;
+	}
 }

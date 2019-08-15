@@ -19,4 +19,6 @@ public interface IpMappingDAO extends BaseDAO {
     
     public List<Object[]> findModuleIpMacPortMappingChange(IpMappingServiceVO imsVO,
 	        Integer startRow, Integer pageLength);
+    
+    public List<Object[]> findNearlyModuleIpMacPortMappingByTime(String groupId, String ipAddress, String date, String time);
 }

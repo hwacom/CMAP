@@ -2,6 +2,7 @@ package com.cmap.plugin.module.ip.mapping;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +26,7 @@ import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 @RequestMapping("/plugin/module/ipMapping")
@@ -171,6 +174,45 @@ public class IpMappingController extends BaseController {
 
         return new DatatableResponse(total, dataList, filterdTotal);
     }
+    
+    /**
+     * 從 NET_FLOW 查詢功能點擊 SOURCE_IP or DESTINATION_IP 連結時，查找該筆 NET_FLOW 當下 IP 對應的 PORT 資料
+     * @param model
+     * @param request
+     * @param response
+     * @param groupId
+     * @param dataId
+     * @return
+     */
+    @RequestMapping(value = "getMappingRecordFromNetFlow.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getMappingRecordFromNetFlow(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+			@RequestBody JsonNode jsonData) {
+
+        try {
+        	String groupId = jsonData.findValues("groupId").get(0).asText();
+        	String dataId = jsonData.findValues("dataId").get(0).asText();
+        	String type = jsonData.findValues("type").get(0).asText();
+        	
+        	IpMappingServiceVO imsVO = ipMappingService.findMappingDataFromNetFlow(groupId, dataId, type);
+        	
+        	Map<String, Object> retMap = new HashMap<>();
+			retMap.put("groupName", imsVO.getGroupName());
+			retMap.put("deviceName", imsVO.getDeviceName());
+			retMap.put("deviceModel", imsVO.getDeviceModel());
+			retMap.put("ipAddress", imsVO.getIpAddress());
+			retMap.put("portName", imsVO.getPortName());
+			retMap.put("showMsg", imsVO.getShowMsg());
+			
+        	return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
+
+        } catch (ServiceLayerException sle) {
+        	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+        }
+    }
 
     /**
      * 查找某一時段內 IP/MAC/Port mapping資料
@@ -188,14 +230,11 @@ public class IpMappingController extends BaseController {
     @RequestMapping(value = "getMappingRecord.json", method = RequestMethod.POST)
     public @ResponseBody AppResponse getMappingRecord(
             Model model, HttpServletRequest request, HttpServletResponse response,
-            @RequestParam(name="queryGroup", required=true, defaultValue="") String queryGroup,
-            @RequestParam(name="queryIp", required=false, defaultValue="") String queryIp,
-            @RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
-            @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
-            @RequestParam(name="queryTimeBegin", required=false, defaultValue="") String queryTimeBegin,
-            @RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd) {
+			@RequestBody JsonNode jsonData) {
 
         try {
+        	
+        	
 
         } catch (Exception e) {
             log.error(e.toString(), e);

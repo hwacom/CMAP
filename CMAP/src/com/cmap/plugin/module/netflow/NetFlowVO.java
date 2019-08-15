@@ -7,6 +7,7 @@ import com.cmap.service.vo.CommonServiceVO;
 
 public class NetFlowVO extends CommonServiceVO {
 
+	private String queryDataId;
 	private String queryGroupId;
 	private String querySchoolId;
 	private String queryIp;
@@ -31,6 +32,7 @@ public class NetFlowVO extends CommonServiceVO {
 	private List<NetFlowVO> matchedList = new ArrayList<>();
 	private int totalCount = 0;
 
+	private String dataId;
 	private String groupId;
 	private String groupName;
 	private String now;
@@ -459,5 +461,21 @@ public class NetFlowVO extends CommonServiceVO {
 
 	public void setTotalFlow(String totalFlow) {
 		this.totalFlow = totalFlow;
+	}
+
+	public String getDataId() {
+		return dataId;
+	}
+
+	public void setDataId(String dataId) {
+		this.dataId = dataId;
+	}
+
+	public String getQueryDataId() {
+		return queryDataId;
+	}
+
+	public void setQueryDataId(String queryDataId) {
+		this.queryDataId = queryDataId;
 	}
 }
