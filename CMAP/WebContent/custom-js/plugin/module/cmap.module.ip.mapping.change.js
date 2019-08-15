@@ -3,14 +3,13 @@
  */
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_ipMappingChange");
+	initMenuStatus("toggleMenu_abnormalAlarm", "toggleMenu_abnormalAlarm_items", "ip_record");
 	
 });
 
 //查詢按鈕動作
 function findData(from, period) {
 	$('#queryFrom').val(from);
-	$("#queryDatePeriod").val(period);
 	
 	if (from == 'MOBILE') {
 		$('#collapseExample').collapse('hide');
@@ -44,15 +43,22 @@ function findData(from, period) {
 	        "createdRow": function( row, data, dataIndex ) {
 	        },
 			"ajax" : {
-				"url" : _ctx + '/plugin/module/netFlow/ranking/getNetFlowRankingData.json',
+				"url" : _ctx + '/plugin/module/ipMapping/getChangeRecord.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
 						d.queryGroup = $("#queryGroup").val();
+						d.queryDevice = $("#queryDevice").val();
+						d.queryIp = $("#queryIp").val();
+						d.queryMac = $("#queryMac").val();
+						d.queryPort = $("#queryPort").val();
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroup = $("#queryGroup_mobile").val();
+						d.queryDevice = $("#queryDevice_mobile").val();
+						d.queryIp = $("#queryIp_mobile").val();
+						d.queryMac = $("#queryMac_mobile").val();
+						d.queryPort = $("#queryPort_mobile").val();
 					}
-					d.queryDatePeriod = $("#queryDatePeriod").val();
 					return d;
 				},
 				beforeSend : function() {
@@ -81,7 +87,7 @@ function findData(from, period) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[3 , 'desc' ]],
+			"order": [[1 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -100,19 +106,17 @@ function findData(from, period) {
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
-				if ($("#resultTable > tbody > tr").length > 1) {
-					$("#resultTable > tbody > tr:eq(0)").addClass("summary-tr");
-				}
 				bindTrEvent();
 			},
 			"columns" : [
 				{},
+				{ "data" : "dateTime" , "searchable" : false },
+				{ "data" : "groupName" },
+				{ "data" : "deviceName" },
+				{ "data" : "deviceModel" , "orderable" : false },
 				{ "data" : "ipAddress" },
-				{ "data" : "groupName" , "searchable" : false },
-				{ "data" : "percent" , "searchable" : false },
-				{ "data" : "totalTraffic" , "searchable" : false },
-				{ "data" : "uploadTraffic" , "searchable" : false },
-				{ "data" : "downloadTraffic" , "searchable" : false }
+				{ "data" : "macAddress" },
+				{ "data" : "portName" }
 			],
 			"columnDefs" : [
 				{

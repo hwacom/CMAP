@@ -13,27 +13,20 @@
 	      	  <div class="form-group row" style="margin-bottom: -.5rem;">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%">
+	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%" onchange="changeDeviceMenu('queryDevice', this.value)">
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
-	    	    <div class="col-lg-2 group-field-other">
-	    	    	<label for="queryDateBegin" class="font-weight-bold must" style="width: 20%"><spring:message code="date" /></label>
-	    	    	<input type="date" id="queryDateBegin" style="width: 75%">
-	    	    	<!-- 
-	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
-	    	    	<input type="date" id="queryDateEnd" style="width: 35%">
-	    	    	 -->
-	    	    </div>
 	    	    <div class="col-lg-3 group-field-other">
-	    	    	<label for="queryTimeBegin" class="font-weight-bold must" style="width: 14%"><spring:message code="time" /></label>
-	    	    	<input type="time" id="queryTimeBegin" style="width: 38%">
-	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
-	    	    	<input type="time" id="queryTimeEnd" style="width: 38%">
-	    	    </div>
+					<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="device.name" /></label>
+					<form:select path="queryDevice" id="queryDevice" style="width: 75%">
+                        <form:option value="" label="=== ALL ===" />
+                        <form:options items="${deviceList}" />
+                    </form:select>
+				</div>
 	    	    <div class="col-lg-2" style="padding-top: 5px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web">
 	    	    		<spring:message code="inquiry" />
@@ -42,16 +35,16 @@
 	    	  </div>
 	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
 	    	    <div class="col-lg-3 group-field-other">
-					<label for="query_IpAdress" class="font-weight-bold" style="width: 35%"><spring:message code="ip.address" /></label>
-					<input type="text" id="query_IpAdress" class="input-ip" style="width: 60%">
+					<label for="queryIp" class="font-weight-bold" style="width: 35%"><spring:message code="ip.address" /></label>
+					<input type="text" id="queryIp" class="input-ip" style="width: 60%">
 				</div>
-				<div class="col-lg-3 group-field-other">
-					<label for="query_MacAdress" class="font-weight-bold" style="width: 45%"><spring:message code="mac.address" /></label>
-					<input type="text" id="query_MacAdress" class="input-ip" style="width: 60%">
+				<div class="col-lg-4 group-field-other">
+					<label for="queryMac" class="font-weight-bold" style="width: 30%"><spring:message code="mac.address" /></label>
+					<input type="text" id="queryMac" class="input-ip" style="width: 65%">
 				</div>
-				<div class="col-lg-3 group-field-other">
-					<label for="query_Port" class="font-weight-bold" style="width: 45%"><spring:message code="port" /></label>
-					<input type="text" id="query_Port" class="input-ip" style="width: 50%">
+				<div class="col-lg-2 group-field-other">
+					<label for="queryPort" class="font-weight-bold" style="width: 35%"><spring:message code="port" /></label>
+					<input type="text" id="queryPort" class="input-ip" style="width: 60%">
 				</div>
 			  </div>
 	      	</div>
@@ -74,11 +67,18 @@
 		  		<form>
 		      	  <div class="form-group row">
 		      	  	<label for="queryGroup_mobile" class="col-sm-2 col-form-label"><spring:message code="group.name" /></label>
-		      	  	<form:select path="queryGroup" id="queryGroup_mobile" class="col-sm-10 form-control form-control-sm">
+		      	  	<form:select path="queryGroup" id="queryGroup_mobile" class="col-sm-10 form-control form-control-sm" onchange="changeDeviceMenu('queryDevice_mobile', this.value)">
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
                         <form:options items="${groupList}" />
+                    </form:select>
+		    	  </div>
+		    	  <div class="form-group row">
+		      	  	<label for="queryDevice_mobile" class="col-sm-2 col-form-label"><spring:message code="device.name" /></label>
+		      	  	<form:select path="queryDevice" id="queryDevice_mobile" class="col-sm-10 form-control form-control-sm">
+                        <form:option value="" label="=== ALL ===" />
+                        <form:options items="${deviceList}" />
                     </form:select>
 		    	  </div>
 				  <div class="form-group row">
@@ -103,10 +103,13 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="date.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="device.model" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.address" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="mac.address" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="port" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="date.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="port.name" /></th>
 		    </tr>
 		  </thead>
 		</table>

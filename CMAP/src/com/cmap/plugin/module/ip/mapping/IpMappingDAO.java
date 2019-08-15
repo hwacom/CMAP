@@ -14,4 +14,9 @@ public interface IpMappingDAO extends BaseDAO {
     public List<MibOidMapping> findMibOidMappingOfTableEntryByNameLike(String tableOidName);
     
     public List<Object[]> findEachIpAddressLastestModuleIpMacPortMapping(String groupId);
+    
+    public long countModuleIpMacPortMappingChange(IpMappingServiceVO imsVO);
+    
+    public List<Object[]> findModuleIpMacPortMappingChange(IpMappingServiceVO imsVO,
+	        Integer startRow, Integer pageLength);
 }

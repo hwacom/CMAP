@@ -1,21 +1,28 @@
 package com.cmap.plugin.module.ip.mapping;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
+import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
 
 @Controller
@@ -24,6 +31,11 @@ public class IpMappingController extends BaseController {
     @Log
     private static Logger log;
 
+    private static final String[] UI_MAPPING_CHANGE_COLUMNS = new String[] {"","Create_Time","Group_Name","Device_Name","","Ip_Address","Mac_Address","Port"};
+
+    @Autowired
+    private IpMappingService ipMappingService;
+    
     /**
      * 初始化選單
      * @param model
@@ -31,6 +43,7 @@ public class IpMappingController extends BaseController {
      */
     private void initMenu(Model model, HttpServletRequest request) {
         Map<String, String> groupListMap = null;
+        Map<String, String> deviceListMap = null;
         try {
             groupListMap = getGroupList(request);
 
@@ -40,6 +53,8 @@ public class IpMappingController extends BaseController {
         } finally {
             model.addAttribute("queryGroup", "");
             model.addAttribute("groupList", groupListMap);
+            model.addAttribute("queryDevice", "");
+			model.addAttribute("deviceList", deviceListMap);
 
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
             model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
@@ -111,25 +126,50 @@ public class IpMappingController extends BaseController {
     public @ResponseBody DatatableResponse getChangeRecord(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name="queryGroup", required=true, defaultValue="") String queryGroup,
+            @RequestParam(name="queryDevice", required=false, defaultValue="") String queryDevice,
             @RequestParam(name="queryIp", required=false, defaultValue="") String queryIp,
             @RequestParam(name="queryMac", required=false, defaultValue="") String queryMac,
             @RequestParam(name="queryPort", required=false, defaultValue="") String queryPort,
-            @RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
-            @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
             @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
             @RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
             @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
             @RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
             @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
 
+    	long total = 0;
+		long filterdTotal = 0;
+		List<IpMappingServiceVO> dataList = new ArrayList<>();
+    	IpMappingServiceVO imsVO = null;
         try {
+        	imsVO = new IpMappingServiceVO();
+        	imsVO.setQueryGroup(queryGroup);
+        	imsVO.setQueryDevice(queryDevice);
+        	imsVO.setQueryIp(queryIp);
+        	imsVO.setQueryMac(queryMac);
+        	imsVO.setQueryPort(queryPort);
+        	imsVO.setStartNum(startNum);
+        	imsVO.setPageLength(pageLength);
+        	imsVO.setSearchValue(searchValue);
+        	imsVO.setOrderColumn(UI_MAPPING_CHANGE_COLUMNS[orderColIdx]);
+        	imsVO.setOrderDirection(orderDirection);
 
+        	filterdTotal = ipMappingService.countModuleIpMacPortMappingChange(imsVO);
 
-        } catch (Exception e) {
+			if (filterdTotal != 0) {
+				dataList = ipMappingService.findModuleIpMacPortMappingChange(imsVO);
+			}
+
+			imsVO = new IpMappingServiceVO();
+        	imsVO.setQueryGroup(queryGroup);
+        	
+			total = ipMappingService.countModuleIpMacPortMappingChange(imsVO);
+			
+        } catch (ServiceLayerException sle) {
+		} catch (Exception e) {
             log.error(e.toString(), e);
         }
 
-        return new DatatableResponse(0L, null, 0L);
+        return new DatatableResponse(total, dataList, filterdTotal);
     }
 
     /**
