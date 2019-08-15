@@ -125,11 +125,7 @@ function findData(from, period) {
 					"searchable": false,
 					"orderable": false,
 					"render": function (data, type, row, meta) {
-								if (meta.row == 0) {
-									return "";
-								} else {
-									return meta.row + meta.settings._iDisplayStart;
-								}
+								return meta.row + meta.settings._iDisplayStart + 1;
 						   	}
 				}
 			],

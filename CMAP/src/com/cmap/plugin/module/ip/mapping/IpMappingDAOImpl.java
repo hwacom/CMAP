@@ -4,6 +4,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -97,15 +98,16 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 		  .append("   m1.group_id, m1.device_id, m1.ip_address, m1.mac_address, m1.port_id ")
 		  .append(" FROM Module_Ip_Mac_Port_Mapping m1 ")
 		  .append("     ,(SELECT ")
-		  .append("         mm.group_id, mm.ip_address, max(create_time) create_time ")
+		  .append("         mm.group_id, mm.device_id, mm.ip_address, max(create_time) create_time ")
 		  .append("       FROM Module_Ip_Mac_Port_Mapping mm ")
 		  .append("       WHERE 1=1 ")
 		  .append("       AND mm.group_id = :groupId ")
 		  .append("       GROUP BY ")
-		  .append("         mm.group_id, mm.ip_address ")
+		  .append("         mm.group_id, mm.device_id, mm.ip_address ")
 		  .append("      ) m2 ")
 		  .append(" WHERE 1=1 ")
           .append(" AND m1.group_id = m2.group_id ")
+          .append(" AND m1.device_id = m2.device_id ")
           .append(" AND m1.ip_address = m2.ip_address ")
           .append(" AND m1.create_time = m2.create_time ")
           .append(" AND m1.group_id = :groupId ");
@@ -120,7 +122,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 	public long countModuleIpMacPortMappingChange(IpMappingServiceVO imsVO) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" SELECT ")
-		  .append("   count(mc.MAPPING_ID) ")
+		  .append("   count(distinct mc.MAPPING_ID) ")
 		  .append(" FROM Module_Ip_Mac_Port_Mapping_Change mc ")
 		  .append("     ,Device_List dl ")
 		  .append("     ,Device_Port_Info dpi ")
@@ -161,7 +163,12 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 			  .append("     ) ");
 		}
 
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Session session = secondSessionFactory.getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+        
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
 			q.setParameter("groupId", imsVO.getQueryGroup());
@@ -275,7 +282,12 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 				break;
 		}
 		
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Session session = secondSessionFactory.getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+        
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
 			q.setParameter("groupId", imsVO.getQueryGroup());

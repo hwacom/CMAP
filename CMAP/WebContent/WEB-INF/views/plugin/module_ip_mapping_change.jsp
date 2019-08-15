@@ -103,7 +103,7 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="date.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="update.time" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="device.model" /></th>
