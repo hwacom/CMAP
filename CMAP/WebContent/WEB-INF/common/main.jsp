@@ -252,7 +252,7 @@
 				        <c:if test="${Env.SHOW_MENU_ITEM_EMAIL_UPDATE eq __SHOW__}">
 				        	<li class="subMenu-item">
 		                    	<a id="mp_emailUpdate" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/email/update')">
-		                    	  <span data-feather="activity"></span>
+		                    	  <span data-feather="mail"></span>
 		                    	  	<span><spring:message code="func.prtg.email.update" /></span>
 		                    	</a>
 		                    </li>
