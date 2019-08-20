@@ -704,6 +704,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
 				boolean moveFile = false;
 				boolean deleteFile = false;
+				Exception moveException = null;
 				int runTime = 0;
 				while (runTime < 3) {
 //					moveFile = file.renameTo(targetFile);
@@ -713,6 +714,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 						break;
 
 					} catch (Exception e) {
+						moveException = e;
 						// 移動檔案失敗retry 3次 (間格等待1秒)
 						runTime++;
 
@@ -725,7 +727,9 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 				}
 
 				if (!moveFile) {
-					throw new ServiceLayerException("移動檔案至備份資料夾失敗 >>> oriFile: " + file.getPath() + ", targetFile: " + targetFilePath);
+					throw new ServiceLayerException(
+							"移動檔案至備份資料夾失敗 >>> oriFile: " + file.getPath() + ", targetFile: " + targetFilePath + " >>> Exception: " + moveException.toString()
+							, moveException);
 
 				} else {
 					if (file.exists()) {
