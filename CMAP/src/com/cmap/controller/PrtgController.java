@@ -459,6 +459,26 @@ public class PrtgController extends BaseController {
         }
     }
 
+	@RequestMapping(value = "getPrtgNetFlowOutputCoreUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getPrtgNetFlowOutputCoreUri(
+            Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        try {
+            String netFlowOutputMapCoreUrl = Env.PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;   //如果沒設定則取得預設MAP
+            netFlowOutputMapCoreUrl = composePrtgUrl(request, netFlowOutputMapCoreUrl);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", netFlowOutputMapCoreUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
+
 	@RequestMapping(value = "getPrtgDeviceFailureUri", method = RequestMethod.POST)
 	public @ResponseBody AppResponse getPrtgDeviceFailureUri(
 			Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -622,6 +642,17 @@ public class PrtgController extends BaseController {
             log.error(e.toString(), e);
         }
         return "prtg/net_flow_output";
+    }
+
+	@RequestMapping(value = "/netFlowOutput/core", method = RequestMethod.GET)
+    public String prtgNetFlowOutputCore(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/net_flow_output_core";
     }
 
 	@RequestMapping(value = "/deviceFailure", method = RequestMethod.GET)

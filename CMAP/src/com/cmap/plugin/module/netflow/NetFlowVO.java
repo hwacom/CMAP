@@ -2,7 +2,6 @@ package com.cmap.plugin.module.netflow;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.cmap.service.vo.CommonServiceVO;
 
 public class NetFlowVO extends CommonServiceVO {
@@ -60,6 +59,8 @@ public class NetFlowVO extends CommonServiceVO {
 	private String sourceVLAN;
 	private String destinationVLAN;
 	private String flowID;
+	private String sourceIPInGroup;
+	private String destinationIPInGroup;
 
 	private String totalFlow;
 
@@ -478,4 +479,20 @@ public class NetFlowVO extends CommonServiceVO {
 	public void setQueryDataId(String queryDataId) {
 		this.queryDataId = queryDataId;
 	}
+
+    public String getSourceIPInGroup() {
+        return sourceIPInGroup;
+    }
+
+    public void setSourceIPInGroup(String sourceIPInGroup) {
+        this.sourceIPInGroup = sourceIPInGroup;
+    }
+
+    public String getDestinationIPInGroup() {
+        return destinationIPInGroup;
+    }
+
+    public void setDestinationIPInGroup(String destinationIPInGroup) {
+        this.destinationIPInGroup = destinationIPInGroup;
+    }
 }

@@ -11,6 +11,6 @@ public interface IpMappingService {
     public long countModuleIpMacPortMappingChange(IpMappingServiceVO imsVO) throws ServiceLayerException;
 
     public List<IpMappingServiceVO> findModuleIpMacPortMappingChange(IpMappingServiceVO imsVO) throws ServiceLayerException;
-    
-    public IpMappingServiceVO findMappingDataFromNetFlow(String groupId, String dataId, String type) throws ServiceLayerException;
+
+    public IpMappingServiceVO findMappingDataFromNetFlow(String groupId, String dataId, String fromDateTime, String type) throws ServiceLayerException;
 }

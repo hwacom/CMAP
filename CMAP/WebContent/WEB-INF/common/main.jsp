@@ -52,6 +52,7 @@
     <link href="${pageContext.request.contextPath}/resources/css/blog.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/resources/css/fontawesome/all.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/resources/css/jquery-scrollbar/jquery.scrollbar.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/resources/css/flag-icon-css-master/flag-icon.min.css" rel="stylesheet">
 	
 	<!-- Core Javascript -->
 	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.3.1.min.js"></script>
@@ -213,6 +214,19 @@
 	                    </c:if>
 	                    <!-- [流量統計] END -->
 	                    
+	                    <!-- [核心路由器出口流量圖] START -->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_PRTG_CR_NET_FLOW_OUTPUT eq __SHOW__}">
+					        	<li class="subMenu-item">
+			                    	<a id="mp_netFlowOutputCore" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowOutput/core')">
+			                    	  <span data-feather="activity"></span>
+			                    	  	<span><spring:message code="func.prtg.core.router.net.flow.output" /></span>
+			                    	</a>
+			                    </li>
+					        </c:if>
+	                    </sec:authorize>
+	                    <!-- [核心路由器出口流量圖] END -->
+	                    
 	                    <!-- [各校出口端流量圖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -225,11 +239,11 @@
 	                    <!-- [各校出口端流量圖] END -->
 	                    
 	                    <!-- [各校即時IP流量排行] START -->
-	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING eq __SHOW__}">
+	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_TRAFFIC eq __SHOW__}">
 	                    	<li class="subMenu-item">
-		                    	<a id="mp_netFlowCurrentRanking" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking')">
+		                    	<a id="mp_netFlowCurrentRanking_traffic" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/traffic')">
 		                    	  <span data-feather="activity"></span>
-		                    	  	<span><spring:message code="func.net.flow.current.ranking" /></span>
+		                    	  	<span><spring:message code="func.net.flow.current.ranking.traffic" /></span>
 		                    	</a>
 		                    </li>
 	                    </c:if>
@@ -237,16 +251,40 @@
 	                    
 	                    <!-- [所有學校即時IP流量排行] START -->
 	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
-					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING eq __SHOW__}">
+					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_TRAFFIC eq __SHOW__}">
 					        	<li class="subMenu-item">
-			                    	<a id="mp_netFlowCurrentRanking_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/all')">
+			                    	<a id="mp_netFlowCurrentRanking_traffic_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/traffic/all')">
 			                    	  <span data-feather="activity"></span>
-			                    	  	<span><spring:message code="func.net.flow.all.current.ranking" /></span>
+			                    	  	<span><spring:message code="func.net.flow.all.current.ranking.traffic" /></span>
 			                    	</a>
 			                    </li>
 					        </c:if>
 	                    </sec:authorize>
 	                    <!-- [所有學校即時IP流量排行] END -->
+	                    
+	                    <!-- [各校即時連線數排行] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_SESSION eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="mp_netFlowCurrentRanking_session" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/session')">
+		                    	  <span data-feather="link"></span>
+		                    	  	<span><spring:message code="func.net.flow.current.ranking.session" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [各校即時連線數排行] END -->
+	                    
+	                    <!-- [所有學校即時連線數排行] START -->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_SESSION eq __SHOW__}">
+					        	<li class="subMenu-item">
+			                    	<a id="mp_netFlowCurrentRanking_session_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/session/all')">
+			                    	  <span data-feather="link"></span>
+			                    	  	<span><spring:message code="func.net.flow.all.current.ranking.session" /></span>
+			                    	</a>
+			                    </li>
+					        </c:if>
+	                    </sec:authorize>
+	                    <!-- [所有學校即時連線數排行] END -->
 	                    
 	                    <!-- [Email修改] START -->
 				        <c:if test="${Env.SHOW_MENU_ITEM_EMAIL_UPDATE eq __SHOW__}">

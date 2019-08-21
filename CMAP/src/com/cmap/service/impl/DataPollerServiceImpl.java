@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +106,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
         }
 
 	    if (tableSeq != null) {
-	        tableName += "_" + tableSeq;
+	        tableName += "_" + StringUtils.leftPad(String.valueOf(tableSeq), 3, "0"); //TABLE流水編碼部分補0成3碼(ex:1→001)
 	    }
 
 	    return tableName;

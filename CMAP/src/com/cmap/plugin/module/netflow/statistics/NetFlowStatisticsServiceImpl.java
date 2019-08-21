@@ -458,4 +458,18 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
         }
         return retList;
     }
+
+    @Override
+    public long countModuleSessionStatistics(NetFlowStatisticsVO nfsVO)
+            throws ServiceLayerException {
+        // TODO 自動產生的方法 Stub
+        return 0;
+    }
+
+    @Override
+    public List<NetFlowStatisticsVO> findModuleSessionStatistics(NetFlowStatisticsVO nfsVO)
+            throws ServiceLayerException {
+        // TODO 自動產生的方法 Stub
+        return null;
+    }
 }

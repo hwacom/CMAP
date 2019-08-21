@@ -43,7 +43,7 @@ public interface NetFlowService {
 	 * @throws ServiceLayerException
 	 */
 	public String getTotalTraffic(NetFlowVO nfVO, List<String> searchLikeField) throws ServiceLayerException;
-	
+
 	/**
 	 * 查找資料 By groupId + dataId
 	 * @param groupId
@@ -51,5 +51,5 @@ public interface NetFlowService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId) throws ServiceLayerException;
+	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId, String fromDateTime) throws ServiceLayerException;
 }

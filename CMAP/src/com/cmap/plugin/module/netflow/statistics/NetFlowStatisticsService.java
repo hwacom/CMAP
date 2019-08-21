@@ -35,4 +35,20 @@ public interface NetFlowStatisticsService {
      * @throws ServiceLayerException
      */
     public List<NetFlowStatisticsVO> findModuleIpTrafficStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException;
+
+    /**
+     * 取得 NET_FLOW Session數 統計資料筆數
+     * @param nfsVO
+     * @return
+     * @throws ServiceLayerException
+     */
+    public long countModuleSessionStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException;
+
+    /**
+     * 查找 NET_FLOW Session數 統計資料
+     * @param nfsVO
+     * @return
+     * @throws ServiceLayerException
+     */
+    public List<NetFlowStatisticsVO> findModuleSessionStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException;
 }

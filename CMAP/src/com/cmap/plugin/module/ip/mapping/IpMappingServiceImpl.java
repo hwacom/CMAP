@@ -9,13 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.DeviceDAO;
@@ -34,13 +32,13 @@ import com.cmap.utils.impl.SnmpV2Utils;
 public class IpMappingServiceImpl extends CommonServiceImpl implements IpMappingService {
     @Log
     private static Logger log;
-    
+
     @Autowired
     private DeviceDAO deviceDAO;
 
     @Autowired
     private IpMappingDAO ipMappingDAO;
-    
+
     @Autowired
     private NetFlowService netFlowService;
 
@@ -61,13 +59,13 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         try {
         	// 準備ARP_TABLE的OID清單
         	List<MibOidMapping> arpTableOidMapping = ipMappingDAO.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_ARP_TABLE}));
-        	
+
         	if (arpTableOidMapping == null || (arpTableOidMapping != null && arpTableOidMapping.isEmpty())) {
         		throw new ServiceLayerException("未設定 Arp_Table OID!! >> [OID_NAME: atTable]");
         	}
-        	
+
         	String arpTableOid = arpTableOidMapping.get(0).getOidValue();
-        	
+
         	// 準備ARP_TABLE底下需要的Field的OID清單
         	Map<String, String> tableEntryMap = null;
         	List<MibOidMapping> arpTableEntryOidMapping = ipMappingDAO.findMibOidMappingOfTableEntryByNameLike(Env.OID_NAME_OF_ARP_TABLE);
@@ -77,7 +75,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         			tableEntryMap.put(mapping.getOidName(), mapping.getOidValue());
         		}
         	}
-        	
+
         	ConnectUtils snmpUtils = new SnmpV2Utils();
         	// 迴圈跑該群組下的L3設備
             for (DeviceList device : deviceL3) {
@@ -97,44 +95,44 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
                 	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
                 }
-                
+
                 String udpAddress = "udp:" + deviceIp + "/" + udpPort;
                 // 連接設備
                 snmpUtils.connect(udpAddress, communityString);
 
                 // 撈取設備ARP_TABLE相關資料
                 Map<String, Map<String, String>> arpTable = snmpUtils.pollTableView(arpTableOid, tableEntryMap);
-                
+
                 if (arpTable == null || (arpTable != null && arpTable.isEmpty())) {
                 	// 該設備未撈取到資料則跳到下一個設備繼續處理
                 	continue;
                 }
-                
+
                 // 將撈取結果組成此Method回傳MAP格式
                 Map<String, IpMappingServiceVO> macInfoMap = new HashMap<>();
                 IpMappingServiceVO ipsVO = null;
                 for (Map.Entry<String, Map<String, String>> arpTableMap : arpTable.entrySet()) {
                 	ipsVO = new IpMappingServiceVO();
-                	
+
                 	Map<String, String> arpTableEntryMap = arpTableMap.getValue();
                 	String macAddress = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_MAC_ADDRESS);
                 	String ipAddress = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_IP_ADDRESS);
                 	String interfaceId = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_INTERFACE_ID);
-                	
+
                 	if (StringUtils.isBlank(macAddress)) {
                 		//TODO MAC_Address為Key值，若為空的話先跳過
                 		continue;
                 	}
-                	
+
                 	ipsVO.setGroupId(groupId);
                 	ipsVO.setDeviceId(deviceId);
                 	ipsVO.setMacAddress(macAddress);
                 	ipsVO.setIpAddress(ipAddress);
                 	ipsVO.setInterfaceId(interfaceId);
-                	
+
                 	macInfoMap.put(macAddress, ipsVO);
                 }
-                
+
                 retMap.put(deviceId, macInfoMap);
             }
 
@@ -162,13 +160,13 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         try {
         	// 準備MAC_TABLE的OID清單
         	List<MibOidMapping> macTableOidMapping = ipMappingDAO.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_MAC_TABLE}));
-        	
+
         	if (macTableOidMapping == null || (macTableOidMapping != null && macTableOidMapping.isEmpty())) {
         		throw new ServiceLayerException("未設定 Mac_Table OID!! >> [OID_NAME: dot1dTpFdbTable]");
         	}
-        	
+
         	String macTableOid = macTableOidMapping.get(0).getOidValue();
-        	
+
         	// 準備MAC_TABLE底下需要的Field的OID清單
         	Map<String, String> entryMap = null;
         	List<MibOidMapping> macTableEntryOidMapping = ipMappingDAO.findMibOidMappingOfTableEntryByNameLike(Env.OID_NAME_OF_MAC_TABLE);
@@ -178,7 +176,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         			entryMap.put(mapping.getOidName(), mapping.getOidValue());
         		}
         	}
-        	
+
         	ConnectUtils snmpUtils = new SnmpV2Utils();
         	// 迴圈跑該群組下的L2設備
             for (DeviceList device : deviceL2) {
@@ -186,7 +184,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 String groupId = device.getGroupId();
                 String deviceId = device.getDeviceId();
                 String deviceIp = device.getDeviceIp();
-                
+
                 String communityString = null;
                 Integer udpPort = null;
                 DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
@@ -197,39 +195,39 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
                 	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
                 }
-                
+
                 String udpAddress = "udp:" + deviceIp + "/" + udpPort;
                 snmpUtils.connect(udpAddress, communityString);
 
                 Map<String, Map<String, String>> macTable = snmpUtils.pollTableView(macTableOid, entryMap);
-                
+
                 if (macTable == null || (macTable != null && macTable.isEmpty())) {
                 	// 該設備未撈取到資料則跳到下一個設備繼續處理
                 	continue;
                 }
-                
+
                 // 查找要排除的PORT清單
                 Map<String, String> excludePortMap = null;
                 List<ModuleMacTableExcludePort> excludePortList = ipMappingDAO.findModuleMacTableExcludePort(groupId, deviceId);
-                
+
                 if (excludePortList != null && !excludePortList.isEmpty()) {
                 	excludePortMap = new HashMap<>();
-                	
+
                 	for (ModuleMacTableExcludePort entity : excludePortList) {
                 		excludePortMap.put(entity.getPortId(), entity.getRemark());
                 	}
                 }
-                
+
                 // 將撈取結果組成此Method回傳MAP格式
                 Map<String, IpMappingServiceVO> macInfoMap = new HashMap<>();
                 IpMappingServiceVO ipsVO = null;
                 for (Map.Entry<String, Map<String, String>> macTableMap : macTable.entrySet()) {
                 	ipsVO = new IpMappingServiceVO();
-                	
+
                 	Map<String, String> macTableEntryMap = macTableMap.getValue();
                 	String macAddress = macTableEntryMap.get(Env.OID_NAME_OF_MAC_TABLE_MAC_ADDRESS);
                 	String portId = macTableEntryMap.get(Env.OID_NAME_OF_MAC_TABLE_PORT_ID);
-                	
+
                 	if (StringUtils.isBlank(macAddress)) {
                 		//TODO MAC_Address為Key值，若為空的話先跳過
                 		continue;
@@ -237,15 +235,15 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 		// 若PORT_ID在排除清單內則跳過
                 		continue;
                 	}
-                	
+
                 	ipsVO.setGroupId(groupId);
                 	ipsVO.setDeviceId(deviceId);
                 	ipsVO.setMacAddress(macAddress);
                 	ipsVO.setPortId(portId);
-                	
+
                 	macInfoMap.put(macAddress, ipsVO);
                 }
-                
+
                 retMap.put(deviceId, macInfoMap);
             }
 
@@ -269,7 +267,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	log.info("[IpMapping] jobId: " + jobId + " , executeDate: " + executeDate + " , groupId: " + groupId);
         	long beginTime = System.currentTimeMillis();
         	long startTime = System.currentTimeMillis();
-        	
+
             DeviceDAOVO daovo = new DeviceDAOVO();
             daovo.setGroupId(groupId);
 
@@ -296,13 +294,13 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             }
             endTime = System.currentTimeMillis();
             log.info("[IpMapping] Step 2. Polling L2 MAC_TABLE (Device*" + (deviceL2.size()) + ") >> Cost: " + (endTime - startTime) + " ms");
-            
+
             if ((L2MacTableMap == null || (L2MacTableMap != null && L2MacTableMap.isEmpty()))
             		|| (L3ArpTableMap == null || (L3ArpTableMap != null && L3ArpTableMap.isEmpty()))) {
             	// 若此群組下[L2設備都撈不到MAC_TABLE資料]或[L3設備都撈不到ARP_TABLE資料]則結束
             	return retVO;
             }
-            
+
             startTime = System.currentTimeMillis();
             // Step 3. ArpTable & MacTable mapping處理
             //Map<String, String> tempMacMap = new HashMap<>();
@@ -315,7 +313,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 // 跑L2 device MacTable 資料
                 for (Map.Entry<String, IpMappingServiceVO> L2MacTableEntry : L2DeviceMacTable.entrySet()) {
                     String macAddress = L2MacTableEntry.getKey();
-                    
+
                     /*
                     if (tempMacMap.containsKey(macAddress)) {
                     	// 若該MAC_ADDRESS已處理過則跳過
@@ -325,7 +323,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     	tempMacMap.put(macAddress, Constants.DATA_Y);
                     }
                     */
-                    
+
                     IpMappingServiceVO mtEntryVO = L2MacTableEntry.getValue();
 
                     // 跑L3 取得MAC_ADDRESS對應IP_ADDRESS
@@ -338,7 +336,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                                 IpMappingServiceVO atEntryVO = L3DeviceArpTable.get(macAddress);
                                 String ipAddress = atEntryVO.getIpAddress();
                                 String portId = mtEntryVO.getPortId();
-                                
+
                                 mappingVO = new IpMappingServiceVO();
                                 mappingVO.setExecuteDate(executeDate);
                                 mappingVO.setGroupId(groupId);
@@ -379,14 +377,14 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         			artTableList.add(arpTable);
         		}
         	}
-        	
+
         	if (!artTableList.isEmpty()) {
         		ipMappingDAO.insertEntities(artTableList);
         	}
         	log.info("artTableList size: " + artTableList.size());
         	endTime = System.currentTimeMillis();
         	log.info("[IpMapping] Step 4-1.寫入Module_Arp_Table >> Cost: " + (endTime - startTime) + " ms");
-        	
+
         	startTime = System.currentTimeMillis();
         	// 寫入Module_Mac_Table
         	List<ModuleMacTable> macTableList = new ArrayList<>();
@@ -408,14 +406,14 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         			macTableList.add(macTable);
         		}
         	}
-        	
+
         	if (!macTableList.isEmpty()) {
         		ipMappingDAO.insertEntities(macTableList);
         	}
         	log.info("macTableList size: " + macTableList.size());
         	endTime = System.currentTimeMillis();
         	log.info("[IpMapping] Step 4-2.寫入Module_Mac_Table >> Cost: " + (endTime - startTime) + " ms");
-        	
+
         	startTime = System.currentTimeMillis();
         	// 寫入Module_Ip_Mac_Port_Mapping
         	List<ModuleIpMacPortMapping> mappingList = new ArrayList<>();
@@ -436,7 +434,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         		mapping.setUpdateBy(currentUserName());
         		mappingList.add(mapping);
         	}
-        	
+
         	if (!mappingList.isEmpty()) {
         		ipMappingDAO.insertEntities(mappingList);
         	}
@@ -448,7 +446,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             // Step 5. 比對IP前一次Mapping紀錄，判斷是否有異動 & 寫入Module_Ip_Mac_Port_Mapping_Change資料
             // 撈出該群組下所有IP的最新MAPPING資料
             List<Object[]> latestIPMappingList = ipMappingDAO.findEachIpAddressLastestModuleIpMacPortMapping(groupId);
-            
+
             List<ModuleIpMacPortMappingChange> mappingChangeList = new ArrayList<>();
             ModuleIpMacPortMappingChange mappingChange = null;
             if (latestIPMappingList == null || (latestIPMappingList != null && latestIPMappingList.isEmpty())) {
@@ -458,7 +456,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             		BeanUtils.copyProperties(mappingChange, entity);
             		mappingChangeList.add(mappingChange);
             	}
-            	
+
             } else {
             	// 比對有無異動，有異動才寫入資料
             	for (ModuleIpMacPortMapping newMapping : mappingList) {
@@ -466,17 +464,17 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             		String ipAddress = newMapping.getIpAddress();
             		String newMacAddress = newMapping.getMacAddress();
             		String newPortId = newMapping.getPortId();
-            		
+
             		if (StringUtils.isBlank(deviceId)) {
             			continue;
             		}
-            		
+
             		for (Object[] preMapping : latestIPMappingList) {
             			String pDeviceId = Objects.toString(preMapping[1]);
             			String pIpAddress = Objects.toString(preMapping[2]);
             			String preMacAddress = Objects.toString(preMapping[3]);
             			String prePortId = Objects.toString(preMapping[4]);
-            			
+
             			if (StringUtils.equals(deviceId, pDeviceId) && StringUtils.equals(ipAddress, pIpAddress)) {
             				// 相同 Device_ID & IP_Address下
             				if (!StringUtils.equals(newMacAddress, preMacAddress) || !StringUtils.equals(newPortId, prePortId)) {
@@ -500,18 +498,18 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             		}
             	}
             }
-            
+
             if (!mappingChangeList.isEmpty()) {
             	ipMappingDAO.insertEntities(mappingChangeList);
             }
             log.info("ipMacPortMappingChangeList size: " + mappingChangeList.size());
-            
+
             endTime = System.currentTimeMillis();
             long finishTime = System.currentTimeMillis();
         	log.info("[IpMapping] Step 5.比對IP前一次Mapping紀錄，判斷是否有異動 & 寫入Module_Ip_Mac_Port_Mapping_Change資料 >> Cost: " + (endTime - startTime) + " ms");
         	log.info("[IpMapping] jobId: " + jobId + " , groupId: " + groupId + " , COST: " + (finishTime - beginTime) + " ms");
         	log.info("[IpMapping] <END> ================================================================================");
-        	
+
         } catch (Exception e) {
             log.error(e.toString(), e);
         }
@@ -524,7 +522,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
     	long retVal = 0;
         try {
         	retVal = ipMappingDAO.countModuleIpMacPortMappingChange(imsVO);
-        	
+
         } catch (Exception e) {
         	log.error(e.toString(), e);
         	throw new ServiceLayerException("查詢異常，請重新操作");
@@ -540,26 +538,26 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	int startRow = imsVO.getStartNum();
         	int pageLength = imsVO.getPageLength();
         	List<Object[]> objList = ipMappingDAO.findModuleIpMacPortMappingChange(imsVO, startRow, pageLength);
-        	
+
         	if (objList != null && !objList.isEmpty()) {
         		IpMappingServiceVO vo;
         		for (Object[] obj : objList) {
         			vo = new IpMappingServiceVO();
-        			
+
         			// 轉換 SQL Date & Time
         			java.sql.Date date = (java.sql.Date)obj[0];
         			java.sql.Time time = (java.sql.Time)obj[1];
-        			
+
         			Calendar dateCal = Calendar.getInstance();
         			dateCal.setTime(date);
-        			
+
         			Calendar timeCal = Calendar.getInstance();
         			timeCal.setTime(time);
-        			
+
         			dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
         			dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
         			dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
-        			
+
         			SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         			vo.setDateTime(FORMAT_YYYYMMDD_HH24MISS.format(dateCal.getTime()));
         			vo.setGroupId(Objects.toString(obj[2]));
@@ -574,7 +572,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         			retList.add(vo);
         		}
         	}
-        	
+
         } catch (Exception e) {
         	log.error(e.toString(), e);
         	throw new ServiceLayerException("查詢異常，請重新操作");
@@ -583,61 +581,60 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
     }
 
 	@Override
-	public IpMappingServiceVO findMappingDataFromNetFlow(String groupId, String dataId, String type) throws ServiceLayerException {
+	public IpMappingServiceVO findMappingDataFromNetFlow(String groupId, String dataId, String fromDateTime, String type) throws ServiceLayerException {
 		IpMappingServiceVO retVO = new IpMappingServiceVO();
 		try {
 			// Step 1. 先取得該筆 NET_FLOW 資料
-			NetFlowVO nfVO = netFlowService.findNetFlowRecordByGroupIdAndDataId(groupId, dataId);
-			
+			NetFlowVO nfVO = netFlowService.findNetFlowRecordByGroupIdAndDataId(groupId, dataId, fromDateTime);
+
 			if (nfVO == null) {
 				// 若查不到 NET_FLOW 則無法繼續流程
 				throw new ServiceLayerException("取不到 NET_FLOW 資料!! (groupId: " + groupId + ", dataId: " + dataId + ")");
 			}
-			
+
 			String ipAddress = null;
 			switch (type) {
 				case "S":	//Source_IP
 					ipAddress = nfVO.getSourceIP();
 					break;
-					
+
 				case "D":	//Destination_IP
 					ipAddress = nfVO.getDestinationIP();
 					break;
 			}
-			
+
 			if (StringUtils.isBlank(ipAddress)) {
 				// 若 IP 為空則無法繼續流程
 				throw new ServiceLayerException("NET_FLOW 資料 IP_ADDRESS 為空!! (groupId: " + groupId + ", dataId: " + dataId + ", type: " + type + ")");
 			}
-			
+
 			SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			SimpleDateFormat FORMAT_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
 			SimpleDateFormat FORMAT_HH24_MI_SS = new SimpleDateFormat("HH:mm:ss");
-			
-			String fromDateTime = nfVO.getFromDateTime();
+
 			Date dateTime = FORMAT_YYYYMMDD_HH24MISS.parse(fromDateTime);
-			
+
 			String date = FORMAT_YYYY_MM_DD.format(dateTime);
 			String time = FORMAT_HH24_MI_SS.format(dateTime);
-			
+
 			List<Object[]> dataList = ipMappingDAO.findNearlyModuleIpMacPortMappingByTime(groupId, ipAddress, date, time);
-			
+
 			if (dataList == null || (dataList != null && dataList.isEmpty())) {
 				// 若查無 MAPPING 資料
 				List<Object[]> groupList = deviceDAO.getGroupIdAndNameByGroupIds(Arrays.asList(groupId));
-				
+
 				String groupName = "N/A";
 				if (groupList != null && !groupList.isEmpty()) {
 					groupName = Objects.toString(groupList.get(0)[1]);
 				}
-				
+
 				retVO.setGroupName(groupName);
 				retVO.setDeviceName("N/A");
 				retVO.setDeviceModel("N/A");
 				retVO.setIpAddress(ipAddress);
 				retVO.setPortName("N/A");
 				retVO.setShowMsg("查無此IP對應Port紀錄");
-				
+
 			} else {
 				Object[] data = dataList.get(0);
 				retVO.setGroupName(Objects.toString(data[2]));
@@ -646,7 +643,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 				retVO.setIpAddress(ipAddress);
 				retVO.setPortName(Objects.toString(data[7]));
 			}
-			
+
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			retVO.setShowMsg("查找資料異常，請重新操作");

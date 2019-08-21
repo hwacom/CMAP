@@ -200,27 +200,31 @@
       <div class="modal-body">
      	<div class="form-group row">
         	<label for="viewIpMappingPortModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_groupName" readonly>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_groupName"></div>
         </div>
         <div class="form-group row">
         	<label for="viewIpMappingPortModal_deviceName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.name" /> :</label>
-        	<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_deviceName" readonly>
+        	<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_deviceName"></div>
         </div>
         <div class="form-group row">
         	<label for="viewIpMappingPortModal_deviceModel" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.model" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_deviceModel" readonly>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_deviceModel"></div>
         </div>
         <div class="form-group row">
         	<label for="viewIpMappingPortModal_ipAddress" class="col-md-2 col-sm-12 col-form-label"><spring:message code="ip.address" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_ipAddress" readonly>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_ipAddress"></div>
         </div>
         <div class="form-group row">
         	<label for="viewIpMappingPortModal_portName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="port.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_portName" readonly>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_portName"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewIpMappingPortModal_showMsg" class="col-md-2 col-sm-12 col-form-label">Message :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_showMsg" readonly>
+        	<label for="viewIpMappingPortModal_showMsg" class="col-md-2 col-sm-12 col-form-label"><spring:message code="message" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_showMsg"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewIpMappingPortModal_country" class="col-md-2 col-sm-12 col-form-label"><spring:message code="country" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_country" style="background-color: #dbeded;"></div>
         </div>
       </div>
       <div class="modal-footer">

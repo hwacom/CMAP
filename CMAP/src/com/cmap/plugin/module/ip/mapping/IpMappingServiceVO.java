@@ -10,7 +10,7 @@ public class IpMappingServiceVO extends CommonServiceVO {
 	private String queryIp;
 	private String queryMac;
 	private String queryPort;
-	
+
     private Date executeDate;
     private String dateTime;
     private String groupId;
@@ -23,9 +23,10 @@ public class IpMappingServiceVO extends CommonServiceVO {
     private String ipAddress;
     private String portId;
     private String portName;
-    
+
     private String showMsg;
-    
+    private String country;
+
 	public String getQueryGroup() {
 		return queryGroup;
 	}
@@ -134,4 +135,10 @@ public class IpMappingServiceVO extends CommonServiceVO {
 	public void setShowMsg(String showMsg) {
 		this.showMsg = showMsg;
 	}
+    public String getCountry() {
+        return country;
+    }
+    public void setCountry(String country) {
+        this.country = country;
+    }
 }

@@ -2,6 +2,7 @@ package com.cmap.plugin.module.netflow;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,7 +54,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 		 */
 		Calendar cal = Calendar.getInstance();
 		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);	//取得當前系統時間是星期幾 (Sunday=1、Monday=2、...)
-		tableName += "_" + StringUtils.leftPad(String.valueOf(dayOfWeek), 3, '0'); //TABLE流水編碼部分補0成3碼(ex:1→001)
+		tableName += "_" + StringUtils.leftPad(String.valueOf(dayOfWeek), 3, "0"); //TABLE流水編碼部分補0成3碼(ex:1→001)
 
 		return tableName;
 	}
@@ -70,7 +71,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 			cal.setTime(queryDate);
 
 			int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);	//取得當前系統時間是星期幾 (Sunday=1、Monday=2、...)
-			tableName += "_" + StringUtils.leftPad(String.valueOf(dayOfWeek), 3, '0'); //TABLE流水編碼部分補0成3碼(ex:1→001)
+			tableName += "_" + StringUtils.leftPad(String.valueOf(dayOfWeek), 3, "0"); //TABLE流水編碼部分補0成3碼(ex:1→001)
 
 		} catch (ParseException e) {
 			log.error(e.toString(), e);
@@ -163,6 +164,9 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 					throw new ServiceLayerException("查無欄位標題設定 >> Setting_Id: " + Env.SETTING_ID_OF_NET_FLOW);
 
 				} else {
+				    String groupId = nfVO.getQueryGroupId();
+				    String groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
+
 					// fieldList.add(0, "GroupId");
 				    boolean hasGetDevice = false;
                     DeviceList device = null;
@@ -210,7 +214,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 								fValue = convertByteSizeUnit(sizeByte, Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE);
 
 							} else if (oriName.equals("GroupId")) {
-								String groupId = Objects.toString(data[dataIdx]);
+								groupId = Objects.toString(data[dataIdx]);
 
 								if (hasGetDevice == false && device == null) {
 								    /*
@@ -230,6 +234,13 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 									fName = "groupName";
 									fValue = device.getGroupName();
 								}
+
+							} else if (oriName.equals("SourceIP") || oriName.equals("DestinationIP")) {
+							    fValue = Objects.toString(data[dataIdx]);
+							    boolean ipInGroup = chkIpInGroupSubnet(groupSubnet, fValue, Constants.IPV4);
+
+							    String fNameFlag = fName.concat("InGroup");
+							    BeanUtils.setProperty(vo, fNameFlag, ipInGroup ? Constants.DATA_Y : Constants.DATA_N); // 塞入SourceIPInGroup or DestinationIPInGroup
 
 							} else if (oriName.equals("Protocol")) {
 								String tmpStr = Objects.toString(data[dataIdx]);
@@ -391,7 +402,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
     }
 
 	@Override
-	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId) throws ServiceLayerException {
+	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId, String fromDateTime) throws ServiceLayerException {
 		NetFlowVO retVO = null;
 		try {
 			String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_NET_FLOW);
@@ -403,16 +414,21 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 				//TODO
 
 			} else if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_DB)) {
+			    SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			    SimpleDateFormat FORMAT_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
+			    String dateBegin = FORMAT_YYYY_MM_DD.format(FORMAT_YYYYMMDD_HH24MISS.parse(fromDateTime));
+
 				NetFlowVO nfVO = new NetFlowVO();
 				nfVO.setQueryDataId(dataId);
 				nfVO.setQueryGroupId(groupId);
+				nfVO.setQueryDateBegin(dateBegin);
 				List<NetFlowVO> dataList = findNetFlowRecordFromDB(nfVO, null, null, null);
-				
+
 				if (dataList != null && !dataList.isEmpty()) {
 					retVO = dataList.get(0);
 				}
 			}
-			
+
 		} catch (Exception e) {
             log.error(e.toString(), e);
         }

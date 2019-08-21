@@ -24,16 +24,19 @@ public class Env {
 	/**
 	 * 設定MENU TREE功能是否顯示
 	 */
-	public static String SHOW_MENU_TREE_CONTROL_PLATFORM;					 // 間控平台
-	public static String SHOW_MENU_ITEM_PRTG_INDEX;                          // 間控平台 > 首頁
-	public static String SHOW_MENU_ITEM_PRTG_DASHBOARD;                      // 間控平台 > DASHBOARD
-    public static String SHOW_MENU_ITEM_PRTG_TOPOGRAPHY;                     // 間控平台 > 拓樸圖
-    public static String SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY;                  // 間控平台 > 警報總覽
-    public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;               // 間控平台 > 流量統計
-    public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT;                // 間控平台 > 各校出口端流量圖
-    public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING;            // 間控平台 > 各校即時IP流量排行
-    public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING;        // 間控平台 > 所有學校即時IP流量排行
-    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                        // 間控平台 > Email修改
+	public static String SHOW_MENU_TREE_CONTROL_PLATFORM;					    // 間控平台
+	public static String SHOW_MENU_ITEM_PRTG_INDEX;                             // 間控平台 > 首頁
+	public static String SHOW_MENU_ITEM_PRTG_DASHBOARD;                         // 間控平台 > DASHBOARD
+    public static String SHOW_MENU_ITEM_PRTG_TOPOGRAPHY;                        // 間控平台 > 拓樸圖
+    public static String SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY;                     // 間控平台 > 警報總覽
+    public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS;                  // 間控平台 > 流量統計
+    public static String SHOW_MENU_ITEM_PRTG_CR_NET_FLOW_OUTPUT;                // 間控平台 > 核心路由器出口流量圖
+    public static String SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT;                   // 間控平台 > 各校出口端流量圖
+    public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_TRAFFIC;       // 間控平台 > 各校即時IP流量排行
+    public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_TRAFFIC;   // 間控平台 > 所有學校即時IP流量排行
+    public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_SESSION;       // 間控平台 > 各校即時連線數排行
+    public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_SESSION;   // 間控平台 > 所有學校即時連線數排行
+    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                           // 間控平台 > Email修改
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
@@ -93,6 +96,8 @@ public class Env {
 	public static String MAIL_SERVER_PASSWORD;
 
 	public static Integer SEND_COMMAND_SLEEP_TIME;                           // 設定發送多條命令的間格時間(毫秒)
+	public static String GET_IP_FROM_INFO_API_URL;                           // 設定查詢IP來源資訊的網站API URL (http://ip-api.com/docs/)
+	public static String GET_IP_FROM_INFO_WEB_SITE_URL;                      // 設定查詢IP來源資訊的網站URL (https://dnslytics.com/，由苗栗教網老師提供)
 
 	public static String ENABLE_NET_FLOW_IP_STATISTICS;                      // 設定是否啟用 NET_FLOW IP流量統計
 	public static String NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP;               // 設定 NET_FLOW IP流量統計的對象是否只計算 GROUP(學校)清單內的範圍
@@ -102,7 +107,7 @@ public class Env {
 	public static Integer NET_FLOW_PAGE_LENGTH;                              // 設定 NET_FLOW 查詢功能，每次查詢的筆數上限
 
 	public static String ENABLE_LOG_USER_OPERATIONS;						 // 設定是否啟用USER操作紀錄到DB
-	
+
 	/**
 	 * GROUP_NAME下拉選單排序相關設定
 	 */
@@ -243,12 +248,12 @@ public class Env {
 	public static String COMM_SEPARATE_SYMBOL;
 
 	public static Integer QUARTZ_DEFAULT_PRIORITY;
-	
+
 	public static String OID_NAME_OF_ARP_TABLE;
 	public static String OID_NAME_OF_ARP_TABLE_INTERFACE_ID;
 	public static String OID_NAME_OF_ARP_TABLE_MAC_ADDRESS;
 	public static String OID_NAME_OF_ARP_TABLE_IP_ADDRESS;
-	
+
 	public static String OID_NAME_OF_MAC_TABLE;
 	public static String OID_NAME_OF_MAC_TABLE_PORT_ID;
 	public static String OID_NAME_OF_MAC_TABLE_MAC_ADDRESS;
@@ -313,6 +318,7 @@ public class Env {
 	public static String PRTG_DEFAULT_ALARM_SUMMARY_URI;
 	public static String PRTG_DEFAULT_NET_FLOW_SUMMARY_URI;
 	public static String PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;
+	public static String PRTG_DEFAULT_NET_FLOW_OUTPUT_CORE_URI;
 	public static String PRTG_DEFAULT_DEVICE_FAILURE_URI;
 	public static String PRTG_DEFAULT_ABNORMAL_TRAFFIC_URI;
 	public static String PRTG_DEFAULT_EMAIL_UPDATE_URI;

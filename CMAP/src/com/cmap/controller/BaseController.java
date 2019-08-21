@@ -24,6 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +57,7 @@ import com.cmap.service.CommonService;
 import com.cmap.service.UserService;
 import com.cmap.service.vo.PrtgServiceVO;
 import com.cmap.utils.ApiUtils;
+import com.cmap.utils.impl.CloseableHttpClientUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -661,4 +669,39 @@ public class BaseController {
         }
         return mac;
     }
+
+	protected String getIpFromInfo(String ipAddress) {
+	    String resultStr = null;
+
+	    try {
+	        CloseableHttpClient httpclient = CloseableHttpClientUtils.prepare();
+
+	        HttpGet httpGet = new HttpGet(Env.GET_IP_FROM_INFO_API_URL + ipAddress);
+
+	        RequestConfig requestConfig = RequestConfig.custom()
+	                .setConnectTimeout(Env.HTTP_CONNECTION_TIME_OUT)            //設置連接逾時時間，單位毫秒。
+	                .setConnectionRequestTimeout(Env.HTTP_CONNECTION_TIME_OUT)  //設置從connect Manager獲取Connection 超時時間，單位毫秒。這個屬性是新加的屬性，因為目前版本是可以共用連接池的。
+	                .setSocketTimeout(Env.HTTP_SOCKET_TIME_OUT)                 //請求獲取資料的超時時間，單位毫秒。 如果訪問一個介面，多少時間內無法返回資料，就直接放棄此次調用。
+	                .build();
+	        httpGet.setConfig(requestConfig);
+
+	        log.info("Executing request " + httpGet.getRequestLine());
+
+	        // Create a custom response handler
+	        ResponseHandler<String> responseHandler = response -> {
+	            int statusCode = response.getStatusLine().getStatusCode();
+	            if (statusCode >= 200 && statusCode < 300) {
+	                HttpEntity entity = response.getEntity();
+	                return entity != null ? EntityUtils.toString(entity) : null;
+	            } else {
+	                throw new ClientProtocolException("Unexpected response status: " + statusCode);
+	            }
+	        };
+	        resultStr = httpclient.execute(httpGet, responseHandler);
+
+	    } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+	    return resultStr;
+	}
 }

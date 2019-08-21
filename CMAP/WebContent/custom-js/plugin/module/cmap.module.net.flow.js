@@ -51,6 +51,8 @@ $(document).ready(function() {
 	date = (date < 10) ? ("0".concat(date)) : date;
 	
 	$("#queryDateBegin").val(year+"-"+month+"-"+date);
+	$("#queryTimeBegin").val("00:00");
+	$("#queryTimeEnd").val("23:59");
 	
 });
 
@@ -115,10 +117,10 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(4)").html( data.toDateTime );
 		$(cTR).find("td:eq(5)").html( data.ethernetType );
 		$(cTR).find("td:eq(6)").html( data.protocol);
-		$(cTR).find("td:eq(7)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\'S\')">'+data.sourceIP+'</a>' );
+		$(cTR).find("td:eq(7)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+row.fromDateTime+'\',\''+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+data.sourceIP+'</a>' );
 		$(cTR).find("td:eq(8)").html( data.sourcePort );
 		$(cTR).find("td:eq(9)").html( data.sourceMAC );
-		$(cTR).find("td:eq(10)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\'D\')">'+data.destinationIP+'</a>' );
+		$(cTR).find("td:eq(10)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+row.fromDateTime+'\',\''+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+data.destinationIP+'</a>' );
 		$(cTR).find("td:eq(11)").html( data.destinationPort );
 		$(cTR).find("td:eq(12)").html( data.destinationMAC );
 		$(cTR).find("td:eq(13)").html( data.size );
@@ -322,10 +324,11 @@ function findNextData() {
 	});
 }
 
-function viewIpPort(groupId, dataId, type) {
+function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 	var obj = new Object();
 	obj.groupId = groupId;
 	obj.dataId = dataId;
+	obj.fromDateTime = fromDateTime;
 	obj.type = type;
 	
 	$.ajax({
@@ -345,12 +348,42 @@ function viewIpPort(groupId, dataId, type) {
 		},
 		success : function(resp) {
 			if (resp.code == '200') {
-				$('#viewIpMappingPortModal_groupName').val(resp.data.groupName);
-				$('#viewIpMappingPortModal_deviceName').val(resp.data.deviceName);
-				$('#viewIpMappingPortModal_deviceModel').val(resp.data.deviceModel);
-				$('#viewIpMappingPortModal_ipAddress').val(resp.data.ipAddress);
-				$('#viewIpMappingPortModal_portName').val(resp.data.portName);
-				$('#viewIpMappingPortModal_showMsg').val(resp.data.showMsg);
+				$('#viewIpMappingPortModal_groupName').parent().show();
+				
+				if (ipInGroup == "Y") {
+					$('#viewIpMappingPortModal_deviceName').parent().show();
+					$('#viewIpMappingPortModal_deviceModel').parent().show();
+					$('#viewIpMappingPortModal_portName').parent().show();
+					$('#viewIpMappingPortModal_showMsg').parent().show();
+					$('#viewIpMappingPortModal_country').parent().hide();
+					
+				} else {
+					$('#viewIpMappingPortModal_deviceName').parent().hide();
+					$('#viewIpMappingPortModal_deviceModel').parent().hide();
+					$('#viewIpMappingPortModal_portName').parent().hide();
+					$('#viewIpMappingPortModal_showMsg').parent().hide();
+					$('#viewIpMappingPortModal_country').parent().show();
+				}
+				$('#viewIpMappingPortModal_ipAddress').parent().show();
+				
+				$('#viewIpMappingPortModal_groupName').html(resp.data.groupName);
+				$('#viewIpMappingPortModal_deviceName').html(resp.data.deviceName);
+				$('#viewIpMappingPortModal_deviceModel').html(resp.data.deviceModel);
+				$('#viewIpMappingPortModal_ipAddress').html(resp.data.ipAddress);
+				$('#viewIpMappingPortModal_portName').html(resp.data.portName);
+				$('#viewIpMappingPortModal_showMsg').html(resp.data.showMsg);
+				
+				var locationHtml = "N/A";
+				var location = resp.data.location;
+				var countryCode = resp.data.countryCode;
+				var countryQueryURL = resp.data.countryQueryURL;
+				
+				if (location != "" && location != undefined && location != "undefined") {
+					locationHtml = "<span class=\"flag-icon flag-icon-" + countryCode + "\"></span>&nbsp;" + location
+				} else {
+					locationHtml = "<a href=\"" + countryQueryURL + "\" target=\"_blank\">查詢IP來源國家</a>";
+				}
+				$('#viewIpMappingPortModal_country').html(locationHtml);
 				
 				$('#viewIpMappingPortModal').modal('show');
 				
@@ -553,8 +586,8 @@ function findData(from) {
 					"searchable": true,
 					"orderable": true,
 					"render" : function(data, type, row) {
-								 var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\'S\')">'+row.sourceIP+'</a>';
-								 return html;
+									var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
+									return html;
 							 }
 				},
 				{
@@ -563,8 +596,8 @@ function findData(from) {
 					"searchable": true,
 					"orderable": true,
 					"render" : function(data, type, row) {
-								 var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\'D\')">'+row.destinationIP+'</a>';
-								 return html;
+									var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
+									return html;
 							 }
 				}
 			],

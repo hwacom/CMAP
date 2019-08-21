@@ -192,8 +192,10 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
             //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date = :queryDateStr ")
-              .append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
+            sb.append(" and nfrd.from_date = :queryDateStr ");
+        }
+        if (StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+            sb.append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
         }
         /*
         if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
@@ -263,6 +265,8 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         }
         if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
             q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
+        }
+        if (StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
             q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
             q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
         }

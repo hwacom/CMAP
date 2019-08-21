@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.cmap.AppResponse;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
@@ -27,6 +25,7 @@ import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/plugin/module/ipMapping")
@@ -38,7 +37,7 @@ public class IpMappingController extends BaseController {
 
     @Autowired
     private IpMappingService ipMappingService;
-    
+
     /**
      * 初始化選單
      * @param model
@@ -164,9 +163,9 @@ public class IpMappingController extends BaseController {
 
 			imsVO = new IpMappingServiceVO();
         	imsVO.setQueryGroup(queryGroup);
-        	
+
 			total = ipMappingService.countModuleIpMacPortMappingChange(imsVO);
-			
+
         } catch (ServiceLayerException sle) {
 		} catch (Exception e) {
             log.error(e.toString(), e);
@@ -174,7 +173,7 @@ public class IpMappingController extends BaseController {
 
         return new DatatableResponse(total, dataList, filterdTotal);
     }
-    
+
     /**
      * 從 NET_FLOW 查詢功能點擊 SOURCE_IP or DESTINATION_IP 連結時，查找該筆 NET_FLOW 當下 IP 對應的 PORT 資料
      * @param model
@@ -192,10 +191,11 @@ public class IpMappingController extends BaseController {
         try {
         	String groupId = jsonData.findValues("groupId").get(0).asText();
         	String dataId = jsonData.findValues("dataId").get(0).asText();
+        	String fromDateTime = jsonData.findValues("fromDateTime").get(0).asText();
         	String type = jsonData.findValues("type").get(0).asText();
-        	
-        	IpMappingServiceVO imsVO = ipMappingService.findMappingDataFromNetFlow(groupId, dataId, type);
-        	
+
+        	IpMappingServiceVO imsVO = ipMappingService.findMappingDataFromNetFlow(groupId, dataId, fromDateTime, type);
+
         	Map<String, Object> retMap = new HashMap<>();
 			retMap.put("groupName", imsVO.getGroupName());
 			retMap.put("deviceName", imsVO.getDeviceName());
@@ -203,7 +203,27 @@ public class IpMappingController extends BaseController {
 			retMap.put("ipAddress", imsVO.getIpAddress());
 			retMap.put("portName", imsVO.getPortName());
 			retMap.put("showMsg", imsVO.getShowMsg());
-			
+
+			String ipAddress = imsVO.getIpAddress();
+			String ipFromInfo = getIpFromInfo(ipAddress);
+
+			if (StringUtils.isNotBlank(ipFromInfo)) {
+			    ObjectMapper mapper = new ObjectMapper();
+	            JsonNode ipJsonObj = mapper.readTree(ipFromInfo);
+
+	            String country = ipJsonObj.findValue("country").asText();
+	            String countryCode = ipJsonObj.findValue("countryCode").asText();
+	            String city = ipJsonObj.findValue("city").asText();
+	            String region = ipJsonObj.findValue("regionName").asText();
+
+	            retMap.put("location", city + ", " + region + ", " + country + " (" + countryCode + ")");
+	            retMap.put("countryCode", StringUtils.lowerCase(countryCode));
+
+			} else {
+			    // 當API網站發生問題時，改提供網站連結
+			    retMap.put("countryQueryURL", Env.GET_IP_FROM_INFO_WEB_SITE_URL + ipAddress);
+			}
+
         	return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
 
         } catch (ServiceLayerException sle) {
@@ -233,8 +253,8 @@ public class IpMappingController extends BaseController {
 			@RequestBody JsonNode jsonData) {
 
         try {
-        	
-        	
+
+
 
         } catch (Exception e) {
             log.error(e.toString(), e);

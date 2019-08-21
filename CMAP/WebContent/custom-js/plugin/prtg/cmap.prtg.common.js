@@ -8,6 +8,7 @@ var URI_TOPOGRAPHY = "getPrtgTopographyUri";
 var URI_ALARM_SUMMARY = "getPrtgAlarmSummaryUri";
 var URI_NET_FLOW_SUMMARY = "getPrtgNetFlowSummaryUri";
 var URI_NET_FLOW_OUTPUT = "getPrtgNetFlowOutputUri";
+var URI_NET_FLOW_OUTPUT_CORE = "getPrtgNetFlowOutputCoreUri";
 var URI_DEVICE_FAILURE = "getPrtgDeviceFailureUri";
 var URI_ABNORMAL_TRAFFIC = "getPrtgAbnormalTrafficUri";
 var URI_EMAIL_UPDATE = "getEmailUpdateUri";

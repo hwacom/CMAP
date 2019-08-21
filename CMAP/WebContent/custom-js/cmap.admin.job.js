@@ -10,6 +10,11 @@ $(document).ready(function() {
 		isModify = false;
 		uncheckAll();
 		initModal();
+		
+		// hidden欄位清空，避免仍保留住前一次按修改按鈕時的排程資料，導致後續若是要add會判斷成modify
+		$("#jobKeyName").val("");
+		$("#jobKeyGroup").val("");
+		
 		$("#addModifyModal").modal({
 			backdrop : 'static'
 		});
