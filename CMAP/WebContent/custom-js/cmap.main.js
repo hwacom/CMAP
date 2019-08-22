@@ -196,6 +196,23 @@ $(document).ready(function() {
 	});
 });
 
+function refreshDateTime() {
+	var dayStr = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+	var dt = new Date();
+	var year = dt.getFullYear();
+	var month = Number(dt.getMonth()) + 1;
+	var date = dt.getDate();
+	var day = dt.getDay();
+	var hour = dt.getHours();
+	var minute = Number(dt.getMinutes()) < 10 ? ("0" + dt.getMinutes()) : dt.getMinutes();
+	var second = Number(dt.getSeconds()) < 10 ? ("0" + dt.getSeconds()) : dt.getSeconds();
+	
+	$("#nav_date").text(year + "/" + month + "/" + date + " " + dayStr[day]);
+	$("#nav_timer").text(hour + ":" + minute + ":" + second);
+	
+	setTimeout("refreshDateTime()", 100);
+}
+
 function initMenuStatus(mainItemId, toggleMenuId, funcId) {
 	var iconId = '#' + mainItemId + ' > span > svg.feather-chevron-down';
 	$(iconId).replaceWith(feather.icons['chevron-up'].toSvg());
