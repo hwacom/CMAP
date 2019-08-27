@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.cmap.model.DeviceDetailInfo;
 
 public class DeliveryServiceVO extends CommonServiceVO {
@@ -43,6 +42,7 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	private String scriptTypeId;
 	private String scriptTypeName;
 	private String systemVersion;
+	private String deviceModel;
 	private String actionScript;
 	private String actionScriptVariable;
 	private String actionScriptRemark;
@@ -392,4 +392,10 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	public void setOnlyMacOpenBlock(boolean onlyMacOpenBlock) {
 		this.onlyMacOpenBlock = onlyMacOpenBlock;
 	}
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
+    }
 }

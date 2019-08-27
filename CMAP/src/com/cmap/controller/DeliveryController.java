@@ -325,15 +325,15 @@ public class DeliveryController extends BaseController {
 		DeliveryServiceVO dsVO;
 		try {
 			dsVO = deliveryService.getScriptInfoById(scriptInfoId);
-			final String systemVersion = dsVO.getSystemVersion();
+			final String deviceModel = dsVO.getDeviceModel();
 
 			//取得Group & Device選單內容
-			Map<String, String> menuMap = getGroupDeviceMenu(request, null, systemVersion);
+			Map<String, String> menuMap = getGroupDeviceMenu(request, null, deviceModel);
 			dsVO.setGroupDeviceMenuJsonStr(new Gson().toJson(menuMap));
 
 			ObjectMapper oMapper = new ObjectMapper();
 			Map<String, Object> retMap = oMapper.convertValue(dsVO, Map.class);
-			retMap.put("systemVersion", systemVersion);
+			retMap.put("deviceModel", deviceModel);
 
 			return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
 

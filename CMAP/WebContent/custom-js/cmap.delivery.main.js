@@ -77,7 +77,7 @@ function showDeliveryPanelByBtnIpOpen() {
 				/* **************************************************************************
 				 * 派送Modal開啟前 >> 紀錄群組設備選單內容、腳本變數Key
 				 * **************************************************************************/
-				window.sessionStorage.setItem(_DELIVERY_SCRIPT_SYSTEM_VERSION_, resp.data.systemVersion);
+				window.sessionStorage.setItem(_DELIVERY_SCRIPT_DEVICE_MODEL_, resp.data.deviceModel);
 				window.sessionStorage.setItem(_DELIVERY_DEVICE_MENU_JSON_STR_, resp.data.groupDeviceMenuJsonStr);
 				window.sessionStorage.setItem(_DELIVERY_VAR_KEY_, resp.data.actionScriptVariable);
 				
@@ -133,7 +133,7 @@ function showDeliveryPanel() {
 				/* **************************************************************************
 				 * 派送Modal開啟前 >> 紀錄群組設備選單內容、腳本變數Key
 				 * **************************************************************************/
-				window.sessionStorage.setItem(_DELIVERY_SCRIPT_SYSTEM_VERSION_, resp.data.systemVersion);
+				window.sessionStorage.setItem(_DELIVERY_SCRIPT_DEVICE_MODEL_, resp.data.deviceModel);
 				window.sessionStorage.setItem(_DELIVERY_DEVICE_MENU_JSON_STR_, resp.data.groupDeviceMenuJsonStr);
 				window.sessionStorage.setItem(_DELIVERY_VAR_KEY_, resp.data.actionScriptVariable);
 				
@@ -186,7 +186,7 @@ function searchDevice(searchTxt) {
 		url : _ctx + '/base/getGroupDeviceMenu.json',
 		data : {
 			"searchTxt" : searchTxt,
-			"systemVersion" : window.sessionStorage.getItem(_DELIVERY_SCRIPT_SYSTEM_VERSION_)
+			"scriptDeviceModel" : window.sessionStorage.getItem(_DELIVERY_SCRIPT_DEVICE_MODEL_)
 		},
 		type : "POST",
 		dataType : 'json',
