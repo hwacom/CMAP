@@ -655,21 +655,21 @@ public class CommonServiceImpl implements CommonService {
 			    } else if (!StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL)) {
 			        // 若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
 			    	deviceId = Constants.DATA_STAR_SYMBOL;
-			    	
-			    } else if (!StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL)) {
+
+			    } else if (!StringUtils.equals(groupId, Constants.DATA_STAR_SYMBOL)) {
 			    	// 若by【群組ID】查找不到，則再往上一層by【* + * + *】查找
 			    	groupId = Constants.DATA_STAR_SYMBOL;
-			    	
+
 			    } else {
 			    	return null;
 			    }
-			    
+
 			    return findDeviceLoginInfo(deviceListId, groupId, deviceId);
 
 			} else {
 				return loginInfo;
 			}
-			
+
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return null;

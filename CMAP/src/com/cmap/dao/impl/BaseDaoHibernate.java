@@ -146,6 +146,11 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	}
 
 	@Override
+    public Object insertEntityAndGetReturnIdValue(Object entity) {
+        return getHibernateTemplate().save(entity);
+    }
+
+	@Override
 	public boolean insertEntity(Object entity) {
 		boolean success = true;
 		getHibernateTemplate().save(entity);

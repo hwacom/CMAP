@@ -160,7 +160,7 @@ function findData(from) {
 				{},{},
 				{ "data" : "scriptName" },
 				{ "data" : "scriptTypeName" , "className" : "center" },
-				{ "data" : "systemVersion" , "className" : "center" },
+				{ "data" : "deviceModel" , "className" : "center" },
 				{},
 				{ "data" : "actionScriptRemark"},
 				{},

@@ -31,7 +31,71 @@ $(document).ready(function() {
 	$("#btnSearch_7_mobile").click(function(e) {
 		findData('MOBILE', 7);
 	});
+	$("#btnExport_1d").click(function(e) {
+		showExportPanelSelf(1);
+	});
+	$("#btnExport_3d").click(function(e) {
+		showExportPanelSelf(3);
+	});
+	$("#btnExport_7d").click(function(e) {
+		showExportPanelSelf(7);
+	});
 });
+
+function showExportPanelSelf(day) {
+	console.log("day: " + day);
+	$("#dataExportModal").modal({
+		backdrop : 'static'
+	});
+	
+	$("#dataExportModal_recordCountSelect").val("").change();
+	$("#dataExportModal_recordCountInput").val("");
+	
+	$("#dataExportModal_var1").val(day + "D");
+}
+
+//[資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
+function doDataExport(exportRecordCount) {
+	var var1 = $("#dataExportModal_var1").val();
+	var queryDatePeriod = var1.replace("D", "");
+	
+	$.ajax({
+		url : _ctx + '/plugin/module/netFlow/ranking/trafficDataExport.json',
+		data : {
+			"queryGroup" : $("#queryGroup").val(),
+			"queryDatePeriod" : queryDatePeriod,
+			"var1" : var1,
+			"exportRecordCount" : exportRecordCount
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function(xhr) {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		initComplete : function(settings, json) {
+        },
+		success : function(resp) {
+			if (resp.code == 200) {
+				const fileId = resp.data.fileId;
+				const url = getResourceDownloadLink(fileId);
+				// 彈出下載視窗
+				location.href = url;
+				// 關閉Modal視窗
+				closeExportPanel();
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
 
 //查詢按鈕動作
 function findData(from, period) {

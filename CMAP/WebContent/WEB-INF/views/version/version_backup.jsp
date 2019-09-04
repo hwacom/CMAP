@@ -139,9 +139,13 @@
             </div>
         </form>
       </div>
-      <div class="modal-footer">
-      	<button type="button" class="btn btn-secondary" id="btnClose" data-dismiss="modal"><spring:message code="close" /></button>
-      	<button type="button" class="btn btn-success" id="btnConfirm"><spring:message code="confirm" /></button>
+      <div class="modal-footer center">
+   		<div class="col-4">
+   			<button type="button" class="btn btn-secondary" id="btnClose" data-dismiss="modal" style="width: 100%"><spring:message code="close" /></button>
+   		</div>
+   		<div class="col-4">
+   			<button type="button" class="btn btn-success" id="btnConfirm" style="width: 100%"><spring:message code="confirm" /></button>
+   		</div>
 	  </div>
     </div>
   </div>

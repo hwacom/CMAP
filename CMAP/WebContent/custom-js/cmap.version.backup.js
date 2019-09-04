@@ -174,7 +174,7 @@ function findData(from) {
 				{},{},
 				{ "data" : "groupName" },
 				{},
-				{ "data" : "systemVersion" , "className" : "center" },
+				{ "data" : "deviceModel" , "className" : "center" },
 				{},
 				{ "data" : "configType" },
 				{}

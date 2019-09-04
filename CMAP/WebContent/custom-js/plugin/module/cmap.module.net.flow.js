@@ -53,8 +53,54 @@ $(document).ready(function() {
 	$("#queryDateBegin").val(year+"-"+month+"-"+date);
 	$("#queryTimeBegin").val("00:00");
 	$("#queryTimeEnd").val("23:59");
-	
 });
+
+// [資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
+function doDataExport(exportRecordCount) {
+	$.ajax({
+		url : _ctx + '/plugin/module/netFlow/dataExport.json',
+		data : {
+			"queryGroup" : $("#queryGroup").val(),
+			"querySourceIp" : $("#query_SourceIp").val(),
+			"queryDestinationIp" : $("#query_DestinationIp").val(),
+			"querySenderIp" : $("#query_SenderIp").val(),
+			"querySourcePort" : $("#query_SourcePort").val(),
+			"queryDestinationPort" : $("#query_DestinationPort").val(),
+			"queryDateBegin" : $("#queryDateBegin").val(),
+			"queryTimeBegin" : $("#queryTimeBegin").val(),
+			"queryTimeEnd" : $("#queryTimeEnd").val(),
+			"searchValue" : $("#resultTable_filter").find("input").val(),
+			"exportRecordCount" : exportRecordCount
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function(xhr) {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		initComplete : function(settings, json) {
+        },
+		success : function(resp) {
+			if (resp.code == 200) {
+				const fileId = resp.data.fileId;
+				const url = getResourceDownloadLink(fileId);
+				// 彈出下載視窗
+				location.href = url;
+				// 關閉Modal視窗
+				closeExportPanel();
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
 
 function countDown(status) {
 	if (status == 'START') {

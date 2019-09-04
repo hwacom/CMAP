@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +18,12 @@ import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.Null;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.Variable;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.DefaultPDUFactory;
 import org.snmp4j.util.PDUFactory;
 import org.snmp4j.util.TableEvent;
 import org.snmp4j.util.TableUtils;
-
 import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.vo.ConfigInfoVO;
@@ -98,7 +95,7 @@ public class SnmpV2Utils implements ConnectUtils {
 			throw e;
 		}
 	}
-	
+
 	@Override
 	public Map<String, Map<String, String>> pollTableView(String oid, Map<String, String> entryMap) throws Exception {
 		try {
@@ -266,7 +263,7 @@ public class SnmpV2Utils implements ConnectUtils {
 		return finished;
 
 	}
-	
+
 	public Map<String, Map<String, String>> snmpGetTable(String oid, Map<String, String> entryMap) throws Exception {
 		Map<String, Map<String, String>> tableMap = new HashMap<>();
         try {
@@ -292,18 +289,18 @@ public class SnmpV2Utils implements ConnectUtils {
             for (int j = 0; j < snmpList.size(); j++) {
             	TableEvent event = snmpList.get(j);
             	VariableBinding[] vbs = event.getColumns();
-            	
+
             	for (VariableBinding vb : vbs) {
             		String vbOID = vb.getOid().toString();
             		String vbValue = vb.getVariable().toString();
-            		
+
             		for (Map.Entry<String, String> entry : entryMap.entrySet()) {
             			String oidKey = entry.getValue().substring(1);
             			String oidName = entry.getKey();
-            			
+
             			if (vbOID.startsWith(oidKey)) {
             				String tableKey = vbOID.split(oidKey)[1];
-            				
+
             				Map<String, String> tableEntry = null;
             				if (tableMap.containsKey(tableKey)) {
             					tableEntry = tableMap.get(tableKey);

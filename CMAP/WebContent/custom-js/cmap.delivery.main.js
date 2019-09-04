@@ -968,7 +968,7 @@ function findData(from) {
 				{},{},
 				{ "data" : "scriptName" },
 				{ "data" : "scriptTypeName" },
-				{ "data" : "systemVersion" , "className" : "center"},
+				{ "data" : "deviceModel" , "className" : "center"},
 				{},
 				{ "data" : "actionScriptRemark" , "orderable" : false },
 				{},

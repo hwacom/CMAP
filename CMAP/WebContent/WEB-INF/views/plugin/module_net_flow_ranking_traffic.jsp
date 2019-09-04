@@ -40,6 +40,23 @@
 		</form>
       </div>
       <!-- [END]查詢欄位bar -->
+      <!-- [START]操作按鈕bar -->
+      <div class="col-12 action-btn-bar">
+        <div class="container-fluid">
+        	<div class="row">
+        		<div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_1d"><spring:message code="btn.export.1day" /></button>
+	    	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_3d"><spring:message code="btn.export.3day" /></button>
+	    	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_7d"><spring:message code="btn.export.7day" /></button>
+	    	    </div>
+        	</div>
+        </div>
+      </div>
+      <!-- [END]操作按鈕bar -->
     </div>
     <!-- [END]查詢欄位&操作按鈕 for 大型解析度螢幕 -->
     

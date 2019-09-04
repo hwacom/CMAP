@@ -704,4 +704,22 @@ public class BaseController {
         }
 	    return resultStr;
 	}
+
+	protected String getFileName(String oriName, String... var) {
+	    String retVal = oriName;
+	    try {
+	        SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyyMMddHHmmss");
+
+	        if (StringUtils.indexOf(retVal, "[CurrentTime]") != -1) {
+	            retVal = retVal.replace("[CurrentTime]", FORMAT_YYYYMMDD_HH24MISS.format(new Date()));
+	        }
+	        if (StringUtils.indexOf(retVal, "[Var1]") != -1) {
+	            retVal = retVal.replace("[Var1]", var[0]);
+	        }
+
+	    } catch (Exception e) {
+	        log.error(e.toString(), e);
+	    }
+	    return retVal;
+	}
 }

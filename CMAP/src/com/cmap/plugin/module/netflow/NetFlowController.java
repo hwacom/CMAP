@@ -26,6 +26,8 @@ import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DataPollerService;
+import com.cmap.utils.DataExportUtils;
+import com.cmap.utils.impl.CsvExportUtils;
 
 @Controller
 @RequestMapping("/plugin/module/netFlow")
@@ -329,76 +331,28 @@ public class NetFlowController extends BaseController {
 		long filteredTotal = 0;
 		String totalFlow = "";
 		List<NetFlowVO> dataList = new ArrayList<>();
-		NetFlowVO nfVO;
 		try {
-			if (StringUtils.isBlank(queryGroup)) {
-				String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("group.name", Locale.TAIWAN, null);
-				return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
-			}
-			if (StringUtils.isBlank(queryDateBegin)) {
-				String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("date", Locale.TAIWAN, null);
-				return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
-			}
-			if (StringUtils.isBlank(queryTimeBegin) || StringUtils.isBlank(queryTimeEnd)) {
-				String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("time", Locale.TAIWAN, null);
-				return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
-			}
+		    if (StringUtils.isBlank(queryGroup)) {
+	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("group.name", Locale.TAIWAN, null);
+	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
+	        }
+	        if (StringUtils.isBlank(queryDateBegin)) {
+	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("date", Locale.TAIWAN, null);
+	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
+	        }
+	        if (StringUtils.isBlank(queryTimeBegin) || StringUtils.isBlank(queryTimeEnd)) {
+	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("time", Locale.TAIWAN, null);
+	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
+	        }
 
-			List<String> targetFieldList = new ArrayList<>();
-			targetFieldList.add("Group_Id");
-			targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
-
-			nfVO = new NetFlowVO();
-			nfVO.setQueryGroupId(queryGroup);
-			nfVO.setQuerySourceIp(querySourceIp);
-			nfVO.setQuerySourcePort(querySourcePort);
-			nfVO.setQueryDestinationIp(queryDestinationIp);
-			nfVO.setQueryDestinationPort(queryDestinationPort);
-			nfVO.setQuerySenderIp(querySenderIp);
-			nfVO.setQueryDateBegin(queryDateBegin);
-			nfVO.setQueryTimeBegin(queryTimeBegin);
-			nfVO.setQueryTimeEnd(queryTimeEnd);
-			nfVO.setQueryDateStr(queryDateBegin.replace("-", ""));
-			nfVO.setQueryTimeBeginStr(queryTimeBegin.replace(":", ""));
-			nfVO.setQueryTimeEndStr(queryTimeEnd.replace(":", ""));
-			nfVO.setStartNum(startNum);
-			nfVO.setPageLength(pageLength);
-			nfVO.setSearchValue(searchValue);
-			//nfVO.setOrderColumn(getOrderColumnName(orderColIdx)); //效能issue，暫定限制僅能用From_Date_Time排序
-			nfVO.setOrderColumn("From_Time");
-			nfVO.setOrderDirection(orderDirection);
-
-			String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_NET_FLOW);
-
-			if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_FILE)) {
-				/*
-				 * Option 1. 走 FILE 模式查詢
-				 */
-				NetFlowVO retVO = netFlowService.findNetFlowRecordFromFile(nfVO, startNum, pageLength);
-
-				filteredTotal = retVO.getMatchedList().size();
-				dataList = retVO.getMatchedList();
-				total = retVO.getTotalCount();
-
-			} else if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_DB)) {
-				/*
-				 * Option 2. 走 DB 模式查詢
-				 */
-			    dataList = netFlowService.findNetFlowRecordFromDB(nfVO, startNum, pageLength, targetFieldList);
-
-			    /*
-			     * Y190729, 總筆數、總流量透過另外兩個AJAX分別查詢，提升查詢效率
-				filteredTotal = netFlowService.countNetFlowRecordFromDB(nfVO, targetFieldList);
-
-				if (filteredTotal != 0) {
-					totalFlow = dataList.get(0).getTotalFlow();	// 總流量記在第一筆資料VO內
-				}
-
-				NetFlowVO newVO = new NetFlowVO();
-				newVO.setQueryGroupId(queryGroup);
-				total = netFlowService.countNetFlowRecordFromDB(newVO, targetFieldList);
-				*/
-			}
+	        NetFlowVO resultVO = doDataQuery(queryGroup, querySourceIp, queryDestinationIp, querySenderIp,
+            	                    querySourcePort, queryDestinationPort, queryMac, queryDateBegin, queryDateEnd,
+            	                    queryTimeBegin, queryTimeEnd, startNum, pageLength, searchValue,
+            	                    orderColIdx, orderDirection
+            	                 );
+	        filteredTotal = resultVO.getMatchedList().size();
+            dataList = resultVO.getMatchedList();
+            total = resultVO.getTotalCount();
 
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
@@ -406,5 +360,161 @@ public class NetFlowController extends BaseController {
 		}
 
 		return new DatatableResponse(total, dataList, filteredTotal, null, totalFlow);
+	}
+
+	private NetFlowVO doDataQuery(String queryGroup, String querySourceIp, String queryDestinationIp, String querySenderIp,
+	    String querySourcePort, String queryDestinationPort, String queryMac, String queryDateBegin, String queryDateEnd,
+        String queryTimeBegin, String queryTimeEnd, Integer startNum, Integer pageLength, String searchValue,
+        Integer orderColIdx, String orderDirection) throws ServiceLayerException {
+
+	    NetFlowVO retVO = new NetFlowVO();
+	    try {
+	        List<String> targetFieldList = new ArrayList<>();
+	        targetFieldList.add("Group_Id");
+	        targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
+
+	        NetFlowVO nfVO = new NetFlowVO();
+	        nfVO.setQueryGroupId(queryGroup);
+	        nfVO.setQuerySourceIp(querySourceIp);
+	        nfVO.setQuerySourcePort(querySourcePort);
+	        nfVO.setQueryDestinationIp(queryDestinationIp);
+	        nfVO.setQueryDestinationPort(queryDestinationPort);
+	        nfVO.setQuerySenderIp(querySenderIp);
+	        nfVO.setQueryDateBegin(queryDateBegin);
+	        nfVO.setQueryTimeBegin(queryTimeBegin);
+	        nfVO.setQueryTimeEnd(queryTimeEnd);
+	        nfVO.setQueryDateStr(queryDateBegin.replace("-", ""));
+	        nfVO.setQueryTimeBeginStr(queryTimeBegin.replace(":", ""));
+	        nfVO.setQueryTimeEndStr(queryTimeEnd.replace(":", ""));
+	        nfVO.setStartNum(startNum);
+	        nfVO.setPageLength(pageLength);
+	        nfVO.setSearchValue(searchValue);
+	        //nfVO.setOrderColumn(getOrderColumnName(orderColIdx)); //效能issue，暫定限制僅能用From_Date_Time排序
+	        nfVO.setOrderColumn("From_Time");
+	        nfVO.setOrderDirection(orderDirection);
+
+	        String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_NET_FLOW);
+
+	        if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_FILE)) {
+	            /*
+	             * Option 1. 走 FILE 模式查詢
+	             */
+	            retVO = netFlowService.findNetFlowRecordFromFile(nfVO, startNum, pageLength);
+
+	        } else if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_DB)) {
+	            /*
+	             * Option 2. 走 DB 模式查詢
+	             */
+	            List<NetFlowVO> dataList = new ArrayList<>();
+	            dataList = netFlowService.findNetFlowRecordFromDB(nfVO, startNum, pageLength, targetFieldList);
+	            retVO.setMatchedList(dataList);
+
+	            /*
+	             * Y190729, 總筆數、總流量透過另外兩個AJAX分別查詢，提升查詢效率
+	            filteredTotal = netFlowService.countNetFlowRecordFromDB(nfVO, targetFieldList);
+
+	            if (filteredTotal != 0) {
+	                totalFlow = dataList.get(0).getTotalFlow(); // 總流量記在第一筆資料VO內
+	            }
+
+	            NetFlowVO newVO = new NetFlowVO();
+	            newVO.setQueryGroupId(queryGroup);
+	            total = netFlowService.countNetFlowRecordFromDB(newVO, targetFieldList);
+	            */
+	        }
+	    } catch (ServiceLayerException sle) {
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVO;
+	}
+
+	/**
+	 * 資料匯出
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param queryGroup
+	 * @param querySourceIp
+	 * @param queryDestinationIp
+	 * @param querySenderIp
+	 * @param querySourcePort
+	 * @param queryDestinationPort
+	 * @param queryMac
+	 * @param queryDateBegin
+	 * @param queryDateEnd
+	 * @param queryTimeBegin
+	 * @param queryTimeEnd
+	 * @param searchValue
+	 * @param orderColIdx
+	 * @param orderDirection
+	 * @param exportRecordCount
+	 * @return
+	 */
+	@RequestMapping(value = "dataExport.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse dataExport(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryGroup", required=true, defaultValue="") String queryGroup,
+            @RequestParam(name="querySourceIp", required=false, defaultValue="") String querySourceIp,
+            @RequestParam(name="queryDestinationIp", required=false, defaultValue="") String queryDestinationIp,
+            @RequestParam(name="querySenderIp", required=false, defaultValue="") String querySenderIp,
+            @RequestParam(name="querySourcePort", required=false, defaultValue="") String querySourcePort,
+            @RequestParam(name="queryDestinationPort", required=false, defaultValue="") String queryDestinationPort,
+            @RequestParam(name="queryMac", required=false, defaultValue="") String queryMac,
+            @RequestParam(name="queryDateBegin", required=true, defaultValue="") String queryDateBegin,
+            @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
+            @RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
+            @RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
+            @RequestParam(name="searchValue", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection,
+            @RequestParam(name="exportRecordCount", required=true, defaultValue="") String exportRecordCount) {
+
+	    try {
+	        Integer startNum = null;
+	        Integer pageLength = null;
+
+	        if (!StringUtils.equals(exportRecordCount, Constants.DATA_STAR_SYMBOL)) {
+	            // exportRecordCount = *，表示要匯出所有資料；否則依使用者選擇的筆數決定
+	            startNum = 0;
+	            pageLength = Integer.valueOf(exportRecordCount);
+	        }
+
+	        NetFlowVO resultVO = doDataQuery(queryGroup, querySourceIp, queryDestinationIp, querySenderIp,
+                                    querySourcePort, queryDestinationPort, queryMac, queryDateBegin, queryDateEnd,
+                                    queryTimeBegin, queryTimeEnd, startNum, pageLength, searchValue,
+                                    orderColIdx, orderDirection
+                                 );
+
+	        List<NetFlowVO> dataList = resultVO.getMatchedList();
+
+	        if (dataList != null && !dataList.isEmpty()) {
+	            String fileName = getFileName(Env.EXPORT_DATA_CSV_FILE_NAME_OF_NET_FLOW);
+	            String[] fieldNames = new String[] {
+	                    "groupName", "now", "fromDateTime", "toDateTime", "ethernetType", "protocol",
+	                    "sourceIP", "sourcePort", "sourceMAC", "destinationIP", "destinationPort",
+	                    "destinationMAC", "size", "channelID", "toS", "senderIP", "inboundInterface",
+	                    "outboundInterface", "sourceASI", "destinationASI", "sourceMask", "destinationMask",
+	                    "nextHop", "sourceVLAN", "destinationVLAN", "flowID"
+	            };
+	            String[] columnsTitles = Env.EXPORT_DATA_CSV_COLUMNS_TITLES_OF_NET_FLOW.split(",");
+
+	            DataExportUtils export = new CsvExportUtils();
+	            String fileId = export.output2Web(response, fileName, true, dataList, fieldNames, columnsTitles);
+
+	            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "SUCCESS");
+	            app.putData("fileId", fileId);
+                return app;
+
+	        } else {
+	            AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "No matched data.");
+	            return app;
+	        }
+
+	    } catch (Exception e) {
+	        log.error(e.toString(), e);
+	        AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
+            return app;
+	    }
 	}
 }

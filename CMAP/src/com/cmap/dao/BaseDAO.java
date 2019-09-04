@@ -8,6 +8,8 @@ public interface BaseDAO {
     public static final String TARGET_PRIMARY_DB = "PRIMARY";
     public static final String TARGET_SECONDARY_DB = "SECONDARY";
 
+    public Object insertEntityAndGetReturnIdValue(Object entity);
+
 	public boolean insertEntity(Object entity);
 
 	public Integer loadDataInFile(

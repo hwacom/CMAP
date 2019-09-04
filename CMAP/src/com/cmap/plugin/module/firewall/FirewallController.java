@@ -234,6 +234,13 @@ public class FirewallController extends BaseController {
             fVO.setOrderDirection(orderDirection);
             fVO.setTypeNameMap(typeNameMap);
 
+            int beginMonth = queryDateBegin.indexOf("-") != -1
+                                ? Integer.valueOf(queryDateBegin.split("-")[1]) : 0;
+            int endMonth = queryDateEnd.indexOf("-") != -1
+                                ? Integer.valueOf(queryDateEnd.split("-")[1]) : 0;
+
+            fVO.setQueryMonths(new int[] {beginMonth, endMonth});
+
             String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_FIREWALL_LOG);
 
             if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_FILE)) {

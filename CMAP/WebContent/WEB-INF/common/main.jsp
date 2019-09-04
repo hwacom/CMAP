@@ -75,6 +75,8 @@
 	<!-- cleave -->
 	<script src="${pageContext.request.contextPath}/resources/js/cleave/cleave.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/modernizr/modernizr-custom.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/FileSaver/FileSaver.min.js"></script>
+	
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/common.min.js"></script>
 	
 	<script>
@@ -512,14 +514,16 @@
 	                    <!-- [IP開通/封鎖] END -->
 	                    
 	                    <!-- [IP封鎖紀錄查詢] START -->
-	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_BLOCKED_RECORD eq __SHOW__}">
-	                    	<li class="subMenu-item">
-		                    	<a id="cm_ipBlockedRecord" href="${pageContext.request.contextPath}/record/ipBlocked">
-		                    	  <span data-feather="check-square"></span>
-		                    	  	<span><spring:message code="func.ip.open.block.record" /></span>
-		                    	</a>
-		                    </li>
-	                    </c:if>
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_IP_BLOCKED_RECORD eq __SHOW__}">
+		                    	<li class="subMenu-item">
+			                    	<a id="cm_ipBlockedRecord" href="${pageContext.request.contextPath}/record/ipBlocked">
+			                    	  <span data-feather="check-square"></span>
+			                    	  	<span><spring:message code="func.ip.open.block.record" /></span>
+			                    	</a>
+			                    </li>
+		                    </c:if>
+	                    </sec:authorize>
 	                    <!-- [IP封鎖紀錄查詢] END -->
 	                    
 	                    <!-- [網卡MAC開通/封鎖] START -->
@@ -705,6 +709,63 @@
 		  </div>
 		</div>
 		<!-- Modal [View 腳本內容] end -->
+		
+		<!-- Modal [資料匯出] start -->
+		<div class="modal fade" id="dataExportModal" tabindex="-1" role="dialog" aria-labelledby="dataExportLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-xs" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="dataExportLabel"><span id="msgModal_title">資料匯出</span></h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <div class="form-group row">
+		        	<div class="form-control form-control-sm col-12 export-description">
+			        	說明:<br>
+			        	<ol style="padding-left: 15px;">
+			        	  <li>按下確認後將以<font class="blue">當前</font>的<font class="blue">查詢條件</font>及<font class="blue">排序欄位</font>匯出指定的資料筆數</li>
+			        	  <li>匯出檔案為<font class="blue">CSV格式</font>，並採<font class="blue">ZIP壓縮</font>；彈出下載視窗</li>
+			        	  <li>選擇ALL匯出所有資料時，可能因資料量較大需要較多時間處理</li>
+			        	  <li>Excel 2003僅支持編輯65536筆資料；Excel 2007以上支持編輯104萬筆資料</li>
+			        	</ol>
+		        	</div>
+		        </div>
+		     	<div class="form-group row">
+		        	<label for="dataExportModal_recordCountSelect" class="col-md-3 col-sm-12 col-form-label"><spring:message code="export.record.count" /> :</label>
+		    		<div class="form-control form-control-sm col-md-9 col-sm-12">
+		    			<select id="dataExportModal_recordCountSelect" style="width: 100%">
+	                        <option value="">=== 請選擇 ===</option>
+	                        <option value="100">100</option>
+	                        <option value="300">300</option>
+	                        <option value="500">500</option>
+	                        <option value="1000">1000</option>
+	                        <option value="A">ALL</option>
+	                        <option value="C">自行輸入</option>
+	                    </select>
+		    		</div>
+		        </div>
+		        <div class="form-group row">
+		        	<label for="dataExportModal_recordCountInput" class="col-md-3 col-sm-12 col-form-label"><spring:message code="export.record.input" /> :</label>
+		        	<div class="form-control form-control-sm col-md-9 col-sm-12">
+		        		<input type="text" id="dataExportModal_recordCountInput" class="disable" style="width: 100%" disabled="disabled">
+		        	</div>
+		        </div>
+		      </div>
+		      <div class="modal-footer center">
+	      		<div class="col-4">
+	      			<button type="button" class="btn btn-secondary" id="btnClose" data-dismiss="modal" style="width: 100%;"><spring:message code="close" /></button>
+	      		</div>
+	      		<div class="col-4">
+	      			<button type="button" class="btn btn-success" id="btnDataExportConfirm" style="width: 100%;"><spring:message code="confirm" /></button>
+	      		</div>
+			  </div>
+			  <input type="hidden" id="dataExportModal_var1" name="dataExportModal_var1" value="" />
+		    </div>
+		  </div>
+		</div>
+		<!-- Modal [資料匯出] end -->
 		
 		<!-- setup details pane template -->
 		<div id="details-pane" style="display: none;">

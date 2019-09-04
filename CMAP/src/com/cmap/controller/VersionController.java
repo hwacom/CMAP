@@ -28,6 +28,8 @@ import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.VersionService;
 import com.cmap.service.vo.VersionServiceVO;
+import com.cmap.utils.DataExportUtils;
+import com.cmap.utils.impl.CsvExportUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
@@ -285,6 +287,18 @@ public class VersionController extends BaseController {
 		return new AppResponse(HttpServletResponse.SC_OK, "刪除成功");
 	}
 
+	private List<VersionServiceVO> doDataQuery(VersionServiceVO vsVO, Integer startNum, Integer pageLength) {
+	    List<VersionServiceVO> retList = null;
+	    try {
+	        retList = versionService.findVersionInfo(vsVO, startNum, pageLength);
+
+	    } catch (ServiceLayerException sle) {
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+	    return retList;
+	}
+
 	/**
 	 * [版本管理、備份、還原] >> 查詢按鈕共用入口方法
 	 * @param model
@@ -359,7 +373,7 @@ public class VersionController extends BaseController {
 			filterdTotal = versionService.countVersionInfo(vsVO);
 
 			if (filterdTotal != 0) {
-				dataList = versionService.findVersionInfo(vsVO, startNum, pageLength);
+				dataList = doDataQuery(vsVO, startNum, pageLength);
 			}
 
 			if (!maxCountByDevice) {
@@ -570,4 +584,116 @@ public class VersionController extends BaseController {
 		} finally {
 		}
 	}
+
+	/**
+	 * 資料匯出
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param queryGroup
+	 * @param querySourceIp
+	 * @param queryDestinationIp
+	 * @param querySenderIp
+	 * @param querySourcePort
+	 * @param queryDestinationPort
+	 * @param queryMac
+	 * @param queryDateBegin
+	 * @param queryDateEnd
+	 * @param queryTimeBegin
+	 * @param queryTimeEnd
+	 * @param searchValue
+	 * @param orderColIdx
+	 * @param orderDirection
+	 * @param exportRecordCount
+	 * @return
+	 */
+	@RequestMapping(value = "dataExport.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse dataExport(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="queryGroup1", required=false, defaultValue="") String queryGroup1,
+            @RequestParam(name="queryGroup2", required=false, defaultValue="") String queryGroup2,
+            @RequestParam(name="queryDevice1", required=false, defaultValue="") String queryDevice1,
+            @RequestParam(name="queryDevice2", required=false, defaultValue="") String queryDevice2,
+            @RequestParam(name="queryDateBegin1", required=false, defaultValue="") String queryDateBegin1,
+            @RequestParam(name="queryDateEnd1", required=false, defaultValue="") String queryDateEnd1,
+            @RequestParam(name="queryDateBegin2", required=false, defaultValue="") String queryDateBegin2,
+            @RequestParam(name="queryDateEnd2", required=false, defaultValue="") String queryDateEnd2,
+            @RequestParam(name="queryConfigType", required=false, defaultValue="") String queryConfigType,
+            @RequestParam(name="queryNewChkbox", required=false, defaultValue="true") boolean queryNewChkbox,
+            @RequestParam(name="maxCountByDevice", required=false, defaultValue="false") boolean maxCountByDevice,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="6") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection,
+            @RequestParam(name="exportRecordCount", required=true, defaultValue="") String exportRecordCount) {
+
+	    List<VersionServiceVO> dataList = new ArrayList<>();
+	    VersionServiceVO vsVO;
+        try {
+            Integer queryStartNum = null;
+            Integer queryPageLength = null;
+
+            if (!StringUtils.equals(exportRecordCount, Constants.DATA_STAR_SYMBOL)) {
+                // exportRecordCount = *，表示要匯出所有資料；否則依使用者選擇的筆數決定
+                queryStartNum = 0;
+                queryPageLength = Integer.valueOf(exportRecordCount);
+
+            } else {
+                queryStartNum = startNum;
+                queryPageLength = pageLength;
+            }
+
+            vsVO = new VersionServiceVO();
+            setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup1) ? "queryGroup1" : "queryGroup1List", queryGroup1);
+            setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice1) ? "queryDevice1" : "queryDevice1List", queryGroup1, queryDevice1);
+
+            vsVO.setQueryDateBegin1(queryDateBegin1);
+            vsVO.setQueryDateEnd1(queryDateEnd1);
+            setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup2) ? "queryGroup2" : "queryGroup2List", queryGroup2);
+            setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice2) ? "queryDevice2" : "queryDevice2List", queryGroup2, queryDevice2);
+
+            vsVO.setQueryDateBegin2(queryDateBegin2);
+            vsVO.setQueryDateEnd2(queryDateEnd2);
+            vsVO.setQueryConfigType(queryConfigType);
+            vsVO.setQueryNewChkbox(queryNewChkbox);
+            vsVO.setStartNum(queryStartNum);
+            vsVO.setPageLength(queryPageLength);
+            vsVO.setSearchValue(searchValue);
+            vsVO.setOrderColumn(UI_MANAGE_TABLE_COLUMNS[orderColIdx]);
+            vsVO.setOrderDirection(orderDirection);
+
+            /*
+             * 底下兩個參數用來後續查找使用者所有有權限的群組和設備筆數
+             */
+            setQueryGroupList(request, vsVO, "allGroupList", null);
+            setQueryDeviceList(request, vsVO, "allDeviceList", null, null);
+
+            dataList = doDataQuery(vsVO, queryStartNum, queryPageLength);
+
+            if (dataList != null && !dataList.isEmpty()) {
+                String fileName = getFileName(Env.EXPORT_DATA_CSV_FILE_NAME_OF_VERSION_MAIN);
+                String[] fieldNames = new String[] {
+                        "groupName", "deviceName", "deviceModel", "configVersion", "configType", "backupTimeStr"
+                };
+                String[] columnsTitles = Env.EXPORT_DATA_CSV_COLUMNS_TITLES_OF_VERSION_MAIN.split(",");
+
+                DataExportUtils export = new CsvExportUtils();
+                String fileId = export.output2Web(response, fileName, true, dataList, fieldNames, columnsTitles);
+
+                AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "SUCCESS");
+                app.putData("fileId", fileId);
+                return app;
+
+            } else {
+                AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "No matched data.");
+                return app;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
+            return app;
+        }
+    }
 }

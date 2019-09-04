@@ -40,6 +40,10 @@ public class Constants {
 	public static final String DELIVERY_ONLY_SCRIPT_OF_IP_OPEN_BLOCK = "IP_OPEN_BLOCK";
 	public static final String DELIVERY_ONLY_SCRIPT_OF_MAC_OPEN_BLOCK = "MAC_OPEN_BLOCK";
 
+	public static final char DEFAULT_CSV_SEPARATOR = ',';
+	public static final String DEFAULT_CSV_LINE_BREAK_SYMBOL = "\n";
+	public static final int DEFAULT_BUFFER_SIZE = 10240; // 10KB.
+
 	public static final SimpleDateFormat FORMAT_YYYY = new SimpleDateFormat("yyyy");
 	public static final SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS_NOSYMBOL = new SimpleDateFormat("yyyyMMddHHmmss");
 	public static final SimpleDateFormat FORMAT_YYYY_MM_DD_NOSYMBOL = new SimpleDateFormat("yyyyMMdd");
@@ -125,6 +129,9 @@ public class Constants {
 	public static final String DATA_Y = "Y";
 	public static final String DATA_N = "N";
 	public static final String DATA_STAR_SYMBOL = "*";
+
+	public static final String STATUS_FLAG_OPEN = "O";
+	public static final String STATUS_FLAG_DELETE = "X";
 
 	public static final String PROCESS_OPEN = "O";
 	public static final String PROCESS_ING = "*";

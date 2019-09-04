@@ -79,6 +79,14 @@ public class Env {
     public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
     public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
 
+    public static String EXPORT_DATA_CSV_FILE_NAME_OF_NET_FLOW;              // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
+    public static String EXPORT_DATA_CSV_FILE_NAME_OF_VERSION_MAIN;          // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
+    public static String EXPORT_DATA_CSV_FILE_NAME_OF_TRAFFIC_RANK;          // 設定各校即時IP流量排行查詢功能資料匯出CSV檔名格式
+
+    public static String EXPORT_DATA_CSV_COLUMNS_TITLES_OF_NET_FLOW;         // 設定NET_FLOW查詢功能資料匯出CSV報表標題欄位名稱
+    public static String EXPORT_DATA_CSV_COLUMNS_TITLES_OF_VERSION_MAIN;     // 設定組態管理查詢功能資料匯出CSV報表標題欄位名稱
+    public static String EXPORT_DATA_CSV_COLUMNS_TITLES_OF_TRAFFIC_RANK;     // 設定各校即時IP流量排行查詢功能資料匯出CSV報表標題欄位名稱
+
 	public static Boolean ENABLE_CM_SCRIPT_MODIFY;				             // 設定是否啟用腳本管理編輯功能(Y:啟用;N:不啟用，僅可做查詢)
 
 	public static String TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;	         // 設定防火牆黑名單紀錄TABLE名稱
@@ -381,6 +389,8 @@ public class Env {
 	public static String OIDC_URL_OF_NEW_TAIPEI_CITY;
 
 	public static String FILE_EXTENSION_NAME_OF_NET_FLOW;
+
+	public static String DEFAULT_DATA_EXPORT_TEMP_LOCATION;    // 設定預設資料匯出時暫存資料夾路徑
 
 	public static final Step[] SEND_SCRIPT = new Step[] {
 			Step.LOAD_SPECIFIED_SCRIPT,

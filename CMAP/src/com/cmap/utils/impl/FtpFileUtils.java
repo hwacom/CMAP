@@ -100,7 +100,7 @@ public class FtpFileUtils implements FileUtils {
 			}
 
 		} catch (Exception e) {
-			throw new Exception("[FTP connect failed] >> " + e.toString());
+			throw new Exception("[FTP login failed] >> " + e.toString());
 		}
 
 		return true;

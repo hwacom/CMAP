@@ -89,10 +89,13 @@
 		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
 		  	    	<button type="button" class="btn btn-danger btn-sm" style="width: 100%" id="btnDelete"><spring:message code="btn.delete" /></button>
 		  	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web"><spring:message code="btn.export" /></button>
+	    	    </div>
         	</div>
         </div>
-        <!-- [END]操作按鈕bar -->
       </div>
+      <!-- [END]操作按鈕bar -->
     </div>
     <!-- [END]查詢欄位&操作按鈕 for 大型解析度螢幕 -->
     
@@ -208,7 +211,7 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="system.version" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="device.model" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="config.type" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="config.version" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="backup.time" /></th>

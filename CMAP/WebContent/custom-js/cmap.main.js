@@ -194,6 +194,30 @@ $(document).ready(function() {
 	    }
 	    $(this).css('display','none');
 	});
+	
+	// 一般功能點擊資料匯出按鈕事件
+	$("#btnExport_web").click(function(e) {
+		showExportPanel();
+	});
+	
+	// [資料匯出]Modal >> 資料筆數Select變動時事件
+	$("#dataExportModal_recordCountSelect").change(function(e) {
+		var selectVal = $("#dataExportModal_recordCountSelect").val();
+		
+		if (selectVal === "C") {
+			$("#dataExportModal_recordCountInput").prop("disabled", false);
+			$("#dataExportModal_recordCountInput").removeClass("disable");
+		} else {
+			$("#dataExportModal_recordCountInput").prop("disabled", true);
+			$("#dataExportModal_recordCountInput").addClass("disable");
+		}
+		$("#dataExportModal_recordCountInput").val("");
+	});
+	
+	// [資料匯出]Modal >> 按下確認按鈕事件
+	$("#btnDataExportConfirm").click(function(e) {
+		btnDataExportConfirm();
+	});
 });
 
 function refreshDateTime() {
@@ -440,6 +464,65 @@ function viewConfig(versionId) {
 			ajaxErrorHandler();
 		}
 	});
+}
+
+/**********************************************************************************************************
+ *** 彈出[資料匯出]Modal視窗
+ **********************************************************************************************************/
+function showExportPanel() {
+	$("#dataExportModal").modal({
+		backdrop : 'static'
+	});
+	
+	$("#dataExportModal_recordCountSelect").val("").change();
+	$("#dataExportModal_recordCountInput").val("");
+}
+
+function closeExportPanel() {
+	setTimeout(function(){
+		$("#dataExportModal").modal('hide');
+		
+	}, 500);
+}
+
+/**********************************************************************************************************
+ *** 資料匯出確認
+ **********************************************************************************************************/
+function btnDataExportConfirm() {
+	var recordCountSelect = $("#dataExportModal_recordCountSelect").val().trim();
+	var recordCountInput = $("#dataExportModal_recordCountInput").val().trim();
+	var exportRecordCount = 0;
+	
+	if (recordCountSelect === "") {
+		alert("請選擇資料匯出筆數");
+		return;
+		
+	} else if (recordCountSelect === "C" && (recordCountInput === "" || recordCountInput === 0)) {
+		alert("請輸入資料匯出筆數");
+		return;
+		
+	} else {
+		if (recordCountSelect === "A") {	// 匯出所有
+			exportRecordCount = "*";
+			
+		} else if (recordCountSelect === "C") {	// 自行輸入
+			exportRecordCount = recordCountInput;
+			
+		} else {
+			exportRecordCount = recordCountSelect;
+		}
+	}
+	
+	// 呼叫各功能自身的function處理後續匯出流程(傳入使用者決定的匯出筆數)
+	doDataExport(exportRecordCount);
+}
+
+/**********************************************************************************************************
+ *** 取得檔案下載連結
+ **********************************************************************************************************/
+function getResourceDownloadLink(fileId) {
+	const url = window.location.origin + '/resource/download/' + fileId;
+	return url;
 }
 
 /**********************************************************************************************************

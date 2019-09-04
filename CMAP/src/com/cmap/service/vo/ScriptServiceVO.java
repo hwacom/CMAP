@@ -24,6 +24,7 @@ public class ScriptServiceVO extends CommonServiceVO {
 	private String scriptTypeName;
 	private String systemVersion;
 	private String scriptMode;
+	private String deviceModel;
 
 	private String actionScript;
 	private String actionScriptVariable;
@@ -225,4 +226,10 @@ public class ScriptServiceVO extends CommonServiceVO {
 	public void setEnableModify(Boolean enableModify) {
 		this.enableModify = enableModify;
 	}
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
+    }
 }

@@ -100,7 +100,7 @@ function findData(from) {
 				{ "data" : "createBy" },
 				{ "data" : "groupName" },
 				{ "data" : "deviceName" },
-				{ "data" : "systemVersion" , "className" : "center" },
+				{ "data" : "deviceModel" , "className" : "center" },
 				{ "data" : "scriptName" },
 				{},
 				{}
@@ -162,7 +162,7 @@ function viewProvisionLog(obj) {
 	var userName = $(obj).closest("tr").find("td").eq(2).text();
 	var groupName = $(obj).closest("tr").find("td").eq(3).text();
 	var deviceName = $(obj).closest("tr").find("td").eq(4).text();
-	var systemVersion = $(obj).closest("tr").find("td").eq(5).text();
+	var deviceModel = $(obj).closest("tr").find("td").eq(5).text();
 	var scriptName = $(obj).closest("tr").find("td").eq(6).text();
 	var reason = $(obj).closest("tr").find("td").eq(7).text();
 	var result = $(obj).text();
@@ -182,7 +182,7 @@ function viewProvisionLog(obj) {
 					"userName" : userName,
 					"groupName" : groupName,
 					"deviceName" : deviceName,
-					"systemVersion" : systemVersion,
+					"deviceModel" : deviceModel,
 					"scriptName" : scriptName,
 					"reason" : reason,
 					"result" : result,
@@ -194,7 +194,7 @@ function viewProvisionLog(obj) {
 				$("#viewModal_userName").val(userName);
 				$("#viewModal_groupName").val(groupName);
 				$("#viewModal_deviceName").val(deviceName);
-				$("#viewModal_systemVersion").val(systemVersion);
+				$("#viewModal_deviceModel").val(deviceModel);
 				$("#viewModal_scriptName").val(scriptName);
 				$("#viewModal_reason").val(reason);
 				$("#viewModal_result").val(result);

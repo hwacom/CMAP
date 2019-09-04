@@ -241,20 +241,18 @@
       	</div>
       	
       </div>
-      <div class="modal-footer">
-      	<div class="col-12 row center">
-      		<div class="col-2">
-	      		<button type="button" class="btn btn-secondary" id="btnStepGoPrev" style="width: 100%;"><spring:message code="btn.step.back" /></button>
-	      	</div>
-	      	<div class="col-1"></div>
-	      	<div class="col-2">
-	      		<button type="button" class="btn btn-success" id="btnStepGoNext" style="width: 100%;"><spring:message code="btn.step.next" /></button>
-	      		<button type="button" class="btn btn-success" id="btnStepGoFire" style="width: 100%;"><spring:message code="btn.delivery.confirm" /></button>
-	      	</div>
-	      	<div class="col-1"></div>
-	      	<div class="col-2">
-	      		<button type="button" class="btn btn-info" id="btnCancel" style="width: 100%;" data-dismiss="modal" aria-label="Close"><spring:message code="btn.cancel" /></button>
-	      	</div>
+      <div class="modal-footer center">
+     	<div class="col-2">
+      		<button type="button" class="btn btn-secondary" id="btnStepGoPrev" style="width: 100%;"><spring:message code="btn.step.back" /></button>
+      	</div>
+      	<div class="col-1"></div>
+      	<div class="col-2">
+      		<button type="button" class="btn btn-success" id="btnStepGoNext" style="width: 100%;"><spring:message code="btn.step.next" /></button>
+      		<button type="button" class="btn btn-success" id="btnStepGoFire" style="width: 100%;"><spring:message code="btn.delivery.confirm" /></button>
+      	</div>
+      	<div class="col-1"></div>
+      	<div class="col-2">
+      		<button type="button" class="btn btn-info" id="btnCancel" style="width: 100%;" data-dismiss="modal" aria-label="Close"><spring:message code="btn.cancel" /></button>
       	</div>
       </div>
     </div>

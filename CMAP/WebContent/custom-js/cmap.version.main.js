@@ -130,6 +130,54 @@ function changeCompareDesc(showNow) {
 	}
 }
 
+//[資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
+function doDataExport(exportRecordCount) {
+	$.ajax({
+		url : _ctx + '/version/dataExport.json',
+		data : {
+			"queryGroup1" : $("#queryGroup1").val(),
+			"queryGroup2" : $("#queryGroup2").val(),
+			"queryDevice1" : $("#queryDevice1").val(),
+			"queryDevice2" : $("#queryDevice2").val(),
+			"queryDateBegin1" : $("#queryExcuteDateBegin1").val(),
+			"queryDateEnd1" : $("#queryExcuteDateEnd1").val(),
+			"queryDateBegin2" : $("#queryExcuteDateBegin2").val(),
+			"queryDateEnd2" : $("#queryExcuteDateEnd2").val(),
+			"queryConfigType" : $("#queryConfigType").val(),
+			"queryNewChkbox" : $("#queryNewChkbox").prop("checked") ? true : false,
+			"searchValue" : $("#resultTable_filter").find("input").val(),
+			"exportRecordCount" : exportRecordCount
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function(xhr) {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		initComplete : function(settings, json) {
+        },
+		success : function(resp) {
+			if (resp.code == 200) {
+				const fileId = resp.data.fileId;
+				const url = getResourceDownloadLink(fileId);
+				// 彈出下載視窗
+				location.href = url;
+				// 關閉Modal視窗
+				closeExportPanel();
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
+
 //比對按鈕動作
 function compareFile() {
 	var checkedItem = $('input[name=chkbox]:checked');
@@ -341,7 +389,7 @@ function findData(from) {
 				{},{},
 				{ "data" : "groupName" },
 				{},
-				{ "data" : "systemVersion" , "className" : "center"},
+				{ "data" : "deviceModel" , "className" : "center"},
 				{ "data" : "configType" },
 				{},
 				{}

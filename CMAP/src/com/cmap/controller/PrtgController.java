@@ -464,7 +464,7 @@ public class PrtgController extends BaseController {
             Model model, HttpServletRequest request, HttpServletResponse response) {
 
         try {
-            String netFlowOutputMapCoreUrl = Env.PRTG_DEFAULT_NET_FLOW_OUTPUT_URI;   //如果沒設定則取得預設MAP
+            String netFlowOutputMapCoreUrl = Env.PRTG_DEFAULT_NET_FLOW_OUTPUT_CORE_URI;   //如果沒設定則取得預設MAP
             netFlowOutputMapCoreUrl = composePrtgUrl(request, netFlowOutputMapCoreUrl);
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");

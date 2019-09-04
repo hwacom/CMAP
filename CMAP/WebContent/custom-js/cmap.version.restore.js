@@ -224,7 +224,7 @@ function findData(from) {
 				{},{},
 				{ "data" : "groupName" },
 				{ "data" : "deviceName" },
-				{ "data" : "systemVersion" , "className" : "center" }
+				{ "data" : "deviceModel" , "className" : "center" }
 			],
 			"columnDefs" : [
 				{

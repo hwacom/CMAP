@@ -95,7 +95,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			log.info("SSH login success!! >>> [ account: " + account + " , password: " + password + " ]");
 
 		} catch (Exception e) {
-			throw new Exception("[SSH login failed] >> " + e.getMessage());
+			throw new Exception("[SSH login failed] >> [ account: " + account + " , password: " + password + " ] " + e.getMessage());
 		}
 		return true;
 	}

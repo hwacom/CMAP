@@ -246,7 +246,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, null, null);
+								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {
@@ -1655,7 +1655,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, null, null);
+								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {
@@ -1886,7 +1886,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                         case FIND_DEVICE_LOGIN_INFO:
                             try {
-                                findDeviceLoginInfo(ciVO, deviceListId, null, null);
+                                findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
                                 break;
 
                             } catch (Exception e) {
@@ -2345,7 +2345,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得要還原的目標設備登入資訊
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, null, null);
+								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {

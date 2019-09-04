@@ -1,9 +1,20 @@
 package com.cmap.utils.impl;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -375,4 +386,70 @@ public class CommonUtils {
 
 		return csVO;
 	}
+
+	public static void zipFiles(List<File> srcfileList, File targetZipfile) throws ServiceLayerException {
+        byte[] buf = new byte[1024];
+        try {
+            // Create the ZIP file
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(targetZipfile));
+            // Compress the files
+            for (File file : srcfileList) {
+                FileInputStream in = new FileInputStream(file);
+                // Add ZIP entry to output stream.
+                out.putNextEntry(new ZipEntry(file.getName()));
+                // Transfer bytes from the file to the ZIP file
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                // Complete the entry
+                out.closeEntry();
+                in.close();
+            }
+            // Complete the ZIP file
+            out.close();
+
+        } catch (Exception e) {
+           log.error(e.toString(), e);
+           throw new ServiceLayerException("壓縮ZIP檔異常! >> " + e.toString());
+        }
+    }
+
+	public static void downFile(HttpServletResponse response, String downloadFilePath, String fileName) throws ServiceLayerException {
+        try {
+            String path = downloadFilePath;
+            File file = new File(path);
+            if (file.exists()) {
+                InputStream ins = new FileInputStream(path);
+                BufferedInputStream bins = new BufferedInputStream(ins); // 放到緩衝流裡面
+                OutputStream outs = response.getOutputStream(); // 獲取檔案輸出IO流
+                BufferedOutputStream bouts = new BufferedOutputStream(outs);
+                response.setContentType("application/x-download"); // 設定response內容的型別
+                response.setHeader(
+                        "Content-disposition",
+                        "attachment;filename=" + URLEncoder.encode(fileName, "UTF8")); // 設定頭部資訊
+                int bytesRead = 0;
+                byte[] buffer = new byte[8192];
+                // 開始向網路傳輸檔案流
+                while ((bytesRead = bins.read(buffer, 0, 8192)) != -1) {
+                   bouts.write(buffer, 0, bytesRead);
+               }
+               bouts.flush(); // 這裡一定要呼叫flush()方法
+               ins.close();
+               bins.close();
+               outs.close();
+               bouts.close();
+
+            } else {
+                throw new ServiceLayerException("找不到要下載的檔案! [" + downloadFilePath + " , " + fileName);
+            }
+        } catch (ServiceLayerException sle) {
+            log.error(sle.toString(), sle);
+            throw sle;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("下載異常! >> " + e.toString());
+        }
+    }
 }

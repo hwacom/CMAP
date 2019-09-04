@@ -52,6 +52,7 @@ public class VersionServiceVO extends CommonServiceVO {
 	private String remoteFileDirPath;
 	private String deviceListId;
 	private String createYyyyMMdd;
+	private String deviceModel;
 
 	private boolean checkEnableCurrentDateSetting;
 
@@ -464,5 +465,11 @@ public class VersionServiceVO extends CommonServiceVO {
     }
     public void setRestoreVersionImagePath(String restoreVersionImagePath) {
         this.restoreVersionImagePath = restoreVersionImagePath;
+    }
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
     }
 }

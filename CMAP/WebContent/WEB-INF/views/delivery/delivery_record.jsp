@@ -144,8 +144,8 @@
     		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_deviceName" readonly>
         </div>
         <div class="form-group row">
-        	<label for="viewModal_systemVersion" class="col-md-2 col-sm-12 col-form-label"><spring:message code="system.version" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_systemVersion" readonly>
+        	<label for="viewModal_deviceModel" class="col-md-2 col-sm-12 col-form-label"><spring:message code="system.version" /> :</label>
+    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_deviceModel" readonly>
         </div>
         <div class="form-group row">
         	<label for="viewModal_scriptName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="script.name" /> :</label>

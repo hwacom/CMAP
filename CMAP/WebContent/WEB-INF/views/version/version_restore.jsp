@@ -130,15 +130,12 @@
     		</select>
         </div>
       </div>
-      <div class="modal-footer">
-      	<div class="col-12 row center">
-      		<div class="col-2">
-	      		<button type="button" class="btn btn-success" id="btnRestoreConfirm" style="width: 100%;"><spring:message code="btn.confirm" /></button>
-	      	</div>
-	      	<div class="col-1"></div>
-	      	<div class="col-2">
-	      		<button type="submit" class="btn btn-secondary" id="btnRestoreCancel" style="width: 100%;"><spring:message code="btn.cancel" /></button>
-	      	</div>
+      <div class="modal-footer center">
+        <div class="col-3">
+      		<button type="button" class="btn btn-secondary" id="btnClose" data-dismiss="modal" style="width: 100%"><spring:message code="close" /></button>
+      	</div>
+     	<div class="col-3">
+      		<button type="button" class="btn btn-success" id="btnRestoreConfirm" style="width: 100%;"><spring:message code="btn.confirm" /></button>
       	</div>
       </div>
     </div>

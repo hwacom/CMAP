@@ -36,57 +36,72 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             String tableName) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select count(mfl.id) ")
-          .append(" from ").append(tableName).append(" mfl ")
-          .append(" where 1=1 ");
+          .append(" from ( ");
 
-        if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-            sb.append(" and mfl.dev_name = :devName ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-            sb.append(" and mfl.src_ip = :querySrcIp ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-            sb.append(" and mfl.src_port = :querySrcPort ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-            sb.append(" and mfl.dst_ip = :queryDstIp ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-            sb.append(" and mfl.dst_port = :queryDstPort ");
-        }
-        /*
-        if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
-            sb.append(" and (mfl.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and mfl.date < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryTimeBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-            sb.append(" and (mfl.time >= :beginTime and mfl.time < :endTime) ");
-        }
-        */
-        if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-            sb.append(" and (mfl.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and mfl.time >= :beginTime) ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-            sb.append(" and (mfl.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and mfl.time < :endTime) ");
-        }
+        int beginMonth = fVO.getQueryMonths()[0];
+        int endMonth = fVO.getQueryMonths()[1];
+        for (int month = beginMonth; month <= endMonth; month++) {
+            String tName = tableName.concat("_").concat(String.valueOf(month));
+            String stName = "mfl".concat("_").concat(String.valueOf(month));
 
-        if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-            StringBuffer sfb = new StringBuffer();
-            sfb.append(" and ( ");
+            sb.append(" select id from ").append(tName).append(" ").append(stName).append(" ")
+              .append(" where 1=1 ");
 
-            int i = 0;
-            for (String sField : searchLikeField) {
-                sfb.append(sField).append(" like :searchValue ");
+              if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                  sb.append(" and ").append(stName).append(".dev_name = :devName ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                  sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                  sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                  sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                  sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+              }
+              /*
+              if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
+                  sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".date < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQueryTimeBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                  sb.append(" and (").append(stName).append(".time >= :beginTime and ").append(stName).append(".time < :endTime) ");
+              }
+              */
+              if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                  sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                  sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+              }
 
-                if (i < searchLikeField.size() - 1) {
-                    sfb.append(" or ");
-                }
+              if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                  StringBuffer sfb = new StringBuffer();
+                  sfb.append(" and ( ");
 
-                i++;
+                  int i = 0;
+                  for (String sField : searchLikeField) {
+                      sfb.append(stName).append(".").append(sField).append(" like :searchValue ");
+
+                      if (i < searchLikeField.size() - 1) {
+                          sfb.append(" or ");
+                      }
+
+                      i++;
+                  }
+
+                  sfb.append(" ) ");
+                  sb.append(sfb);
+              }
+
+            if (month < endMonth) {
+                sb.append(" union all ");
             }
-
-            sfb.append(" ) ");
-            sb.append(sfb);
         }
+
+        sb.append(" ) mfl ");
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createNativeQuery(sb.toString());
@@ -129,66 +144,80 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
     public List<Object[]> findFirewallLogFromDB(FirewallVO fVO, Integer startRow,
             Integer pageLength, List<String> searchLikeField, String tableName, String selectSql) {
         StringBuffer sb = new StringBuffer();
+        sb.append(" select mfl.* from ( ");
 
-        sb.append(" select ");
+        int beginMonth = fVO.getQueryMonths()[0];
+        int endMonth = fVO.getQueryMonths()[1];
+        for (int month = beginMonth; month <= endMonth; month++) {
+            String tName = tableName.concat("_").concat(String.valueOf(month));
+            String stName = "mfl".concat("_").concat(String.valueOf(month));
 
-        if (StringUtils.isNotBlank(selectSql)) {
-            sb.append(selectSql);
-        } else {
-            sb.append("*");
-        }
+            sb.append(" select ");
 
-        sb.append(" from ").append(tableName).append(" mfl ")
-          .append(" where 1=1 ");
-
-        if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-            sb.append(" and mfl.dev_name = :devName ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-            sb.append(" and mfl.src_ip = :querySrcIp ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-            sb.append(" and mfl.src_port = :querySrcPort ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-            sb.append(" and mfl.dst_ip = :queryDstIp ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-            sb.append(" and mfl.dst_port = :queryDstPort ");
-        }
-        /*
-        if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
-            sb.append(" and (mfl.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and mfl.date < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryTimeBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-            sb.append(" and (mfl.time >= :beginTime and mfl.time < :endTime) ");
-        }
-        */
-        if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-            sb.append(" and (mfl.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and mfl.time >= :beginTime) ");
-        }
-        if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-            sb.append(" and (mfl.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and mfl.time < :endTime) ");
-        }
-
-        if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-            StringBuffer sfb = new StringBuffer();
-            sfb.append(" and ( ");
-
-            int i = 0;
-            for (String sField : searchLikeField) {
-                sfb.append(sField).append(" like :searchValue ");
-
-                if (i < searchLikeField.size() - 1) {
-                    sfb.append(" or ");
-                }
-
-                i++;
+            if (StringUtils.isNotBlank(selectSql)) {
+                sb.append(selectSql);
+            } else {
+                sb.append("*");
             }
 
-            sfb.append(" ) ");
-            sb.append(sfb);
+            sb.append(" from ").append(tName).append(" ").append(stName).append(" ")
+              .append(" where 1=1 ");
+
+                if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                    sb.append(" and ").append(" ").append(stName).append(".dev_name = :devName ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                    sb.append(" and ").append(" ").append(stName).append(".src_ip = :querySrcIp ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                    sb.append(" and ").append(" ").append(stName).append(".src_port = :querySrcPort ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                    sb.append(" and ").append(" ").append(stName).append(".dst_ip = :queryDstIp ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                    sb.append(" and ").append(" ").append(stName).append(".dst_port = :queryDstPort ");
+                }
+                /*
+                if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
+                    sb.append(" and (").append(" ").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(" ").append(stName).append(".date < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQueryTimeBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                    sb.append(" and (").append(" ").append(stName).append(".time >= :beginTime and ").append(" ").append(stName).append(".time < :endTime) ");
+                }
+                */
+                if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                    sb.append(" and (").append(" ").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(" ").append(stName).append(".time >= :beginTime) ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                    sb.append(" and (").append(" ").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(" ").append(stName).append(".time < :endTime) ");
+                }
+
+                if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                    StringBuffer sfb = new StringBuffer();
+                    sfb.append(" and ( ");
+
+                    int i = 0;
+                    for (String sField : searchLikeField) {
+                        sfb.append(stName).append(".").append(sField).append(" like :searchValue ");
+
+                        if (i < searchLikeField.size() - 1) {
+                            sfb.append(" or ");
+                        }
+
+                        i++;
+                    }
+
+                    sfb.append(" ) ");
+                    sb.append(sfb);
+                }
+
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
         }
+
+        sb.append(" ) mfl ");
 
         String orderColumnName = fVO.getOrderColumn();
         String orderDirection = fVO.getOrderDirection();

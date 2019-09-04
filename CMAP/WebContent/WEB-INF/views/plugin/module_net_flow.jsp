@@ -15,9 +15,11 @@
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
 	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%">
+	    	    		<!-- 
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
+                         -->
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
@@ -40,8 +42,10 @@
 	    	    		<spring:message code="btn.query" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2 group-field-other">
-	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
+	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web">
+	    	    		<spring:message code="btn.export" />
+	    	    	</button>
 	    	    </div>
 	    	  </div>
 	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
@@ -57,6 +61,9 @@
 					<label for="query_SenderIp" class="font-weight-bold" style="width: 35%"><spring:message code="net.flow.sender.ip" /></label>
 					<input type="text" id="query_SenderIp" class="input-ip" style="width: 60%">
 				</div>
+				<div class="col-lg-2 offset-lg-1 group-field-other">
+	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
+	    	    </div>
 			  </div>
 			  <div class="form-group row" style="margin-bottom: -.2rem;">
 			  	<div class="col-lg-3 group-field-other">

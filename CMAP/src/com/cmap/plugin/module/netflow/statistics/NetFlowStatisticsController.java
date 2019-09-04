@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
@@ -24,6 +25,8 @@ import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
+import com.cmap.utils.DataExportUtils;
+import com.cmap.utils.impl.CsvExportUtils;
 
 @Controller
 @RequestMapping("/plugin/module/netFlow/ranking")
@@ -189,6 +192,103 @@ public class NetFlowStatisticsController extends BaseController {
         }
 
         return new DatatableResponse(total, dataList, filterdTotal, null, totalFlow);
+    }
+
+    @RequestMapping(value = "trafficDataExport.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse trafficDataExport(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryGroup", required=false, defaultValue="") String queryGroup,
+            @RequestParam(name="queryDatePeriod", required=true, defaultValue="") String queryDatePeriod,
+            @RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
+            @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection,
+            @RequestParam(name="var1", required=true, defaultValue="") String var1,
+            @RequestParam(name="exportRecordCount", required=true, defaultValue="") String exportRecordCount) {
+
+        List<NetFlowStatisticsVO> dataList = null;
+        NetFlowStatisticsVO nfsVO;
+        try {
+            Integer queryStartNum = null;
+            Integer queryPageLength = null;
+
+            if (!StringUtils.equals(exportRecordCount, Constants.DATA_STAR_SYMBOL)) {
+                // exportRecordCount = *，表示要匯出所有資料；否則依使用者選擇的筆數決定
+                queryStartNum = 0;
+                queryPageLength = Integer.valueOf(exportRecordCount);
+
+            } else {
+                queryStartNum = startNum;
+                queryPageLength = pageLength;
+            }
+
+            nfsVO = new NetFlowStatisticsVO();
+            nfsVO.setQueryGroupId(queryGroup);
+
+            Calendar nowDate = Calendar.getInstance();
+            nowDate.setTime(new Date());
+            nowDate.set(Calendar.HOUR_OF_DAY, 0);
+            nowDate.set(Calendar.MINUTE, 0);
+            nowDate.set(Calendar.SECOND, 0);
+            nowDate.set(Calendar.MILLISECOND, 0);
+
+            String beginDate = null;
+            String endDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
+            switch (queryDatePeriod) {
+                case "1":
+                    break;
+
+                case "3":
+                    nowDate.add(Calendar.DAY_OF_MONTH, -3);
+                    break;
+
+                case "7":
+                    nowDate.add(Calendar.DAY_OF_MONTH, -7);
+                    break;
+
+                default:
+                    nowDate.add(Calendar.DAY_OF_MONTH, Integer.valueOf(queryDatePeriod)*-1);
+                    break;
+            }
+
+            beginDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
+
+            nfsVO.setQueryDateBegin(beginDate);
+            nfsVO.setQueryDateEnd(endDate);
+            nfsVO.setStartNum(queryStartNum);
+            nfsVO.setPageLength(queryPageLength);
+            nfsVO.setSearchValue(searchValue);
+            nfsVO.setOrderColumn(UI_TABLE_COLUMNS[orderColIdx]);
+            nfsVO.setOrderDirection(orderDirection);
+            dataList = netFlowStatisticsService.findModuleIpTrafficStatistics(nfsVO);
+
+            if (dataList != null && !dataList.isEmpty()) {
+                String fileName = getFileName(Env.EXPORT_DATA_CSV_FILE_NAME_OF_TRAFFIC_RANK, var1);
+                String[] fieldNames = new String[] {
+                        "ipAddress", "groupName", "percent", "totalTraffic", "uploadTraffic", "downloadTraffic"
+                };
+                String[] columnsTitles = Env.EXPORT_DATA_CSV_COLUMNS_TITLES_OF_TRAFFIC_RANK.split(",");
+
+                DataExportUtils export = new CsvExportUtils();
+                String fileId = export.output2Web(response, fileName, true, dataList, fieldNames, columnsTitles);
+
+                AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "SUCCESS");
+                app.putData("fileId", fileId);
+                return app;
+
+            } else {
+                AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "No matched data.");
+                return app;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
+            return app;
+        }
     }
 
     @RequestMapping(value = "getNetFlowRankingSessionData.json", method = RequestMethod.POST)

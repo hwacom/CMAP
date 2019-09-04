@@ -73,7 +73,7 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="script.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="type" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="system.version" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="device.model" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="execute.script.content" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="execute.script.remark" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="check.script.content" /></th>
