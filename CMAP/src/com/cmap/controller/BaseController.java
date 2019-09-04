@@ -705,6 +705,15 @@ public class BaseController {
 	    return resultStr;
 	}
 
+	protected Integer getDataExportRecordCount(String exportRecordCount) {
+	    if (!StringUtils.equals(exportRecordCount, Constants.DATA_STAR_SYMBOL)) {
+	        return Integer.valueOf(exportRecordCount);
+
+	    } else {
+	        return null;
+	    }
+	}
+
 	protected String getFileName(String oriName, String... var) {
 	    String retVal = oriName;
 	    try {

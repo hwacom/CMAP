@@ -471,18 +471,12 @@ public class NetFlowController extends BaseController {
             @RequestParam(name="exportRecordCount", required=true, defaultValue="") String exportRecordCount) {
 
 	    try {
-	        Integer startNum = null;
-	        Integer pageLength = null;
-
-	        if (!StringUtils.equals(exportRecordCount, Constants.DATA_STAR_SYMBOL)) {
-	            // exportRecordCount = *，表示要匯出所有資料；否則依使用者選擇的筆數決定
-	            startNum = 0;
-	            pageLength = Integer.valueOf(exportRecordCount);
-	        }
+	        Integer queryStartNum = 0;
+            Integer queryPageLength = getDataExportRecordCount(exportRecordCount);
 
 	        NetFlowVO resultVO = doDataQuery(queryGroup, querySourceIp, queryDestinationIp, querySenderIp,
                                     querySourcePort, queryDestinationPort, queryMac, queryDateBegin, queryDateEnd,
-                                    queryTimeBegin, queryTimeEnd, startNum, pageLength, searchValue,
+                                    queryTimeBegin, queryTimeEnd, queryStartNum, queryPageLength, searchValue,
                                     orderColIdx, orderDirection
                                  );
 

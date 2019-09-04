@@ -631,18 +631,8 @@ public class VersionController extends BaseController {
 	    List<VersionServiceVO> dataList = new ArrayList<>();
 	    VersionServiceVO vsVO;
         try {
-            Integer queryStartNum = null;
-            Integer queryPageLength = null;
-
-            if (!StringUtils.equals(exportRecordCount, Constants.DATA_STAR_SYMBOL)) {
-                // exportRecordCount = *，表示要匯出所有資料；否則依使用者選擇的筆數決定
-                queryStartNum = 0;
-                queryPageLength = Integer.valueOf(exportRecordCount);
-
-            } else {
-                queryStartNum = startNum;
-                queryPageLength = pageLength;
-            }
+            Integer queryStartNum = 0;
+            Integer queryPageLength = getDataExportRecordCount(exportRecordCount);
 
             vsVO = new VersionServiceVO();
             setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup1) ? "queryGroup1" : "queryGroup1List", queryGroup1);
