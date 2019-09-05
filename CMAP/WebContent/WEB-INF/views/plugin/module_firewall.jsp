@@ -2,6 +2,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ include file="../../common/taglib.jsp" %>
 <section>
+  <input type="hidden" id="pageLength" name="pageLength" value="${pageLength }" />
 
   <div id="content" class="container-fluid">
     <!-- [START]查詢欄位&操作按鈕 for 大型解析度螢幕 -->

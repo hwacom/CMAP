@@ -277,7 +277,7 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
     @Override
     public List<FirewallVO> findFirewallLogRecordFromDBbyAll(FirewallVO fVO, Integer startRow,
             Integer pageLength, Map<String, List<String>> fieldsMap) throws ServiceLayerException {
-        List<FirewallVO> retList = new ArrayList<>();
+        List<FirewallVO> retList = null;
         try {
             Map<String, String> typeNameMap = fVO.getTypeNameMap();
             List<String> allTitleField = fieldsMap.get(Constants.FIREWALL_LOG_TYPE_ALL);

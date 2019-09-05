@@ -132,22 +132,37 @@ function changeCompareDesc(showNow) {
 
 //[資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
 function doDataExport(exportRecordCount) {
+	var dataObj = new Object();
+	if ($('#queryFrom').val() == 'WEB') {
+		dataObj.queryGroup1 = $("#queryGroup1").val(),
+		dataObj.queryGroup2 = $("#queryGroup2").val(),
+		dataObj.queryDevice1 = $("#queryDevice1").val(),
+		dataObj.queryDevice2 = $("#queryDevice2").val(),
+		dataObj.queryDateBegin1 = $("#queryExcuteDateBegin1").val(),
+		dataObj.queryDateEnd1 = $("#queryExcuteDateEnd1").val(),
+		dataObj.queryDateBegin2 = $("#queryExcuteDateBegin2").val(),
+		dataObj.queryDateEnd2 = $("#queryExcuteDateEnd2").val();
+		dataObj.queryConfigType = $("#queryConfigType").val();
+		dataObj.queryNewChkbox = $("#queryNewChkbox").prop("checked") ? true : false;
+	
+	} else if ($('#queryFrom').val() == 'MOBILE') {
+		dataObj.queryGroup1 = $("#queryGroup1_mobile").val(),
+		dataObj.queryGroup2 = $("#queryGroup2_mobile").val(),
+		dataObj.queryDevice1 = $("#queryDevice1_mobile").val(),
+		dataObj.queryDevice2 = $("#queryDevice2_mobile").val(),
+		dataObj.queryDateBegin1 = $("#queryExcuteDateBegin1_mobile").val(),
+		dataObj.queryDateEnd1 = $("#queryExcuteDateEnd1_mobile").val(),
+		dataObj.queryDateBegin2 = $("#queryExcuteDateBegin2_mobile").val(),
+		dataObj.queryDateEnd2 = $("#queryExcuteDateEnd2_mobile").val();
+		dataObj.queryConfigType = $("#queryConfigType_mobile").val();
+		dataObj.queryNewChkbox = $("#queryNewChkbox_mobile").prop("checked") ? true : false;
+	}
+	dataObj.searchValue = $("#resultTable_filter").find("input").val();
+	dataObj.exportRecordCount = exportRecordCount;
+	
 	$.ajax({
 		url : _ctx + '/version/dataExport.json',
-		data : {
-			"queryGroup1" : $("#queryGroup1").val(),
-			"queryGroup2" : $("#queryGroup2").val(),
-			"queryDevice1" : $("#queryDevice1").val(),
-			"queryDevice2" : $("#queryDevice2").val(),
-			"queryDateBegin1" : $("#queryExcuteDateBegin1").val(),
-			"queryDateEnd1" : $("#queryExcuteDateEnd1").val(),
-			"queryDateBegin2" : $("#queryExcuteDateBegin2").val(),
-			"queryDateEnd2" : $("#queryExcuteDateEnd2").val(),
-			"queryConfigType" : $("#queryConfigType").val(),
-			"queryNewChkbox" : $("#queryNewChkbox").prop("checked") ? true : false,
-			"searchValue" : $("#resultTable_filter").find("input").val(),
-			"exportRecordCount" : exportRecordCount
-		},
+		data : dataObj,
 		type : "POST",
 		dataType : 'json',
 		async: true,

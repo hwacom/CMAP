@@ -57,21 +57,41 @@ $(document).ready(function() {
 
 // [資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
 function doDataExport(exportRecordCount) {
+	var dataObj = new Object();
+	if ($('#queryFrom').val() == 'WEB') {
+		dataObj.queryGroup = $("#queryGroup").val(),
+		dataObj.querySourceIp = $("#query_SourceIp").val(),
+		dataObj.queryDestinationIp = $("#query_DestinationIp").val(),
+		dataObj.querySenderIp = $("#query_SenderIp").val(),
+		dataObj.querySourcePort = $("#query_SourcePort").val(),
+		dataObj.queryDestinationPort = $("#query_DestinationPort").val(),
+		//dataObj.queryMac = $("#queryMac").val(),
+		dataObj.queryDateBegin = $("#queryDateBegin").val(),
+		//dataObj.queryDateEnd = $("#queryDateEnd").val()
+		dataObj.queryTimeBegin = $("#queryTimeBegin").val(),
+		dataObj.queryTimeEnd = $("#queryTimeEnd").val()
+	
+	} else if ($('#queryFrom').val() == 'MOBILE') {
+		dataObj.queryGroup = $("#queryGroup_mobile").val(),
+		dataObj.querySourceIp = $("#query_SourceIp_mobile").val(),
+		dataObj.queryDestinationIp = $("#query_DestinationIp_mobile").val(),
+		dataObj.querySenderIp = $("#query_SenderIp_mobile").val(),
+		dataObj.querySourcePort = $("#query_SourcePort_mobile").val(),
+		dataObj.queryDestinationPort = $("#query_DestinationPort_mobile").val(),
+		//dataObj.queryMac = $("#queryMac_mobile").val();
+		dataObj.queryDateBegin = $("#queryDateBegin_mobile").val(),
+		//dataObj.queryDateEnd = $("#queryDateEnd_mobile").val()
+		dataObj.queryTimeBegin = $("#queryTimeBegin").val(),
+		dataObj.queryTimeEnd = $("#queryTimeEnd").val()
+	}
+	dataObj.start = 0; //初始查詢一律從第0筆開始
+	dataObj.length = pageLength;
+	dataObj.searchValue = $("#resultTable_filter").find("input").val();
+	dataObj.exportRecordCount = exportRecordCount;
+	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/dataExport.json',
-		data : {
-			"queryGroup" : $("#queryGroup").val(),
-			"querySourceIp" : $("#query_SourceIp").val(),
-			"queryDestinationIp" : $("#query_DestinationIp").val(),
-			"querySenderIp" : $("#query_SenderIp").val(),
-			"querySourcePort" : $("#query_SourcePort").val(),
-			"queryDestinationPort" : $("#query_DestinationPort").val(),
-			"queryDateBegin" : $("#queryDateBegin").val(),
-			"queryTimeBegin" : $("#queryTimeBegin").val(),
-			"queryTimeEnd" : $("#queryTimeEnd").val(),
-			"searchValue" : $("#resultTable_filter").find("input").val(),
-			"exportRecordCount" : exportRecordCount
-		},
+		data : dataObj,
 		type : "POST",
 		dataType : 'json',
 		async: true,
@@ -127,7 +147,8 @@ function bindScrollEvent() {
 		if ($(".dataTables_empty").length == 0) {
 			var rowCount = $("#resultTable > tBody > tr").length;
 			var scrollTop = $(this).prop("scrollTop");
-			var scrollTopMax = $(".dataTables_scrollBody").prop("scrollTopMax");
+			// 改用 scrollHeight + clientHeight 以支援大眾瀏覽器
+			var scrollTopMax = $(this).prop("scrollHeight") - $(this).prop("clientHeight");
 			
 			if (scrollTop > lastScrollYPos) { //移動Y軸時才作動
 				lastScrollYPos = scrollTop;
@@ -135,7 +156,7 @@ function bindScrollEvent() {
 				if (rowCount >= pageLength) { //查詢結果筆數有超過分頁筆數才作動
 					//if (scrollTop > (scrollTopMax - (scrollTopMax*0.3))) {
 					//捲到最底才查找下一批資料
-					if (scrollTop == scrollTopMax) { 
+					if (scrollTop >= scrollTopMax) { 
 						if (!waitForNextData) {
 							waitForNextData = true;
 							findNextData();
@@ -185,6 +206,7 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(26)").html( data.flowID );
 		$("#resultTable > tbody").append($(cTR));
 	}
+	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 }
 
 // 查找總流量

@@ -270,225 +270,287 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
     @Override
     public long countFirewallLogFromDBbyAll(FirewallVO fVO, Map<String, List<String>> searchLikeFieldMap) {
+        int beginMonth = fVO.getQueryMonths()[0];
+        int endMonth = fVO.getQueryMonths()[1];
+        String tableName = "";
+        String tName = "";
+        String stName = "";
+
         StringBuffer sb = new StringBuffer();
         sb.append(" select count(alltb.id) ")
-          .append(" from ( ")
-          .append("   select app.id ")
-          .append("   from module_firewall_log_app app ")
-          .append("   where 1=1 ");
+          .append(" from ( ");
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and app.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and app.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and app.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and app.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and app.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (app.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and app.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (app.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and app.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+        tableName = "module_firewall_log_app";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "app".concat("_").concat(String.valueOf(month));
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_APP);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("app.").append(sField).append(" like :searchValue ");
+            sb.append("   select ").append(stName).append(".id ")
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
 
-                  i++;
-              }
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_APP);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
 
-        sb.append("   union all ")
-          .append("   select forwarding.id ")
-          .append("   from module_firewall_log_forwarding forwarding ")
-          .append("   where 1=1 ");
+                    i++;
+                }
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and forwarding.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and forwarding.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and forwarding.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and forwarding.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and forwarding.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (forwarding.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and forwarding.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (forwarding.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and forwarding.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("forwarding.").append(sField).append(" like :searchValue ");
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+        sb.append("   union all ");
 
-                  i++;
-              }
+        tableName = "module_firewall_log_forwarding";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "forwarding".concat("_").concat(String.valueOf(month));
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+            sb.append("   select ").append(stName).append(".id ")
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
 
-        sb.append("   union all ")
-          .append("   select intrusion.id ")
-          .append("   from module_firewall_log_intrusion intrusion ")
-          .append("   where 1=1 ");
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and intrusion.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and intrusion.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and intrusion.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and intrusion.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and intrusion.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (intrusion.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and intrusion.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (intrusion.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and intrusion.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("intrusion.").append(sField).append(" like :searchValue ");
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+                    i++;
+                }
 
-                  i++;
-              }
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
 
-        sb.append("   union all ")
-          .append("   select sys.id ")
-          .append("   from module_firewall_log_system sys ")
-          .append("   where 1=1 ");
+        sb.append("   union all ");
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and sys.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (sys.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and sys.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (sys.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and sys.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+        tableName = "module_firewall_log_intrusion";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "intrusion".concat("_").concat(String.valueOf(month));
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("sys.").append(sField).append(" like :searchValue ");
+            sb.append("   select ").append(stName).append(".id ")
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
 
-                  i++;
-              }
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
 
-        sb.append("   union all ")
-          .append("   select webfilter.id ")
-          .append("   from module_firewall_log_webfilter webfilter ")
-          .append("   where 1=1 ");
+                    i++;
+                }
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and webfilter.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and webfilter.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and webfilter.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and webfilter.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and webfilter.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (webfilter.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and webfilter.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (webfilter.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and webfilter.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("webfilter.").append(sField).append(" like :searchValue ");
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+        sb.append("   union all ");
 
-                  i++;
-              }
+        tableName = "module_firewall_log_system";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "sys".concat("_").concat(String.valueOf(month));
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+            sb.append("   select ").append(stName).append(".id ")
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
+
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
+
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
+
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
+
+                    i++;
+                }
+
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
+
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
+
+        sb.append("   union all ");
+
+        tableName = "module_firewall_log_webfilter";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "webfilter".concat("_").concat(String.valueOf(month));
+
+            sb.append("   select ").append(stName).append(".id ")
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
+
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
+
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
+
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
+
+                    i++;
+                }
+
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
+
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
+
         sb.append(") alltb ");
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
@@ -531,225 +593,287 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
     @Override
     public List<Object[]> findFirewallLogFromDBbyAll(FirewallVO fVO, Integer startRow, Integer pageLength,
             Map<String, String> selectSqlMap, Map<String, List<String>> searchLikeFieldMap) {
+        int beginMonth = fVO.getQueryMonths()[0];
+        int endMonth = fVO.getQueryMonths()[1];
+        String tableName = "";
+        String tName = "";
+        String stName = "";
+
         StringBuffer sb = new StringBuffer();
         sb.append(" select alltb.* ")
-          .append(" from ( ")
-          .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_APP))
-          .append("   from module_firewall_log_app app ")
-          .append("   where 1=1 ");
+          .append(" from ( ");
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and app.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and app.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and app.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and app.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and app.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (app.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and app.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (app.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and app.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+        tableName = "module_firewall_log_app";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "app".concat("_").concat(String.valueOf(month));
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_APP);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("app.").append(sField).append(" like :searchValue ");
+            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_APP))
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
 
-                  i++;
-              }
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_APP);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
 
-        sb.append("   union all ")
-          .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING))
-          .append("   from module_firewall_log_forwarding forwarding ")
-          .append("   where 1=1 ");
+                    i++;
+                }
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and forwarding.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and forwarding.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and forwarding.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and forwarding.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and forwarding.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (forwarding.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and forwarding.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (forwarding.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and forwarding.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("forwarding.").append(sField).append(" like :searchValue ");
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+        sb.append("   union all ");
 
-                  i++;
-              }
+        tableName = "module_firewall_log_forwarding";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "forwarding".concat("_").concat(String.valueOf(month));
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING))
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
 
-        sb.append("   union all ")
-          .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION))
-          .append("   from module_firewall_log_intrusion intrusion ")
-          .append("   where 1=1 ");
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and intrusion.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and intrusion.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and intrusion.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and intrusion.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and intrusion.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (intrusion.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and intrusion.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (intrusion.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and intrusion.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("intrusion.").append(sField).append(" like :searchValue ");
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+                    i++;
+                }
 
-                  i++;
-              }
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
 
-        sb.append("   union all ")
-          .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM))
-          .append("   from module_firewall_log_system sys ")
-          .append("   where 1=1 ");
+        sb.append("   union all ");
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and sys.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (sys.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and sys.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (sys.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and sys.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+        tableName = "module_firewall_log_intrusion";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "intrusion".concat("_").concat(String.valueOf(month));
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("sys.").append(sField).append(" like :searchValue ");
+            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION))
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
 
-                  i++;
-              }
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
 
-        sb.append("   union all ")
-          .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER))
-          .append("   from module_firewall_log_webfilter webfilter ")
-          .append("   where 1=1 ");
+                    i++;
+                }
 
-          if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
-              sb.append(" and webfilter.dev_name = :devName ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
-              sb.append(" and webfilter.src_ip = :querySrcIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
-              sb.append(" and webfilter.src_port = :querySrcPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
-              sb.append(" and webfilter.dst_ip = :queryDstIp ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
-              sb.append(" and webfilter.dst_port = :queryDstPort ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
-              sb.append(" and (webfilter.date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and webfilter.time >= :beginTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
-              sb.append(" and (webfilter.date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and webfilter.time < :endTime) ");
-          }
-          if (StringUtils.isNotBlank(fVO.getSearchValue())) {
-              StringBuffer sfb = new StringBuffer();
-              sfb.append(" and ( ");
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
 
-              List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
-              int i = 0;
-              for (String sField : searchLikeField) {
-                  sfb.append("webfilter.").append(sField).append(" like :searchValue ");
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
 
-                  if (i < searchLikeField.size() - 1) {
-                      sfb.append(" or ");
-                  }
+        sb.append("   union all ");
 
-                  i++;
-              }
+        tableName = "module_firewall_log_system";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "sys".concat("_").concat(String.valueOf(month));
 
-              sfb.append(" ) ");
-              sb.append(sfb);
-          }
+            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM))
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
+
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
+
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
+
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
+
+                    i++;
+                }
+
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
+
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
+
+        sb.append("   union all ");
+
+        tableName = "module_firewall_log_webfilter";
+        for (int month = beginMonth; month <= endMonth; month++) {
+            tName = tableName.concat("_").concat(String.valueOf(month));
+            stName = "webfilter".concat("_").concat(String.valueOf(month));
+
+            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER))
+              .append("   from ").append(tName).append(" ").append(stName).append(" ")
+              .append("   where 1=1 ");
+
+            if (StringUtils.isNotBlank(fVO.getQueryDevName())) {
+                sb.append(" and ").append(stName).append(".dev_name = :devName ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcIp())) {
+                sb.append(" and ").append(stName).append(".src_ip = :querySrcIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQuerySrcPort())) {
+                sb.append(" and ").append(stName).append(".src_port = :querySrcPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstIp())) {
+                sb.append(" and ").append(stName).append(".dst_ip = :queryDstIp ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
+                sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
+                sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryDateEnd()) && StringUtils.isNotBlank(fVO.getQueryTimeEnd())) {
+                sb.append(" and (").append(stName).append(".date <= DATE_FORMAT(:endDate, '%Y-%m-%d') and ").append(stName).append(".time < :endTime) ");
+            }
+            if (StringUtils.isNotBlank(fVO.getSearchValue())) {
+                StringBuffer sfb = new StringBuffer();
+                sfb.append(" and ( ");
+
+                List<String> searchLikeField = searchLikeFieldMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
+                int i = 0;
+                for (String sField : searchLikeField) {
+                    sfb.append("").append(stName).append(".").append(sField).append(" like :searchValue ");
+
+                    if (i < searchLikeField.size() - 1) {
+                        sfb.append(" or ");
+                    }
+
+                    i++;
+                }
+
+                sfb.append(" ) ");
+                sb.append(sfb);
+            }
+
+            if (month < endMonth) {
+                sb.append(" union all ");
+            }
+        }
+
         sb.append(") alltb ");
 
         String orderColumnName = fVO.getOrderColumn();

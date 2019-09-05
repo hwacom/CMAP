@@ -113,6 +113,7 @@ public class Env {
 	public static String NET_FLOW_SOURCE_COLUMN_NAME_OF_DESTINATION_IP;      // 設定 NET_FLOW 檔案中「Destination_IP」(目的IP)欄位名稱
 	public static String NET_FLOW_SOURCE_COLUMN_NAME_OF_SIZE;                // 設定 NET_FLOW 檔案中「Size」(大小)欄位名稱
 	public static Integer NET_FLOW_PAGE_LENGTH;                              // 設定 NET_FLOW 查詢功能，每次查詢的筆數上限
+	public static Integer FIREWALL_LOG_PAGE_LENGTH;                          // 設定 FIREWALL_LOG 查詢功能，每次查詢的筆數上限
 
 	public static String ENABLE_LOG_USER_OPERATIONS;						 // 設定是否啟用USER操作紀錄到DB
 

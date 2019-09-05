@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
@@ -69,6 +70,8 @@ public class FirewallController extends BaseController {
 
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
             model.addAttribute("timeout", Env.TIMEOUT_4_FIREWALL_LOG_QUERY);
+
+            model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
         }
     }
 
@@ -130,6 +133,131 @@ public class FirewallController extends BaseController {
         return firewallService.getFieldNameList(queryType, DataPollerService.FIELD_TYPE_TARGET);
     }
 
+    @RequestMapping(value = "getFirewallLogCount.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getFirewallLogCount(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryType", required=false, defaultValue=Constants.FIREWALL_LOG_TYPE_ALL) String queryType,
+            @RequestParam(name="queryDevName", required=true, defaultValue="") String queryDevName,
+            @RequestParam(name="querySrcIp", required=false, defaultValue="") String querySrcIp,
+            @RequestParam(name="querySrcPort", required=false, defaultValue="") String querySrcPort,
+            @RequestParam(name="queryDstIp", required=false, defaultValue="") String queryDstIp,
+            @RequestParam(name="queryDstPort", required=false, defaultValue="") String queryDstPort,
+            @RequestParam(name="queryDateBegin", required=true, defaultValue="") String queryDateBegin,
+            @RequestParam(name="queryDateEnd", required=true, defaultValue="") String queryDateEnd,
+            @RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
+            @RequestParam(name="queryTimeEnd", required=true, defaultValue="") String queryTimeEnd,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
+
+        String retVal = "N/A";
+        long filteredTotal = 0;
+        FirewallVO fVO;
+        try {
+            String typeNameApp = messageSource.getMessage("firewall.log.type.app", Locale.TAIWAN, null);
+            String typeNameForwarding = messageSource.getMessage("firewall.log.type.forwarding", Locale.TAIWAN, null);
+            String typeNameSystem = messageSource.getMessage("firewall.log.type.system", Locale.TAIWAN, null);
+            String typeNameIntrusion = messageSource.getMessage("firewall.log.type.intrusion", Locale.TAIWAN, null);
+            String typeNameWebFilter = messageSource.getMessage("firewall.log.type.web", Locale.TAIWAN, null);
+
+            Map<String, String> typeNameMap = new HashMap<>();
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_APP, typeNameApp);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, typeNameForwarding);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameSystem);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameIntrusion);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, typeNameWebFilter);
+
+            /*
+             * 取得各TABLE的查詢欄位LIST for 後續查詢SQL的「select」及「where like」部分使用
+             */
+            Map<String, List<String>> fieldsMap = new HashMap<>();
+            List<String> targetFieldList = null;
+            List<String> allTitleField = null;
+            List<String> appTitleField = null;
+            List<String> forwardingTitleField = null;
+            List<String> intrusionTitleField = null;
+            List<String> systemTitleField = null;
+            List<String> webfilterTitleField = null;
+
+            if (!StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)) {
+                targetFieldList = getFieldNameList(queryType);
+
+                fieldsMap.put(queryType, targetFieldList);
+
+            } else {
+                allTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_ALL);
+                appTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_APP);
+                forwardingTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_FORWARDING);
+                intrusionTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_INTRUSION);
+                systemTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_SYSTEM);
+                webfilterTitleField = getFieldNameList(Constants.FIREWALL_LOG_TYPE_WEBFILTER);
+
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_ALL, allTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_APP, appTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, forwardingTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, intrusionTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, systemTitleField);
+                fieldsMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, webfilterTitleField);
+            }
+
+            fVO = new FirewallVO();
+            fVO.setQueryType(queryType);
+            fVO.setQueryDevName(queryDevName);
+            fVO.setQuerySrcIp(querySrcIp);
+            fVO.setQuerySrcPort(querySrcPort);
+            fVO.setQueryDstIp(queryDstIp);
+            fVO.setQueryDstPort(queryDstPort);
+            fVO.setQueryDateBegin(queryDateBegin);
+            fVO.setQueryDateEnd(queryDateEnd);
+            fVO.setQueryTimeBegin(queryTimeBegin);
+            fVO.setQueryTimeEnd(queryTimeEnd);
+            fVO.setStartNum(startNum);
+            fVO.setPageLength(pageLength);
+            fVO.setSearchValue(searchValue);
+            fVO.setOrderColumn(getOrderColumnName(queryType, orderColIdx));
+            fVO.setOrderDirection(orderDirection);
+            fVO.setTypeNameMap(typeNameMap);
+
+            int beginMonth = queryDateBegin.indexOf("-") != -1
+                                ? Integer.valueOf(queryDateBegin.split("-")[1]) : 0;
+            int endMonth = queryDateEnd.indexOf("-") != -1
+                                ? Integer.valueOf(queryDateEnd.split("-")[1]) : 0;
+
+            fVO.setQueryMonths(new int[] {beginMonth, endMonth});
+
+            String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_FIREWALL_LOG);
+
+            if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_FILE)) {
+                /*
+                 * Option 1. 走 FILE 模式查詢
+                 */
+
+            } else if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_DB)) {
+                /*
+                 * Option 2. 走 DB 模式查詢
+                 */
+                filteredTotal =
+                        StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
+                            ? firewallService.countFirewallLogRecordFromDBbyAll(fVO, fieldsMap)
+                            : firewallService.countFirewallLogRecordFromDB(fVO, fieldsMap);
+                retVal = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(filteredTotal);
+            }
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "SUCCESS");
+            app.putData(Constants.APP_DATA_KEY_FILTERED_COUNT, retVal);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
+            app.putData(Constants.APP_DATA_KEY_FILTERED_COUNT, retVal);
+            return app;
+        }
+    }
+
     @RequestMapping(value = "getFirewallLogData.json", method = RequestMethod.POST)
     public @ResponseBody DatatableResponse getFirewallLogData(
             Model model, HttpServletRequest request, HttpServletResponse response,
@@ -150,7 +278,7 @@ public class FirewallController extends BaseController {
             @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
 
         long total = 0;
-        long filterdTotal = 0;
+        long filteredTotal = 0;
         String totalFlow = "";
         List<FirewallVO> dataList = new ArrayList<>();
         FirewallVO fVO;
@@ -252,25 +380,13 @@ public class FirewallController extends BaseController {
                 /*
                  * Option 2. 走 DB 模式查詢
                  */
-                filterdTotal =
+                dataList =
                         StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
-                            ? firewallService.countFirewallLogRecordFromDBbyAll(fVO, fieldsMap)
-                            : firewallService.countFirewallLogRecordFromDB(fVO, fieldsMap);
+                        ? firewallService.findFirewallLogRecordFromDBbyAll(fVO, startNum, pageLength, fieldsMap)
+                        : firewallService.findFirewallLogRecordFromDB(fVO, startNum, pageLength, fieldsMap);
 
-                if (filterdTotal != 0) {
-                    dataList =
-                            StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
-                            ? firewallService.findFirewallLogRecordFromDBbyAll(fVO, startNum, pageLength, fieldsMap)
-                            : firewallService.findFirewallLogRecordFromDB(fVO, startNum, pageLength, fieldsMap);
-                }
-
-                FirewallVO newVO = new FirewallVO();
-                newVO.setQueryType(queryType);
-                newVO.setQueryDevName(queryDevName);
-                total =
-                    StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)
-                        ? firewallService.countFirewallLogRecordFromDBbyAll(newVO, fieldsMap)
-                        : firewallService.countFirewallLogRecordFromDB(newVO, fieldsMap);
+                filteredTotal = dataList.size();
+                total = filteredTotal;
             }
 
         } catch (ServiceLayerException sle) {
@@ -278,6 +394,6 @@ public class FirewallController extends BaseController {
             log.error(e.toString(), e);
         }
 
-        return new DatatableResponse(total, dataList, filterdTotal, null, totalFlow);
+        return new DatatableResponse(total, dataList, filteredTotal, null, totalFlow);
     }
 }

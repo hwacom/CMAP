@@ -58,15 +58,19 @@ function showExportPanelSelf(day) {
 function doDataExport(exportRecordCount) {
 	var var1 = $("#dataExportModal_var1").val();
 	var queryDatePeriod = var1.replace("D", "");
+	var dataObj = new Object();
+	if ($('#queryFrom').val() == 'WEB') {
+		dataObj.queryGroup = $("#queryGroup").val();
+	} else if ($('#queryFrom').val() == 'MOBILE') {
+		dataObj.queryGroup = $("#queryGroup_mobile").val();
+	}
+	dataObj.queryDatePeriod = queryDatePeriod;
+	dataObj.var1 = var1;
+	dataObj.exportRecordCount = exportRecordCount;
 	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/ranking/trafficDataExport.json',
-		data : {
-			"queryGroup" : $("#queryGroup").val(),
-			"queryDatePeriod" : queryDatePeriod,
-			"var1" : var1,
-			"exportRecordCount" : exportRecordCount
-		},
+		data : dataObj,
 		type : "POST",
 		dataType : 'json',
 		async: true,
