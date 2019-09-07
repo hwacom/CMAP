@@ -960,6 +960,9 @@ function findData(from) {
 				if (typeof findBlockedIpRecordData === 'function') {
 					findBlockedIpRecordData();
 					bindTrEventOnlyRadio();
+				} else if (typeof findBlockedPortRecordData === 'function') {
+					findBlockedPortRecordData();
+					bindTrEventOnlyRadio();
 				} else {
 					bindTrEvent();
 				}

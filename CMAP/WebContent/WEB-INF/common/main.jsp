@@ -111,8 +111,8 @@
 		
       	<!-- 苗栗 -->
       	<!-- 
-      	<img class="img" src="${pageContext.request.contextPath}/resources/images/Logo_icon.png" width="auto" height="30" style="padding-top: 3px" />
-  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/Logo_word.png" width="auto" height="23" style="padding-top: 3px" />
+      	<img class="img" src="${pageContext.request.contextPath}/resources/images/Logo_icon.png" width="auto" height="40" style="padding-top: 3px" />
+  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/Logo_word.png" width="auto" height="40" style="padding-top: 3px" />
  		 -->
  		  
  		<!-- 亞太 -->
@@ -298,6 +298,17 @@
 		                    </li>
 				        </c:if>
 	                    <!-- [Email修改] END -->
+	                    
+	                    <!-- [系統操作手冊下載] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_userGuide" href="#" onclick="javascript:window.open('${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/${pageContext.request.contextPath}resource/download/userGuide','_blank')">
+		                    	  <span data-feather="download"></span>
+		                    	  	<span><spring:message code="func.user.guide.download" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+	                    <!-- [系統操作手冊下載] END -->
 	                </ul>
 		          </li>
 	          </c:if>
@@ -501,6 +512,19 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [開關PORT] END -->
+	                    
+	                    <!-- [PORT封鎖紀錄查詢] START -->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_PORT_BLOCKED_RECORD eq __SHOW__}">
+		                    	<li class="subMenu-item">
+			                    	<a id="cm_portBlockedRecord" href="${pageContext.request.contextPath}/record/portBlocked">
+			                    	  <span data-feather="shield-off"></span>
+			                    	  	<span><spring:message code="func.port.open.block.record" /></span>
+			                    	</a>
+			                    </li>
+		                    </c:if>
+	                    </sec:authorize>
+	                    <!-- [PORT封鎖紀錄查詢] END -->
 	                    
 	                    <!-- [IP開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">

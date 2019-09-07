@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.ip.blocked.record;
+package com.cmap.plugin.module.port.blocked.record;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,22 +12,23 @@ import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
+import com.cmap.model.DevicePortInfo;
 import com.cmap.service.impl.CommonServiceImpl;
 
-@Service("ipRecordService")
+@Service("portRecordService")
 @Transactional
-public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpBlockedRecordService {
+public class PortBlockedRecordServiceImpl extends CommonServiceImpl implements PortBlockedRecordService {
     @Log
     private static Logger log;
 
     @Autowired
-    private IpBlockedRecordDAO ipRecordDAO;
+    private PortBlockedRecordDAO portRecordDAO;
 
     @Override
-    public long countModuleBlockedIpList(IpBlockedRecordVO irVO) throws ServiceLayerException {
+    public long countModuleBlockedPortList(PortBlockedRecordVO irVO) throws ServiceLayerException {
         long retVal = 0;
         try {
-            retVal = ipRecordDAO.countModuleBlockedIpList(irVO);
+            retVal = portRecordDAO.countModuleBlockedPortList(irVO);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -37,29 +38,33 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
     }
 
     @Override
-    public List<IpBlockedRecordVO> findModuleBlockedIpList(IpBlockedRecordVO irVO, Integer startRow, Integer pageLength)
-            throws ServiceLayerException {
-        List<IpBlockedRecordVO> retList = new ArrayList<>();
+    public List<PortBlockedRecordVO> findModuleBlockedPortList(PortBlockedRecordVO irVO,
+            Integer startRow, Integer pageLength) throws ServiceLayerException {
+        List<PortBlockedRecordVO> retList = new ArrayList<>();
         try {
-            List<Object[]> entities = ipRecordDAO.findModuleBlockedIpList(irVO, startRow, pageLength);
+            List<Object[]> entities = portRecordDAO.findModuleBlockedPortList(irVO, startRow, pageLength);
 
             if (entities == null || (entities != null && entities.isEmpty())) {
                 throw new ServiceLayerException("查無資料!");
             }
 
-            ModuleBlockedIpList bilEntity;
+            ModuleBlockedPortList bilEntity;
             DeviceList dlEntity;
-            IpBlockedRecordVO vo;
+            DevicePortInfo dpiEntity;
+            PortBlockedRecordVO vo;
             for (Object[] entity : entities) {
-                bilEntity = (ModuleBlockedIpList)entity[0];
+                bilEntity = (ModuleBlockedPortList)entity[0];
                 dlEntity = (DeviceList)entity[1];
-                vo = new IpBlockedRecordVO();
+                dpiEntity = (DevicePortInfo)entity[2];
+                vo = new PortBlockedRecordVO();
 
                 BeanUtils.copyProperties(bilEntity, vo);
                 vo.setBlockTimeStr(Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getBlockTime()));
                 vo.setOpenTimeStr(bilEntity.getOpenTime() != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getOpenTime()) : null);
                 vo.setUpdateTimeStr(Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getUpdateTime()));
                 vo.setGroupName(dlEntity.getGroupName());
+                vo.setDeviceName(dlEntity.getDeviceName());
+                vo.setPortName(dpiEntity.getPortName());
                 vo.setStatusFlag(StringUtils.equals(bilEntity.getStatusFlag(), "B")
                                     ? "B-封鎖"
                                     : StringUtils.equals(bilEntity.getStatusFlag(), "O") ? "O-開通" : "N/A");
@@ -77,4 +82,5 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
         }
         return retList;
     }
+
 }

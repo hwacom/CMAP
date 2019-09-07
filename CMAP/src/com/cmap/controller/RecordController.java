@@ -64,4 +64,19 @@ public class RecordController extends BaseController {
 
         return "plugin/module_ip_open_block_record";
     }
+
+	   @RequestMapping(value = "portBlocked", method = RequestMethod.GET)
+	    public String portBlocked(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+	        try {
+
+
+	        } catch (Exception e) {
+	            log.error(e.toString(), e);
+
+	        } finally {
+	            initMenu(model, request);
+	        }
+
+	        return "plugin/module_switch_port_block_record";
+	    }
 }

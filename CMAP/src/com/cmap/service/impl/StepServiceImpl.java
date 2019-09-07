@@ -630,6 +630,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	/**
+	 * [Step] 針對特定腳本寫入LOG table
+	 * @throws ServiceLayerException
+	 */
+    private void writeSpecifyLog() throws ServiceLayerException {
+
+    }
+
+	/**
 	 * [Step] 查找設備連線資訊
 	 * @param configInfoVO
 	 * @param deviceListId
@@ -1711,6 +1719,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								log.error(e.toString(), e);
 								throw new ServiceLayerException("關閉與設備間連線時失敗 [ 錯誤代碼: CLOSE_DEVICE_CONNECTION ]");
 							}
+
+						case WRITE_SPECIFY_LOG:
+						    try {
+
+						    } catch (Exception e) {
+						        log.error(e.toString(), e);
+                                throw new ServiceLayerException("寫入指定LOG table時失敗 [ 錯誤代碼: WRITE_SPECIFY_LOG ]");
+						    }
 
 						default:
 							break;

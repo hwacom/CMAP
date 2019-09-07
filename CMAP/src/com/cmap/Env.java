@@ -37,6 +37,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_SESSION;       // 間控平台 > 各校即時連線數排行
     public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_SESSION;   // 間控平台 > 所有學校即時連線數排行
     public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                           // 間控平台 > Email修改
+    public static String SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD;                    // 間控平台 > 系統操作手冊下載
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
@@ -58,6 +59,7 @@ public class Env {
 	public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 資安通報 > Wifi查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW;		             // 資安通報 > Net flow查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT;		             // 資安通報 > 開關PORT
+	public static String SHOW_MENU_ITEM_PORT_BLOCKED_RECORD;                 // 資安通報 > PORT封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_IP_BLOCKED_RECORD;                   // 資安通報 > IP封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
@@ -92,6 +94,9 @@ public class Env {
 	public static String TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;	         // 設定防火牆黑名單紀錄TABLE名稱
 
 	public static String ENABLE_CMD_LOG;						             // 設定是否開啟對設備下的CMD LOG
+
+	public static List<String> DEVICE_LAYER_OF_ARP_TABLE = new ArrayList<>();  // 設定ARP_TABLE撈取的設備層級
+    public static List<String> DEVICE_LAYER_OF_MAC_TABLE = new ArrayList<>();  // 設定MAC_TABLE撈取的設備層級
 
 	public static String DEVICE_LAYER_L3;                                    // 設定PRTG中設定的tag，表示device layer為L3的字串
 	public static String DEVICE_LAYER_L2;                                    // 設定PRTG中設定的tag，表示device layer為L2的字串
@@ -395,6 +400,7 @@ public class Env {
 
 	public static final Step[] SEND_SCRIPT = new Step[] {
 			Step.LOAD_SPECIFIED_SCRIPT,
+			Step.WRITE_SPECIFY_LOG,
 			Step.FIND_DEVICE_CONNECT_INFO,
 			Step.FIND_DEVICE_LOGIN_INFO,
 			Step.CONNECT_DEVICE,

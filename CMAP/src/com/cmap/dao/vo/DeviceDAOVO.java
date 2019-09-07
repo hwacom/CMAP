@@ -15,6 +15,7 @@ public class DeviceDAOVO extends CommonDAOVO {
 
 	private List<String> queryGroupList;
 	private List<String> queryDeviceList;
+	private List<String> deviceLayerList;
 
 	public String getQueryGroup() {
 		return queryGroup;
@@ -69,5 +70,11 @@ public class DeviceDAOVO extends CommonDAOVO {
     }
     public void setDeviceLayer(String deviceLayer) {
         this.deviceLayer = deviceLayer;
+    }
+    public List<String> getDeviceLayerList() {
+        return deviceLayerList;
+    }
+    public void setDeviceLayerList(List<String> deviceLayerList) {
+        this.deviceLayerList = deviceLayerList;
     }
 }

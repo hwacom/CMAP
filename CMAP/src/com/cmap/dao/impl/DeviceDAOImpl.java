@@ -527,6 +527,9 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
         if (StringUtils.isNotBlank(dlDAOVO.getDeviceLayer())) {
             sb.append(" and dl.deviceLayer = :deviceLayer ");
         }
+        if (dlDAOVO.getDeviceLayerList() != null && !dlDAOVO.getDeviceLayerList().isEmpty()) {
+            sb.append(" and dl.deviceLayer in (:deviceLayerList)");
+        }
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
@@ -544,6 +547,9 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
         }
         if (StringUtils.isNotBlank(dlDAOVO.getDeviceLayer())) {
             q.setParameter("deviceLayer", dlDAOVO.getDeviceLayer());
+        }
+        if (dlDAOVO.getDeviceLayerList() != null && !dlDAOVO.getDeviceLayerList().isEmpty()) {
+            q.setParameterList("deviceLayerList", dlDAOVO.getDeviceLayerList());
         }
         return (List<DeviceList>)q.list();
     }

@@ -23,6 +23,8 @@ import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
+import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.vo.DeliveryParameterVO;
@@ -40,12 +42,16 @@ public class DeliveryController extends BaseController {
 	private static final String[] UI_SEARCH_BY_SCRIPT_COLUMNS = new String[] {"","","scriptName","scriptType.scriptTypeName","systemVersion","","","",""};
 	private static final String[] UI_RECORD_COLUMNS = new String[] {"","plm.begin_time","plm.create_by","dl.group_name","dl.device_name","dl.device_model","si.script_name","plm.remark","pls.result"};
 	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","ipAddress","blockTime","blockReason","blockBy"};
+	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.deviceName","dpi.portName","mbpl.blockTime","mbpl.blockReason","mbpl.blockBy"};
 
 	@Autowired
 	private DeliveryService deliveryService;
 
 	@Autowired
 	private IpBlockedRecordService ipRecordService;
+
+	@Autowired
+    private PortBlockedRecordService portRecordService;
 
 	private Map<String, String> groupListMap = null;
 	private Map<String, String> deviceListMap = null;
@@ -102,6 +108,80 @@ public class DeliveryController extends BaseController {
 
 		return "plugin/module_switch_port";
 	}
+
+	/**
+     * 查找被封鎖過的Port紀錄
+     * @param model
+     * @param request
+     * @param response
+     * @param groupId
+     * @param ipAddress
+     * @param startNum
+     * @param pageLength
+     * @param searchValue
+     * @param orderColIdx
+     * @param orderDirection
+     * @return
+     */
+    @RequestMapping(value = "getBlockedPortData.json", method = RequestMethod.POST)
+    public @ResponseBody DatatableResponse getBlockedPortData(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryGroupId", required=false, defaultValue="") String queryGroupId,
+            @RequestParam(name="queryDeviceId", required=false, defaultValue="") String queryDeviceId,
+            @RequestParam(name="queryPortId", required=false, defaultValue="") String queryPortId,
+            @RequestParam(name="queryStatusFlag", required=false, defaultValue="") String queryStatusFlag,
+            @RequestParam(name="queryBeginDate", required=false, defaultValue="") String queryBeginDate,
+            @RequestParam(name="queryEndDate", required=false, defaultValue="") String queryEndDate,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="6") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
+
+        long total = 0;
+        long filterdTotal = 0;
+        List<PortBlockedRecordVO> dataList = new ArrayList<>();
+        PortBlockedRecordVO pbrVO;
+        try {
+            pbrVO = new PortBlockedRecordVO();
+            pbrVO.setQueryGroupId(queryGroupId);
+            pbrVO.setQueryDeviceId(queryDeviceId);
+            //pbrVO.setQueryPortAddress(queryPortAddress);
+            pbrVO.setQueryStatusFlag(queryStatusFlag);
+            pbrVO.setQueryBeginDate(queryBeginDate);
+            pbrVO.setQueryEndDate(queryEndDate);
+            pbrVO.setPageLength(pageLength);
+            pbrVO.setSearchValue(searchValue);
+            pbrVO.setOrderColumn(UI_BLOCKED_PORT_RECORD_COLUMNS[orderColIdx]);  //TODO
+            pbrVO.setOrderDirection(orderDirection);
+
+            filterdTotal = portRecordService.countModuleBlockedPortList(pbrVO);
+
+            if (filterdTotal != 0) {
+                dataList = portRecordService.findModuleBlockedPortList(pbrVO, startNum, pageLength);
+            }
+
+            if (StringUtils.isBlank(queryDeviceId) && StringUtils.isBlank(queryPortId)
+                    && StringUtils.isBlank(queryStatusFlag) && StringUtils.isBlank(queryBeginDate)
+                    && StringUtils.isBlank(queryEndDate)) {
+                //如果只有傳入GroupId條件，不需再另外查詢只有GroupId下的筆數 (即等於前面篩選的筆數)
+                total = filterdTotal;
+
+            } else {
+                pbrVO = new PortBlockedRecordVO();
+                pbrVO.setQueryGroupId(queryGroupId);
+                total = portRecordService.countModuleBlockedPortList(pbrVO);
+            }
+
+        } catch (ServiceLayerException sle) {
+        } catch (Exception e) {
+
+        } finally {
+            //initMenu(model, request);
+        }
+
+        return new DatatableResponse(total, dataList, filterdTotal);
+    }
 
 	@RequestMapping(value = "ipOpenBlock", method = RequestMethod.GET)
 	public String ipOpenBlock(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {

@@ -290,27 +290,29 @@ public class SnmpV2Utils implements ConnectUtils {
             	TableEvent event = snmpList.get(j);
             	VariableBinding[] vbs = event.getColumns();
 
-            	for (VariableBinding vb : vbs) {
-            		String vbOID = vb.getOid().toString();
-            		String vbValue = vb.getVariable().toString();
+            	if (vbs != null) {
+            	    for (VariableBinding vb : vbs) {
+                        String vbOID = vb.getOid().toString();
+                        String vbValue = vb.getVariable().toString();
 
-            		for (Map.Entry<String, String> entry : entryMap.entrySet()) {
-            			String oidKey = entry.getValue().substring(1);
-            			String oidName = entry.getKey();
+                        for (Map.Entry<String, String> entry : entryMap.entrySet()) {
+                            String oidKey = entry.getValue().substring(1);
+                            String oidName = entry.getKey();
 
-            			if (vbOID.startsWith(oidKey)) {
-            				String tableKey = vbOID.split(oidKey)[1];
+                            if (vbOID.startsWith(oidKey)) {
+                                String tableKey = vbOID.split(oidKey)[1];
 
-            				Map<String, String> tableEntry = null;
-            				if (tableMap.containsKey(tableKey)) {
-            					tableEntry = tableMap.get(tableKey);
-            				} else {
-            					tableEntry = new HashMap<>();
-            				}
-            				tableEntry.put(oidName, vbValue);
-            				tableMap.put(tableKey, tableEntry);
-            			}
-            		}
+                                Map<String, String> tableEntry = null;
+                                if (tableMap.containsKey(tableKey)) {
+                                    tableEntry = tableMap.get(tableKey);
+                                } else {
+                                    tableEntry = new HashMap<>();
+                                }
+                                tableEntry.put(oidName, vbValue);
+                                tableMap.put(tableKey, tableEntry);
+                            }
+                        }
+                    }
             	}
             	//System.out.println("snmpList : " + snmpList.get(j));
             }
