@@ -127,6 +127,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		DeviceDAOVO dlDAOVO;
 		try {
 			dlDAOVO = transServiceVO2DeviceDAOVO(vsVO);
+			dlDAOVO.setAdmin(vsVO.isAdmin());
 
 			retCount = deviceDAO.countDeviceListAndLastestVersionByDAOVO(dlDAOVO);
 
@@ -173,6 +174,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		DeviceDAOVO dlDAOVO;
 		try {
 			dlDAOVO = transServiceVO2DeviceDAOVO(vsVO);
+			dlDAOVO.setAdmin(vsVO.isAdmin());
 
 			modelList = deviceDAO.findDeviceListAndLastestVersionByDAOVO(dlDAOVO, startRow, pageLength);
 

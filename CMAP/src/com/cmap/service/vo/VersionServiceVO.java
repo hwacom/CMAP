@@ -54,6 +54,7 @@ public class VersionServiceVO extends CommonServiceVO {
 	private String createYyyyMMdd;
 	private String deviceModel;
 
+	private boolean isAdmin;
 	private boolean checkEnableCurrentDateSetting;
 
 	private Date createDate;
@@ -471,5 +472,11 @@ public class VersionServiceVO extends CommonServiceVO {
     }
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
+    }
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }

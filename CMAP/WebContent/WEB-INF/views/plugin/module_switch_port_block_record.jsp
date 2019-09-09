@@ -10,24 +10,24 @@
       <div class="col-12 search-bar">
       	<form>
       		<div class="container-fluid">
-	      	  <div class="form-group row" style="margin-bottom: -.5rem;">
+	      	  <div class="form-group row">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%" onchange="changeDeviceMenu('queryDevice', this.value)">
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup" onchange="changeDeviceMenu('queryDevice', this.value)">
                         <c:if test="${fn:length(groupList) gt 1}">
-                        	<form:option value="" label="=== ALL ===" />
+                        	<form:option value="" label="== ALL ==" />
                         </c:if>
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryDevice" class="font-weight-bold must" style="width: 20%"><spring:message code="device.name" /></label>
-	    	    	<form:select path="queryDevice" id="queryDevice" style="width: 75%">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryDevice" id="queryDevice">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${deviceList}" />
                     </form:select>
 				</div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_record_web">
 	    	    		<spring:message code="btn.query" />
 	    	    	</button>
@@ -84,7 +84,7 @@
 		<table id="resultTable_blockedPortRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 		  <thead class="center">
 		    <tr>
-		      <th scope="col" nowrap="nowrap"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="action"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="deviceName"><spring:message code="device.name" /></th>

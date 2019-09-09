@@ -10,27 +10,27 @@
       <div class="col-12 search-bar">
       	<form>
       		<div class="container-fluid">
-	      	  <div class="form-group row" style="margin-bottom: -.5rem;">
+	      	  <div class="form-group row">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%">
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
                         <c:if test="${fn:length(groupList) gt 1}">
-                        	<form:option value="" label="=== ALL ===" />
+                        	<form:option value="" label="== ALL ==" />
                         </c:if>
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_1_web">
 	    	    		<spring:message code="btn.1.day" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_3_web">
 	    	    		<spring:message code="btn.3.day" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_7_web">
 	    	    		<spring:message code="btn.7.day" />
 	    	    	</button>

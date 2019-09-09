@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.port.blocked.record;
 
+import java.util.List;
 import com.cmap.service.vo.CommonServiceVO;
 
 public class PortBlockedRecordVO extends CommonServiceVO {
@@ -7,7 +8,8 @@ public class PortBlockedRecordVO extends CommonServiceVO {
     private String queryGroupId;
     private String queryDeviceId;
     private String queryPortId;
-    private String queryStatusFlag;
+    private List<String> queryStatusFlag;
+    private List<String> queryExcludeStatusFlag;
     private String queryBeginDate;
     private String queryEndDate;
 
@@ -48,11 +50,17 @@ public class PortBlockedRecordVO extends CommonServiceVO {
     public void setQueryPortId(String queryPortId) {
         this.queryPortId = queryPortId;
     }
-    public String getQueryStatusFlag() {
+    public List<String> getQueryStatusFlag() {
         return queryStatusFlag;
     }
-    public void setQueryStatusFlag(String queryStatusFlag) {
+    public void setQueryStatusFlag(List<String> queryStatusFlag) {
         this.queryStatusFlag = queryStatusFlag;
+    }
+    public List<String> getQueryExcludeStatusFlag() {
+        return queryExcludeStatusFlag;
+    }
+    public void setQueryExcludeStatusFlag(List<String> queryExcludeStatusFlag) {
+        this.queryExcludeStatusFlag = queryExcludeStatusFlag;
     }
     public String getQueryBeginDate() {
         return queryBeginDate;

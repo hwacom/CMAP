@@ -42,6 +42,8 @@
 	   
     <!-- Bootstrap Core CSS -->
     <link href="${pageContext.request.contextPath}/resources/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap-Select-v1.13.9 CSS -->
+    <link href="${pageContext.request.contextPath}/resources/css/bootstrap-select/bootstrap-select.min.css" rel="stylesheet">
     <!-- JQuery-UI -->
     <!-- <link href="${pageContext.request.contextPath}/resources/css/jquery-ui/jquery-ui.min.css" rel="stylesheet"> -->
     <link href="${pageContext.request.contextPath}/resources/css/jquery-ui/jquery-ui.structure.min.css" rel="stylesheet">
@@ -61,6 +63,10 @@
 	<script src="${pageContext.request.contextPath}/resources/js/dist/localization/messages_zh_TW.min.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/popper/popper.min.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/bootstrap/bootstrap.min.js"></script>
+    <!-- Bootstrap-Select-v1.13.9 JS -->
+    <script src="${pageContext.request.contextPath}/resources/js/bootstrap-select/bootstrap-select.min.js"></script>
+    <!-- Bootstrap-Select-v1.13.9 (i18n) JS -->
+    <script src="${pageContext.request.contextPath}/resources/js/bootstrap-select/i18n/defaults-zh_TW.min.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/jquery-ui/jquery-ui.min.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/jquery-scrollbar/jquery.scrollbar.min.js"></script>
     <!-- Icons -->

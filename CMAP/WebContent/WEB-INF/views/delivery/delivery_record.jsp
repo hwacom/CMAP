@@ -13,15 +13,15 @@
 	      	  <div class="form-group row">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<span class="font-weight-bold" style="width: 25%"><spring:message code="group.name" /></span>
-	    	    	<form:select path="group" id="queryGroup" style="width: 70%" onchange="changeDeviceMenu('queryDevice', this.value)">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="70%" path="group" id="queryGroup" onchange="changeDeviceMenu('queryDevice', this.value)">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
 	    	    <div class="col-lg-3 group-field-other">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
-					<form:select path="device" id="queryDevice" style="width: 70%">
-                        <form:option value="" label="=== ALL ===" />
+					<form:select class="selectpicker" data-live-search="true" data-width="70%" path="device" id="queryDevice">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${deviceList}" />
                     </form:select>
 				</div>
@@ -31,7 +31,7 @@
 	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
 	    	    	<input type="date" id="queryExcuteDateEnd" style="width: 35%" placeholder="yyyy-mm-dd">
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
 	    	    </div>
 	      	  </div>

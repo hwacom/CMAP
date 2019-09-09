@@ -13,9 +13,9 @@
 	      	  <div class="form-group row" style="margin-bottom: -.5rem;">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%">
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
                         <c:if test="${fn:length(groupList) gt 1}">
-                        	<form:option value="" label="=== ALL ===" />
+                        	<form:option value="" label="== ALL ==" />
                         </c:if>
                         <form:options items="${groupList}" />
                     </form:select>

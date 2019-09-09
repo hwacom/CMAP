@@ -371,11 +371,11 @@ section {
 }
 
 .search-bar select {
-  height: 25px;
+  height: 30px !important;
 }
 
 .search-bar input {
-  height: 25px;
+  height: 30px;
 }
 
 .search-bar .form-group {
@@ -1117,4 +1117,13 @@ button {
   border-width: 1px !important;
   border-style: solid;
   border-color: #797979;
+}
+
+/*##########################################################################################################################################*/
+.custom-btn-style {
+  height: 30px !important;
+}
+
+.custom-option-style {
+  font-size: .875rem;
 }

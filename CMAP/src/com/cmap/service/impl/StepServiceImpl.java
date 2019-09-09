@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.comm.enums.BlockType;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
@@ -46,6 +47,10 @@ import com.cmap.model.DeviceDetailMapping;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
+import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
+import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
+import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ConfigService;
 import com.cmap.service.ScriptService;
@@ -98,6 +103,12 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 	@Autowired
 	private ConfigService configService;
+
+	@Autowired
+	private IpBlockedRecordService ipRecordService;
+
+	@Autowired
+    private PortBlockedRecordService portRecordService;
 
 	@Override
 	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
@@ -633,8 +644,125 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * [Step] 針對特定腳本寫入LOG table
 	 * @throws ServiceLayerException
 	 */
-    private void writeSpecifyLog() throws ServiceLayerException {
+    private void writeSpecifyLog(
+            ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String remark) throws ServiceLayerException {
+        try {
+            List<String> ipOpenScriptCodeList = Env.SCRIPT_CODE_OF_IP_OPEN;
+            List<String> ipBlockScriptCodeList = Env.SCRIPT_CODE_OF_IP_BLOCK;
+            List<String> portOpenScriptCodeList = Env.SCRIPT_CODE_OF_PORT_OPEN;
+            List<String> portBlockScriptCodeList = Env.SCRIPT_CODE_OF_PORT_BLOCK;
 
+            BlockType blockType = null;
+            String actionStatusFlag = null;
+            if (ipOpenScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.IP;
+                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
+
+            } else if (ipBlockScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.IP;
+                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
+
+            } else if (portOpenScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.PORT;
+                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
+
+            } else if (portBlockScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.PORT;
+                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
+            }
+
+            switch (blockType) {
+                case IP:
+                    writeModuleBlockIpListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                    break;
+
+                case PORT:
+                    writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                    break;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("寫入LOG table失敗 >> " + e.toString());
+        }
+    }
+
+    private void writeModuleBlockIpListRecord(
+            ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
+        String groupId = ciVO.getGroupId();
+        String deviceId = ciVO.getDeviceId();
+
+        String ipAddressVarKey = Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;
+
+        List<IpBlockedRecordVO> ibrVOs = new ArrayList<>();
+        IpBlockedRecordVO ibrVO = null;
+        for (Map<String, String> varMap : varMapList) {
+            String ipAddress = varMap.get(ipAddressVarKey);
+            if (StringUtils.isBlank(ipAddress)) {
+                throw new ServiceLayerException("系統參數異常無法執行，請重新操作! (ipAddress為空)");
+            }
+
+            ibrVO = new IpBlockedRecordVO();
+            ibrVO.setGroupId(groupId);
+            ibrVO.setDeviceId(deviceId);
+            ibrVO.setIpAddress(ipAddress);
+            ibrVO.setStatusFlag(actionStatusFlag);
+
+            if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                ibrVO.setBlockBy(currentUserName());
+                ibrVO.setBlockReason(remark);
+
+            } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
+                ibrVO.setOpenBy(currentUserName());
+                ibrVO.setOpenReason(remark);
+            }
+
+            ibrVO.setRemark(remark);
+
+            ibrVOs.add(ibrVO);
+        }
+
+        if (ibrVOs != null && !ibrVOs.isEmpty()) {
+            ipRecordService.saveOrUpdateRecord(ibrVOs);
+        }
+    }
+
+    private void writeModuleBlockPortListRecord(
+            ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
+        String groupId = ciVO.getGroupId();
+        String deviceId = ciVO.getDeviceId();
+
+        String portIdVarKey = Env.KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;
+
+        List<PortBlockedRecordVO> pbrVOs = new ArrayList<>();
+        PortBlockedRecordVO pbrVO = null;
+        for (Map<String, String> varMap : varMapList) {
+            String portId = varMap.get(portIdVarKey);
+            if (StringUtils.isBlank(portId)) {
+                throw new ServiceLayerException("系統參數異常無法執行，請重新操作! (portId為空)");
+            }
+
+            pbrVO = new PortBlockedRecordVO();
+            pbrVO.setGroupId(groupId);
+            pbrVO.setDeviceId(deviceId);
+            pbrVO.setPortId(portId);
+            pbrVO.setStatusFlag(actionStatusFlag);
+
+            if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                pbrVO.setBlockBy(currentUserName());
+                pbrVO.setBlockReason(remark);
+
+            } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
+                pbrVO.setOpenBy(currentUserName());
+                pbrVO.setOpenReason(remark);
+            }
+
+            pbrVOs.add(pbrVO);
+        }
+
+        if (pbrVOs != null && !pbrVOs.isEmpty()) {
+            portRecordService.saveOrUpdateRecord(pbrVOs);
+        }
     }
 
 	/**
@@ -1545,7 +1673,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	@Override
 	public StepServiceVO doScript(ConnectionMode connectionMode, String deviceListId,
 	        Map<String, String> deviceInfo, ScriptInfo scriptInfo, List<Map<String, String>> varMapList,
-	        boolean sysTrigger, String triggerBy, String triggerRemark) {
+	        boolean sysTrigger, String triggerBy, String triggerRemark, String reason) {
 
 		StepServiceVO processVO = new StepServiceVO();
 
@@ -1721,12 +1849,15 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							}
 
 						case WRITE_SPECIFY_LOG:
-						    try {
+                            try {
+                                String scriptCode = scriptInfo.getScriptCode();
+                                writeSpecifyLog(ciVO, scriptCode, varMapList, reason);
+                                break;
 
-						    } catch (Exception e) {
-						        log.error(e.toString(), e);
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
                                 throw new ServiceLayerException("寫入指定LOG table時失敗 [ 錯誤代碼: WRITE_SPECIFY_LOG ]");
-						    }
+                            }
 
 						default:
 							break;

@@ -6,6 +6,7 @@ public class DeviceDAOVO extends CommonDAOVO {
 
 	private String queryGroup;
 	private String queryDevice;
+	private boolean isAdmin;
 
 	private String groupId;
 	private String deviceId;
@@ -76,5 +77,11 @@ public class DeviceDAOVO extends CommonDAOVO {
     }
     public void setDeviceLayerList(List<String> deviceLayerList) {
         this.deviceLayerList = deviceLayerList;
+    }
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }

@@ -47,8 +47,8 @@
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select path="group" id="queryGroup" style="width: 200px;" onchange="findBlockedPortRecordData()">
-		               	<form:option value="" label="=== ALL ===" />
+		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px;" path="group" id="queryGroup" onchange="findBlockedPortRecordData()">
+		               	<form:option value="" label="== ALL ==" />
 		                <form:options items="${groupList}" />
 		            </form:select>
 		            &nbsp;&nbsp;&nbsp;

@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
-
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
 import com.cmap.service.vo.CommonServiceVO;
@@ -91,7 +89,7 @@ public interface CommonService {
 	 * @return
 	 */
 	public boolean chkIpInGroupSubnet(String cidr, String ip, String ipVersion);
-	
+
 	/**
 	 * 遞迴查找DEVICE_LOGIN_INFO資料
 	 * @param deviceListId

@@ -47,6 +47,9 @@ public class UserServiceImpl implements UserService {
 					return checkUserCanAccess(request, false, belongGroup, roles, account);
 				}
 			} else {
+			    // 先預設為非管理者，後續逐筆判斷權限時再做更新
+			    request.getSession().setAttribute(Constants.ISADMIN, false);
+
 				// 可能符合多個腳色權限設定，逐筆掃描
 				for (UserRightSetting setting : entities) {
 					String denyAccess = setting.getDenyAccess();

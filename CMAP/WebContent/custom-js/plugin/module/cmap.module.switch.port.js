@@ -111,7 +111,7 @@ function doPortOpenByBtn() {
 }
 
 //查詢按鈕動作
-function findBlockedPortRecordData() {
+function findBlockedPortRecordData(statusFlag) {
 	calBlockedPortSectionHeight();
 
 	if (typeof resultTable_blockedPortRecord !== "undefined") {
@@ -156,10 +156,14 @@ function findBlockedPortRecordData() {
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
-						d.queryGroupId = $("#queryGroup").val()
-						
+						d.queryGroupId = $("#queryGroup").val();
+						d.queryDeviceId = $("#queryDevice").val();
 					} else if ($('#queryFrom').val() == 'MOBILE') {
-						d.queryGroupId = $("#queryGroup_mobile").val()
+						d.queryGroupId = $("#queryGroup_mobile").val();
+						d.queryDeviceId = $("#queryDevice_mobile").val();
+					}
+					if (statusFlag == 'B') {
+						d.queryStatusFlag = statusFlag;
 					}
 					return d;
 				},
@@ -167,7 +171,7 @@ function findBlockedPortRecordData() {
 					ajaxErrorHandler();
 				}
 			},
-			"order" : [[3 , 'desc' ]],
+			"order" : [[6 , 'desc' ]],
 			"pageLength" : 100,
 			/*
 			"initComplete": function(settings, json){
@@ -190,16 +194,20 @@ function findBlockedPortRecordData() {
 				
 				var pathname = window.location.pathname;
 				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
-				if (lastPath === "/portOpenBlock") {
+				if (lastPath === "/switchPort") {
 					$('[data-field="status"]').hide();
 					$('[data-field="openTime"]').hide();
 					$('[data-field="openReason"]').hide();
 					$('[data-field="openBy"]').hide();
+					
+				} else if (lastPath === "/portBlocked") {
+					$('[data-field="action"]').hide();
 				}
 				
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 			},
 			"rowCallback": function( row, data ) {
+				$('td:eq(0)', row).attr('data-field', 'action');
 				$('td:eq(1)', row).attr('data-field', 'seq');
 				$('td:eq(2)', row).attr('data-field', 'groupName');
 				$('td:eq(3)', row).attr('data-field', 'deviceName');

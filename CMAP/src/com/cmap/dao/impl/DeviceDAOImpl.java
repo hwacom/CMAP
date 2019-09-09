@@ -102,17 +102,16 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		  .append("         where 1 = 1 ")
 		  .append("         and cvi_2.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-			sb.append("    and cvi_2.GROUP_ID = :groupId ");
-		} else {
-			sb.append("     and cvi_2.GROUP_ID in (:groupId) ");
-		}
-
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-			sb.append("     and cvi_1.DEVICE_ID = :deviceId ");
-		} else {
-			sb.append("     and cvi_1.DEVICE_ID in (:deviceId) ");
-		}
+	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
+            sb.append("    and cvi_2.GROUP_ID = :groupId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            sb.append("     and cvi_2.GROUP_ID in (:groupId) ");
+        }
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            sb.append("     and cvi_1.DEVICE_ID = :deviceId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            sb.append("     and cvi_1.DEVICE_ID in (:deviceId) ");
+        }
 
 		sb.append("         group BY cvi_2.GROUP_ID, cvi_2.DEVICE_ID ")
 		  .append("       ) ")
@@ -124,17 +123,16 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		  .append("   where 1 = 1 ")
 		  .append("   and dl.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-			sb.append(" and dl.GROUP_ID = :groupId ");
-		} else {
-			sb.append(" and dl.GROUP_ID in (:groupId) ");
-		}
-
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-			sb.append(" and dl.DEVICE_ID = :deviceId ");
-		} else {
-			sb.append(" and dl.DEVICE_ID in (:deviceId) ");
-		}
+	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
+            sb.append(" and dl.GROUP_ID = :groupId ");
+        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
+            sb.append(" and dl.GROUP_ID in (:groupId) ");
+        }
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            sb.append(" and dl.DEVICE_ID = :deviceId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            sb.append(" and dl.DEVICE_ID in (:deviceId) ");
+        }
 
 		if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
 			sb.append(" and ( ")
@@ -151,8 +149,16 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createNativeQuery(sb.toString());
 
-	    q.setParameter("groupId", StringUtils.isNotBlank(dlDAOVO.getQueryGroup()) ? dlDAOVO.getQueryGroup() : dlDAOVO.getQueryGroupList());
-	    q.setParameter("deviceId", StringUtils.isNotBlank(dlDAOVO.getQueryDevice()) ? dlDAOVO.getQueryDevice() : dlDAOVO.getQueryDeviceList());
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
+            q.setParameter("groupId", dlDAOVO.getQueryGroup());
+        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
+            q.setParameterList("groupId", dlDAOVO.getQueryGroupList());
+        }
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            q.setParameter("deviceId", dlDAOVO.getQueryDevice());
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            q.setParameterList("deviceId", dlDAOVO.getQueryDeviceList());
+        }
 
 	    if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(dlDAOVO.getSearchValue()).concat("%"));
@@ -187,17 +193,16 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		  .append("     	where 1 = 1 ")
 		  .append("     	and cvi_2.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-			sb.append(" 	and cvi_2.GROUP_ID = :groupId ");
-		} else {
-			sb.append(" 	and cvi_2.GROUP_ID in (:groupId) ");
-		}
-
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-			sb.append(" 	and cvi_1.DEVICE_ID = :deviceId ");
-		} else {
-			sb.append(" 	and cvi_1.DEVICE_ID in (:deviceId) ");
-		}
+	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
+            sb.append("    and cvi_2.GROUP_ID = :groupId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            sb.append("     and cvi_2.GROUP_ID in (:groupId) ");
+        }
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            sb.append("     and cvi_1.DEVICE_ID = :deviceId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            sb.append("     and cvi_1.DEVICE_ID in (:deviceId) ");
+        }
 
 		sb.append("     	group BY cvi_2.GROUP_ID, cvi_2.DEVICE_ID ")
 		  .append("   	  ) ")
@@ -209,17 +214,16 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		  .append(" where 1 = 1 ")
 		  .append(" and dl.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-			sb.append(" and dl.GROUP_ID = :groupId ");
-		} else {
-			sb.append(" and dl.GROUP_ID in (:groupId) ");
-		}
-
-		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-			sb.append(" and dl.DEVICE_ID = :deviceId ");
-		} else {
-			sb.append(" and dl.DEVICE_ID in (:deviceId) ");
-		}
+	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
+            sb.append(" and dl.GROUP_ID = :groupId ");
+        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
+            sb.append(" and dl.GROUP_ID in (:groupId) ");
+        }
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            sb.append(" and dl.DEVICE_ID = :deviceId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            sb.append(" and dl.DEVICE_ID in (:deviceId) ");
+        }
 
 		if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
 			sb.append(" and ( ")
@@ -243,8 +247,16 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createNativeQuery(sb.toString());
 
-	    q.setParameter("groupId", StringUtils.isNotBlank(dlDAOVO.getQueryGroup()) ? dlDAOVO.getQueryGroup() : dlDAOVO.getQueryGroupList());
-	    q.setParameter("deviceId", StringUtils.isNotBlank(dlDAOVO.getQueryDevice()) ? dlDAOVO.getQueryDevice() : dlDAOVO.getQueryDeviceList());
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
+            q.setParameter("groupId", dlDAOVO.getQueryGroup());
+        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
+            q.setParameterList("groupId", dlDAOVO.getQueryGroupList());
+        }
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            q.setParameter("deviceId", dlDAOVO.getQueryDevice());
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            q.setParameterList("deviceId", dlDAOVO.getQueryDeviceList());
+        }
 
 	    if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(dlDAOVO.getSearchValue()).concat("%"));

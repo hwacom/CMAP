@@ -118,6 +118,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
         final Map<String, String> deviceInfo = dpVO.getDeviceInfo();
         final List<String> groupIdList = dpVO.getGroupId();
         final List<String> deviceIdList = dpVO.getDeviceId();
+        final String reason = dpVO.getReason();
 
         ProvisionServiceVO masterVO = new ProvisionServiceVO();
         masterVO.setLogMasterId(UUID.randomUUID().toString());
@@ -187,7 +188,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
                 //Step 3.呼叫共用執行腳本
                 StepServiceVO processVO = null;
                 try {
-                    processVO = stepService.doScript(connectionMode, deviceListId, deviceInfo, scriptInfo, varMapList, sysTrigger, triggerBy, triggerRemark);
+                    processVO = stepService.doScript(connectionMode, deviceListId, deviceInfo, scriptInfo, varMapList, sysTrigger, triggerBy, triggerRemark, reason);
 
                     masterVO.getDetailVO().addAll(processVO.getPsVO().getDetailVO());
 
@@ -242,7 +243,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
         masterVO.setEndTime(new Date());
         masterVO.setResult(CommonUtils.converMsg(msg, args));
-        masterVO.setReason(dpVO.getReason());
+        masterVO.setReason(reason);
 
         provisionService.insertProvisionLog(masterVO);
 

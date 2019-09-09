@@ -61,6 +61,8 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
      */
     private Map<String, Map<String, IpMappingServiceVO>> pollingArpTable(List<DeviceList> deviceL3) throws ServiceLayerException {
         Map<String, Map<String, IpMappingServiceVO>> retMap = new HashMap<>();
+
+        ConnectUtils snmpUtils = null;
         try {
         	// 準備ARP_TABLE的OID清單
         	List<MibOidMapping> arpTableOidMapping = ipMappingDAO.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_ARP_TABLE}));
@@ -81,7 +83,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         		}
         	}
 
-        	ConnectUtils snmpUtils = new SnmpV2Utils();
+        	snmpUtils = new SnmpV2Utils();
         	// 迴圈跑該群組下的L3設備
             for (DeviceList device : deviceL3) {
             	String deviceListId = device.getDeviceListId();
@@ -144,6 +146,16 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         } catch (Exception e) {
         	log.error(e.toString(), e);
         	throw new ServiceLayerException(e.toString());
+
+        } finally {
+            if (snmpUtils != null) {
+                try {
+                    snmpUtils.disconnect();
+
+                } catch (Exception e) {
+                    snmpUtils = null;
+                }
+            }
         }
         return retMap;
     }
@@ -162,6 +174,8 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
      */
     private Map<String, Map<String, IpMappingServiceVO>> pollingMacTable(List<DeviceList> deviceL2) throws ServiceLayerException {
         Map<String, Map<String, IpMappingServiceVO>> retMap = new HashMap<>();
+
+        ConnectUtils snmpUtils = null;
         try {
         	// 準備MAC_TABLE的OID清單
         	List<MibOidMapping> macTableOidMapping = ipMappingDAO.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_MAC_TABLE}));
@@ -182,7 +196,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         		}
         	}
 
-        	ConnectUtils snmpUtils = new SnmpV2Utils();
+        	snmpUtils = new SnmpV2Utils();
         	// 迴圈跑該群組下的L2設備
             for (DeviceList device : deviceL2) {
             	String deviceListId = device.getDeviceListId();
@@ -256,6 +270,15 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         } catch (Exception e) {
         	log.error(e.toString(), e);
         	throw new ServiceLayerException(e.toString());
+
+        } finally {
+            if (snmpUtils != null) {
+                try {
+                    snmpUtils.disconnect();
+                } catch (Exception e) {
+                    snmpUtils = null;
+                }
+            }
         }
         return retMap;
     }

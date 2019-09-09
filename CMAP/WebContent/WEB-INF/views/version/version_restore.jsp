@@ -13,19 +13,19 @@
 	      	  <div class="form-group row">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<span class="font-weight-bold" style="width: 20%"><spring:message code="group.name" /></span>
-	    	    	<form:select path="queryGroup1" id="queryGroup1" style="width: 75%" onchange="changeDeviceMenu('queryDevice1', this.value)">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup1" id="queryGroup1" onchange="changeDeviceMenu('queryDevice1', this.value)">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${group1List}" />
                     </form:select>
 	    	    </div>
 	    	    <div class="col-lg-3 group-field-other">
 					<span class="font-weight-bold" style="width: 20%"><spring:message code="device.name" /></span>
-	    	    	<form:select path="queryDevice1" id="queryDevice1" style="width: 75%">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryDevice1" id="queryDevice1">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${device1List}" />
                     </form:select>
 				</div>
-				<div class="col-lg-2" style="padding-top: 5px;">
+				<div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
 	    	    </div>
 	      	  </div>
@@ -97,7 +97,7 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="system.version" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="device.model" /></th>
 		    </tr>
 		  </thead>
 		</table>

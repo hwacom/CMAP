@@ -11,10 +11,10 @@
       <div class="col-12 search-bar">
       	<form>
       		<div class="container-fluid">
-	      	  <div class="form-group row" style="margin-bottom: -.5rem;">
+	      	  <div class="form-group row" style="margin-bottom: -.6rem; margin-top: -.6rem;">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 75%">
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
 	    	    		<!-- 
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
@@ -37,18 +37,18 @@
 	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
 	    	    	<input type="time" id="queryTimeEnd" style="width: 38%">
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web">
 	    	    		<spring:message code="btn.query" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web">
 	    	    		<spring:message code="btn.export" />
 	    	    	</button>
 	    	    </div>
 	    	  </div>
-	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
+	    	  <div class="form-group row" style="margin-bottom: -.4rem; margin-top: -.5rem;">
 	    	    <div class="col-lg-3 group-field-other">
 					<label for="query_SourceIp" class="font-weight-bold" style="width: 35%"><spring:message code="net.flow.source.ip" /></label>
 					<input type="text" id="query_SourceIp" class="input-ip" style="width: 60%">

@@ -423,6 +423,13 @@ public class VersionController extends BaseController {
 			setQueryGroupList(request, vsVO, "allGroupList", null);
 			setQueryDeviceList(request, vsVO, "allDeviceList", null, null);
 
+			try {
+			    boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+			    vsVO.setAdmin(isAdmin);
+
+			} catch (NullPointerException npe) {
+			    vsVO.setAdmin(false);
+			}
 
 			filterdTotal = versionService.countDeviceList(vsVO);
 

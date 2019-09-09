@@ -3,11 +3,8 @@ package com.cmap.comm;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.utils.impl.EncryptUtils;
@@ -38,6 +35,8 @@ public class BaseAuthentication {
 		} else {
 			request.getSession().setAttribute(Constants.USERROLE, Constants.USERROLE_ADMIN);
 		}
+
+		request.getSession().setAttribute(Constants.ISADMIN, true);
 	}
 
 	public static void authAdminUser(HttpServletRequest request, String username, String password) {

@@ -11,7 +11,7 @@ public interface PortBlockedRecordService {
      * @return
      * @throws ServiceLayerException
      */
-    public long countModuleBlockedPortList(PortBlockedRecordVO irVO) throws ServiceLayerException;
+    public long countModuleBlockedPortList(PortBlockedRecordVO pbrVO) throws ServiceLayerException;
 
     /**
      * 查詢符合條件資料
@@ -19,5 +19,12 @@ public interface PortBlockedRecordService {
      * @return
      * @throws ServiceLayerException
      */
-    public List<PortBlockedRecordVO> findModuleBlockedPortList(PortBlockedRecordVO irVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
+    public List<PortBlockedRecordVO> findModuleBlockedPortList(PortBlockedRecordVO pbrVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
+
+    /**
+     * 新增 OR 更新封鎖紀錄
+     * @param pbrVOs
+     * @throws ServiceLayerException
+     */
+    public void saveOrUpdateRecord(List<PortBlockedRecordVO> pbrVOs) throws ServiceLayerException;
 }

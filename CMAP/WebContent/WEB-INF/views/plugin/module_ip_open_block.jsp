@@ -47,8 +47,8 @@
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select path="group" id="queryGroup" style="width: 200px;" onchange="findBlockedIpRecordData()">
-		               	<form:option value="" label="=== ALL ===" />
+		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findBlockedIpRecordData()">
+		               	<form:option value="" label="== ALL ==" />
 		                <form:options items="${groupList}" />
 		            </form:select>
 		            &nbsp;&nbsp;&nbsp;
@@ -241,6 +241,38 @@
   </div>
 </div>
 <!-- Modal [View] end -->
+
+<!-- Modal [解鎖輸入原因] start -->
+<div class="modal fade" id="openReasonModal" tabindex="-1" role="dialog" aria-labelledby="viewScriptModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewScriptModalLabel"><span id="msgModal_title">解鎖確認</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+     	<div class="form-group row">
+        	<label for="openReasonModal_reason" class="col-md-3 col-sm-12 col-form-label">解鎖原因<br>(選填) :</label>
+    		<textarea class="form-control form-control-sm col-md-9 col-sm-12" id="openReasonModal_reason" rows="4" cols="30" style="resize: none;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+      	<div class="col-12 row center">
+      		<div class="col-4">
+	      		<button type="button" class="btn btn-success" id="btnDoOpen" style="width: 100%;">確認</button>
+	      	</div>
+	      	<div class="col-1"></div>
+	      	<div class="col-4">
+	      		<button type="button" class="btn btn-info" id="btnCancel" style="width: 100%;" data-dismiss="modal" aria-label="Close"><spring:message code="btn.cancel" /></button>
+	      	</div>
+      	</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [解鎖輸入原因] end -->
 
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/cmap.delivery.main.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.open.block.min.js"></script>

@@ -59,6 +59,7 @@ public interface StepService {
 	 * @param sysTrigger
 	 * @param triggerBy
 	 * @param triggerRemark
+	 * @param reason
 	 * @return
 	 */
 	public StepServiceVO doScript(
@@ -69,7 +70,8 @@ public interface StepService {
 			List<Map<String, String>> varMapList,
 			boolean sysTrigger,
 			String triggerBy,
-			String triggerRemark);
+			String triggerRemark,
+			String reason);
 
 	/**
 	 * 供裝派送流程 (不指定腳本，由呼叫端傳入要供裝的命令集)

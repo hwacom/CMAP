@@ -12,12 +12,12 @@
 	      	  <div class="form-group row">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<span class="font-weight-bold" style="width: 30%"><spring:message code="script" /><spring:message code="type" /></span>
-	    	    	<form:select path="scriptType" id="queryScriptType" style="width: 65%">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="65%" path="scriptType" id="queryScriptType">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${scriptTypeList}" />
                     </form:select>
 	    	    </div>
-				<div class="col-lg-2" style="padding-top: 5px;">
+				<div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
 	    	    </div>
 	      	  </div>

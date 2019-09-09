@@ -681,8 +681,8 @@ function checkDeviceChoose() {
 		/* **************************************************************************
 		 * 派送Step 1. >> 紀錄目標設備ID、供裝原因 
 		 * **************************************************************************/
-		console.log(window.sessionStorage.getItem(_DELIVERY_DEVICE_ID_));
-		console.log(window.sessionStorage.getItem(_DELIVERY_GROUP_ID_));
+		//console.log(window.sessionStorage.getItem(_DELIVERY_DEVICE_ID_));
+		//console.log(window.sessionStorage.getItem(_DELIVERY_GROUP_ID_));
 		window.sessionStorage.setItem(_DELIVERY_DEVICE_ID_, JSON.stringify(deviceId));
 		window.sessionStorage.setItem(_DELIVERY_DEVICE_NAME_, JSON.stringify(deviceName));
 		window.sessionStorage.setItem(_DELIVERY_GROUP_ID_, JSON.stringify(groupId));
@@ -815,6 +815,12 @@ function doDelivery() {
 				setTimeout(function() {
 					$('#stepModal').modal('hide');
 				}, 500);
+				
+				if (typeof findBlockedIpRecordData === 'function') {
+					findBlockedIpRecordData('B');
+				} else if (typeof findBlockedPortRecordData === 'function') {
+					findBlockedPortRecordData('B');
+				}
 				
 			} else {
 				alert(resp.message);
@@ -958,10 +964,10 @@ function findData(from) {
 				initCheckedItems();
 				
 				if (typeof findBlockedIpRecordData === 'function') {
-					findBlockedIpRecordData();
+					findBlockedIpRecordData('B');
 					bindTrEventOnlyRadio();
 				} else if (typeof findBlockedPortRecordData === 'function') {
-					findBlockedPortRecordData();
+					findBlockedPortRecordData('B');
 					bindTrEventOnlyRadio();
 				} else {
 					bindTrEvent();

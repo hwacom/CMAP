@@ -2,6 +2,7 @@ package com.cmap.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,8 @@ public class DeliveryController extends BaseController {
 
 	private static final String[] UI_SEARCH_BY_SCRIPT_COLUMNS = new String[] {"","","scriptName","scriptType.scriptTypeName","systemVersion","","","",""};
 	private static final String[] UI_RECORD_COLUMNS = new String[] {"","plm.begin_time","plm.create_by","dl.group_name","dl.device_name","dl.device_model","si.script_name","plm.remark","pls.result"};
-	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","ipAddress","blockTime","blockReason","blockBy"};
-	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.deviceName","dpi.portName","mbpl.blockTime","mbpl.blockReason","mbpl.blockBy"};
+	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","dl.groupName","mbil.ipAddress","mbil.statusFlag","mbil.blockTime","mbil.blockReason","mbil.blockBy","mbil.openTime","mbil.openReason","mbil.openBy"};
+	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.groupName","dl.deviceName","mbpl.portId","mbpl.statusFlag","mbpl.blockTime","mbpl.blockReason","mbpl.blockBy","mbpl.openTime","mbpl.openReason","mbpl.openBy"};
 
 	@Autowired
 	private DeliveryService deliveryService;
@@ -147,12 +148,14 @@ public class DeliveryController extends BaseController {
             pbrVO.setQueryGroupId(queryGroupId);
             pbrVO.setQueryDeviceId(queryDeviceId);
             //pbrVO.setQueryPortAddress(queryPortAddress);
-            pbrVO.setQueryStatusFlag(queryStatusFlag);
+            if (StringUtils.isNotBlank(queryStatusFlag)) {
+                pbrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            }
             pbrVO.setQueryBeginDate(queryBeginDate);
             pbrVO.setQueryEndDate(queryEndDate);
             pbrVO.setPageLength(pageLength);
             pbrVO.setSearchValue(searchValue);
-            pbrVO.setOrderColumn(UI_BLOCKED_PORT_RECORD_COLUMNS[orderColIdx]);  //TODO
+            pbrVO.setOrderColumn(UI_BLOCKED_PORT_RECORD_COLUMNS[orderColIdx]);
             pbrVO.setOrderDirection(orderDirection);
 
             filterdTotal = portRecordService.countModuleBlockedPortList(pbrVO);
@@ -161,17 +164,7 @@ public class DeliveryController extends BaseController {
                 dataList = portRecordService.findModuleBlockedPortList(pbrVO, startNum, pageLength);
             }
 
-            if (StringUtils.isBlank(queryDeviceId) && StringUtils.isBlank(queryPortId)
-                    && StringUtils.isBlank(queryStatusFlag) && StringUtils.isBlank(queryBeginDate)
-                    && StringUtils.isBlank(queryEndDate)) {
-                //如果只有傳入GroupId條件，不需再另外查詢只有GroupId下的筆數 (即等於前面篩選的筆數)
-                total = filterdTotal;
-
-            } else {
-                pbrVO = new PortBlockedRecordVO();
-                pbrVO.setQueryGroupId(queryGroupId);
-                total = portRecordService.countModuleBlockedPortList(pbrVO);
-            }
+            total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
 
         } catch (ServiceLayerException sle) {
         } catch (Exception e) {
@@ -224,7 +217,7 @@ public class DeliveryController extends BaseController {
             @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
             @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
             @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
-            @RequestParam(name="order[0][column]", required=false, defaultValue="6") Integer orderColIdx,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="5") Integer orderColIdx,
             @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
 
         long total = 0;
@@ -236,12 +229,14 @@ public class DeliveryController extends BaseController {
             irVO.setQueryGroupId(queryGroupId);
             irVO.setQueryDeviceId(queryDeviceId);
             irVO.setQueryIpAddress(queryIpAddress);
-            irVO.setQueryStatusFlag(queryStatusFlag);
+            if (StringUtils.isNotBlank(queryStatusFlag)) {
+                irVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            }
             irVO.setQueryBeginDate(queryBeginDate);
             irVO.setQueryEndDate(queryEndDate);
             irVO.setPageLength(pageLength);
             irVO.setSearchValue(searchValue);
-            irVO.setOrderColumn(UI_BLOCKED_IP_RECORD_COLUMNS[orderColIdx]);  //TODO
+            irVO.setOrderColumn(UI_BLOCKED_IP_RECORD_COLUMNS[orderColIdx]);
             irVO.setOrderDirection(orderDirection);
 
             filterdTotal = ipRecordService.countModuleBlockedIpList(irVO);
@@ -250,17 +245,7 @@ public class DeliveryController extends BaseController {
                 dataList = ipRecordService.findModuleBlockedIpList(irVO, startNum, pageLength);
             }
 
-            if (StringUtils.isBlank(queryDeviceId) && StringUtils.isBlank(queryIpAddress)
-                    && StringUtils.isBlank(queryStatusFlag) && StringUtils.isBlank(queryBeginDate)
-                    && StringUtils.isBlank(queryEndDate)) {
-                //如果只有傳入GroupId條件，不需再另外查詢只有GroupId下的筆數 (即等於前面篩選的筆數)
-                total = filterdTotal;
-
-            } else {
-                irVO = new IpBlockedRecordVO();
-                irVO.setQueryGroupId(queryGroupId);
-                total = ipRecordService.countModuleBlockedIpList(irVO);
-            }
+            total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
 
         } catch (ServiceLayerException sle) {
         } catch (Exception e) {
@@ -488,10 +473,12 @@ public class DeliveryController extends BaseController {
 	 */
 	@RequestMapping(value = "doIpOpenByBtn.json", method = RequestMethod.POST)
     public @ResponseBody AppResponse doIpOpenByBtn(Model model, HttpServletRequest request, HttpServletResponse response,
-            @RequestParam(name="listId", required=true) String[] listId) {
+            @RequestParam(name="listId[]", required=true) String[] listId,
+            @RequestParam(name="reason", required=false) String reason) {
 
         try {
             //TODO
+            // Step 1. 查解鎖腳本
 
 
             return new AppResponse(HttpServletResponse.SC_OK, null);

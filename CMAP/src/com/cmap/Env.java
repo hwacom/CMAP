@@ -122,6 +122,14 @@ public class Env {
 
 	public static String ENABLE_LOG_USER_OPERATIONS;						 // 設定是否啟用USER操作紀錄到DB
 
+	public static List<String> SCRIPT_CODE_OF_IP_OPEN = new ArrayList<>();     // 設定IP開通的腳本代碼
+	public static List<String> SCRIPT_CODE_OF_IP_BLOCK = new ArrayList<>();    // 設定IP封鎖的腳本代碼
+	public static List<String> SCRIPT_CODE_OF_PORT_OPEN = new ArrayList<>();   // 設定PORT開通的腳本代碼
+	public static List<String> SCRIPT_CODE_OF_PORT_BLOCK = new ArrayList<>();  // 設定PORT封鎖的腳本代碼
+
+	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
+	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱
+
 	/**
 	 * GROUP_NAME下拉選單排序相關設定
 	 */
@@ -400,14 +408,14 @@ public class Env {
 
 	public static final Step[] SEND_SCRIPT = new Step[] {
 			Step.LOAD_SPECIFIED_SCRIPT,
-			Step.WRITE_SPECIFY_LOG,
 			Step.FIND_DEVICE_CONNECT_INFO,
 			Step.FIND_DEVICE_LOGIN_INFO,
 			Step.CONNECT_DEVICE,
 			Step.LOGIN_DEVICE,
 			Step.SEND_COMMANDS,
 			Step.CHECK_PROVISION_RESULT,
-			Step.CLOSE_DEVICE_CONNECTION
+			Step.CLOSE_DEVICE_CONNECTION,
+			Step.WRITE_SPECIFY_LOG,
 	};
 	public static final Step[] SEND_COMMANDS = new Step[] {
             Step.FIND_DEVICE_CONNECT_INFO,

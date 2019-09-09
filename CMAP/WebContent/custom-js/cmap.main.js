@@ -399,7 +399,8 @@ function calHeight() {
  **********************************************************************************************************/
 function changeDeviceMenu(deviceMenuObjId, groupId) {
 	$( "select[id^='"+deviceMenuObjId+"'] option" ).remove();
-	$( "select[id^='"+deviceMenuObjId+"']" ).append("<option value=''>=== ALL ===</option>");
+	$( "select[id^='"+deviceMenuObjId+"']" ).append("<option value=''>== ALL ==</option>");
+	$( "select[id^='"+deviceMenuObjId+"']" ).selectpicker("refresh");
 	
 	$.ajax({
 		url  : _ctx + '/base/getDeviceMenu',
@@ -416,6 +417,7 @@ function changeDeviceMenu(deviceMenuObjId, groupId) {
 				$.each(obj, function(key, value){
 					$( "select[id^='"+deviceMenuObjId+"']" ).append("<option value='"+key+"'>"+value+"</option>");
 				});
+				$( "select[id^='"+deviceMenuObjId+"']" ).selectpicker("refresh");
 			}
 		},
 		error : function(xhr, ajaxOptions, thrownError) {

@@ -132,6 +132,8 @@ public class Constants {
 
 	public static final String STATUS_FLAG_OPEN = "O";
 	public static final String STATUS_FLAG_DELETE = "X";
+	public static final String STATUS_FLAG_BLOCK = "B";
+	public static final String STATUS_FLAG_UNKNOWN = "U";
 
 	public static final String PROCESS_OPEN = "O";
 	public static final String PROCESS_ING = "*";

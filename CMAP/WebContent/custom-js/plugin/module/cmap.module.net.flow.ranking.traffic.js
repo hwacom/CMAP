@@ -43,7 +43,6 @@ $(document).ready(function() {
 });
 
 function showExportPanelSelf(day) {
-	console.log("day: " + day);
 	$("#dataExportModal").modal({
 		backdrop : 'static'
 	});

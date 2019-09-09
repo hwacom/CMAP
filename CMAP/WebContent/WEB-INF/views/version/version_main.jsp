@@ -16,15 +16,15 @@
 	      	  	</div>
 	    	    <div class="col-lg-2 group-field-left">
 	    	    	<span class="font-weight-bold" style="width: 25%"><spring:message code="group.name" /></span>
-	    	    	<form:select path="queryGroup1" id="queryGroup1" style="width: 70%" onchange="changeDeviceMenu('queryDevice1', this.value)">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="70%" path="queryGroup1" id="queryGroup1" onchange="changeDeviceMenu('queryDevice1', this.value)">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${group1List}" />
                     </form:select>
 	    	    </div>
 	    	    <div class="col-lg-2 group-field-middle">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
-					<form:select path="queryDevice1" id="queryDevice1" style="width: 70%">
-                        <form:option value="" label="=== ALL ===" />
+					<form:select class="selectpicker" data-live-search="true" data-width="70%" path="queryDevice1" id="queryDevice1">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${device1List}" />
                     </form:select>
 				</div>
@@ -37,7 +37,7 @@
 	    	    <div class="col-lg-2 group-field-other">
 	    	    	<span class="font-weight-bold" style="width: 25%"><spring:message code="category" /></span>
 					<form:select path="queryConfigType" id="queryConfigType" style="width: 70%">
-                        <form:option value="" label="=== ALL ===" />
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${configTypeList}" />
                     </form:select>
 	    	    </div>
@@ -53,15 +53,15 @@
 	      	  	</div>
 	    	    <div class="col-lg-2 group-field-left">
 	    	    	<span class="font-weight-bold" style="width: 25%"><spring:message code="group.name" /></span>
-	    	    	<form:select path="queryGroup2" id="queryGroup2" style="width: 70%" onchange="changeDeviceMenu('queryDevice2', this.value)">
-                        <form:option value="" label="=== ALL ===" />
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="70%" path="queryGroup2" id="queryGroup2" onchange="changeDeviceMenu('queryDevice2', this.value)">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${group2List}" />
                     </form:select>
 	    	    </div>
 	    	    <div class="col-lg-2 group-field-middle">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
-					<form:select path="queryDevice2" id="queryDevice2" style="width: 70%">
-                        <form:option value="" label="=== ALL ===" />
+					<form:select class="selectpicker" data-live-search="true" data-width="70%" path="queryDevice2" id="queryDevice2">
+                        <form:option value="" label="== ALL ==" />
                         <form:options items="${device2List}" />
                     </form:select>
 				</div>
@@ -71,7 +71,7 @@
 	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
 	    	    	<input type="date" id="queryExcuteDateEnd2" style="width: 35%" placeholder="yyyy-mm-dd">
 	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
+	    	    <div class="col-lg-2" style="padding-top: 10px;">
 	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
 	    	    </div>
 	      	  </div>

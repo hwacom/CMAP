@@ -1,5 +1,6 @@
 package com.cmap.plugin.module.ip.blocked.record;
 
+import java.util.List;
 import com.cmap.service.vo.CommonServiceVO;
 
 public class IpBlockedRecordVO extends CommonServiceVO {
@@ -7,7 +8,8 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     private String queryGroupId;
     private String queryDeviceId;
     private String queryIpAddress;
-    private String queryStatusFlag;
+    private List<String> queryStatusFlag;
+    private List<String> queryExcludeStatusFlag;
     private String queryBeginDate;
     private String queryEndDate;
 
@@ -47,11 +49,35 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     public void setQueryIpAddress(String queryIpAddress) {
         this.queryIpAddress = queryIpAddress;
     }
-    public String getQueryStatusFlag() {
+    public List<String> getQueryStatusFlag() {
         return queryStatusFlag;
     }
-    public void setQueryStatusFlag(String queryStatusFlag) {
+    public void setQueryStatusFlag(List<String> queryStatusFlag) {
         this.queryStatusFlag = queryStatusFlag;
+    }
+    public List<String> getQueryExcludeStatusFlag() {
+        return queryExcludeStatusFlag;
+    }
+    public void setQueryExcludeStatusFlag(List<String> queryExcludeStatusFlag) {
+        this.queryExcludeStatusFlag = queryExcludeStatusFlag;
+    }
+    public String getQueryBeginDate() {
+        return queryBeginDate;
+    }
+    public void setQueryBeginDate(String queryBeginDate) {
+        this.queryBeginDate = queryBeginDate;
+    }
+    public String getQueryEndDate() {
+        return queryEndDate;
+    }
+    public void setQueryEndDate(String queryEndDate) {
+        this.queryEndDate = queryEndDate;
+    }
+    public String getListId() {
+        return listId;
+    }
+    public void setListId(String listId) {
+        this.listId = listId;
     }
     public String getGroupId() {
         return groupId;
@@ -130,24 +156,6 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     }
     public void setUpdateBy(String updateBy) {
         this.updateBy = updateBy;
-    }
-    public String getQueryBeginDate() {
-        return queryBeginDate;
-    }
-    public void setQueryBeginDate(String queryBeginDate) {
-        this.queryBeginDate = queryBeginDate;
-    }
-    public String getQueryEndDate() {
-        return queryEndDate;
-    }
-    public void setQueryEndDate(String queryEndDate) {
-        this.queryEndDate = queryEndDate;
-    }
-    public String getListId() {
-        return listId;
-    }
-    public void setListId(String listId) {
-        this.listId = listId;
     }
     public String getGroupName() {
         return groupName;

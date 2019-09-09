@@ -12,6 +12,10 @@ $(document).ready(function() {
 	$("#btnIpOpen").click(function(e) {
 		doConfirmIpOpenByBtn();
 	});
+	
+	$("#btnDoOpen").click(function(e) {
+		doIpOpenByBtn();
+	});
 });
 
 function checkboxOnChangeEvent() {
@@ -61,11 +65,16 @@ function calBlockedIpSectionHeight() {
 }
 
 function doConfirmIpOpenByBtn() {
+	/*
 	var check = confirm("按下確認後將立即執行IP開通作業，請再次確認是否執行?");
 	
 	if (check) {
 		doIpOpenByBtn();
 	}
+	*/
+	$("#openReasonModal").modal({
+		backdrop : 'static'
+	});
 }
 
 /**
@@ -79,10 +88,15 @@ function doIpOpenByBtn() {
 		listId.push(checkedItem[i].value);
 	}
 	
+	var reason = $("#openReasonModal_reason").val();
+	console.log(listId);
+	console.log("reason: " + reason);
+	
 	$.ajax({
 		url : _ctx + '/delivery/doIpOpenByBtn.json',
 		data : {
-			"listId" : listId
+			"listId" : listId,
+			"reason" : reason
 		},
 		type : "POST",
 		async: true,
@@ -97,7 +111,7 @@ function doIpOpenByBtn() {
 				alert(resp.message);
 				
 				setTimeout(function() {
-					$('#stepModal').modal('hide');
+					$('#openReasonModal').modal('hide');
 				}, 500);
 				
 			} else {
@@ -111,7 +125,7 @@ function doIpOpenByBtn() {
 }
 
 //查詢按鈕動作
-function findBlockedIpRecordData() {
+function findBlockedIpRecordData(statusFlag) {
 	calBlockedIpSectionHeight();
 
 	if (typeof resultTable_blockedIpRecord !== "undefined") {
@@ -161,13 +175,16 @@ function findBlockedIpRecordData() {
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroupId = $("#queryGroup_mobile").val()
 					}
+					if (statusFlag == 'B') {
+						d.queryStatusFlag = statusFlag;
+					}
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();
 				}
 			},
-			"order" : [[3 , 'desc' ]],
+			"order" : [[5 , 'desc' ]],
 			"pageLength" : 100,
 			/*
 			"initComplete": function(settings, json){
@@ -195,11 +212,14 @@ function findBlockedIpRecordData() {
 					$('[data-field="openTime"]').hide();
 					$('[data-field="openReason"]').hide();
 					$('[data-field="openBy"]').hide();
+				} else if (lastPath === "/ipBlocked") {
+					$('[data-field="action"]').hide();
 				}
 				
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 			},
 			"rowCallback": function( row, data ) {
+				$('td:eq(0)', row).attr('data-field', 'action');
 				$('td:eq(1)', row).attr('data-field', 'seq');
 				$('td:eq(2)', row).attr('data-field', 'groupName');
 				$('td:eq(3)', row).attr('data-field', 'ipAddress');

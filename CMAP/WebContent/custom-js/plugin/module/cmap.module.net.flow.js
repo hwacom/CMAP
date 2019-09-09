@@ -184,10 +184,10 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(4)").html( data.toDateTime );
 		$(cTR).find("td:eq(5)").html( data.ethernetType );
 		$(cTR).find("td:eq(6)").html( data.protocol);
-		$(cTR).find("td:eq(7)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+row.fromDateTime+'\',\''+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+data.sourceIP+'</a>' );
+		$(cTR).find("td:eq(7)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.sourceIPInGroup+'\',\'S\')">'+data.sourceIP+'</a>' );
 		$(cTR).find("td:eq(8)").html( data.sourcePort );
 		$(cTR).find("td:eq(9)").html( data.sourceMAC );
-		$(cTR).find("td:eq(10)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+row.fromDateTime+'\',\''+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+data.destinationIP+'</a>' );
+		$(cTR).find("td:eq(10)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.destinationIPInGroup+'\',\'D\')">'+data.destinationIP+'</a>' );
 		$(cTR).find("td:eq(11)").html( data.destinationPort );
 		$(cTR).find("td:eq(12)").html( data.destinationMAC );
 		$(cTR).find("td:eq(13)").html( data.size );
@@ -369,6 +369,7 @@ function findNextData() {
         },
 		success : function(resp) {
 			var count = resp.data.length;
+			console.log("query success... count: " + count);
 			if (count > 0) {
 				addRow(resp.data);
 				startNum += pageLength;

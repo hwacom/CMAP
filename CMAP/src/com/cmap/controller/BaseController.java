@@ -213,17 +213,15 @@ public class BaseController {
 	protected void setQueryGroupList(HttpServletRequest request, Object obj, String fieldName, String queryGroup) throws Exception {
 		if (StringUtils.isBlank(queryGroup)) {
 			//如果未選擇特定群組，則須依照使用者權限，給予可查詢的群組清單
-			if (request.getSession() != null) {
-				Map<String, Map<String, Map<String, String>>> groupDeviceMap =
-						(Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
+	        Map<String, Map<String, Map<String, String>>> groupDeviceMap =
+                    (Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
 
-				List<String> groupList = new ArrayList<>();
-				for (Iterator<String> it = groupDeviceMap.keySet().iterator(); it.hasNext();) {
-					groupList.add(it.next());
-				}
+            List<String> groupList = new ArrayList<>();
+            for (Iterator<String> it = groupDeviceMap.keySet().iterator(); it.hasNext();) {
+                groupList.add(it.next());
+            }
 
-				new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, groupList);
-			}
+            new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, groupList);
 
 		} else {
 			new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, queryGroup);
@@ -233,29 +231,27 @@ public class BaseController {
 	protected void setQueryDeviceList(HttpServletRequest request, Object obj, String fieldName, String queryGroup, String queryDevice) throws Exception {
 		if (StringUtils.isBlank(queryDevice)) {
 			//如果未選擇特定群組，則須依照使用者權限，給予可查詢的群組清單
-			if (request.getSession() != null) {
-				Map<String, Map<String, Map<String, String>>> groupDeviceMap =
-						(Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
+            Map<String, Map<String, Map<String, String>>> groupDeviceMap =
+                    (Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
 
-				List<String> deviceList = new ArrayList<>();
+            List<String> deviceList = new ArrayList<>();
 
-				if (StringUtils.isBlank(queryGroup)) {
-					//如果群組選擇ALL，則取出使用者有權限內的群組底下所有設備(Device)清單
-					for (Entry<String, Map<String, Map<String, String>>> groupEntry : groupDeviceMap.entrySet()) {
-						for (Entry<String, Map<String, String>> deviceEntry : groupEntry.getValue().entrySet()) {
-							deviceList.add(deviceEntry.getKey());
-						}
-					}
+            if (StringUtils.isBlank(queryGroup)) {
+                //如果群組選擇ALL，則取出使用者有權限內的群組底下所有設備(Device)清單
+                for (Entry<String, Map<String, Map<String, String>>> groupEntry : groupDeviceMap.entrySet()) {
+                    for (Entry<String, Map<String, String>> deviceEntry : groupEntry.getValue().entrySet()) {
+                        deviceList.add(deviceEntry.getKey());
+                    }
+                }
 
-				} else {
-					//如果群組有選擇項目，則取出該群組底下使用者有權限的設備(Device)清單
-					for (Entry<String, Map<String, String>> deviceEntry : groupDeviceMap.get(queryGroup).entrySet()) {
-						deviceList.add(deviceEntry.getKey());
-					}
-				}
+            } else {
+                //如果群組有選擇項目，則取出該群組底下使用者有權限的設備(Device)清單
+                for (Entry<String, Map<String, String>> deviceEntry : groupDeviceMap.get(queryGroup).entrySet()) {
+                    deviceList.add(deviceEntry.getKey());
+                }
+            }
 
-				new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, deviceList);
-			}
+            new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, deviceList);
 
 		} else {
 			new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, queryDevice);
@@ -479,11 +475,14 @@ public class BaseController {
 
 	private Map<String, String> composeDeviceMap4Menu(Map<String, Map<String, String>> deviceMap) {
 		Map<String, String> deviceMenuMap = new HashMap<>();
-		for (String deviceId : deviceMap.keySet()) {
-			deviceMenuMap.put(
-					deviceId											//DEVICE_ID
-					,deviceMap.get(deviceId).get(Constants.DEVICE_NAME) //DEVICE_NAME
-					);
+
+		if (deviceMap != null) {
+		    for (String deviceId : deviceMap.keySet()) {
+	            deviceMenuMap.put(
+	                    deviceId                                            //DEVICE_ID
+	                    ,deviceMap.get(deviceId).get(Constants.DEVICE_NAME) //DEVICE_NAME
+	                    );
+	        }
 		}
 
 		return deviceMenuMap;

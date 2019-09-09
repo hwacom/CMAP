@@ -18,33 +18,33 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
     private static Logger log;
 
     @Override
-    public long countModuleBlockedPortList(PortBlockedRecordVO irVO) {
+    public long countModuleBlockedPortList(PortBlockedRecordVO pbrVO) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select count(mbpl.listId) ")
           .append(" from ModuleBlockedPortList mbpl ")
           .append("     ,DeviceList dl ")
-          .append("     ,DevicePortInfo dpi ")
           .append(" where 1=1 ")
           .append(" and mbpl.groupId = dl.groupId ")
-          .append(" and mbpl.deviceId = dl.deviceId ")
-          .append(" and dl.deviceModel = dpi.deviceModel ")
-          .append(" and mbpl.portId = dpi.portId ");
+          .append(" and mbpl.deviceId = dl.deviceId ");
 
-        if (StringUtils.isNotBlank(irVO.getQueryGroupId())) {
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
             sb.append(" and mbpl.groupId = :groupId ");
         }
-        if (StringUtils.isNotBlank(irVO.getQueryDeviceId())) {
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
             sb.append(" and mbpl.deviceId = :deviceId ");
         }
-        if (StringUtils.isNotBlank(irVO.getQueryPortId())) {
+        if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             sb.append(" and mbpl.portId = :portId ");
         }
-        if (StringUtils.isNotBlank(irVO.getQueryStatusFlag())) {
-            sb.append(" and mbpl.statusFlag = :statusFlag ");
+        if (pbrVO.getQueryStatusFlag() != null && !pbrVO.getQueryStatusFlag().isEmpty()) {
+            sb.append(" and mbpl.statusFlag in (:statusFlag) ");
         }
-        if (StringUtils.isNotBlank(irVO.getSearchValue())) {
+        if (pbrVO.getQueryExcludeStatusFlag() != null && !pbrVO.getQueryExcludeStatusFlag().isEmpty()) {
+            sb.append(" and mbpl.statusFlag not in (:excludeStatusFlag) ");
+        }
+        if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
             sb.append(" and ( ")
-              .append("       dl.ipAddress like :searchValue ")
+              .append("       mbpl.portid like :searchValue ")
               .append("       or ")
               .append("       mbpl.blockBy like :searchValue ")
               .append("       or ")
@@ -54,62 +54,65 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
-        if (StringUtils.isNotBlank(irVO.getQueryGroupId())) {
-            q.setParameter("groupId", irVO.getQueryGroupId());
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            q.setParameter("groupId", pbrVO.getQueryGroupId());
         }
-        if (StringUtils.isNotBlank(irVO.getQueryDeviceId())) {
-            q.setParameter("deviceId", irVO.getQueryDeviceId());
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
+            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
         }
-        if (StringUtils.isNotBlank(irVO.getQueryPortId())) {
-            q.setParameter("portId", irVO.getQueryPortId());
+        if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
+            q.setParameter("portId", pbrVO.getQueryPortId());
         }
-        if (StringUtils.isNotBlank(irVO.getQueryStatusFlag())) {
-            q.setParameter("statusFlag", irVO.getQueryStatusFlag());
+        if (pbrVO.getQueryStatusFlag() != null && !pbrVO.getQueryStatusFlag().isEmpty()) {
+            q.setParameterList("statusFlag", pbrVO.getQueryStatusFlag());
         }
-        if (StringUtils.isNotBlank(irVO.getSearchValue())) {
-            q.setParameter("searchValue", irVO.getQueryGroupId());
+        if (pbrVO.getQueryExcludeStatusFlag() != null && !pbrVO.getQueryExcludeStatusFlag().isEmpty()) {
+            q.setParameterList("excludeStatusFlag", pbrVO.getQueryExcludeStatusFlag());
+        }
+        if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
+            q.setParameter("searchValue", pbrVO.getQueryGroupId());
         }
 
         return DataAccessUtils.longResult(q.list());
     }
 
     @Override
-    public List<Object[]> findModuleBlockedPortList(PortBlockedRecordVO irVO, Integer startRow,
+    public List<Object[]> findModuleBlockedPortList(PortBlockedRecordVO pbrVO, Integer startRow,
             Integer pageLength) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" select mbpl, dl, dpi ")
+        sb.append(" select mbpl, dl ")
           .append(" from ModuleBlockedPortList mbpl ")
           .append("     ,DeviceList dl ")
-          .append("     ,DevicePortInfo dpi ")
           .append(" where 1=1 ")
           .append(" and mbpl.groupId = dl.groupId ")
-          .append(" and mbpl.deviceId = dl.deviceId ")
-          .append(" and dl.deviceModel = dpi.deviceModel ")
-          .append(" and mbpl.portId = dpi.portId ");
+          .append(" and mbpl.deviceId = dl.deviceId ");
 
-        if (StringUtils.isNotBlank(irVO.getQueryGroupId())) {
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
             sb.append(" and mbpl.groupId = :groupId ");
         }
-        if (StringUtils.isNotBlank(irVO.getQueryDeviceId())) {
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
             sb.append(" and mbpl.deviceId = :deviceId ");
         }
-        if (StringUtils.isNotBlank(irVO.getQueryPortId())) {
+        if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             sb.append(" and mbpl.portId = :portId ");
         }
-        if (StringUtils.isNotBlank(irVO.getQueryStatusFlag())) {
-            sb.append(" and mbpl.statusFlag = :statusFlag ");
+        if (pbrVO.getQueryStatusFlag() != null && !pbrVO.getQueryStatusFlag().isEmpty()) {
+            sb.append(" and mbpl.statusFlag in (:statusFlag) ");
         }
-        if (StringUtils.isNotBlank(irVO.getSearchValue())) {
+        if (pbrVO.getQueryExcludeStatusFlag() != null && !pbrVO.getQueryExcludeStatusFlag().isEmpty()) {
+            sb.append(" and mbpl.statusFlag not in (:excludeStatusFlag) ");
+        }
+        if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
             sb.append(" and ( ")
-              .append("       dl.ipAddress like :searchValue ")
+              .append("       mbpl.portid like :searchValue ")
               .append("       or ")
               .append("       mbpl.blockBy like :searchValue ")
               .append("       or ")
               .append("       mbpl.blockReason like :searchValue ")
               .append("     ) ");
         }
-        if (StringUtils.isNotBlank(irVO.getOrderColumn())) {
-            sb.append(" order by ").append(irVO.getOrderColumn()).append(" ").append(irVO.getOrderDirection());
+        if (StringUtils.isNotBlank(pbrVO.getOrderColumn())) {
+            sb.append(" order by ").append(pbrVO.getOrderColumn()).append(" ").append(pbrVO.getOrderDirection());
 
         } else {
             sb.append(" order by mbpl.blockTime desc ");
@@ -117,20 +120,23 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
-        if (StringUtils.isNotBlank(irVO.getQueryGroupId())) {
-            q.setParameter("groupId", irVO.getQueryGroupId());
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            q.setParameter("groupId", pbrVO.getQueryGroupId());
         }
-        if (StringUtils.isNotBlank(irVO.getQueryDeviceId())) {
-            q.setParameter("deviceId", irVO.getQueryDeviceId());
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
+            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
         }
-        if (StringUtils.isNotBlank(irVO.getQueryPortId())) {
-            q.setParameter("portId", irVO.getQueryPortId());
+        if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
+            q.setParameter("portId", pbrVO.getQueryPortId());
         }
-        if (StringUtils.isNotBlank(irVO.getQueryStatusFlag())) {
-            q.setParameter("statusFlag", irVO.getQueryStatusFlag());
+        if (pbrVO.getQueryStatusFlag() != null && !pbrVO.getQueryStatusFlag().isEmpty()) {
+            q.setParameterList("statusFlag", pbrVO.getQueryStatusFlag());
         }
-        if (StringUtils.isNotBlank(irVO.getSearchValue())) {
-            q.setParameter("searchValue", "%".concat(irVO.getQueryGroupId()).concat("%"));
+        if (pbrVO.getQueryExcludeStatusFlag() != null && !pbrVO.getQueryExcludeStatusFlag().isEmpty()) {
+            q.setParameterList("excludeStatusFlag", pbrVO.getQueryExcludeStatusFlag());
+        }
+        if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
+            q.setParameter("searchValue", "%".concat(pbrVO.getQueryGroupId()).concat("%"));
         }
         if (startRow != null && pageLength != null) {
             q.setFirstResult(startRow);
@@ -138,5 +144,51 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
         }
 
         return (List<Object[]>)q.list();
+    }
+
+    @Override
+    public ModuleBlockedPortList findLastestModuleBlockedPortList(PortBlockedRecordVO pbrVO) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select mbpl ")
+          .append(" from ModuleBlockedPortList mbpl ")
+          .append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            sb.append(" and mbpl.groupId = :groupId ");
+        }
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
+            sb.append(" and mbpl.deviceId = :deviceId ");
+        }
+        if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
+            sb.append(" and mbpl.portId = :portId ");
+        }
+        if (pbrVO.getQueryStatusFlag() != null && !pbrVO.getQueryStatusFlag().isEmpty()) {
+            sb.append(" and mbpl.statusFlag in (:statusFlag) ");
+        }
+        if (pbrVO.getQueryExcludeStatusFlag() != null && !pbrVO.getQueryExcludeStatusFlag().isEmpty()) {
+            sb.append(" and mbpl.statusFlag not in (:excludeStatusFlag) ");
+        }
+        sb.append(" order by mbpl.updateTime desc ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            q.setParameter("groupId", pbrVO.getQueryGroupId());
+        }
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
+            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
+        }
+        if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
+            q.setParameter("portId", pbrVO.getQueryPortId());
+        }
+        if (pbrVO.getQueryStatusFlag() != null && !pbrVO.getQueryStatusFlag().isEmpty()) {
+            q.setParameterList("statusFlag", pbrVO.getQueryStatusFlag());
+        }
+        if (pbrVO.getQueryExcludeStatusFlag() != null && !pbrVO.getQueryExcludeStatusFlag().isEmpty()) {
+            q.setParameterList("excludeStatusFlag", pbrVO.getQueryExcludeStatusFlag());
+        }
+
+        List<ModuleBlockedPortList> entities = (List<ModuleBlockedPortList>)q.list();
+        return (entities != null && !entities.isEmpty()) ? entities.get(0) : null;
     }
 }
