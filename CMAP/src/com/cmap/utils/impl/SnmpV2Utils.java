@@ -34,12 +34,12 @@ import com.cmap.utils.ConnectUtils;
 public class SnmpV2Utils implements ConnectUtils {
 	private static Logger log = LoggerFactory.getLogger(SnmpV2Utils.class);
 
-	private static int version = SnmpConstants.version2c;
-	private static String protocol = "udp";
+	private int version = SnmpConstants.version2c;
+	private String protocol = "udp";
 
-	private static CommunityTarget target = null;
-	private static DefaultUdpTransportMapping udpTransportMapping = null;
-	private static Snmp snmp = null;
+	private CommunityTarget target = null;
+	private DefaultUdpTransportMapping udpTransportMapping = null;
+	private Snmp snmp = null;
 
 	@Override
 	public boolean connect(final String udpAddress, final String community) throws Exception {
@@ -442,21 +442,23 @@ public class SnmpV2Utils implements ConnectUtils {
 
 	@Override
 	public boolean disconnect() throws Exception {
-		if (snmp != null) {
-			try {
-				snmp.close();
-			} catch (IOException ex1) {
-				snmp = null;
-			}
-		}
 		if (udpTransportMapping != null) {
 			try {
 				udpTransportMapping.close();
 			} catch (IOException ex2) {
 				udpTransportMapping = null;
+				log.error("Failure while closing UDP transport mapping", ex2);
 			}
 		}
-
+		if (snmp != null) {
+            try {
+                snmp.close();
+            } catch (IOException ex1) {
+                snmp = null;
+                log.error("Failure while closing UDP snmp", ex1);
+            }
+        }
+		log.info("Success closing UDP snmp >>> " + target.getAddress());
 		return true;
 	}
 
