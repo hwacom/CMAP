@@ -338,6 +338,8 @@ public class Constants {
 	public static final String OIDC_EMAIL = "OIDC_EMAIL";
 	public static final String OIDC_USER_NAME = "OIDC_USER_NAME";
 
+	public static final String APACHE_TOMCAT_SESSION_USER_NAME = "user";
+
 	public static final String OIDC_MLC_CONFIGURATION_ENDPOINT = "https://mlc.sso.edu.tw/.well-known/openid-configuration";
 
 	public static final String PRTG_LOGIN_ACCOUNT = "PRTG_LOGIN_ACCOUNT";

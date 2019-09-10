@@ -93,6 +93,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				getAuthorities(user.getRoles())
 				);
 		//		sysLogService.saveSysLog(new SysLog(user, SysLogService.LOGIN));
+
+		// 清除密碼資訊
+		session.removeAttribute(Constants.PRTG_LOGIN_PASSWORD);
+		session.removeAttribute(Constants.PASSWORD);
 		return securityUser;
 	}
 

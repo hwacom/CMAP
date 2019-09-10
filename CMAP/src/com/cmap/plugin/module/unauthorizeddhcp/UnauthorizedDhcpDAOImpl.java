@@ -46,6 +46,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			sb.append("     		  and mm.group_id = :groupId ");
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            sb.append("               and mm.device_id = :deviceId ");
+        }
 		sb.append("     		  group BY  ")
 		  .append("     		  	mm.group_id  ")
 		  .append("     		 ) m2  ")
@@ -55,6 +58,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			sb.append("      AND m1.group_id = :groupId  ");
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            sb.append("      and m1.device_id = :deviceId ");
+        }
 		sb.append("          GROUP BY ")
 		  .append("              m1.group_id ")
 		  .append("       ) m3  ")
@@ -70,6 +76,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			sb.append(" AND m4.group_id = :groupId ");
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            sb.append(" and m4.device_id = :deviceId ");
+        }
         sb.append("   GROUP BY ")
           .append(" 	   m4.group_id ")
 		  .append("       ,m4.device_id ")
@@ -98,6 +107,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			q.setParameter("groupId", udsVO.getQueryGroup());
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+		    q.setParameter("deviceId", udsVO.getQueryDevice());
+        }
 		if (StringUtils.isNotBlank(udsVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(udsVO.getSearchValue()).concat("%"));
 	    }
@@ -139,6 +151,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			sb.append("     		  and mm.group_id = :groupId ");
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            sb.append("               and mm.device_id = :deviceId ");
+        }
 		sb.append("     		  group BY  ")
 		  .append("     		  	mm.group_id  ")
 		  .append("     		 ) m2  ")
@@ -148,6 +163,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			sb.append("     	AND m1.group_id = :groupId  ");
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            sb.append("         and m1.device_id = :deviceId ");
+        }
 		sb.append("         GROUP BY ")
           .append("             m1.group_id ")
 		  .append("       ) m3  ")
@@ -163,6 +181,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			sb.append(" AND m4.group_id = :groupId ");
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            sb.append(" and m4.device_id = :deviceId ");
+        }
         sb.append(" GROUP BY ")
           .append(" 	m4.group_id ")
 		  .append("    ,m4.device_id ")
@@ -215,6 +236,9 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
 			q.setParameter("groupId", udsVO.getQueryGroup());
 		}
+		if (StringUtils.isNotBlank(udsVO.getQueryDevice())) {
+            q.setParameter("deviceId", udsVO.getQueryDevice());
+        }
 		if (StringUtils.isNotBlank(udsVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(udsVO.getSearchValue()).concat("%"));
 	    }

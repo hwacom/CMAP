@@ -13,6 +13,9 @@ public class PortBlockedRecordVO extends CommonServiceVO {
     private String queryBeginDate;
     private String queryEndDate;
 
+    private List<String> queryGroupIdList;
+    private List<String> queryDeviceIdList;
+
     private String listId;
     private String groupId;
     private String deviceId;
@@ -175,5 +178,17 @@ public class PortBlockedRecordVO extends CommonServiceVO {
     }
     public void setPortName(String portName) {
         this.portName = portName;
+    }
+    public List<String> getQueryGroupIdList() {
+        return queryGroupIdList;
+    }
+    public void setQueryGroupIdList(List<String> queryGroupIdList) {
+        this.queryGroupIdList = queryGroupIdList;
+    }
+    public List<String> getQueryDeviceIdList() {
+        return queryDeviceIdList;
+    }
+    public void setQueryDeviceIdList(List<String> queryDeviceIdList) {
+        this.queryDeviceIdList = queryDeviceIdList;
     }
 }

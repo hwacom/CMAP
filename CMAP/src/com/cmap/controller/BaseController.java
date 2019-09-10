@@ -189,6 +189,9 @@ public class BaseController {
 
 	        final String loginFromApp = Objects.toString(session.getAttribute(Constants.LOGIN_FROM_APP), Constants.DATA_N);
 
+	        // 清除密碼資訊
+	        session.removeAttribute(Constants.PRTG_LOGIN_PASSWORD);
+
 	        if (StringUtils.equals(loginFromApp, Constants.DATA_Y)) {
 	            return "redirect:/login/returnApp";
 

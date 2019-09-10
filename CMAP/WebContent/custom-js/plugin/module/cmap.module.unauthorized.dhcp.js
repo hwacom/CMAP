@@ -4,8 +4,7 @@
 
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_abnormalAlarm", "toggleMenu_abnormalAlarm_items", "unauthroized_dhcp");
-	
-	
+	changeDeviceMenu("queryDevice", $("#queryGroup").val());
 });
 
 //查詢按鈕動作

@@ -29,9 +29,13 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
             sb.append(" and mbpl.groupId = :groupId ");
+        } else {
+            sb.append(" and mbpl.groupId in (:groupId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
             sb.append(" and mbpl.deviceId = :deviceId ");
+        } else {
+            sb.append(" and mbpl.deviceId in (:deviceId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             sb.append(" and mbpl.portId = :portId ");
@@ -54,12 +58,10 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
-        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
-            q.setParameter("groupId", pbrVO.getQueryGroupId());
-        }
-        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
-            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
-        }
+
+        q.setParameter("groupId", StringUtils.isNotBlank(pbrVO.getQueryGroupId()) ? pbrVO.getQueryGroupId() : pbrVO.getQueryGroupIdList());
+        q.setParameter("deviceId", StringUtils.isNotBlank(pbrVO.getQueryDeviceId()) ? pbrVO.getQueryDeviceId() : pbrVO.getQueryDeviceIdList());
+
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             q.setParameter("portId", pbrVO.getQueryPortId());
         }
@@ -89,9 +91,13 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
             sb.append(" and mbpl.groupId = :groupId ");
+        } else {
+            sb.append(" and mbpl.groupId in (:groupId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
             sb.append(" and mbpl.deviceId = :deviceId ");
+        } else {
+            sb.append(" and mbpl.deviceId in (:deviceId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             sb.append(" and mbpl.portId = :portId ");
@@ -120,12 +126,10 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
-        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
-            q.setParameter("groupId", pbrVO.getQueryGroupId());
-        }
-        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
-            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
-        }
+
+        q.setParameter("groupId", StringUtils.isNotBlank(pbrVO.getQueryGroupId()) ? pbrVO.getQueryGroupId() : pbrVO.getQueryGroupIdList());
+        q.setParameter("deviceId", StringUtils.isNotBlank(pbrVO.getQueryDeviceId()) ? pbrVO.getQueryDeviceId() : pbrVO.getQueryDeviceIdList());
+
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             q.setParameter("portId", pbrVO.getQueryPortId());
         }
@@ -155,9 +159,13 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
             sb.append(" and mbpl.groupId = :groupId ");
+        } else {
+            sb.append(" and mbpl.groupId in (:groupId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
             sb.append(" and mbpl.deviceId = :deviceId ");
+        } else {
+            sb.append(" and mbpl.deviceId in (:deviceId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             sb.append(" and mbpl.portId = :portId ");
@@ -172,12 +180,10 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
-        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
-            q.setParameter("groupId", pbrVO.getQueryGroupId());
-        }
-        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
-            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
-        }
+
+        q.setParameter("groupId", StringUtils.isNotBlank(pbrVO.getQueryGroupId()) ? pbrVO.getQueryGroupId() : pbrVO.getQueryGroupIdList());
+        q.setParameter("deviceId", StringUtils.isNotBlank(pbrVO.getQueryDeviceId()) ? pbrVO.getQueryDeviceId() : pbrVO.getQueryDeviceIdList());
+
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             q.setParameter("portId", pbrVO.getQueryPortId());
         }

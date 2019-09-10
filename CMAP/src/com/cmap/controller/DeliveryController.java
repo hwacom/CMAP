@@ -147,6 +147,10 @@ public class DeliveryController extends BaseController {
             pbrVO = new PortBlockedRecordVO();
             pbrVO.setQueryGroupId(queryGroupId);
             pbrVO.setQueryDeviceId(queryDeviceId);
+
+            setQueryGroupList(request, pbrVO, StringUtils.isNotBlank(queryGroupId) ? "queryGroupId" : "queryGroupIdList", queryGroupId);
+            setQueryDeviceList(request, pbrVO, StringUtils.isNotBlank(queryDeviceId) ? "queryDeviceId" : "queryDeviceIdList", queryGroupId, queryDeviceId);
+
             //pbrVO.setQueryPortAddress(queryPortAddress);
             if (StringUtils.isNotBlank(queryStatusFlag)) {
                 pbrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
@@ -226,8 +230,10 @@ public class DeliveryController extends BaseController {
         IpBlockedRecordVO irVO;
         try {
             irVO = new IpBlockedRecordVO();
-            irVO.setQueryGroupId(queryGroupId);
-            irVO.setQueryDeviceId(queryDeviceId);
+
+            setQueryGroupList(request, irVO, StringUtils.isNotBlank(queryGroupId) ? "queryGroupId" : "queryGroupIdList", queryGroupId);
+            setQueryDeviceList(request, irVO, StringUtils.isNotBlank(queryDeviceId) ? "queryDeviceId" : "queryDeviceIdList", queryGroupId, queryDeviceId);
+
             irVO.setQueryIpAddress(queryIpAddress);
             if (StringUtils.isNotBlank(queryStatusFlag)) {
                 irVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));

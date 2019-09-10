@@ -4,7 +4,7 @@
 
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_abnormalAlarm", "toggleMenu_abnormalAlarm_items", "ip_record");
-	
+	changeDeviceMenu("queryDevice", $("#queryGroup").val());
 });
 
 //查詢按鈕動作

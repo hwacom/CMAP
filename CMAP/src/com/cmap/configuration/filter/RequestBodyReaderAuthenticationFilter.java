@@ -191,6 +191,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 
 		request.getSession().setAttribute(Constants.USERNAME, username);
 		request.getSession().setAttribute(Constants.PASSWORD, password);
+		request.getSession().setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
 		//            Map<String, String> authMap = composeUserNamePasswordMap(requestBody);
 
