@@ -83,64 +83,80 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         		}
         	}
 
-        	snmpUtils = new SnmpV2Utils();
         	// 迴圈跑該群組下的L3設備
             for (DeviceList device : deviceL3) {
-            	String deviceListId = device.getDeviceListId();
-                String groupId = device.getGroupId();
-                String deviceId = device.getDeviceId();
-                String deviceIp = device.getDeviceIp();
+            	try {
+            		snmpUtils = new SnmpV2Utils();
+                	
+                	String deviceListId = device.getDeviceListId();
+                    String groupId = device.getGroupId();
+                    String deviceId = device.getDeviceId();
+                    String deviceIp = device.getDeviceIp();
 
-                // 取得設備 COMMUNITY_STRING 及 UDP_PORT 設定
-                String communityString = null;
-                Integer udpPort = null;
-                DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
-                if (loginInfo != null) {
-                	communityString = loginInfo.getCommunityString();
-                	udpPort = loginInfo.getUdpPort();
-                } else {
-                	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
-                	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
+                    // 取得設備 COMMUNITY_STRING 及 UDP_PORT 設定
+                    String communityString = null;
+                    Integer udpPort = null;
+                    DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
+                    if (loginInfo != null) {
+                    	communityString = loginInfo.getCommunityString();
+                    	udpPort = loginInfo.getUdpPort();
+                    } else {
+                    	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
+                    	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
+                    }
+
+                    String udpAddress = "udp:" + deviceIp + "/" + udpPort;
+                    // 連接設備
+                    snmpUtils.connect(udpAddress, communityString);
+
+                    // 撈取設備ARP_TABLE相關資料
+                    Map<String, Map<String, String>> arpTable = snmpUtils.pollTableView(arpTableOid, tableEntryMap);
+
+                    if (arpTable == null || (arpTable != null && arpTable.isEmpty())) {
+                    	// 該設備未撈取到資料則跳到下一個設備繼續處理
+                    	continue;
+                    }
+
+                    // 將撈取結果組成此Method回傳MAP格式
+                    Map<String, IpMappingServiceVO> macInfoMap = new HashMap<>();
+                    IpMappingServiceVO ipsVO = null;
+                    for (Map.Entry<String, Map<String, String>> arpTableMap : arpTable.entrySet()) {
+                    	ipsVO = new IpMappingServiceVO();
+
+                    	Map<String, String> arpTableEntryMap = arpTableMap.getValue();
+                    	String macAddress = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_MAC_ADDRESS);
+                    	String ipAddress = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_IP_ADDRESS);
+                    	String interfaceId = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_INTERFACE_ID);
+
+                    	if (StringUtils.isBlank(macAddress)) {
+                    		//TODO MAC_Address為Key值，若為空的話先跳過
+                    		continue;
+                    	}
+
+                    	ipsVO.setGroupId(groupId);
+                    	ipsVO.setDeviceId(deviceId);
+                    	ipsVO.setMacAddress(macAddress);
+                    	ipsVO.setIpAddress(ipAddress);
+                    	ipsVO.setInterfaceId(interfaceId);
+
+                    	macInfoMap.put(macAddress, ipsVO);
+                    }
+
+                    retMap.put(deviceId, macInfoMap);
+            		
+            	} catch (Exception e) {
+            		throw e;
+            		
+            	} finally {
+                    if (snmpUtils != null) {
+                        try {
+                            snmpUtils.disconnect();
+
+                        } catch (Exception e) {
+                            snmpUtils = null;
+                        }
+                    }
                 }
-
-                String udpAddress = "udp:" + deviceIp + "/" + udpPort;
-                // 連接設備
-                snmpUtils.connect(udpAddress, communityString);
-
-                // 撈取設備ARP_TABLE相關資料
-                Map<String, Map<String, String>> arpTable = snmpUtils.pollTableView(arpTableOid, tableEntryMap);
-
-                if (arpTable == null || (arpTable != null && arpTable.isEmpty())) {
-                	// 該設備未撈取到資料則跳到下一個設備繼續處理
-                	continue;
-                }
-
-                // 將撈取結果組成此Method回傳MAP格式
-                Map<String, IpMappingServiceVO> macInfoMap = new HashMap<>();
-                IpMappingServiceVO ipsVO = null;
-                for (Map.Entry<String, Map<String, String>> arpTableMap : arpTable.entrySet()) {
-                	ipsVO = new IpMappingServiceVO();
-
-                	Map<String, String> arpTableEntryMap = arpTableMap.getValue();
-                	String macAddress = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_MAC_ADDRESS);
-                	String ipAddress = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_IP_ADDRESS);
-                	String interfaceId = arpTableEntryMap.get(Env.OID_NAME_OF_ARP_TABLE_INTERFACE_ID);
-
-                	if (StringUtils.isBlank(macAddress)) {
-                		//TODO MAC_Address為Key值，若為空的話先跳過
-                		continue;
-                	}
-
-                	ipsVO.setGroupId(groupId);
-                	ipsVO.setDeviceId(deviceId);
-                	ipsVO.setMacAddress(macAddress);
-                	ipsVO.setIpAddress(ipAddress);
-                	ipsVO.setInterfaceId(interfaceId);
-
-                	macInfoMap.put(macAddress, ipsVO);
-                }
-
-                retMap.put(deviceId, macInfoMap);
             }
 
         } catch (Exception e) {
@@ -196,74 +212,89 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         		}
         	}
 
-        	snmpUtils = new SnmpV2Utils();
         	// 迴圈跑該群組下的L2設備
             for (DeviceList device : deviceL2) {
-            	String deviceListId = device.getDeviceListId();
-                String groupId = device.getGroupId();
-                String deviceId = device.getDeviceId();
-                String deviceIp = device.getDeviceIp();
+            	try {
+            		snmpUtils = new SnmpV2Utils();
+            		
+            		String deviceListId = device.getDeviceListId();
+                    String groupId = device.getGroupId();
+                    String deviceId = device.getDeviceId();
+                    String deviceIp = device.getDeviceIp();
 
-                String communityString = null;
-                Integer udpPort = null;
-                DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
-                if (loginInfo != null) {
-                	communityString = loginInfo.getCommunityString();
-                	udpPort = loginInfo.getUdpPort();
-                } else {
-                	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
-                	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
+                    String communityString = null;
+                    Integer udpPort = null;
+                    DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
+                    if (loginInfo != null) {
+                    	communityString = loginInfo.getCommunityString();
+                    	udpPort = loginInfo.getUdpPort();
+                    } else {
+                    	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
+                    	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
+                    }
+
+                    String udpAddress = "udp:" + deviceIp + "/" + udpPort;
+                    snmpUtils.connect(udpAddress, communityString);
+
+                    Map<String, Map<String, String>> macTable = snmpUtils.pollTableView(macTableOid, entryMap);
+
+                    if (macTable == null || (macTable != null && macTable.isEmpty())) {
+                    	// 該設備未撈取到資料則跳到下一個設備繼續處理
+                    	continue;
+                    }
+
+                    // 查找要排除的PORT清單
+                    Map<String, String> excludePortMap = null;
+                    List<ModuleMacTableExcludePort> excludePortList = ipMappingDAO.findModuleMacTableExcludePort(groupId, deviceId);
+
+                    if (excludePortList != null && !excludePortList.isEmpty()) {
+                    	excludePortMap = new HashMap<>();
+
+                    	for (ModuleMacTableExcludePort entity : excludePortList) {
+                    		excludePortMap.put(entity.getPortId(), entity.getRemark());
+                    	}
+                    }
+
+                    // 將撈取結果組成此Method回傳MAP格式
+                    Map<String, IpMappingServiceVO> macInfoMap = new HashMap<>();
+                    IpMappingServiceVO ipsVO = null;
+                    for (Map.Entry<String, Map<String, String>> macTableMap : macTable.entrySet()) {
+                    	ipsVO = new IpMappingServiceVO();
+
+                    	Map<String, String> macTableEntryMap = macTableMap.getValue();
+                    	String macAddress = macTableEntryMap.get(Env.OID_NAME_OF_MAC_TABLE_MAC_ADDRESS);
+                    	String portId = macTableEntryMap.get(Env.OID_NAME_OF_MAC_TABLE_PORT_ID);
+
+                    	if (StringUtils.isBlank(macAddress)) {
+                    		//TODO MAC_Address為Key值，若為空的話先跳過
+                    		continue;
+                    	} else if (excludePortMap != null && !excludePortMap.isEmpty() && excludePortMap.containsKey(portId)) {
+                    		// 若PORT_ID在排除清單內則跳過
+                    		continue;
+                    	}
+
+                    	ipsVO.setGroupId(groupId);
+                    	ipsVO.setDeviceId(deviceId);
+                    	ipsVO.setMacAddress(macAddress);
+                    	ipsVO.setPortId(portId);
+
+                    	macInfoMap.put(macAddress, ipsVO);
+                    }
+
+                    retMap.put(deviceId, macInfoMap);
+                    
+            	} catch (Exception e) {
+            		throw e;
+            		
+            	} finally {
+                    if (snmpUtils != null) {
+                        try {
+                            snmpUtils.disconnect();
+                        } catch (Exception e) {
+                            snmpUtils = null;
+                        }
+                    }
                 }
-
-                String udpAddress = "udp:" + deviceIp + "/" + udpPort;
-                snmpUtils.connect(udpAddress, communityString);
-
-                Map<String, Map<String, String>> macTable = snmpUtils.pollTableView(macTableOid, entryMap);
-
-                if (macTable == null || (macTable != null && macTable.isEmpty())) {
-                	// 該設備未撈取到資料則跳到下一個設備繼續處理
-                	continue;
-                }
-
-                // 查找要排除的PORT清單
-                Map<String, String> excludePortMap = null;
-                List<ModuleMacTableExcludePort> excludePortList = ipMappingDAO.findModuleMacTableExcludePort(groupId, deviceId);
-
-                if (excludePortList != null && !excludePortList.isEmpty()) {
-                	excludePortMap = new HashMap<>();
-
-                	for (ModuleMacTableExcludePort entity : excludePortList) {
-                		excludePortMap.put(entity.getPortId(), entity.getRemark());
-                	}
-                }
-
-                // 將撈取結果組成此Method回傳MAP格式
-                Map<String, IpMappingServiceVO> macInfoMap = new HashMap<>();
-                IpMappingServiceVO ipsVO = null;
-                for (Map.Entry<String, Map<String, String>> macTableMap : macTable.entrySet()) {
-                	ipsVO = new IpMappingServiceVO();
-
-                	Map<String, String> macTableEntryMap = macTableMap.getValue();
-                	String macAddress = macTableEntryMap.get(Env.OID_NAME_OF_MAC_TABLE_MAC_ADDRESS);
-                	String portId = macTableEntryMap.get(Env.OID_NAME_OF_MAC_TABLE_PORT_ID);
-
-                	if (StringUtils.isBlank(macAddress)) {
-                		//TODO MAC_Address為Key值，若為空的話先跳過
-                		continue;
-                	} else if (excludePortMap != null && !excludePortMap.isEmpty() && excludePortMap.containsKey(portId)) {
-                		// 若PORT_ID在排除清單內則跳過
-                		continue;
-                	}
-
-                	ipsVO.setGroupId(groupId);
-                	ipsVO.setDeviceId(deviceId);
-                	ipsVO.setMacAddress(macAddress);
-                	ipsVO.setPortId(portId);
-
-                	macInfoMap.put(macAddress, ipsVO);
-                }
-
-                retMap.put(deviceId, macInfoMap);
             }
 
 
