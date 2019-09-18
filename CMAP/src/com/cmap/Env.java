@@ -209,6 +209,8 @@ public class Env {
 	public static String PRTG_SERVER_IP;
 	public static String PRTG_API_LOGIN;
 	public static String PRTG_API_SENSOR_TREE;
+	public static String PRTG_API_USER_GROUP_LIST;
+	public static String PRTG_API_USER_DEVICE_LIST;
 
 	public static String BACKUP_FILENAME_FORMAT;
 	public static String BACKUP_FILENAME_SEQ_NO_LENGTH;
@@ -331,6 +333,9 @@ public class Env {
 	public static Integer NET_FLOW_SIZE_SCALE;
 	public static Integer NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE;
 	public static Integer NET_FLOW_SHOW_UNIT_OF_TOTOAL_FLOW;
+
+	public static String PRTG_ADMIN_ACCOUNT;
+	public static String PRTG_ADMIN_PASSHASH;
 
 	public static String PRTG_LOGIN_URI;
 	public static String PRTG_INDEX_URI;

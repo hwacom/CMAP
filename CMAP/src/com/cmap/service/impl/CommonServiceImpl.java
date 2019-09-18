@@ -3,16 +3,20 @@ package com.cmap.service.impl;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.TreeMap;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -50,11 +54,17 @@ import com.cmap.model.GroupSubnetSetting;
 import com.cmap.model.MenuItem;
 import com.cmap.model.ProtocolSpec;
 import com.cmap.model.PrtgAccountMapping;
+import com.cmap.model.PrtgUserRightSetting;
 import com.cmap.model.ScriptType;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
+import com.cmap.service.impl.jobs.BaseJobImpl.Result;
 import com.cmap.service.vo.CommonServiceVO;
 import com.cmap.service.vo.PrtgServiceVO;
+import com.cmap.service.vo.PrtgUserDeviceDetailVO;
+import com.cmap.service.vo.PrtgUserDeviceMainVO;
+import com.cmap.service.vo.PrtgUserGroupDetailVO;
+import com.cmap.service.vo.PrtgUserGroupMainVO;
 import com.cmap.utils.ApiUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -121,41 +131,403 @@ public class CommonServiceImpl implements CommonService {
     }
 
 	/**
-	 * 組合 Local / Remote 落地檔路徑資料夾
-	 * @param deviceInfoMap
-	 * @param local (true=Local;false=Remote)
-	 * @return
-	 */
-	private String composeFilePath(Map<String, String> deviceInfoMap, boolean local) {
-		String dirPath = Env.FTP_DIR_SEPARATE_SYMBOL;
+     * 組合 Local / Remote 落地檔路徑資料夾
+     * @param deviceInfoMap
+     * @param local (true=Local;false=Remote)
+     * @return
+     */
+    private String composeFilePath(Map<String, String> deviceInfoMap, boolean local) {
+        String dirPath = Env.FTP_DIR_SEPARATE_SYMBOL;
 
-		String groupDirName = local ? Env.DEFAULT_LOCAL_DIR_GROUP_NAME : Env.DEFAULT_REMOTE_DIR_GROUP_NAME;
-		if (groupDirName.indexOf(Constants.DIR_PATH_GROUP_ID) != -1) {
-			groupDirName = StringUtils.replace(groupDirName, Constants.DIR_PATH_GROUP_ID, deviceInfoMap.get(Constants.GROUP_ID));
-		}
-		if (groupDirName.indexOf(Constants.DIR_PATH_GROUP_NAME) != -1) {
-			groupDirName = StringUtils.replace(groupDirName, Constants.DIR_PATH_GROUP_NAME, deviceInfoMap.get(Constants.GROUP_ENG_NAME));
-		}
+        String groupDirName = local ? Env.DEFAULT_LOCAL_DIR_GROUP_NAME : Env.DEFAULT_REMOTE_DIR_GROUP_NAME;
+        if (groupDirName.indexOf(Constants.DIR_PATH_GROUP_ID) != -1) {
+            groupDirName = StringUtils.replace(groupDirName, Constants.DIR_PATH_GROUP_ID, deviceInfoMap.get(Constants.GROUP_ID));
+        }
+        if (groupDirName.indexOf(Constants.DIR_PATH_GROUP_NAME) != -1) {
+            groupDirName = StringUtils.replace(groupDirName, Constants.DIR_PATH_GROUP_NAME, deviceInfoMap.get(Constants.GROUP_ENG_NAME));
+        }
 
-		String deviceDirName = local ? Env.DEFAULT_LOCAL_DIR_DEVICE_NAME : Env.DEFAULT_REMOTE_DIR_DEVICE_NAME;
-		if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_ID) != -1) {
-			deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_ID, deviceInfoMap.get(Constants.DEVICE_ID));
-		}
-		if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_NAME) != -1) {
-			deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_NAME, deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
-		}
-		if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_IP) != -1) {
-			deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_IP, deviceInfoMap.get(Constants.DEVICE_IP));
-		}
-		if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_SYSTEM) != -1) {
-			deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_SYSTEM, deviceInfoMap.get(Constants.DEVICE_SYSTEM));
-		}
+        String deviceDirName = local ? Env.DEFAULT_LOCAL_DIR_DEVICE_NAME : Env.DEFAULT_REMOTE_DIR_DEVICE_NAME;
+        if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_ID) != -1) {
+            deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_ID, deviceInfoMap.get(Constants.DEVICE_ID));
+        }
+        if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_NAME) != -1) {
+            deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_NAME, deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
+        }
+        if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_IP) != -1) {
+            deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_IP, deviceInfoMap.get(Constants.DEVICE_IP));
+        }
+        if (deviceDirName.indexOf(Constants.DIR_PATH_DEVICE_SYSTEM) != -1) {
+            deviceDirName = StringUtils.replace(deviceDirName, Constants.DIR_PATH_DEVICE_SYSTEM, deviceInfoMap.get(Constants.DEVICE_SYSTEM));
+        }
 
-		dirPath = dirPath.concat(StringUtils.isNotBlank(groupDirName) ? groupDirName : "")
-				.concat(StringUtils.isNotBlank(groupDirName) ? Env.FTP_DIR_SEPARATE_SYMBOL : "")
-				.concat(StringUtils.isNotBlank(deviceDirName) ? deviceDirName : "");
+        dirPath = dirPath.concat(StringUtils.isNotBlank(groupDirName) ? groupDirName : "")
+                .concat(StringUtils.isNotBlank(groupDirName) ? Env.FTP_DIR_SEPARATE_SYMBOL : "")
+                .concat(StringUtils.isNotBlank(deviceDirName) ? deviceDirName : "");
 
-		return dirPath;
+        return dirPath;
+    }
+
+	@Override
+    public CommonServiceVO refreshGroupAndDeviceMenu() throws ServiceLayerException {
+	    CommonServiceVO retVO;
+        try {
+            retVO = new CommonServiceVO();
+
+            String prtgAdminAccount = Env.PRTG_ADMIN_ACCOUNT;
+            String prtgAdminPasshash = Env.PRTG_ADMIN_PASSHASH;
+
+            ApiUtils prtgApi = new PrtgApiUtils();
+            Map[] prtgMap = prtgApi.getGroupAndDeviceMenu(prtgAdminAccount, null, prtgAdminPasshash);
+
+            updateGroupAndDeviceList(prtgMap);
+
+            /*
+             * groupDeviceMap >> MAP<Group_ID, Map<Device_ID, Map<Device詳細內容key, 詳細內容value>>>
+             * deviceMap >> Map<Device_ID, Map<Device詳細內容key, 詳細內容value>>
+             * deviceInfoMap >> Map<Device詳細內容key, 詳細內容value>
+             * groupInfoMap >> Map<Group_ID, Group_Name>
+             */
+            /*
+             * prtgMap[0] = groupInfoMap
+             * prtgMap[1] = groupDeviceMap
+             */
+            Map<String, String> groupInfoMap = prtgMap[0];
+            Map<String, Map<String, Map<String, String>>> groupDeviceMap = prtgMap[1];
+
+            int groupCount = groupInfoMap.size();
+            int deviceCount = 0;
+            for (Map<String, Map<String, String>> deviceMap : groupDeviceMap.values()) {
+                deviceCount += deviceMap.size();
+            }
+
+            retVO.setJobExcuteResult(Result.SUCCESS);
+            retVO.setJobExcuteResultRecords(String.valueOf(groupCount + deviceCount));
+            retVO.setJobExcuteRemark("[同步PRTG群組及設備清單]群組: " + groupCount + " ; 設備: " + deviceCount);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("更新PRTG群組&設備清單失敗!!");
+        }
+        return retVO;
+	}
+
+	@Override
+    public CommonServiceVO refreshPrtgUserRightSetting(String prtgAccount) throws ServiceLayerException {
+	    CommonServiceVO retVO;
+	    int _accountCount = 0, _groupCount = 0, _deviceCount = 0;
+        try {
+            retVO = new CommonServiceVO();
+
+            // Step 1. 取得 PRTG_ACCOUNT_MAPPING 設定
+            List<PrtgAccountMapping> accountList = prtgDAO.findPrtgAccountMappingByAccount(prtgAccount);
+
+            if (accountList != null && !accountList.isEmpty()) {
+                // 過濾掉相同帳號但因不同學校所設定的多組資料，權限只依帳號設定，相同帳號的資料只保留一筆
+                String preVal = null, nowVal = null;
+                boolean firstRound = true;
+                for (Iterator<PrtgAccountMapping> it = accountList.iterator(); it.hasNext();) {
+                    if (firstRound) {
+                        preVal = it.next().getPrtgAccount();
+                        firstRound = false;
+                        continue;
+                    }
+
+                    nowVal = it.next().getPrtgAccount();
+
+                    if (StringUtils.equals(preVal, nowVal)) {
+                        it.remove();
+                    }
+
+                    preVal = nowVal;
+                }
+                _accountCount = accountList.size();
+
+                ApiUtils prtgApiUtils = new PrtgApiUtils();
+                String account = null, password = null, passhash = null;
+
+                List<PrtgUserRightSetting> insertEntities = new ArrayList<>();  // 紀錄要新增的Entry
+                List<PrtgUserRightSetting> deleteEntities = new ArrayList<>();  // 紀錄要刪除的Entry
+
+                long sTime, eTime;
+
+                // Step 2. 迴圈跑所有 ACCOUNT
+                int round = 1;
+                for (PrtgAccountMapping pam : accountList) {
+                    String percent = new BigDecimal(round)
+                                          .divide(new BigDecimal(_accountCount), new MathContext(5, RoundingMode.HALF_UP))
+                                          .multiply(new BigDecimal(100))
+                                          .round(new MathContext(3, RoundingMode.HALF_UP))
+                                          .toPlainString();
+
+                    log.info("==========[ " + round + " / " + _accountCount + " ::: 完成度: " + percent + "% ]==========");
+                    try {
+                        prtgApiUtils.init();
+
+                        // Step 2-1. 呼叫 PRTG API 取得每個 ACCOUNT 的群組&設備權限列表
+                        account = pam.getPrtgAccount();
+                        password = pam.getPrtgPassword();
+
+                        // 先取得此組帳密所對應的Passhash，後續撈群組&設備選單就不必再各別撈一次
+                        sTime = System.currentTimeMillis();
+                        passhash = prtgApiUtils.getPasshash(account, password);
+                        eTime = System.currentTimeMillis();
+                        log.info("[getPasshash] Spent: " + (eTime - sTime) + " (ms).");
+
+                        sTime = System.currentTimeMillis();
+                        // 取得群組清單
+                        PrtgUserGroupMainVO groupVO = prtgApiUtils.getUserGroupList(account, password, passhash);
+                        List<PrtgUserGroupDetailVO> groupVOList = groupVO.getGroups();
+
+                        // 判斷撈回來的群組是否含有設定要排除的項目，有的話則先移除
+                        for (Iterator<PrtgUserGroupDetailVO> it = groupVOList.iterator(); it.hasNext();) {
+                            String groupName = it.next().getGroup();
+                            if (Env.PRTG_EXCLUDE_GROUP_NAME.contains(groupName)) {
+                                it.remove();
+                            }
+                        }
+                        _groupCount += groupVOList.size();
+
+                        eTime = System.currentTimeMillis();
+                        log.info("[getUserGroupList] Spent: " + (eTime - sTime) + " (ms).");
+
+                        sTime = System.currentTimeMillis();
+                        // 取得設備清單
+                        PrtgUserDeviceMainVO deviceVO = prtgApiUtils.getUserDeviceList(account, password, passhash, null);
+                        List<PrtgUserDeviceDetailVO> deviceVOList = deviceVO.getDevices();
+                        _deviceCount += deviceVOList.size();
+
+                        eTime = System.currentTimeMillis();
+                        log.info("[getUserDeviceList] Spent: " + (eTime - sTime) + " (ms).");
+
+                        sTime = System.currentTimeMillis();
+                        // Step 2-2. 與既有設定判斷寫入 OR 更新資料
+                        List<PrtgUserRightSetting> rightSettingList = prtgDAO.findPrtgUserRightSetting(account, null);
+
+                        if (rightSettingList != null && !rightSettingList.isEmpty()) {
+                            // 判斷與既有差異是否有差異，決定要新增 or 刪除
+                            String type = null, oldValue = null;
+                            boolean isExist;
+                            for (PrtgUserRightSetting setting : rightSettingList) {
+                                isExist = false;
+                                type = setting.getSettingType();
+                                oldValue = setting.getSettingValue();
+
+                                if (StringUtils.equals(type, Constants.PRTG_RIGHT_SETTING_TYPE_OF_GROUP)) {
+                                    //:::[ 群組 ]::://
+                                    if (groupVOList == null || (groupVOList != null && groupVOList.isEmpty())) {
+                                        // 若此次從 PRTG 取得的群組清單為空 => [刪除]設定
+                                        deleteEntities.add(setting);
+
+                                    } else {
+                                        String newGroupId;
+                                        for (Iterator<PrtgUserGroupDetailVO> it = groupVOList.iterator(); it.hasNext();) {
+                                            newGroupId = it.next().getObjid();
+
+                                            if (StringUtils.equals(oldValue, newGroupId)) {
+                                                // 既有設定存在於此次從 PRTG 撈回的清單內 => 設定保留，刪除 PRTG 清單資料，中斷迴圈往下一筆設定
+                                                isExist = true;
+                                                it.remove();
+                                                break;
+                                            }
+                                        }
+
+                                        // 既有設定不存在於此次從 PRTG 撈回的清單內 => [刪除]設定
+                                        if (!isExist) {
+                                            deleteEntities.add(setting);
+                                        }
+                                    }
+
+                                } else if (StringUtils.equals(type, Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE)) {
+                                    //:::[ 設備 ]::://
+                                    if (deviceVOList == null || (deviceVOList != null && deviceVOList.isEmpty())) {
+                                        // 若此次從 PRTG 取得的群組清單為空 => [刪除]設定
+                                        deleteEntities.add(setting);
+
+                                    } else {
+                                        String newDeviceId;
+                                        for (Iterator<PrtgUserDeviceDetailVO> it = deviceVOList.iterator(); it.hasNext();) {
+                                            newDeviceId = it.next().getObjid();
+
+                                            if (StringUtils.equals(oldValue, newDeviceId)) {
+                                                // 既有設定存在於此次從 PRTG 撈回的清單內 => 設定保留，刪除 PRTG 清單資料，中斷迴圈往下一筆設定
+                                                isExist = true;
+                                                it.remove();
+                                                break;
+                                            }
+                                        }
+
+                                        // 既有設定不存在於此次從 PRTG 撈回的清單內 => [刪除]設定
+                                        if (!isExist) {
+                                            deleteEntities.add(setting);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        eTime = System.currentTimeMillis();
+                        log.info("[compare Old & New setting] Spent: " + (eTime - sTime) + " (ms).");
+
+                        sTime = System.currentTimeMillis();
+                        // 針對剩下存留的 PRTG group & device 清單，表示不存在既有設定內 => [新增]設定
+                        PrtgUserRightSetting newEntity = null;
+                        for (PrtgUserGroupDetailVO pugdVO : groupVOList) {
+                            newEntity = new PrtgUserRightSetting();
+                            newEntity.setPrtgAccount(account);
+                            newEntity.setSettingType(Constants.PRTG_RIGHT_SETTING_TYPE_OF_GROUP);
+                            newEntity.setSettingValue(pugdVO.getObjid());
+                            newEntity.setRemark(pugdVO.getGroup());
+                            newEntity.setCreateTime(currentTimestamp());
+                            newEntity.setCreateBy(currentUserName());
+                            insertEntities.add(newEntity);
+                        }
+
+                        for (PrtgUserDeviceDetailVO puddVO : deviceVOList) {
+                            newEntity = new PrtgUserRightSetting();
+                            newEntity.setPrtgAccount(account);
+                            newEntity.setSettingType(Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE);
+                            newEntity.setSettingValue(puddVO.getObjid());
+                            newEntity.setParentNode(puddVO.getParentid());
+                            newEntity.setRemark(puddVO.getGroup());
+                            newEntity.setCreateTime(currentTimestamp());
+                            newEntity.setCreateBy(currentUserName());
+                            insertEntities.add(newEntity);
+                        }
+
+                        eTime = System.currentTimeMillis();
+                        log.info("[add insertEntities] Spent: " + (eTime - sTime) + " (ms).");
+
+                    } catch (Exception e) {
+                        // 其中發生錯誤則跳過
+                        log.error(e.toString(), e);
+                        continue;
+
+                    } finally {
+                        round++;
+                    }
+                }
+
+                prtgDAO.deleteEntities(deleteEntities);
+                prtgDAO.insertEntities(insertEntities);
+            }
+
+            retVO.setJobExcuteResult(Result.SUCCESS);
+            retVO.setJobExcuteResultRecords(String.valueOf(_accountCount + _groupCount + _deviceCount));
+            retVO.setJobExcuteRemark("[同步PRTG使用者權限]帳號: " + _accountCount + " ; 群組共: " + _groupCount + " ; 設備共: " + _deviceCount);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("更新PRTG使用者的群組&設備權限列表失敗!!");
+        }
+        return retVO;
+    }
+
+	private void updateGroupAndDeviceList(Map[] prtgMap) {
+	    if (prtgMap != null) {
+            if (prtgMap[1] != null && !((Map<String, Map<String, Map<String, String>>>)prtgMap[1]).isEmpty()) {
+                List<DeviceList> deviceList = new ArrayList<>();
+
+                DeviceList dl = null;
+                Map<String, Map<String, Map<String, String>>> groupDeviceMap = prtgMap[1];
+                for (String groupId : groupDeviceMap.keySet()) {
+                    Map<String, Map<String, String>> deviceMap = groupDeviceMap.get(groupId);
+
+                    for (String deviceId : deviceMap.keySet()) {
+
+                        Map<String, String> deviceInfoMap = deviceMap.get(deviceId);
+
+                        // 先撈取查看此群組+設備ID資料是否已存在
+                        // Y181203, 改成只看設備ID, 否則若從PRTG內將設備移動到別的群組下會更新不到
+                        dl = deviceDAO.findDeviceListByGroupAndDeviceId(null, deviceId);
+
+                        final String localFileDirPath = composeFilePath(deviceInfoMap, true);
+                        final String remoteFileDirPath = composeFilePath(deviceInfoMap, false);
+                        boolean noNeedToAddOrModify = true;
+                        if (dl == null) {
+                            // 不存在表示後面要新增
+                            noNeedToAddOrModify = false;
+
+                            dl = new DeviceList();
+                            dl.setGroupId(groupId);
+                            dl.setDeviceId(deviceId);
+
+                            dl.setConfigFileDirPath(localFileDirPath);
+                            dl.setRemoteFileDirPath(remoteFileDirPath);
+
+                            dl.setDeleteFlag(Constants.DATA_MARK_NOT_DELETE);
+                            dl.setCreateBy(Constants.SYS);
+                            dl.setCreateTime(new Timestamp((new Date()).getTime()));
+
+                        } else {
+                            // 若已存在，確認以下欄位是否有異動，若其中一項有異動的話則後面要進行更新
+                            // Y181203, 增加判斷群組ID是否有異動
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getGroupId()) ? "" : dl.getGroupId()).equals(deviceInfoMap.get(Constants.GROUP_ID));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getGroupName()) ? "" : dl.getGroupName()).equals(deviceInfoMap.get(Constants.GROUP_NAME));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getGroupEngName()) ? "" : dl.getGroupEngName()).equals(deviceInfoMap.get(Constants.GROUP_ENG_NAME));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getDeviceName()) ? "" : dl.getDeviceName()).equals(deviceInfoMap.get(Constants.DEVICE_NAME));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getDeviceEngName()) ? "" : dl.getDeviceEngName()).equals(deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getDeviceIp()) ? "" : dl.getDeviceIp()).equals(deviceInfoMap.get(Constants.DEVICE_IP));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getDeviceModel()) ? "" : dl.getDeviceModel()).equals(deviceInfoMap.get(Constants.DEVICE_MODEL));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getDeviceLayer()) ? "" : dl.getDeviceLayer()).equals(deviceInfoMap.get(Constants.DEVICE_LAYER));
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getConfigFileDirPath()) ? "" : dl.getConfigFileDirPath()).equals(localFileDirPath);
+                            }
+                            if (noNeedToAddOrModify) {
+                                noNeedToAddOrModify =
+                                        (StringUtils.isBlank(dl.getRemoteFileDirPath()) ? "" : dl.getRemoteFileDirPath()).equals(remoteFileDirPath);
+                            }
+                        }
+
+                        if (!noNeedToAddOrModify) {
+                            dl.setGroupName(deviceInfoMap.get(Constants.GROUP_NAME));
+                            dl.setGroupEngName(deviceInfoMap.get(Constants.GROUP_ENG_NAME));
+                            dl.setDeviceName(deviceInfoMap.get(Constants.DEVICE_NAME));
+                            dl.setDeviceEngName(deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
+                            dl.setDeviceIp(deviceInfoMap.get(Constants.DEVICE_IP));
+                            dl.setDeviceModel(deviceInfoMap.get(Constants.DEVICE_MODEL));
+                            dl.setDeviceLayer(deviceInfoMap.get(Constants.DEVICE_LAYER));
+                            dl.setConfigFileDirPath(localFileDirPath);
+                            dl.setRemoteFileDirPath(remoteFileDirPath);
+                            dl.setUpdateBy(Constants.SYS);
+                            dl.setUpdateTime(new Timestamp((new Date()).getTime()));
+
+                            deviceList.add(dl);
+                        }
+                    }
+                }
+
+                // 更新 or 寫入 DEVICE_LIST 資料
+                if (deviceList != null && !deviceList.isEmpty()) {
+                    updateDeviceList(deviceList);
+                }
+            }
+        }
 	}
 
 	/**
@@ -165,121 +537,11 @@ public class CommonServiceImpl implements CommonService {
 	public Map<String, String> getGroupAndDeviceMenu(HttpServletRequest request) {
 		Map<String, String> retMap = null;
 		try {
+		    //TODO 改為從DB query
+
+
 			ApiUtils prtgApi = new PrtgApiUtils();
 			Map[] prtgMap = prtgApi.getGroupAndDeviceMenu(request);
-
-			if (prtgMap != null) {
-
-				final Map<String, String> groupInfoMap = prtgMap[0];
-				retMap = groupInfoMap;
-
-				if (prtgMap[1] != null && !((Map<String, Map<String, Map<String, String>>>)prtgMap[1]).isEmpty()) {
-					if (request.getSession() != null) {
-						request.getSession().setAttribute(Constants.GROUP_DEVICE_MAP, prtgMap[1]);
-
-						List<DeviceList> deviceList = new ArrayList<>();
-
-						DeviceList dl = null;
-						Map<String, Map<String, Map<String, String>>> groupDeviceMap = prtgMap[1];
-						for (String groupId : groupDeviceMap.keySet()) {
-							Map<String, Map<String, String>> deviceMap = groupDeviceMap.get(groupId);
-
-							for (String deviceId : deviceMap.keySet()) {
-
-								Map<String, String> deviceInfoMap = deviceMap.get(deviceId);
-
-								// 先撈取查看此群組+設備ID資料是否已存在
-								// Y181203, 改成只看設備ID, 否則若從PRTG內將設備移動到別的群組下會更新不到
-								dl = deviceDAO.findDeviceListByGroupAndDeviceId(null, deviceId);
-
-								final String localFileDirPath = composeFilePath(deviceInfoMap, true);
-								final String remoteFileDirPath = composeFilePath(deviceInfoMap, false);
-								boolean noNeedToAddOrModify = true;
-								if (dl == null) {
-									// 不存在表示後面要新增
-									noNeedToAddOrModify = false;
-
-									dl = new DeviceList();
-									dl.setGroupId(groupId);
-									dl.setDeviceId(deviceId);
-
-									dl.setConfigFileDirPath(localFileDirPath);
-									dl.setRemoteFileDirPath(remoteFileDirPath);
-
-									dl.setDeleteFlag(Constants.DATA_MARK_NOT_DELETE);
-									dl.setCreateBy(Constants.SYS);
-									dl.setCreateTime(new Timestamp((new Date()).getTime()));
-
-								} else {
-									// 若已存在，確認以下欄位是否有異動，若其中一項有異動的話則後面要進行更新
-									// Y181203, 增加判斷群組ID是否有異動
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getGroupId()) ? "" : dl.getGroupId()).equals(deviceInfoMap.get(Constants.GROUP_ID));
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getGroupName()) ? "" : dl.getGroupName()).equals(deviceInfoMap.get(Constants.GROUP_NAME));
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getGroupEngName()) ? "" : dl.getGroupEngName()).equals(deviceInfoMap.get(Constants.GROUP_ENG_NAME));
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getDeviceName()) ? "" : dl.getDeviceName()).equals(deviceInfoMap.get(Constants.DEVICE_NAME));
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getDeviceEngName()) ? "" : dl.getDeviceEngName()).equals(deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getDeviceIp()) ? "" : dl.getDeviceIp()).equals(deviceInfoMap.get(Constants.DEVICE_IP));
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getDeviceModel()) ? "" : dl.getDeviceModel()).equals(deviceInfoMap.get(Constants.DEVICE_MODEL));
-									}
-									if (noNeedToAddOrModify) {
-                                        noNeedToAddOrModify =
-                                                (StringUtils.isBlank(dl.getDeviceLayer()) ? "" : dl.getDeviceLayer()).equals(deviceInfoMap.get(Constants.DEVICE_LAYER));
-                                    }
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getConfigFileDirPath()) ? "" : dl.getConfigFileDirPath()).equals(localFileDirPath);
-									}
-									if (noNeedToAddOrModify) {
-										noNeedToAddOrModify =
-												(StringUtils.isBlank(dl.getRemoteFileDirPath()) ? "" : dl.getRemoteFileDirPath()).equals(remoteFileDirPath);
-									}
-								}
-
-								if (!noNeedToAddOrModify) {
-									dl.setGroupName(deviceInfoMap.get(Constants.GROUP_NAME));
-									dl.setGroupEngName(deviceInfoMap.get(Constants.GROUP_ENG_NAME));
-									dl.setDeviceName(deviceInfoMap.get(Constants.DEVICE_NAME));
-									dl.setDeviceEngName(deviceInfoMap.get(Constants.DEVICE_ENG_NAME));
-									dl.setDeviceIp(deviceInfoMap.get(Constants.DEVICE_IP));
-									dl.setDeviceModel(deviceInfoMap.get(Constants.DEVICE_MODEL));
-									dl.setDeviceLayer(deviceInfoMap.get(Constants.DEVICE_LAYER));
-									dl.setConfigFileDirPath(localFileDirPath);
-									dl.setRemoteFileDirPath(remoteFileDirPath);
-									dl.setUpdateBy(Constants.SYS);
-									dl.setUpdateTime(new Timestamp((new Date()).getTime()));
-
-									deviceList.add(dl);
-								}
-							}
-						}
-
-						// 更新 or 寫入 DEVICE_LIST 資料
-						if (deviceList != null && !deviceList.isEmpty()) {
-							updateDeviceList(deviceList);
-						}
-					}
-				}
-			}
 
 		} catch (AuthenticateException ae) {
 			log.error(ae.toString());
@@ -675,4 +937,119 @@ public class CommonServiceImpl implements CommonService {
 			return null;
 		}
 	}
+
+	@Override
+    public Map<String, Map<String, Map<String, String>>> getUserGroupAndDeviceFullInfo(String prtgAccount) {
+	    Map<String, Map<String, Map<String, String>>> groupDeviceMap = new HashMap<>();
+        Map<String, Map<String, String>> deviceMap = null;
+        Map<String, String> deviceInfoMap = null;
+        Map<String, String> groupInfoMap = new TreeMap<>();
+	    try {
+            List<DeviceList> groupList = prtgDAO.findPrtgUserRightGroupAndDeviceFullInfo(prtgAccount);
+
+            if (groupList != null && !groupList.isEmpty()) {
+
+                String groupId = null,
+                       groupName = null,
+                       groupEngName = null,
+                       deviceId = null,
+                       deviceName = null,
+                       deviceEngName = null,
+                       deviceIp = null,
+                       deviceModel = null,
+                       deviceLayer = null;
+
+                for (DeviceList dl : groupList) {
+                    groupId = dl.getGroupId();
+                    groupName = dl.getGroupName();
+                    groupEngName = dl.getGroupEngName();
+                    deviceId = dl.getDeviceId();
+                    deviceName = dl.getDeviceName();
+                    deviceEngName = dl.getDeviceEngName();
+                    deviceIp = dl.getDeviceIp();
+                    deviceModel = dl.getDeviceModel();
+                    deviceLayer = dl.getDeviceLayer();
+
+                    if (StringUtils.isNotBlank(groupId)) {
+                        groupInfoMap.put(groupId, groupName);
+                    }
+
+                    if (StringUtils.isNotBlank(deviceId)) {
+                        deviceInfoMap = new HashMap<>();
+                        deviceInfoMap.put(Constants.GROUP_ID, groupId);
+                        deviceInfoMap.put(Constants.GROUP_NAME, groupName);
+                        deviceInfoMap.put(Constants.GROUP_ENG_NAME, groupEngName);
+                        deviceInfoMap.put(Constants.DEVICE_ID, deviceId);
+                        deviceInfoMap.put(Constants.DEVICE_NAME, deviceName);
+                        deviceInfoMap.put(Constants.DEVICE_ENG_NAME, deviceEngName);
+                        deviceInfoMap.put(Constants.DEVICE_IP, deviceIp);
+                        deviceInfoMap.put(Constants.DEVICE_MODEL, deviceModel);
+                        deviceInfoMap.put(Constants.DEVICE_LAYER, deviceLayer);
+
+                        if (groupDeviceMap.containsKey(groupId)) {
+                            groupDeviceMap.get(groupId).put(deviceId, deviceInfoMap);
+
+                        } else {
+                            deviceMap = new HashMap<>();
+                            deviceMap.put(deviceId, deviceInfoMap);
+                            groupDeviceMap.put(groupId, deviceMap);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return groupDeviceMap;
+    }
+
+    @Override
+    public Map<String, String> getUserGroupList(String prtgAccount) {
+        Map<String, String> retMap = null;
+        try {
+            List<Object[]> groupList = prtgDAO.findPrtgUserRightGroupList(prtgAccount);
+
+            if (groupList != null && !groupList.isEmpty()) {
+                retMap = new HashMap<>();
+
+                String groupId = null, groupName = null;
+                for (Object[] obj : groupList) {
+                    groupId = Objects.toString(obj[0]);
+                    groupName = Objects.toString(obj[1]);
+
+                    if (StringUtils.isNotBlank(groupId) && StringUtils.isNotBlank(groupName)) {
+                        retMap.put(groupId, groupName);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retMap;
+    }
+
+    @Override
+    public Map<String, String> getUserDeviceList(String prtgAccount, String groupId) {
+        Map<String, String> retMap = null;
+        try {
+            List<Object[]> groupList = prtgDAO.findPrtgUserRightDeviceList(prtgAccount, groupId);
+
+            if (groupList != null && !groupList.isEmpty()) {
+                retMap = new HashMap<>();
+
+                String deviceId = null, deviceName = null;
+                for (Object[] obj : groupList) {
+                    deviceId = Objects.toString(obj[0]);
+                    deviceName = Objects.toString(obj[1]);
+
+                    if (StringUtils.isNotBlank(deviceId) && StringUtils.isNotBlank(deviceName)) {
+                        retMap.put(deviceId, deviceName);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retMap;
+    }
 }

@@ -842,7 +842,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	        String fileName, String recordDateTableName, String line,
 	        DataPollerSetting setting, Map<Integer, DataPollerServiceVO> mappingMap,
 	        Map<String, String> specialFieldMap, Map<String, String> specialSetFieldMap,
-	        Map<String, List<String>> retRecordListMap) {
+	        Map<String, List<String>> retRecordListMap) throws ServiceLayerException {
 
 	    Map<String, String> sourceEntryMap = null;
 	    final String splitBy = setting.getSplitSymbol();
@@ -887,7 +887,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                         String dataDate = lineData[sourceColumnIdx];
 
                         try {
-                            Date valueDate = transSourceDateColumnFormat2DateObj(dataDate, sourceColumnJavaFormat);
+                            Date valueDate = transSourceDateColumnFormat2DateObj(dataDate, sourceColumnJavaFormat, fileName);
                             String dateYyymmdd = sdf.format(valueDate);
 
                             String retTableName = getSpecifyDayTableName(recordByDayInterval, targetTableName, dateYyymmdd);
@@ -1107,14 +1107,18 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	                    public void run() throws RuntimeException {
 	                        try {
 	                            for (String line : slice) {
-	                                //紀錄來源資料key(欄位名稱)-value(來源資料數值)
-	                                Map<String, String>  sourceEntryMap =
-	                                        processRowData(fileName, targetTableName, line,
-	                                                       setting, mappingMap, specialFieldMap,
-	                                                       specialSetFieldMap, retRecordListMap);
+	                                try {
+	                                  //紀錄來源資料key(欄位名稱)-value(來源資料數值)
+	                                    Map<String, String>  sourceEntryMap =
+	                                            processRowData(fileName, targetTableName, line,
+	                                                           setting, mappingMap, specialFieldMap,
+	                                                           specialSetFieldMap, retRecordListMap);
 
-	                                if (sourceEntryMap != null) {
-	                                    sourceEntryMapList.add(sourceEntryMap);
+	                                    if (sourceEntryMap != null) {
+	                                        sourceEntryMapList.add(sourceEntryMap);
+	                                    }
+	                                } catch (ServiceLayerException sle) {
+	                                    continue;
 	                                }
 	                            }
 
@@ -1196,86 +1200,90 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
 		try (Stream<String> stream = Files.lines(Paths.get(file.getPath()), Charset.forName(charset))) {
 			stream.forEach(line -> {
-				Map<String, String> sourceEntryMap = new HashMap<>();	//紀錄來源資料key(欄位名稱)-value(來源資料數值)
+			    try {
+			        Map<String, String> sourceEntryMap = new HashMap<>();    //紀錄來源資料key(欄位名稱)-value(來源資料數值)
 
-				String[] lineData = line.split(splitBy);
-				Map<String, Map<String, String>> tableFieldMap = new HashMap<>();
+	                String[] lineData = line.split(splitBy);
+	                Map<String, Map<String, String>> tableFieldMap = new HashMap<>();
 
-				if (lineData != null && lineData.length > 0) {
-					if (lineData[0].equals(firstColumnNameOfTitle)) {
-						return;
-					}
+	                if (lineData != null && lineData.length > 0) {
+	                    if (lineData[0].equals(firstColumnNameOfTitle)) {
+	                        return;
+	                    }
 
-					String recordByDayReferFieldValue = "";
-					for (int i=0; i<lineData.length; i++) {
-						if (mappingMap.containsKey(i)) {
-							final String tableName = mappingMap.get(i).getTargetTableName();
-							final String fieldName = mappingMap.get(i).getTargetFieldName();
-							final String fieldType = mappingMap.get(i).getSourceColumnType();
-							final String fieldJavaFormat = mappingMap.get(i).getSourceColumnJavaFormat();
-							final String fieldSqlFormat = mappingMap.get(i).getSourceColumnSqlFormat();
+	                    String recordByDayReferFieldValue = "";
+	                    for (int i=0; i<lineData.length; i++) {
+	                        if (mappingMap.containsKey(i)) {
+	                            final String tableName = mappingMap.get(i).getTargetTableName();
+	                            final String fieldName = mappingMap.get(i).getTargetFieldName();
+	                            final String fieldType = mappingMap.get(i).getSourceColumnType();
+	                            final String fieldJavaFormat = mappingMap.get(i).getSourceColumnJavaFormat();
+	                            final String fieldSqlFormat = mappingMap.get(i).getSourceColumnSqlFormat();
 
-							String fieldValue = lineData[i];
+	                            String fieldValue = lineData[i];
 
-							switch (fieldType) {
-								case Constants.FIELD_TYPE_OF_VARCHAR:
-									fieldValue = "'" + fieldValue + "'";
-									break;
+	                            switch (fieldType) {
+	                                case Constants.FIELD_TYPE_OF_VARCHAR:
+	                                    fieldValue = "'" + fieldValue + "'";
+	                                    break;
 
-								case Constants.FIELD_TYPE_OF_TIMESTAMP:
-									if (fieldName.equals(recordByDayReferField)) {
-										Date valueDate = transSourceDateColumnFormat2DateObj(fieldValue, fieldJavaFormat);
-										String dateYyymmdd = sdf.format(valueDate);
-										recordByDayReferFieldValue = dateYyymmdd;
-									}
+	                                case Constants.FIELD_TYPE_OF_TIMESTAMP:
+	                                    if (fieldName.equals(recordByDayReferField)) {
+	                                        Date valueDate = transSourceDateColumnFormat2DateObj(fieldValue, fieldJavaFormat, fileName);
+	                                        String dateYyymmdd = sdf.format(valueDate);
+	                                        recordByDayReferFieldValue = dateYyymmdd;
+	                                    }
 
-									fieldValue = "STR_TO_DATE('" + fieldValue + "', '" + fieldSqlFormat + "')";
-									break;
+	                                    fieldValue = "STR_TO_DATE('" + fieldValue + "', '" + fieldSqlFormat + "')";
+	                                    break;
 
-								case Constants.DATA_POLLER_SETTING_TYPE_OF_USER:
-									fieldValue = "'" + Env.USER_NAME_JOB + "'";
-									break;
+	                                case Constants.DATA_POLLER_SETTING_TYPE_OF_USER:
+	                                    fieldValue = "'" + Env.USER_NAME_JOB + "'";
+	                                    break;
 
-								case Constants.DATA_POLLER_SETTING_TYPE_OF_FILE_NAME:
-									fieldValue = "'" + fileName + "'";
-									break;
+	                                case Constants.DATA_POLLER_SETTING_TYPE_OF_FILE_NAME:
+	                                    fieldValue = "'" + fileName + "'";
+	                                    break;
 
-								default:
-									break;
-							}
+	                                default:
+	                                    break;
+	                            }
 
-							Map<String, String> fieldValueMap = null;
-							if (tableFieldMap.containsKey(tableName)) {
-								fieldValueMap = tableFieldMap.get(tableName);
+	                            Map<String, String> fieldValueMap = null;
+	                            if (tableFieldMap.containsKey(tableName)) {
+	                                fieldValueMap = tableFieldMap.get(tableName);
 
-							} else {
-								fieldValueMap = new HashMap<>();
+	                            } else {
+	                                fieldValueMap = new HashMap<>();
 
-								if (specialFieldMap != null && !specialFieldMap.isEmpty()) {
-									fieldValueMap.putAll(specialFieldMap);
-								}
-							}
+	                                if (specialFieldMap != null && !specialFieldMap.isEmpty()) {
+	                                    fieldValueMap.putAll(specialFieldMap);
+	                                }
+	                            }
 
-							fieldValueMap.put(fieldName, fieldValue);
-							sourceEntryMap.put(fieldName, fieldValue);
+	                            fieldValueMap.put(fieldName, fieldValue);
+	                            sourceEntryMap.put(fieldName, fieldValue);
 
-							if (fieldName.equals(recordByDayReferField)) {
-								fieldValueMap.put(Constants.RECORD_BY_DAY_REFER_FIELD, recordByDayReferFieldValue);
-							}
+	                            if (fieldName.equals(recordByDayReferField)) {
+	                                fieldValueMap.put(Constants.RECORD_BY_DAY_REFER_FIELD, recordByDayReferFieldValue);
+	                            }
 
-							tableFieldMap.put(tableName, fieldValueMap);
-						}
-					}
+	                            tableFieldMap.put(tableName, fieldValueMap);
+	                        }
+	                    }
 
-					sourceEntryMapList.add(sourceEntryMap);
+	                    sourceEntryMapList.add(sourceEntryMap);
 
-					try {
-						transTableFieldMap2Sql(retRecordListMap, tableFieldMap, setting);
+	                    try {
+	                        transTableFieldMap2Sql(retRecordListMap, tableFieldMap, setting);
 
-					} catch (ServiceLayerException sle) {
-						throw new RuntimeException(sle);
-					}
-				}
+	                    } catch (ServiceLayerException sle) {
+	                        throw new RuntimeException(sle);
+	                    }
+	                }
+			    } catch (ServiceLayerException sle) {
+			        return; //跳到下一個
+			    }
 			});
 
 		} catch (Exception e) {
@@ -1462,7 +1470,8 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 		return sourceDateStrInChinese;
 	}
 
-	private Date transSourceDateColumnFormat2DateObj(String sourceDateStr, String fieldJavaFormat) {
+	private Date transSourceDateColumnFormat2DateObj(
+	        String sourceDateStr, String fieldJavaFormat, String fileName) throws ServiceLayerException {
 		Date retDate = null;
 
 		sourceDateStr = transSourceDateColumnFormatFromChinese2English(sourceDateStr);
@@ -1472,8 +1481,8 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 			retDate = sdf.parse(sourceDateStr);
 
 		} catch (ParseException e) {
-			log.error(e.toString(), e);
-			throw new RuntimeException("轉換來源檔案中 Record_By_Day_Refer_Field 的值成 Date 物件時異常 >> sourceDateStr: " + sourceDateStr + ", javaFormat: " + fieldJavaFormat);
+			log.error(e.toString());
+			throw new ServiceLayerException("轉換來源檔案中 Record_By_Day_Refer_Field 的值成 Date 物件時異常 >> sourceDateStr: " + sourceDateStr + ", javaFormat: " + fieldJavaFormat + ", fileName: " + fileName);
 		}
 
 		return retDate;

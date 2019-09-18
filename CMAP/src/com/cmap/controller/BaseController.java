@@ -51,6 +51,7 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.comm.BaseAuthentication;
 import com.cmap.exception.AuthenticateException;
+import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.User;
 import com.cmap.security.SecurityUser;
 import com.cmap.service.CommonService;
@@ -216,8 +217,13 @@ public class BaseController {
 	protected void setQueryGroupList(HttpServletRequest request, Object obj, String fieldName, String queryGroup) throws Exception {
 		if (StringUtils.isBlank(queryGroup)) {
 			//如果未選擇特定群組，則須依照使用者權限，給予可查詢的群組清單
-	        Map<String, Map<String, Map<String, String>>> groupDeviceMap =
-                    (Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
+		    String prtgAccount = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+            if (StringUtils.isBlank(prtgAccount)) {
+                throw new ServiceLayerException("使用者權限錯誤!!");
+            }
+
+	        Map<String, Map<String, Map<String, String>>> groupDeviceMap = commonService.getUserGroupAndDeviceFullInfo(prtgAccount);
 
             List<String> groupList = new ArrayList<>();
             for (Iterator<String> it = groupDeviceMap.keySet().iterator(); it.hasNext();) {
@@ -233,9 +239,14 @@ public class BaseController {
 
 	protected void setQueryDeviceList(HttpServletRequest request, Object obj, String fieldName, String queryGroup, String queryDevice) throws Exception {
 		if (StringUtils.isBlank(queryDevice)) {
-			//如果未選擇特定群組，則須依照使用者權限，給予可查詢的群組清單
-            Map<String, Map<String, Map<String, String>>> groupDeviceMap =
-                    (Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
+			//如果未選擇特定群組，則須依照使用者權限，給予可查詢的設備清單
+		    String prtgAccount = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+            if (StringUtils.isBlank(prtgAccount)) {
+                throw new ServiceLayerException("使用者權限錯誤!!");
+            }
+
+            Map<String, Map<String, Map<String, String>>> groupDeviceMap = commonService.getUserGroupAndDeviceFullInfo(prtgAccount);
 
             List<String> deviceList = new ArrayList<>();
 
@@ -289,7 +300,14 @@ public class BaseController {
 		Map<String, String> retMap = new LinkedHashMap<>();
 		Map<String, String> groupMap = null;
 		try {
-			groupMap = commonService.getGroupAndDeviceMenu(request);
+		    String prtgLoginAccount =
+                    Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+            if (StringUtils.isBlank(prtgLoginAccount)) {
+                throw new ServiceLayerException("使用者權限錯誤!!");
+            }
+
+			groupMap = commonService.getUserGroupList(prtgLoginAccount);
 
 			if (groupMap == null) {
 				groupMap = new HashMap<>();
@@ -336,12 +354,53 @@ public class BaseController {
 		return retMap;
 	}
 
-	public Map<String, String> getGroupDeviceMenu(HttpServletRequest request, String searchTxt, String scriptDeviceModel) {
-		//Map<String, String> reverseMenuMap = new LinkedHashMap<String, String>();
+    @RequestMapping(value = "getDeviceMenu", method = RequestMethod.POST, produces="application/json;odata=verbose")
+    public @ResponseBody AppResponse getDeviceMenu(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="groupId", required=true) String groupId) {
+
+        Map<String, String> deviceMap;
+        try {
+            AppResponse appResponse;
+            if (StringUtils.isBlank(groupId)) {
+                appResponse = new AppResponse(HttpServletResponse.SC_NO_CONTENT, "群組未選擇，設備保持為空");
+                return appResponse;
+            }
+
+            String prtgLoginAccount =
+                    Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+            if (StringUtils.isBlank(prtgLoginAccount)) {
+                throw new ServiceLayerException("使用者權限錯誤!!");
+            }
+
+            deviceMap = commonService.getUserDeviceList(prtgLoginAccount, groupId);
+
+            if (deviceMap != null && !deviceMap.isEmpty()) {
+                appResponse = new AppResponse(HttpServletResponse.SC_OK, "取得設備清單成功");
+                appResponse.putData("device",  new Gson().toJson(deviceMap));
+
+            } else {
+                appResponse = new AppResponse(HttpServletResponse.SC_NOT_FOUND, "無法取得設備清單");
+            }
+
+            return appResponse;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+	public Map<String, String> getGroupDeviceMenu(HttpServletRequest request, String searchTxt, String scriptDeviceModel) throws ServiceLayerException {
 		Map<String, String> menuMap = new LinkedHashMap<>();
 
-		Map<String, Map<String, Map<String, String>>> groupDeviceMap
-			= (Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
+		String prtgAccount = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+        if (StringUtils.isBlank(prtgAccount)) {
+            throw new ServiceLayerException("使用者權限錯誤!!");
+        }
+
+        Map<String, Map<String, Map<String, String>>> groupDeviceMap = commonService.getUserGroupAndDeviceFullInfo(prtgAccount);
 
 		if (groupDeviceMap != null && !groupDeviceMap.isEmpty()) {
 			for (Iterator<String> it = groupDeviceMap.keySet().iterator(); it.hasNext();) {
@@ -411,62 +470,6 @@ public class BaseController {
 
 			AppResponse appResponse = new AppResponse(HttpServletResponse.SC_OK, "取得設備清單成功");
 			appResponse.putData("groupDeviceMenu",  new Gson().toJson(menuMap));
-
-			return appResponse;
-
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-		}
-	}
-
-	@RequestMapping(value = "getDeviceMenu", method = RequestMethod.POST, produces="application/json;odata=verbose")
-	public @ResponseBody AppResponse getDeviceMenu(Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(name="groupId", required=true) String groupId) {
-
-		Map<String, String> deviceMap;
-		try {
-			AppResponse appResponse;
-			if (StringUtils.isBlank(groupId)) {
-				appResponse = new AppResponse(HttpServletResponse.SC_NO_CONTENT, "群組未選擇，設備保持為空");
-				return appResponse;
-			}
-
-			Map<String, Map<String, Map<String, String>>> groupDeviceMap
-				= (Map<String, Map<String, Map<String, String>>>)request.getSession().getAttribute(Constants.GROUP_DEVICE_MAP);
-			/*
-			if (StringUtils.isBlank(groupId)) {
-				//如果群組選擇ALL，則列出所有設備清單
-				retMap = new HashMap<String, String>();
-
-				for (Map<String, String> dMap : deviceMap.values()) {
-					for (Entry<String, String> entry : dMap.entrySet()) {
-						if (!retMap.containsKey(entry.getKey())) {
-							//不同群組可能涵蓋相同設備，排除重複
-							retMap.put(entry.getKey(), entry.getValue());
-						}
-					}
-				}
-
-			} else {
-				retMap = (Map<String, String>)deviceMap.get(groupId);
-			}
-			 */
-
-			if (groupDeviceMap != null && !groupDeviceMap.isEmpty()) {
-				deviceMap = composeDeviceMap4Menu(groupDeviceMap.get(groupId));
-
-				if (deviceMap != null && !deviceMap.isEmpty()) {
-					appResponse = new AppResponse(HttpServletResponse.SC_OK, "取得設備清單成功");
-					appResponse.putData("device",  new Gson().toJson(deviceMap));
-
-				} else {
-					appResponse = new AppResponse(HttpServletResponse.SC_NOT_FOUND, "無法取得設備清單");
-				}
-
-			} else {
-				appResponse = new AppResponse(HttpServletResponse.SC_NOT_FOUND, "無法取得設備清單");
-			}
 
 			return appResponse;
 

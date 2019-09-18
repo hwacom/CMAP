@@ -81,6 +81,13 @@ public class Constants {
 	public static final String ACTION_TYPE_BACKUP = "BACKUP";
 	public static final String ACTION_TYPE_RESTORE = "RESTORE";
 
+	public static final String DAO_ACTION_INSERT = "INSERT";
+	public static final String DAO_ACTION_UPDATE = "UPDATE";
+	public static final String DAO_ACTION_DELETE = "DELETE";
+
+	public static final String PRTG_RIGHT_SETTING_TYPE_OF_GROUP = "G";
+	public static final String PRTG_RIGHT_SETTING_TYPE_OF_DEVICE = "D";
+
 	public static final String CONTENT_SETTING_ACTION_ADD = "+";
 	public static final String CONTENT_SETTING_ACTION_SUBSTRACT = "-";
 

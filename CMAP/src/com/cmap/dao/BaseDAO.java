@@ -22,6 +22,8 @@ public interface BaseDAO {
 
 	public boolean deleteEntity(Object entity);
 
+	public boolean deleteEntities(List<? extends Object> entities);
+
 	public boolean insertEntitiesByNativeSQL(List<String> nativeSQLs);
 
 	public boolean deleteEntitiesByNativeSQL(List<String> nativeSQLs);

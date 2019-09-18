@@ -1,10 +1,10 @@
 package com.cmap.service.vo;
 
-public class PrtgServiceVO {
+public class PrtgServiceVO extends CommonServiceVO {
 
 	private String account;
 	private String password;
-	
+
 	public String getAccount() {
 		return account;
 	}

@@ -51,5 +51,4 @@ public class JobDataPollerOperator extends BaseJobImpl implements BaseJobService
             }
         }
     }
-
 }

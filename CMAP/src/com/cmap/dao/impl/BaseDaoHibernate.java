@@ -151,42 +151,70 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
     }
 
 	@Override
-	public boolean insertEntity(Object entity) {
-		boolean success = true;
-		getHibernateTemplate().save(entity);
-		return success;
-	}
-
-	@Override
-	public boolean updateEntity(Object entity) {
-		boolean success = true;
-		getHibernateTemplate().update(entity);
-		return success;
-	}
-
-	@Override
 	public boolean insertEntities(List<? extends Object> entities) {
-		boolean success = true;
-
-		int count = 1;
-		for (Object entity : entities) {
-			getHibernateTemplate().save(entity);
-			count++;
-
-			if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
-				getHibernateTemplate().flush();
-			}
-		}
-
-		return success;
+		return processEntities(entities, Constants.DAO_ACTION_INSERT);
 	}
+
+	@Override
+    public boolean deleteEntities(List<? extends Object> entities) {
+        return processEntities(entities, Constants.DAO_ACTION_DELETE);
+    }
+
+	private boolean processEntities(List<? extends Object> entities, String processType) {
+        boolean success = true;
+
+        int count = 1;
+        for (Object entity : entities) {
+            if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                getHibernateTemplate().save(entity);
+
+            } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                getHibernateTemplate().delete(entity);
+
+            } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                getHibernateTemplate().update(entity);
+            }
+
+            count++;
+
+            if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
+                getHibernateTemplate().flush();
+            }
+        }
+
+        return success;
+    }
+
+	@Override
+    public boolean insertEntity(Object entity) {
+        return processEntity(entity, Constants.DAO_ACTION_INSERT);
+    }
+
+    @Override
+    public boolean updateEntity(Object entity) {
+        return processEntity(entity, Constants.DAO_ACTION_UPDATE);
+    }
 
 	@Override
 	public boolean deleteEntity(Object entity) {
-	    boolean success = true;
-	    getHibernateTemplate().delete(entity);
-        return success;
+	    return processEntity(entity, Constants.DAO_ACTION_DELETE);
 	}
+
+	private boolean processEntity(Object entity, String processType) {
+        boolean success = true;
+
+        if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+            getHibernateTemplate().save(entity);
+
+        } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+            getHibernateTemplate().delete(entity);
+
+        } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+            getHibernateTemplate().update(entity);
+        }
+
+        return success;
+    }
 
 	@Override
 	public boolean insertEntitiesByNativeSQL(List<String> nativeSQLs) {

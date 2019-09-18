@@ -23,7 +23,10 @@ import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.User;
 import com.cmap.security.SecurityUtil;
+import com.cmap.service.vo.PrtgUserDeviceMainVO;
+import com.cmap.service.vo.PrtgUserGroupMainVO;
 import com.cmap.utils.ApiUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class PrtgApiUtils implements ApiUtils {
 	private static Logger log = LoggerFactory.getLogger(PrtgApiUtils.class);
@@ -31,11 +34,24 @@ public class PrtgApiUtils implements ApiUtils {
 	private String PRTG_ROOT = null;
 	private String API_LOGIN = null;
 	private String API_SENSOR_TREE = null;
+	private String API_USER_GROUP_LIST = null;
+	private String API_USER_DEVICE_LIST = null;
 
 	public PrtgApiUtils() {
 		PRTG_ROOT = Env.PRTG_SERVER_IP;
 		API_LOGIN = Env.PRTG_API_LOGIN;
 		API_SENSOR_TREE = Env.PRTG_API_SENSOR_TREE;
+		API_USER_GROUP_LIST = Env.PRTG_API_USER_GROUP_LIST;
+		API_USER_DEVICE_LIST = Env.PRTG_API_USER_DEVICE_LIST;
+	}
+
+	@Override
+    public void init() {
+	    PRTG_ROOT = Env.PRTG_SERVER_IP;
+        API_LOGIN = Env.PRTG_API_LOGIN;
+        API_SENSOR_TREE = Env.PRTG_API_SENSOR_TREE;
+        API_USER_GROUP_LIST = Env.PRTG_API_USER_GROUP_LIST;
+        API_USER_DEVICE_LIST = Env.PRTG_API_USER_DEVICE_LIST;
 	}
 
 	/**
@@ -183,62 +199,155 @@ public class PrtgApiUtils implements ApiUtils {
 	}
 
 	@Override
+    public Map[] getGroupAndDeviceMenu(String prtgLoginAccount, String prtgLoginPassword,
+            String prtgPashhash) throws Exception {
+	    Map[] retObj = null;
+        /*
+         * groupDeviceMap >> MAP<Group_ID, Map<Device_ID, Map<Device詳細內容key, 詳細內容value>>>
+         * deviceMap >> Map<Device_ID, Map<Device詳細內容key, 詳細內容value>>
+         * deviceInfoMap >> Map<Device詳細內容key, 詳細內容value>
+         * groupInfoMap >> Map<Group_ID, Group_Name>
+         */
+        Map<String, Map<String, Map<String, String>>> groupDeviceMap = new HashMap<>();
+        Map<String, Map<String, String>> deviceMap = null;
+        Map<String, String> deviceInfoMap = null;
+        Map<String, String> groupInfoMap = null;
+        try {
+            prtgPashhash = checkPasshash(prtgLoginAccount, prtgLoginPassword, prtgPashhash);
+
+            prtgLoginAccount = StringUtils.trim(prtgLoginAccount);
+            prtgPashhash = StringUtils.trim(prtgPashhash);
+
+            API_SENSOR_TREE = StringUtils.replace(API_SENSOR_TREE, "{username}", prtgLoginAccount);
+            API_SENSOR_TREE = StringUtils.replace(API_SENSOR_TREE, "{passhash}", prtgPashhash);
+
+            String apiUrl = PRTG_ROOT.concat(API_SENSOR_TREE);
+
+            String retVal = callPrtg(apiUrl);
+            if (StringUtils.isNotBlank(retVal)) {
+
+                Object[] obj = null;
+                if (Env.PRTG_HA) {
+                    com.cmap.prtg.ha.PrtgDocument prtgDoc = com.cmap.prtg.ha.PrtgDocument.Factory.parse(retVal);
+                    obj = parsePrtgDocument4HA(prtgDoc);
+
+
+                } else {
+                    /*
+                    com.cmap.prtg.PrtgDocument prtgDoc = com.cmap.prtg.PrtgDocument.Factory.parse(retVal);
+                    obj = parsePrtgDocument(prtgDoc);
+                    */
+                }
+
+                if (obj != null) {
+                    /*
+                        retObj[0] = groupDeviceMap;
+                        retObj[1] = deviceMap;
+                        retObj[2] = deviceInfoMap;
+                        retObj[3] = groupInfoMap;
+                     */
+                    groupInfoMap = (Map<String, String>)obj[3];
+                    groupDeviceMap = (Map<String, Map<String, Map<String, String>>>)obj[0];
+                }
+            }
+
+        } catch (Exception e) {
+            throw e;
+
+        } finally {
+            retObj = new Map[] {
+                    groupInfoMap
+                    ,groupDeviceMap
+            };
+        }
+
+        return retObj;
+    }
+
+	@Override
+    public PrtgUserGroupMainVO getUserGroupList(String prtgLoginAccount, String prtgLoginPassword,
+            String prtgPashhash) throws Exception {
+	    PrtgUserGroupMainVO retVO = null;
+        try {
+            prtgPashhash = checkPasshash(prtgLoginAccount, prtgLoginPassword, prtgPashhash);
+
+            prtgLoginAccount = StringUtils.trim(prtgLoginAccount);
+            prtgPashhash = StringUtils.trim(prtgPashhash);
+
+            API_USER_GROUP_LIST = StringUtils.replace(API_USER_GROUP_LIST, "{username}", prtgLoginAccount);
+            API_USER_GROUP_LIST = StringUtils.replace(API_USER_GROUP_LIST, "{passhash}", prtgPashhash);
+
+            String apiUrl = PRTG_ROOT.concat(API_USER_GROUP_LIST);
+
+            String retVal = callPrtg(apiUrl);
+            if (StringUtils.isNotBlank(retVal)) {
+                ObjectMapper oMapper = new ObjectMapper();
+                try {
+                    retVO = oMapper.readValue(retVal, PrtgUserGroupMainVO.class);
+
+                } catch (Exception e) {
+                    log.error(e.toString(), e);
+                    return null;
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVO;
+    }
+
+    @Override
+    public PrtgUserDeviceMainVO getUserDeviceList(String prtgLoginAccount, String prtgLoginPassword,
+            String prtgPashhash, String groupId) throws Exception {
+        PrtgUserDeviceMainVO retVO = null;
+        try {
+            prtgPashhash = checkPasshash(prtgLoginAccount, prtgLoginPassword, prtgPashhash);
+
+            prtgLoginAccount = StringUtils.trim(prtgLoginAccount);
+            prtgPashhash = StringUtils.trim(prtgPashhash);
+
+            API_USER_DEVICE_LIST = StringUtils.replace(API_USER_DEVICE_LIST, "{username}", prtgLoginAccount);
+            API_USER_DEVICE_LIST = StringUtils.replace(API_USER_DEVICE_LIST, "{passhash}", prtgPashhash);
+
+            if (StringUtils.isNotBlank(groupId)) {
+                API_USER_DEVICE_LIST = StringUtils.replace(API_USER_DEVICE_LIST, "{groupId}", groupId);
+            } else {
+                API_USER_DEVICE_LIST = StringUtils.substring(API_USER_DEVICE_LIST, 0, StringUtils.lastIndexOf(API_USER_DEVICE_LIST, "&"));
+            }
+
+            String apiUrl = PRTG_ROOT.concat(API_USER_DEVICE_LIST);
+
+            String retVal = callPrtg(apiUrl);
+            if (StringUtils.isNotBlank(retVal)) {
+                ObjectMapper oMapper = new ObjectMapper();
+                try {
+                    retVO = oMapper.readValue(retVal, PrtgUserDeviceMainVO.class);
+
+                } catch (Exception e) {
+                    log.error(e.toString(), e);
+                    return null;
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVO;
+    }
+
+	@Override
 	public Map[] getGroupAndDeviceMenu(HttpServletRequest request) throws Exception {
 		Map[] retObj = null;
-		/*
-		 * groupDeviceMap >> MAP<Group_ID, Map<Device_ID, Map<Device詳細內容key, 詳細內容value>>>
-		 * deviceMap >> Map<Device_ID, Map<Device詳細內容key, 詳細內容value>>
-		 * deviceInfoMap >> Map<Device詳細內容key, 詳細內容value>
-		 * groupInfoMap >> Map<Group_ID, Group_Name>
-		 */
-		Map<String, Map<String, Map<String, String>>> groupDeviceMap = new HashMap<>();
-		Map<String, Map<String, String>> deviceMap = null;
-		Map<String, String> deviceInfoMap = null;
-		Map<String, String> groupInfoMap = null;
 		try {
-			checkPasshash(request);
+			User user = SecurityUtil.getSecurityUser().getUser();
+			String prtgLoginAccount = SecurityUtil.getSecurityUser().getUser().getPrtgLoginAccount();
+			String prtgPasshash = SecurityUtil.getSecurityUser().getUser().getPasshash();
 
-			API_SENSOR_TREE = StringUtils.replace(API_SENSOR_TREE, "{username}", SecurityUtil.getSecurityUser().getUser().getPrtgLoginAccount());
-			API_SENSOR_TREE = StringUtils.replace(API_SENSOR_TREE, "{passhash}", SecurityUtil.getSecurityUser().getUser().getPasshash());
-
-			String apiUrl = PRTG_ROOT.concat(API_SENSOR_TREE);
-
-			String retVal = callPrtg(apiUrl);
-			if (StringUtils.isNotBlank(retVal)) {
-
-				Object[] obj = null;
-				if (Env.PRTG_HA) {
-					com.cmap.prtg.ha.PrtgDocument prtgDoc = com.cmap.prtg.ha.PrtgDocument.Factory.parse(retVal);
-					obj = parsePrtgDocument4HA(prtgDoc);
-
-
-				} else {
-					/*
-					com.cmap.prtg.PrtgDocument prtgDoc = com.cmap.prtg.PrtgDocument.Factory.parse(retVal);
-					obj = parsePrtgDocument(prtgDoc);
-					*/
-				}
-
-				if (obj != null) {
-					/*
-					 	retObj[0] = groupDeviceMap;
-						retObj[1] = deviceMap;
-						retObj[2] = deviceInfoMap;
-						retObj[3] = groupInfoMap;
-					 */
-					groupInfoMap = (Map<String, String>)obj[3];
-					groupDeviceMap = (Map<String, Map<String, Map<String, String>>>)obj[0];
-				}
-			}
+			retObj = getGroupAndDeviceMenu(prtgLoginAccount, null, prtgPasshash);
 
 		} catch (Exception e) {
 			throw e;
-
-		} finally {
-			retObj = new Map[] {
-					groupInfoMap
-					,groupDeviceMap
-			};
 		}
 
 		return retObj;
@@ -318,6 +427,9 @@ public class PrtgApiUtils implements ApiUtils {
 				throw new Exception("[Login failed] >> username or password is blank.");
 
 			} else {
+			    username = StringUtils.trim(username);
+			    password = StringUtils.trim(password);
+
 				API_LOGIN = StringUtils.replace(API_LOGIN, "{username}", username);
 				API_LOGIN = StringUtils.replace(API_LOGIN, "{password}", password);
 
@@ -354,13 +466,17 @@ public class PrtgApiUtils implements ApiUtils {
 	 * @param password
 	 * @return
 	 */
-	public String getPasshash(String username, String password) throws ServiceLayerException {
+	@Override
+    public String getPasshash(String username, String password) throws ServiceLayerException {
 	    String retVal = null;
 	    try {
             if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
                 throw new Exception("[Login failed] >> username or password is blank.");
 
             } else {
+                username = StringUtils.trim(username);
+                password = StringUtils.trim(password);
+
                 API_LOGIN = StringUtils.replace(API_LOGIN, "{username}", username);
                 API_LOGIN = StringUtils.replace(API_LOGIN, "{password}", password);
 
@@ -387,6 +503,13 @@ public class PrtgApiUtils implements ApiUtils {
         }
         return retVal;
 	}
+
+	private String checkPasshash(String prtgLoginAccount, String prtgLoginPassword, String prtgPasshash) throws ServiceLayerException {
+        if (StringUtils.isBlank(prtgPasshash)) {
+            prtgPasshash = getPasshash(prtgLoginAccount, prtgLoginPassword);
+        }
+        return prtgPasshash;
+    }
 
 	private void checkPasshash(HttpServletRequest request) throws Exception {
 		User user = SecurityUtil.getSecurityUser().getUser();

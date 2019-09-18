@@ -8,5 +8,4 @@ public interface PrtgService {
 	public PrtgAccountMapping getMappingBySourceId(String sourceId) throws ServiceLayerException;
 
 	public String getMapUrlBySourceIdAndType(String sourceId, String type) throws ServiceLayerException;
-
 }

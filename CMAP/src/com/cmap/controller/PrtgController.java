@@ -38,6 +38,7 @@ import com.cmap.service.CommonService;
 import com.cmap.service.PrtgService;
 import com.cmap.service.UserService;
 import com.cmap.service.vo.PrtgServiceVO;
+import com.cmap.utils.ApiUtils;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -198,7 +199,7 @@ public class PrtgController extends BaseController {
             String password = mapping.getPrtgPassword();
 
             // Step 3. 呼叫 PRTG API 取得 passhash
-            PrtgApiUtils prtgApiUtils = new PrtgApiUtils();
+            ApiUtils prtgApiUtils = new PrtgApiUtils();
             String passhash = prtgApiUtils.getPasshash(username, password);
 
             AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "Success");
