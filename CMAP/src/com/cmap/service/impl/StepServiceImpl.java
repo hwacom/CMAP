@@ -272,7 +272,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("設備連線失敗 [ 錯誤代碼: CONNECT_DEVICE ]");
+								throw new ServiceLayerException("設備連線失敗 [ 錯誤內容: " + e.getMessage() + " ]");
 							}
 
 						case LOGIN_DEVICE:
@@ -292,7 +292,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤代碼: SEND_COMMANDS ]");
+								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤內容: " + e.getMessage() + " ]");
 							}
 
 						case COMPARE_CONTENTS:
@@ -1806,7 +1806,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("設備連線失敗 [ 錯誤代碼: CONNECT_DEVICE ]");
+								throw new ServiceLayerException("設備連線失敗 [ 錯誤內容: " + e.getMessage() + " ]");
 							}
 
 						case LOGIN_DEVICE:
@@ -1826,7 +1826,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤代碼: SEND_COMMANDS ]");
+								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤內容: " + e.getMessage() + " ]");
 							}
 
 						case CHECK_PROVISION_RESULT:
@@ -2048,7 +2048,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                             } catch (Exception e) {
                                 log.error(e.toString(), e);
-                                throw new ServiceLayerException("設備連線失敗 [ 錯誤代碼: CONNECT_DEVICE ]");
+                                throw new ServiceLayerException("設備連線失敗 [ 錯誤內容: " + e.getMessage() + " ]");
                             }
 
                         case LOGIN_DEVICE:
@@ -2068,7 +2068,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                             } catch (Exception e) {
                                 log.error(e.toString(), e);
-                                throw new ServiceLayerException("派送設備命令失敗 [ 錯誤代碼: SEND_COMMANDS ]");
+                                throw new ServiceLayerException("派送設備命令失敗 [ 錯誤內容: " + e.getMessage() + " ]");
                             }
 
                         case CHECK_PROVISION_RESULT:
@@ -2508,7 +2508,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("設備連線失敗 [ 錯誤代碼: CONNECT_DEVICE ]");
+								throw new ServiceLayerException("設備連線失敗 [ 錯誤內容: " + e.getMessage() + " ]");
 							}
 
 						// 登入要還原的目標設備
@@ -2529,11 +2529,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								break;
 
 							} catch (ServiceLayerException sle) {
-								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤代碼: SEND_COMMANDS ]");
+							    throw new ServiceLayerException("派送設備命令失敗 [ 錯誤內容: " + sle.getMessage() + " ]");
 
 							} catch (Exception e) {
 								log.error(e.toString(), e);
-								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤代碼: SEND_COMMANDS ]");
+								throw new ServiceLayerException("派送設備命令失敗 [ 錯誤內容: " + e.getMessage() + " ]");
 							}
 
 						// 關閉與設備的連線

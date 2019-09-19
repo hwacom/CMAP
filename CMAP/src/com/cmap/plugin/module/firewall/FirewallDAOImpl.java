@@ -41,8 +41,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         int beginMonth = fVO.getQueryMonths()[0];
         int endMonth = fVO.getQueryMonths()[1];
         for (int month = beginMonth; month <= endMonth; month++) {
-            String tName = tableName.concat("_").concat(String.valueOf(month));
-            String stName = "mfl".concat("_").concat(String.valueOf(month));
+            String tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            String stName = "mfl".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append(" select id from ").append(tName).append(" ").append(stName).append(" ")
               .append(" where 1=1 ");
@@ -149,8 +149,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         int beginMonth = fVO.getQueryMonths()[0];
         int endMonth = fVO.getQueryMonths()[1];
         for (int month = beginMonth; month <= endMonth; month++) {
-            String tName = tableName.concat("_").concat(String.valueOf(month));
-            String stName = "mfl".concat("_").concat(String.valueOf(month));
+            String tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            String stName = "mfl".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append(" select ");
 
@@ -282,8 +282,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_app";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "app".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "app".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(stName).append(".id ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -339,8 +339,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_forwarding";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "forwarding".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "forwarding".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(stName).append(".id ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -396,8 +396,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_intrusion";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "intrusion".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "intrusion".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(stName).append(".id ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -453,8 +453,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_system";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "sys".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "sys".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(stName).append(".id ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -498,8 +498,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_webfilter";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "webfilter".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "webfilter".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(stName).append(".id ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -605,8 +605,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_app";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "app".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "app".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_APP))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -662,8 +662,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_forwarding";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "forwarding".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "forwarding".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -719,8 +719,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_intrusion";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "intrusion".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "intrusion".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -776,8 +776,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_system";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "sys".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "sys".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
@@ -821,8 +821,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         tableName = "module_firewall_log_webfilter";
         for (int month = beginMonth; month <= endMonth; month++) {
-            tName = tableName.concat("_").concat(String.valueOf(month));
-            stName = "webfilter".concat("_").concat(String.valueOf(month));
+            tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+            stName = "webfilter".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
             sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")

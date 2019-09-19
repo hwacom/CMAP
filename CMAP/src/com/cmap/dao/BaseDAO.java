@@ -20,6 +20,8 @@ public interface BaseDAO {
 
 	public boolean updateEntity(Object entity);
 
+	public boolean updateEntities(List<? extends Object> entities);
+
 	public boolean deleteEntity(Object entity);
 
 	public boolean deleteEntities(List<? extends Object> entities);

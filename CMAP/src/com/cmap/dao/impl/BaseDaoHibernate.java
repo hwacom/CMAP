@@ -156,6 +156,11 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	}
 
 	@Override
+    public boolean updateEntities(List<? extends Object> entities) {
+	    return processEntities(entities, Constants.DAO_ACTION_UPDATE);
+    }
+
+	@Override
     public boolean deleteEntities(List<? extends Object> entities) {
         return processEntities(entities, Constants.DAO_ACTION_DELETE);
     }

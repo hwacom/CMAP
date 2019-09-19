@@ -27,6 +27,7 @@ import net.schmizz.sshj.connection.channel.direct.Session.Shell;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 import net.sf.expectit.Expect;
 import net.sf.expectit.ExpectBuilder;
+import net.sf.expectit.ExpectIOException;
 
 public class SshUtils extends CommonUtils implements ConnectUtils {
 	private static Logger log = LoggerFactory.getLogger(SshUtils.class);
@@ -80,7 +81,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			log.info("SSH connect success!! >>> [ " + ipAddress + ":" + port + " ]");
 
 		} catch (Exception e) {
-			throw new ConnectionException("[SSH connect failed] " + ipAddress + ":" + port + " >> " + e.getMessage());
+			throw new ConnectionException("[SSH connect failed] " + ipAddress + ":" + (port == null ? Env.SSH_DEFAULT_PORT : port) + " >> " + e.getMessage());
 		}
 		return true;
 	}
@@ -268,7 +269,17 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 
 		} catch (CommandExecuteException cee) {
 			throw cee;
-		} catch (Exception e) {
+		} catch (ExpectIOException eie) {
+		    String errorMsg = "";
+		    String oriMessage = eie.getMessage();
+		    if (StringUtils.contains(oriMessage, "timeout")) {
+		        errorMsg = oriMessage.split("\\(")[1].split("\\)")[0];
+		    } else {
+		        errorMsg = oriMessage;
+		    }
+		    throw new Exception(errorMsg);
+		}
+		catch (Exception e) {
 			log.error(e.toString(), e);
 			throw new Exception("[SSH send command failed] >> " + e.getMessage());
 		}
