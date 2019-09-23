@@ -277,7 +277,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         String stName = "";
 
         StringBuffer sb = new StringBuffer();
-        sb.append(" select count(alltb.id) ")
+        sb.append(" select sum(alltb.cc) ")
           .append(" from ( ");
 
         tableName = "module_firewall_log_app";
@@ -285,7 +285,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "app".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(stName).append(".id ")
+            sb.append("  ( ")
+              .append("   select count( ").append(stName).append(".id ) cc ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -329,6 +330,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sfb.append(" ) ");
                 sb.append(sfb);
             }
+            sb.append(" ) ");
 
             if (month < endMonth) {
                 sb.append(" union all ");
@@ -342,7 +344,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "forwarding".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(stName).append(".id ")
+            sb.append("  ( ")
+              .append("   select count( ").append(stName).append(".id ) cc ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -386,6 +389,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sfb.append(" ) ");
                 sb.append(sfb);
             }
+            sb.append(" ) ");
 
             if (month < endMonth) {
                 sb.append(" union all ");
@@ -399,7 +403,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "intrusion".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(stName).append(".id ")
+            sb.append("  ( ")
+              .append("   select count( ").append(stName).append(".id ) cc ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -443,6 +448,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sfb.append(" ) ");
                 sb.append(sfb);
             }
+            sb.append(" ) ");
 
             if (month < endMonth) {
                 sb.append(" union all ");
@@ -456,7 +462,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "sys".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(stName).append(".id ")
+            sb.append("  ( ")
+              .append("   select count( ").append(stName).append(".id ) cc ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -488,6 +495,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sfb.append(" ) ");
                 sb.append(sfb);
             }
+            sb.append(" ) ");
 
             if (month < endMonth) {
                 sb.append(" union all ");
@@ -501,7 +509,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "webfilter".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(stName).append(".id ")
+            sb.append("  ( ")
+              .append("   select count( ").append(stName).append(".id ) cc ")
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -545,6 +554,7 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sfb.append(" ) ");
                 sb.append(sfb);
             }
+            sb.append(" ) ");
 
             if (month < endMonth) {
                 sb.append(" union all ");
@@ -599,6 +609,15 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         String tName = "";
         String stName = "";
 
+        String orderColumnName = fVO.getOrderColumn();
+        String orderDirection = StringUtils.isBlank(fVO.getOrderDirection()) ? "desc" : fVO.getOrderDirection();
+
+        // 計算各別TABLE要LIMIT的筆數，依照使用者滑動查詢分頁的進度決定
+        int subTableLimit = 100;
+        if (startRow != null && pageLength != null && startRow > 0) {
+            subTableLimit = startRow;
+        }
+
         StringBuffer sb = new StringBuffer();
         sb.append(" select alltb.* ")
           .append(" from ( ");
@@ -608,7 +627,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "app".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_APP))
+            sb.append("  ( ")
+              .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_APP))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -653,6 +673,16 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sb.append(sfb);
             }
 
+            //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
+            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+                sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
+
+            } else {
+                sb.append(" order by ").append(stName).append(".date ").append(orderDirection).append(", ").append(stName).append(".time ").append(orderDirection);
+            }
+            sb.append("  limit ").append(subTableLimit)
+              .append(" ) ");
+
             if (month < endMonth) {
                 sb.append(" union all ");
             }
@@ -665,7 +695,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "forwarding".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING))
+            sb.append("  ( ")
+              .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_FORWARDING))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -710,6 +741,16 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sb.append(sfb);
             }
 
+            //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
+            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+                sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
+
+            } else {
+                sb.append(" order by ").append(stName).append(".date ").append(orderDirection).append(", ").append(stName).append(".time ").append(orderDirection);
+            }
+            sb.append("  limit ").append(subTableLimit)
+              .append(" ) ");
+
             if (month < endMonth) {
                 sb.append(" union all ");
             }
@@ -722,7 +763,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "intrusion".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION))
+            sb.append("  ( ")
+              .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_INTRUSION))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -767,6 +809,16 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sb.append(sfb);
             }
 
+            //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
+            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+                sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
+
+            } else {
+                sb.append(" order by ").append(stName).append(".date ").append(orderDirection).append(", ").append(stName).append(".time ").append(orderDirection);
+            }
+            sb.append("  limit ").append(subTableLimit)
+              .append(" ) ");
+
             if (month < endMonth) {
                 sb.append(" union all ");
             }
@@ -779,7 +831,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "sys".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM))
+            sb.append("  ( ")
+              .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_SYSTEM))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -812,6 +865,16 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sb.append(sfb);
             }
 
+            //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
+            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+                sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
+
+            } else {
+                sb.append(" order by ").append(stName).append(".date ").append(orderDirection).append(", ").append(stName).append(".time ").append(orderDirection);
+            }
+            sb.append("  limit ").append(subTableLimit)
+              .append(" ) ");
+
             if (month < endMonth) {
                 sb.append(" union all ");
             }
@@ -824,7 +887,8 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
             stName = "webfilter".concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
 
-            sb.append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER))
+            sb.append("  ( ")
+              .append("   select ").append(selectSqlMap.get(Constants.FIREWALL_LOG_TYPE_WEBFILTER))
               .append("   from ").append(tName).append(" ").append(stName).append(" ")
               .append("   where 1=1 ");
 
@@ -869,6 +933,16 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sb.append(sfb);
             }
 
+            //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
+            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+                sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
+
+            } else {
+                sb.append(" order by ").append(stName).append(".date ").append(orderDirection).append(", ").append(stName).append(".time ").append(orderDirection);
+            }
+            sb.append("  limit ").append(subTableLimit)
+              .append(" ) ");
+
             if (month < endMonth) {
                 sb.append(" union all ");
             }
@@ -876,8 +950,6 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 
         sb.append(") alltb ");
 
-        String orderColumnName = fVO.getOrderColumn();
-        String orderDirection = StringUtils.isBlank(fVO.getOrderDirection()) ? "desc" : fVO.getOrderDirection();
         if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
             sb.append(" order by alltb.").append(orderColumnName).append(" ").append(orderDirection);
 

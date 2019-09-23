@@ -36,7 +36,6 @@ public class Env {
     public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_TRAFFIC;   // 間控平台 > 所有學校即時IP流量排行
     public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_SESSION;       // 間控平台 > 各校即時連線數排行
     public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_SESSION;   // 間控平台 > 所有學校即時連線數排行
-    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                           // 間控平台 > Email修改
     public static String SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD;                    // 間控平台 > 系統操作手冊下載
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
@@ -74,6 +73,10 @@ public class Env {
 
     public static String SHOW_MENU_TREE_PROVISION;                           // 供裝功能模組
     public static String SHOW_MENU_TREE_OTHER_SYSTEM;                        // 其他系統
+
+    public static String SHOW_MENU_TREE_SETTING_MANAGEMENT;                  // 基礎設定
+    public static String SHOW_MENU_ITEM_IP_MAINTAIN;                         // 基礎設定 > IP備註維護
+    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                        // 基礎設定 > Email修改
 
 	public static String SHOW_MENU_TREE_BACKEND;                             // 後台管理
     public static String SHOW_MENU_ITEM_BK_SYS_ENV;                          // 後台管理 > 系統參數維護
