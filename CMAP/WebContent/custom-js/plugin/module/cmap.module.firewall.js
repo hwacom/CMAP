@@ -60,6 +60,11 @@ $(document).ready(function() {
 		var option = $(this).val();
 		
 		if (option == "SYSTEM") {
+			// 清空查詢欄位值，避免後續查詢因欄位不存在而報錯
+			$('#querySrcIp').val("");
+			$('#querySrcPort').val("");
+			$('#queryDstIp').val("");
+			$('#queryDstPort').val("");
 			$('[data-ipPortSec]').hide();
 		} else {
 			$('[data-ipPortSec]').show();

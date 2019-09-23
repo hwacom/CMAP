@@ -671,14 +671,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                 actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
             }
 
-            switch (blockType) {
-                case IP:
-                    writeModuleBlockIpListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-                    break;
+            if (blockType != null) {
+                switch (blockType) {
+                    case IP:
+                        writeModuleBlockIpListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                        break;
 
-                case PORT:
-                    writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-                    break;
+                    case PORT:
+                        writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                        break;
+                }
             }
 
         } catch (Exception e) {

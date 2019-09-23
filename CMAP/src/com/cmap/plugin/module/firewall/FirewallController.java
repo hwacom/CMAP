@@ -205,10 +205,15 @@ public class FirewallController extends BaseController {
             fVO = new FirewallVO();
             fVO.setQueryType(queryType);
             fVO.setQueryDevName(queryDevName);
-            fVO.setQuerySrcIp(querySrcIp);
-            fVO.setQuerySrcPort(querySrcPort);
-            fVO.setQueryDstIp(queryDstIp);
-            fVO.setQueryDstPort(queryDstPort);
+
+            // 查詢類別非「System」時才有IP、Port查詢條件
+            if (!StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_SYSTEM)) {
+                fVO.setQuerySrcIp(querySrcIp);
+                fVO.setQuerySrcPort(querySrcPort);
+                fVO.setQueryDstIp(queryDstIp);
+                fVO.setQueryDstPort(queryDstPort);
+            }
+
             fVO.setQueryDateBegin(queryDateBegin);
             fVO.setQueryDateEnd(queryDateEnd);
             fVO.setQueryTimeBegin(queryTimeBegin);
