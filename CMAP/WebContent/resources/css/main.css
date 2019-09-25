@@ -1017,6 +1017,10 @@ button {
   width: 35px;
 }
 
+#confirm_panel_table tbody tr:nth-of-type(2n+1) {
+  background-color: rgba(0,0,0,.05);
+}
+
 .img_searchWaiting {
   height: 35px;
   width: 35px;

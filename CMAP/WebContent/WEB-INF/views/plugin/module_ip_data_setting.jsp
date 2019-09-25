@@ -10,11 +10,7 @@
       <div class="col-12 search-bar">
       	<form>
       		<div class="container-fluid">
-	      	  <div class="form-group row" style="margin-bottom: -.5rem;">
-	    	    <div class="col-lg-3 group-field-other">
-	    	    	<label for="queryIpAddr" class="font-weight-bold" style="width: 35%">IP Address</label>
-	    	    	<input type="text" id="queryIpAddr" style="width: 60%">
-	    	    </div>
+	      	  <div class="form-group row" style="margin-top: -.3rem; margin-bottom: -.3rem;">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold" style="width: 35%"><spring:message code="group.name" /></label>
 	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 60%">
@@ -24,24 +20,36 @@
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
-	    	    <div class="col-lg-3 group-field-other">
-	    	    	<label for="queryDateBegin" class="font-weight-bold" style="width: 35%"><spring:message code="date" /></label>
-	    	    	<input type="date" id="queryDateBegin" style="width: 60%">
-	    	    	<!-- 
-	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
-	    	    	<input type="date" id="queryDateEnd" style="width: 35%">
-	    	    	 -->
-	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
-	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web">
-	    	    		<spring:message code="btn.query" />
-	    	    	</button>
-	    	    </div>
 	    	  </div>
 	      	</div>
 		</form>
       </div>
       <!-- [END]查詢欄位bar -->
+      <!-- [START]操作按鈕bar -->
+      <div class="col-12 action-btn-bar">
+        <div class="container-fluid">
+        	<div id="defaultActionBar" class="row">
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+		  	    	<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnAdd"><spring:message code="btn.add" /></button>
+		  	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+		  	    	<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnModify"><spring:message code="btn.modify" /></button>
+		  	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+		  	    	<button type="button" class="btn btn-danger btn-sm" style="width: 100%" id="btnDelete"><spring:message code="btn.delete" /></button>
+		  	    </div>
+        	</div>
+        	<div id="modifyActionBar" class="row" style="display: none">
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+		  	    	<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnModifySubmit"><spring:message code="btn.submit" /></button>
+		  	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+		  	    	<button type="button" class="btn btn-dark btn-sm" style="width: 100%" id="btnModifyCancel"><spring:message code="btn.cancel" /></button>
+		  	    </div>
+        	</div>
+        </div>
+      </div>
+      <!-- [END]操作按鈕bar -->
     </div>
     <!-- [END]查詢欄位&操作按鈕 for 大型解析度螢幕 -->
     
@@ -65,21 +73,6 @@
                         <form:options items="${groupList}" />
                     </form:select>
 		    	  </div>
-		    	  <div class="form-group row">
-				  	<label for="queryDateBegin_mobile" class="col-sm-2 col-form-label"><spring:message code="execute.date" /></label>
-				  	<div class="col-sm-4">
-				      <input type="date" class="form-control form-control-sm" id="queryDateBegin_mobile">
-				    </div>
-				    <div class="col-sm-1">~</div>
-				    <div class="col-sm-4">
-				      <input type="date" class="form-control form-control-sm" id="queryDateEnd_mobile">
-				    </div>
-		    	  </div>
-				  <div class="form-group row">
-		    	    <div class="col-sm-12">
-				      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_mobile"><spring:message code="inquiry" /></button>
-				    </div>
-				  </div>
 				</form>
 		  	</div>
 		  </div>
@@ -92,21 +85,13 @@
 		<table id="resultTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 		  <thead class="center">
 		    <tr>
-		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap">異動描述<!-- <spring:message code="device.name" />--></th>
-		      <th scope="col" nowrap="nowrap">異動時間<!-- <spring:message code="device.name" />--></th>
-		      <th scope="col" nowrap="nowrap">IP Address<!-- <spring:message code="device.name" />--></th>
-		      <th scope="col" nowrap="nowrap">Mac Address<!-- <spring:message code="device.name" />--></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
-		      <th scope="col" nowrap="nowrap">設備IP<!-- <spring:message code="device.name" />--></th>
-		      <th scope="col" nowrap="nowrap">Ports<!-- <spring:message code="device.name" />--></th>
-		      <th scope="col" nowrap="nowrap">Vlan<!-- <spring:message code="device.name" />--></th>
+		      <th scope="col" nowrap="nowrap" style="width: 5%;"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
+		      <th scope="col" nowrap="nowrap" style="width: 10%;"><spring:message code="seq" /></th>
+		      <th scope="col" nowrap="nowrap" style="width: 20%;"><spring:message code="group.name" /></th>
+		      <th scope="col" nowrap="nowrap" style="width: 25%;"><spring:message code="ip.address" /></th>
+		      <th scope="col" nowrap="nowrap" style="width: 40%;"><spring:message code="ip.remark" /></th>
 		    </tr>
 		  </thead>
-		  <tbody>
-			<tr><td class="center">1</td><td class="left">D. Mac+Port異動</td><td class="left">2019/02/21 14:55</td><td class="center">120.104.236.101</td><td class="center">1c87.2cca.b334</td><td class="left">031. 田美國小</td><td class="left">TMES-C2960L-SW4.mlc.edu.tw</td><td class="center">120.104.236.88</td><td class="center">Te0/4</td><td class="center">Vlan2</td></tr>
-		  </tbody>
 		</table>
 	  </div>
 	</div>
@@ -114,4 +99,70 @@
   
 </section>
 
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.record.min.js"></script>
+<!-- Modal [資料匯入] start -->
+<div class="modal fade" id="ipDataImportModal" tabindex="-1" role="dialog" aria-labelledby="ipDataImportLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xs" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ipDataImportLabel"><span id="msgModal_title">資料匯入</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group row">
+        	<div class="form-control form-control-sm col-12 export-description">
+	        	說明:<br>
+	        	<ol style="padding-left: 15px;">
+	        	  <li>一行代表一筆資料，以「逗號(,)」串接欄位</li>
+	        	  <li>欄位由左至右依序為: IP_Address > IP備註</li>
+	        	</ol>
+	        	範例:<br>
+	        	192.168.1.100,IP備註1<br>
+	        	192.168.1.200,IP備註2<br>
+	        	...
+        	</div>
+        </div>
+     	<div id="div_edit_panel" class="form-group row">
+        	<label for="ipDataImportModal_dataSet" class="col-12 col-form-label"><spring:message code="please.paste.data" /> :</label>
+    		<div class="form-control form-control-sm col-12">
+    			<textarea id="ipDataImportModal_dataSet" style="width: 100%; resize: none;" rows="10" cols="50">
+    			</textarea>
+    		</div>
+        </div>
+        <div id="div_confirm_panel" class="form-group row" style="display: none;">
+    		<div class="form-control form-control-sm col-12">
+    			<table id="confirm_panel_table" style="width: 100%;">
+    				<thead>
+    				  <tr>
+    					<th class="var-td" style="width: 45%; color: blue !important;"><spring:message code="ip.address" /></th>
+    					<th class="var-td" style="width: 55%; color: blue !important;"><spring:message code="ip.remark" /></th>
+    				  </tr>
+    				</thead>
+    				<tbody>
+    				</tbody>
+    			</table>
+    		</div>
+        </div>
+      </div>
+      <div class="modal-footer center">
+     		<div class="col-4">
+     			<button type="button" class="btn btn-secondary" id="btnClose" data-dismiss="modal" style="width: 100%;"><spring:message code="close" /></button>
+     		</div>
+     		<div class="col-4" style="display: none;">
+     			<button type="button" class="btn btn-secondary" id="btnIpDataImportBackStep" style="width: 100%;"><spring:message code="btn.step.back" /></button>
+     		</div>
+     		<div class="col-4">
+     			<button type="button" class="btn btn-success" id="btnIpDataImportNextStep" style="width: 100%;"><spring:message code="btn.step.next" /></button>
+     		</div>
+     		<div class="col-4" style="display: none;">
+     			<button type="button" class="btn btn-success" id="btnIpDataImportConfirm" style="width: 100%;"><spring:message code="btn.confirm" /></button>
+     		</div>
+	  </div>
+	  <input type="hidden" id="ipDataImportModal_var1" name="ipDataImportModal_var1" value="" />
+    </div>
+  </div>
+</div>
+<!-- Modal [資料匯入] end -->
+
+<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.maintain.min.js"></script>

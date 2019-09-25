@@ -2,7 +2,9 @@ package com.cmap.plugin.module.ip.maintain;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -15,21 +17,44 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.cmap.AppResponse;
+import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.annotation.Log;
+import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.security.SecurityUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 @RequestMapping("/plugin/module/ipMaintain")
-public class IpMaintainController {
+public class IpMaintainController extends BaseController {
     @Log
     private static Logger log;
 
     @Autowired
     private IpMaintainService ipMaintainService;
 
-    private static final String[] UI_COLUMNS = new String[] {"","Create_Time","Group_Name","Device_Name","","Ip_Address","Mac_Address","Port"};
+    private static final String[] UI_COLUMNS = new String[] {"","","dl.groupName","mids.ipAddr","mids.ipDesc"};
+
+    /**
+     * 初始化選單
+     * @param model
+     * @param request
+     */
+    private void initMenu(Model model, HttpServletRequest request) {
+        Map<String, String> groupListMap = null;
+        try {
+            groupListMap = getGroupList(request);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+        } finally {
+            model.addAttribute("queryGroup", "");
+            model.addAttribute("groupList", groupListMap);
+            model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+        }
+    }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String main(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
@@ -40,6 +65,7 @@ public class IpMaintainController {
             log.error(e.toString(), e);
 
         } finally {
+            initMenu(model, request);
         }
         return "plugin/module_ip_data_setting";
     }
@@ -48,24 +74,89 @@ public class IpMaintainController {
     public @ResponseBody AppResponse add(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestBody JsonNode jsonData) {
+        try {
+            List<IpMaintainServiceVO> imsVOs = new ArrayList<>();
 
-        return null;
+            String groupId = jsonData.findValue(Constants.JSON_FIELD_GROUP_ID).asText();
+            Iterator<JsonNode> ipAddrIt = jsonData.findValues(Constants.JSON_FIELD_IP_ADDR).get(0).iterator();
+            Iterator<JsonNode> ipDescIt = jsonData.findValues(Constants.JSON_FIELD_IP_DESC).get(0).iterator();
+
+            IpMaintainServiceVO imsVO;
+            while (ipAddrIt.hasNext()) {
+                imsVO = new IpMaintainServiceVO();
+                imsVO.setGroupId(groupId);
+                imsVO.setModifyIpAddr(ipAddrIt.hasNext() ? ipAddrIt.next().asText() : null);
+                imsVO.setModifyIpDesc(ipDescIt.hasNext() ? ipDescIt.next().asText() : null);
+
+                imsVOs.add(imsVO);
+            }
+
+            ipMaintainService.addIpDataSetting(imsVOs);
+            return new AppResponse(HttpServletResponse.SC_OK, "新增成功");
+
+        } catch (ServiceLayerException sle) {
+            return new AppResponse(super.getLineNumber(), sle.getMessage());
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+        }
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)
     public @ResponseBody AppResponse update(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestBody JsonNode jsonData) {
+        try {
+            List<IpMaintainServiceVO> imsVOs = new ArrayList<>();
 
-        return null;
+            Iterator<JsonNode> idIt = jsonData.findValues(Constants.JSON_FIELD_SETTING_IDS).get(0).iterator();
+            Iterator<JsonNode> ipDescIt = jsonData.findValues(Constants.JSON_FIELD_IP_DESC).get(0).iterator();
+
+            IpMaintainServiceVO imsVO;
+            while (idIt.hasNext()) {
+                imsVO = new IpMaintainServiceVO();
+                imsVO.setSettingId(idIt.hasNext() ? idIt.next().asText() : null);
+                imsVO.setModifyIpDesc(ipDescIt.hasNext() ? ipDescIt.next().asText() : null);
+
+                imsVOs.add(imsVO);
+            }
+
+            ipMaintainService.updateIpDataSetting(imsVOs);
+            return new AppResponse(HttpServletResponse.SC_OK, "修改成功");
+
+        } catch (ServiceLayerException sle) {
+            return new AppResponse(super.getLineNumber(), sle.getMessage());
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+        }
     }
 
     @RequestMapping(value = "delete", method = RequestMethod.POST)
     public @ResponseBody AppResponse delete(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestBody JsonNode jsonData) {
+        try {
+            List<IpMaintainServiceVO> imsVOs = new ArrayList<>();
 
-        return null;
+            Iterator<JsonNode> idIt = jsonData.findValues(Constants.JSON_FIELD_SETTING_IDS).get(0).iterator();
+
+            IpMaintainServiceVO imsVO;
+            while (idIt.hasNext()) {
+                imsVO = new IpMaintainServiceVO();
+                imsVO.setSettingId(idIt.hasNext() ? idIt.next().asText() : null);
+                imsVOs.add(imsVO);
+            }
+
+            ipMaintainService.deleteIpDataSetting(imsVOs);
+            return new AppResponse(HttpServletResponse.SC_OK, "刪除成功");
+
+        } catch (ServiceLayerException sle) {
+            return new AppResponse(super.getLineNumber(), sle.getMessage());
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+        }
     }
 
     @RequestMapping(value = "getIpDataSetting.json", method = RequestMethod.POST)

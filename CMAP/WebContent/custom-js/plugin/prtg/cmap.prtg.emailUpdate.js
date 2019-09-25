@@ -3,7 +3,7 @@
  */
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_emailUpdate");
+	initMenuStatus("toggleMenu_setting", "toggleMenu_setting_items", "st_emailUpdate");
 
 	adjustHeight();
 	

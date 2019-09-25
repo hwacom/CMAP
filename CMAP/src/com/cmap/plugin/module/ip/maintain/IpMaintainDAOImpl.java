@@ -21,9 +21,11 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     public long countModuleIpDataSetting(IpMaintainServiceVO imsVO) {
         StringBuffer sb = new StringBuffer();
         sb.append(" SELECT ")
-          .append("   count(settingId) ")
+          .append("   count(mids.settingId) ")
           .append(" FROM ModuleIpDataSetting mids ")
-          .append(" WHERE 1=1 ");
+          .append("     ,DeviceList dl ")
+          .append(" WHERE 1=1 ")
+          .append(" AND mids.groupId = dl.groupId ");
 
         if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
             sb.append(" AND mids.groupId = :groupId ");
@@ -33,7 +35,7 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
             sb.append(" and ( ")
-              .append("       mids.groupId like :searchValue ")
+              .append("       dl.groupName like :searchValue ")
               .append("       or ")
               .append("       mids.ipAddr like :searchValue ")
               .append("       or ")
@@ -57,11 +59,14 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     }
 
     @Override
-    public List<ModuleIpDataSetting> findModuleIpDataSetting(
+    public List<Object[]> findModuleIpDataSetting(
             IpMaintainServiceVO imsVO, Integer startRow, Integer pageLength) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" FROM ModuleIpDataSetting mids ")
-          .append(" WHERE 1=1 ");
+        sb.append(" SELECT mids, dl ")
+          .append(" FROM ModuleIpDataSetting mids ")
+          .append("     ,DeviceList dl ")
+          .append(" WHERE 1=1 ")
+          .append(" AND mids.groupId = dl.groupId ");
 
         if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
             sb.append(" AND mids.groupId = :groupId ");
@@ -71,7 +76,7 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
             sb.append(" and ( ")
-              .append("       mids.groupId like :searchValue ")
+              .append("       dl.groupName like :searchValue ")
               .append("       or ")
               .append("       mids.ipAddr like :searchValue ")
               .append("       or ")
@@ -79,7 +84,7 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
               .append("     ) ");
         }
         if (StringUtils.isNotBlank(imsVO.getOrderColumn())) {
-            sb.append(" order by mids.").append(imsVO.getOrderColumn()).append(" ").append(imsVO.getOrderDirection());
+            sb.append(" order by ").append(imsVO.getOrderColumn()).append(" ").append(imsVO.getOrderDirection());
         } else {
             sb.append(" order by mids.updateTime desc ");
         }
@@ -100,6 +105,25 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             q.setFirstResult(startRow);
             q.setMaxResults(pageLength);
         }
-        return (List<ModuleIpDataSetting>)q.list();
+        return (List<Object[]>)q.list();
+    }
+
+    @Override
+    public ModuleIpDataSetting findModuleIpDataSettingById(String settingId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" FROM ModuleIpDataSetting mids ")
+          .append(" WHERE 1=1 ");
+
+        if (StringUtils.isNotBlank(settingId)) {
+            sb.append(" AND mids.settingId = :settingId ");
+        }
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+
+        if (StringUtils.isNotBlank(settingId)) {
+            q.setParameter("settingId", settingId);
+        }
+        return (ModuleIpDataSetting)q.uniqueResult();
     }
 }

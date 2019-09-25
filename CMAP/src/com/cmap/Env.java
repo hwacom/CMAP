@@ -74,9 +74,9 @@ public class Env {
     public static String SHOW_MENU_TREE_PROVISION;                           // 供裝功能模組
     public static String SHOW_MENU_TREE_OTHER_SYSTEM;                        // 其他系統
 
-    public static String SHOW_MENU_TREE_SETTING_MANAGEMENT;                  // 基礎設定
-    public static String SHOW_MENU_ITEM_IP_MAINTAIN;                         // 基礎設定 > IP備註維護
-    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                        // 基礎設定 > Email修改
+    public static String SHOW_MENU_TREE_SETTING_MANAGEMENT;                  // 設定維護
+    public static String SHOW_MENU_ITEM_IP_MAINTAIN;                         // 設定維護 > IP備註維護
+    public static String SHOW_MENU_ITEM_EMAIL_UPDATE;                        // 設定維護 > Email修改
 
 	public static String SHOW_MENU_TREE_BACKEND;                             // 後台管理
     public static String SHOW_MENU_ITEM_BK_SYS_ENV;                          // 後台管理 > 系統參數維護

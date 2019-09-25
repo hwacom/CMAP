@@ -109,7 +109,7 @@ public class CommonUtils {
 				,ciVO.getGroupName()
 				,ciVO.getDeviceId()
 				,ciVO.getDeviceName()
-				,ciVO.getSystemVersion()
+				,ciVO.getDeviceModel()
 				,ciVO.getConfigType()
 				,StringUtils.substring(ciVO.getConfigFileName(), 0, ciVO.getConfigFileName().lastIndexOf("."))
 				,ciVO.getConfigFileName()

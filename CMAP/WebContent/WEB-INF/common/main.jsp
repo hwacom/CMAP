@@ -582,6 +582,40 @@
               </c:if>
               <!-- [資安通報] END -->
               
+              <!-- [設定維護] START -->
+              <c:if test="${Env.SHOW_MENU_TREE_SETTING_MANAGEMENT eq __SHOW__}">
+	              <li class="nav-item">
+	                <a class="nav-link toggleMenuLink" id="toggleMenu_setting" href="#">
+	                  <span data-feather="settings"></span>
+	                  	<span><spring:message code="menu.setting" />&nbsp;<span id="toggleMenu_setting_icon" data-feather="chevron-down"></span></span>
+	                </a>
+	                <ul aria-expanded="false" id="toggleMenu_setting_items" class="collapse">
+	                	<!-- [IP備註維護] START -->
+	                	<c:if test="${Env.SHOW_MENU_ITEM_IP_MAINTAIN eq __SHOW__}">
+	                		<li class="subMenu-item">
+		                    	<a id="st_ipMaintain" href="${pageContext.request.contextPath}/plugin/module/ipMaintain">
+		                    	  <span data-feather="edit"></span>
+		                    		<span><spring:message code="func.setting.ip.maintain" /></span>
+		                    	</a>
+		                    </li>
+	                	</c:if>
+	                	<!-- [IP備註維護] END -->
+	                	
+	                    <!-- [Email修改] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_EMAIL_UPDATE eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="st_emailUpdate" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/email/update')">
+		                    	  <span data-feather="mail"></span>
+		                    	  	<span><spring:message code="func.prtg.email.update" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+	                    <!-- [Email修改] END -->
+	                </ul>
+		          </li>
+	          </c:if>
+	          <!-- [設定維護] END -->
+              
               <!-- [後台管理] START -->
               <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
               	<c:if test="${Env.SHOW_MENU_TREE_BACKEND eq __SHOW__}">

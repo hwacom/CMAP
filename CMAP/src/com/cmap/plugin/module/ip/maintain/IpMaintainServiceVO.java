@@ -7,6 +7,7 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     private String queryGroup;
     private String queryIp;
 
+    private String settingId;
     private String groupId;
     private String groupName;
     private String ipAddr;
@@ -14,6 +15,9 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     private String remark;
     private String updateBy;
     private String updateTimeStr;
+
+    private String modifyIpAddr;
+    private String modifyIpDesc;
 
     public String getQueryGroup() {
         return queryGroup;
@@ -26,6 +30,12 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     }
     public void setQueryIp(String queryIp) {
         this.queryIp = queryIp;
+    }
+    public String getSettingId() {
+        return settingId;
+    }
+    public void setSettingId(String settingId) {
+        this.settingId = settingId;
     }
     public String getGroupId() {
         return groupId;
@@ -70,5 +80,17 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     }
     public void setUpdateTimeStr(String updateTimeStr) {
         this.updateTimeStr = updateTimeStr;
+    }
+    public String getModifyIpAddr() {
+        return modifyIpAddr;
+    }
+    public void setModifyIpAddr(String modifyIpAddr) {
+        this.modifyIpAddr = modifyIpAddr;
+    }
+    public String getModifyIpDesc() {
+        return modifyIpDesc;
+    }
+    public void setModifyIpDesc(String modifyIpDesc) {
+        this.modifyIpDesc = modifyIpDesc;
     }
 }

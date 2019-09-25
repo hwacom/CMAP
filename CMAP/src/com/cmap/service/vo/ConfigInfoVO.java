@@ -20,6 +20,7 @@ public class ConfigInfoVO implements Cloneable {
 	private String configFileName;
 	private String fileFullName;
 	private String systemVersion;
+	private String deviceModel;
 	private String configType;
 	private String deviceFlashConfigPath;  // 設備端要還原的版本組態檔路徑
 	private String deviceFlashImagePath;   // 設備端要還原的Image檔路徑
@@ -357,5 +358,13 @@ public class ConfigInfoVO implements Cloneable {
 
     public void setConnectionMode(ConnectionMode connectionMode) {
         this.connectionMode = connectionMode;
+    }
+
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
     }
 }

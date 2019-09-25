@@ -1420,6 +1420,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		}
 
 		String fileName = CommonUtils.composeConfigFileName(configInfoVO, seqNo);
+
 		String tFtpTargetFilePath =
 				(Env.TFTP_SERVER_AT_LOCAL ? configInfoVO.getConfigFileDirPath() : Env.TFTP_TEMP_DIR_PATH).concat((StringUtils.isNotBlank(Env.TFTP_DIR_PATH_SEPARATE_SYMBOL) ? Env.TFTP_DIR_PATH_SEPARATE_SYMBOL : File.separator)).concat(fileName);
 		String ftpTargetFilePath =

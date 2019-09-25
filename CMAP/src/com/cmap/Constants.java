@@ -130,6 +130,9 @@ public class Constants {
 	public static final String JSON_FIELD_MODIFY_SETTING_NAME = "modifySettingName";
 	public static final String JSON_FIELD_MODIFY_SETTING_VALUE = "modifySettingValue";
 	public static final String JSON_FIELD_MODIFY_SETTING_REMARK = "modifySettingRemark";
+	public static final String JSON_FIELD_IP_ADDR = "modifyIpAddr";
+	public static final String JSON_FIELD_IP_DESC = "modifyIpDesc";
+	public static final String JSON_FIELD_GROUP_ID = "groupId";
 
 	public static final String DATA_MARK_DELETE = "Y";
 	public static final String DATA_MARK_NOT_DELETE = "N";

@@ -19,6 +19,13 @@ public interface IpMaintainDAO extends BaseDAO {
      * @param pageLength
      * @return
      */
-    public List<ModuleIpDataSetting> findModuleIpDataSetting(
+    public List<Object[]> findModuleIpDataSetting(
             IpMaintainServiceVO imsVO, Integer startRow, Integer pageLength);
+
+    /**
+     * 查找資料 By ID
+     * @param settingId
+     * @return
+     */
+    public ModuleIpDataSetting findModuleIpDataSettingById(String settingId);
 }
