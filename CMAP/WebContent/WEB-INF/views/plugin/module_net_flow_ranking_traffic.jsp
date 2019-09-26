@@ -117,6 +117,7 @@
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.address" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="ip.remark" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="percentage" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="total.traffic" /></th>

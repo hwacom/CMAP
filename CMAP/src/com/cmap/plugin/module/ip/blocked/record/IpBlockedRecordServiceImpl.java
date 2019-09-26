@@ -1,9 +1,11 @@
 package com.cmap.plugin.module.ip.blocked.record;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -11,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
-import com.cmap.model.DeviceList;
 import com.cmap.service.impl.CommonServiceImpl;
 
 @Service("ipRecordService")
@@ -57,22 +59,38 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                 throw new ServiceLayerException("查無資料!");
             }
 
-            ModuleBlockedIpList bilEntity;
-            DeviceList dlEntity;
             IpBlockedRecordVO vo;
             for (Object[] entity : entities) {
-                bilEntity = (ModuleBlockedIpList)entity[0];
-                dlEntity = (DeviceList)entity[1];
-                vo = new IpBlockedRecordVO();
+                String groupId = Objects.toString(entity[0]);
+                String groupName = Objects.toString(entity[1]);
+                String ipAddress = Objects.toString(entity[2]);
+                String ipDesc = Objects.toString(entity[3], Env.IP_DESC_NULL_SHOW_WHAT);
+                String statusFlag = Objects.toString(entity[4]);
+                Timestamp blockTime = entity[5] != null ? (Timestamp)entity[5] : null;
+                String blockBy = Objects.toString(entity[6]);
+                String blockReason = Objects.toString(entity[7]);
+                Timestamp openTime = entity[8] != null ? (Timestamp)entity[8] : null;
+                String openBy = Objects.toString(entity[9]);
+                String openReason = Objects.toString(entity[10]);
+                Timestamp updateTime = entity[11] != null ? (Timestamp)entity[11] : null;
+                String updateBy = Objects.toString(entity[12]);
 
-                BeanUtils.copyProperties(bilEntity, vo);
-                vo.setBlockTimeStr(bilEntity.getBlockTime() != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getBlockTime()) : null);
-                vo.setOpenTimeStr(bilEntity.getOpenTime() != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getOpenTime()) : null);
-                vo.setUpdateTimeStr(bilEntity.getUpdateTime() != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(bilEntity.getUpdateTime()) : null);
-                vo.setGroupName(dlEntity.getGroupName());
-                vo.setStatusFlag(StringUtils.equals(bilEntity.getStatusFlag(), Constants.STATUS_FLAG_BLOCK)
+                vo = new IpBlockedRecordVO();
+                vo.setGroupId(groupId);
+                vo.setGroupName(groupName);
+                vo.setIpAddress(ipAddress);
+                vo.setIpDesc(ipDesc);
+                vo.setBlockTimeStr(blockTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(blockTime) : null);
+                vo.setBlockBy(blockBy);
+                vo.setBlockReason(blockReason);
+                vo.setOpenTimeStr(openTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(openTime) : null);
+                vo.setOpenBy(openBy);
+                vo.setOpenReason(openReason);
+                vo.setUpdateTimeStr(updateTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(updateTime) : null);
+                vo.setUpdateBy(updateBy);
+                vo.setStatusFlag(StringUtils.equals(statusFlag, Constants.STATUS_FLAG_BLOCK)
                                     ? msgBlock
-                                    : StringUtils.equals(bilEntity.getStatusFlag(), Constants.STATUS_FLAG_OPEN)
+                                    : StringUtils.equals(statusFlag, Constants.STATUS_FLAG_OPEN)
                                         ? msgOpen
                                         : msgUnknown);
 

@@ -174,7 +174,7 @@ function findData(from, period) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[3 , 'desc' ]],
+			"order": [[4 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -201,6 +201,7 @@ function findData(from, period) {
 			"columns" : [
 				{},
 				{ "data" : "ipAddress" },
+				{ "data" : "ipDesc" },
 				{ "data" : "groupName" , "searchable" : false },
 				{ "data" : "percent" , "searchable" : false },
 				{ "data" : "totalTraffic" , "searchable" : false },

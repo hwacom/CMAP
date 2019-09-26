@@ -294,17 +294,6 @@
 	                    </sec:authorize>
 	                    <!-- [所有學校即時連線數排行] END -->
 	                    
-	                    <!-- [Email修改] START -->
-				        <c:if test="${Env.SHOW_MENU_ITEM_EMAIL_UPDATE eq __SHOW__}">
-				        	<li class="subMenu-item">
-		                    	<a id="mp_emailUpdate" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/email/update')">
-		                    	  <span data-feather="mail"></span>
-		                    	  	<span><spring:message code="func.prtg.email.update" /></span>
-		                    	</a>
-		                    </li>
-				        </c:if>
-	                    <!-- [Email修改] END -->
-	                    
 	                    <!-- [系統操作手冊下載] START -->
 				        <c:if test="${Env.SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD eq __SHOW__}">
 				        	<li class="subMenu-item">

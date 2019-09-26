@@ -20,6 +20,7 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     private String groupId;
     private String deviceId;
     private String ipAddress;
+    private String ipDesc;
     private String statusFlag;
     private String blockTimeStr;
     private String blockBy;
@@ -183,5 +184,11 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     }
     public void setQueryDeviceIdList(List<String> queryDeviceIdList) {
         this.queryDeviceIdList = queryDeviceIdList;
+    }
+    public String getIpDesc() {
+        return ipDesc;
+    }
+    public void setIpDesc(String ipDesc) {
+        this.ipDesc = ipDesc;
     }
 }

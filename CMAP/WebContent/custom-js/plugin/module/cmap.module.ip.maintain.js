@@ -26,7 +26,7 @@ $(document).ready(function() {
 	});
 	
 	$("#btnIpDataImportConfirm").click(function() {
-		doAdd();
+		envAction('add');
 	});
 	
 	$("#btnModify").click(function() {
@@ -63,6 +63,13 @@ function toggleActionBar() {
 }
 
 function showAddModal() {
+	var groupId = $("#queryGroup").val();
+	
+	if (groupId == "") {
+		alert("請先選擇學校");
+		return;
+	}
+	
 	//初始化狀態
 	$("#ipDataImportModal_dataSet").val(""); 			// 清空textarea內容
 	$("#div_edit_panel").show();						// Edit Panel打開
@@ -90,6 +97,38 @@ function showAddEditPanel() {
 	$("#btnIpDataImportConfirm").parent().hide();		// 確認按鈕先隱藏
 }
 
+function transDoubleQuota(oriText) {
+	var newText = oriText;
+	if ((newText.indexOf("\"") == 0) && (newText.lastIndexOf("\"") == (newText.length - 1))) {
+		console.log("first.");
+		// 表示此資料含保留字
+		// 替換「""」為「"」
+		console.log("(Ori):" + newText);
+		newText = newText.replace(/\"\"/g, '"');
+		console.log("(1):" + newText);
+		newText = newText.substring(1);
+		newText = newText.substring(0, newText.length-1);
+		console.log("(2):" + newText);
+		
+	} else if ((newText.indexOf("\"") == 0) && (newText.lastIndexOf("\"") != (newText.length - 1))) {
+		console.log("second.");
+		console.log("(Ori):" + newText);
+		newText = newText.replace(/\"\"/g, '"');
+		console.log("(1):" + newText);
+		newText = newText.substring(1);
+		console.log("(2):" + newText);
+		
+	} else if ((newText.indexOf("\"") != 0) && (newText.lastIndexOf("\"") == (newText.length - 1))) {
+		console.log("third.");
+		console.log("(Ori):" + newText);
+		newText = newText.replace(/\"\"/g, '"');
+		console.log("(1):" + newText);
+		newText = newText.substring(0, newText.length-1);
+		console.log("(2):" + newText);
+	}
+	return newText;
+}
+
 function showAddConfirmPanel() {
 	var dataSet = $("#ipDataImportModal_dataSet").val();
 	
@@ -98,16 +137,25 @@ function showAddConfirmPanel() {
 		return;
 	}
 
+	var groupName = $("#queryGroup option:selected").text();
 	var tr, td;
 	var dataList = dataSet.split("\n");
 	var dataLine, ipAddr, ipDesc;
 	for (var i=0; i<dataList.length; i++) {
 		dataLine = dataList[i];
 		
-		ipAddr = dataLine.split(",")[0].trim();
-		ipDesc = dataLine.split(",")[1].trim();
+		var firstCommaIdx = dataLine.indexOf(",");
+		if (firstCommaIdx == -1) {
+			alert("第 " + (i+1) + " 行格式錯誤! (未含逗點)");
+			return;
+		}
+		
+		ipAddr = transDoubleQuota(dataLine.substring(0, firstCommaIdx).trim());
+		ipDesc = transDoubleQuota(dataLine.substring(firstCommaIdx+1, dataLine.length).trim());
 		
 		tr = $("<tr></tr>");
+		tr.append($("<td></td>").text(i + 1));			// 序欄位
+		tr.append($("<td></td>").text(groupName));
 		tr.append($("<td></td>").text(ipAddr));
 		tr.append($("<td></td>").text(ipDesc));
 		$("#confirm_panel_table > tbody").append(tr);	// 將資料加到table tbody內
@@ -120,10 +168,6 @@ function showAddConfirmPanel() {
 	$("#div_confirm_panel").show();						// Confirm panel打開
 	$("#btnIpDataImportBackStep").parent().show();		// 上一步按鈕打開
 	$("#btnIpDataImportConfirm").parent().show();		// 確認按鈕打開
-}
-
-function doAdd() {
-	
 }
 
 function changeModifyView() {
@@ -161,11 +205,13 @@ function changeModifyView() {
 function envAction(action) {
 	var obj = new Object();
 	
-	var settingIds = $("input[name='chkbox']:checked").map(function() {
-     	return $(this).val();
-     }).get();
-	
-	obj.settingIds = settingIds;
+	if (action != "add") {
+		var settingIds = $("input[name='chkbox']:checked").map(function() {
+	     	return $(this).val();
+	     }).get();
+		
+		obj.settingIds = settingIds;
+	}
 	
 	if (action == "update") {
 		var modifyIpDesc = $("input[name='modifyIpDesc']").map(function() {
@@ -181,6 +227,39 @@ function envAction(action) {
 			alert('請先勾選欲刪除的項目');
 			return;
 		}
+		
+	} else if (action == "add") {
+		var dataSet = $("#ipDataImportModal_dataSet").val();
+		
+		if (dataSet == null || dataSet == "" || (dataSet != null && dataSet.length == 0)) {
+			alert("資料為空，請重新確認!");
+			return;
+		}
+		
+		var obj = new Object();
+		var array_ipAddr = new Array();
+		var array_ipDesc = new Array();
+		var dataList = dataSet.split("\n");
+		
+		for (var i=0; i<dataList.length; i++) {
+			dataLine = dataList[i];
+			
+			var firstCommaIdx = dataLine.indexOf(",");
+			if (firstCommaIdx == -1) {
+				alert("第 " + (i+1) + " 行格式錯誤! (未含逗點)");
+				return;
+			}
+			
+			ipAddr = transDoubleQuota(dataLine.substring(0, firstCommaIdx).trim());
+			ipDesc = transDoubleQuota(dataLine.substring(firstCommaIdx+1, dataLine.length).trim());
+			
+			array_ipAddr.push(ipAddr);
+			array_ipDesc.push(ipDesc);
+		}
+		
+		obj.groupId = $("#queryGroup").val();
+		obj.modifyIpAddr = array_ipAddr;
+		obj.modifyIpDesc = array_ipDesc;
 	}
 	
 	$.ajax({
@@ -203,6 +282,11 @@ function envAction(action) {
 			if (resp.code == '200') {
 				alert(resp.message);
 				findData($("#queryFrom").val());
+				
+				setTimeout(function(){
+					$('#ipDataImportModal').modal('hide');
+					
+				}, 500);
 				
 			} else {
 				alert(resp.message);

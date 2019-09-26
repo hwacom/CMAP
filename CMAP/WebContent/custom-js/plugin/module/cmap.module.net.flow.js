@@ -434,11 +434,13 @@ function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 					$('#viewIpMappingPortModal_country').parent().show();
 				}
 				$('#viewIpMappingPortModal_ipAddress').parent().show();
+				$('#viewIpMappingPortModal_ipDesc').parent().show();
 				
 				$('#viewIpMappingPortModal_groupName').html(resp.data.groupName);
 				$('#viewIpMappingPortModal_deviceName').html(resp.data.deviceName);
 				$('#viewIpMappingPortModal_deviceModel').html(resp.data.deviceModel);
 				$('#viewIpMappingPortModal_ipAddress').html(resp.data.ipAddress);
+				$('#viewIpMappingPortModal_ipDesc').html(resp.data.ipDesc);
 				$('#viewIpMappingPortModal_portName').html(resp.data.portName);
 				$('#viewIpMappingPortModal_showMsg').html(resp.data.showMsg);
 				

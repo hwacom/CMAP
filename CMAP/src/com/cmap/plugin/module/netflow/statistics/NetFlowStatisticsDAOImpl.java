@@ -98,6 +98,9 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
               .append(" from ( ")
               .append("   select 1 ")
               .append("   from Module_Ip_Traffic_Statistics mits ")
+              .append("   left join Module_Ip_Data_Setting mids ")
+              .append("   on ( mits.group_id = mids.group_id ")
+              .append("        and mits.ip_address = mids.ip_addr ) ")
               .append("   where 1=1 ");
 
             if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
@@ -110,7 +113,10 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
                 sb.append(" and mits.stat_Date <= :queryDateEnd ");
             }
             if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
-                sb.append(" and mits.ip_Address like :searchValue ");
+                sb.append(" and ( mits.ip_Address like :searchValue ")
+                  .append("       or ")
+                  .append("       mids.ip_desc like :searchValue ")
+                  .append(" ) ");
             }
             sb.append("   group by mits.group_id, mits.ip_address ")
               .append(" ) subQuery ");
@@ -155,12 +161,17 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
               .append("       ,mits2.sum_total as ttl_totalTraffic ")
               .append("       ,mits2.sum_upload as ttl_uploadTraffic ")
               .append("       ,mits2.sum_download as ttl_downloadTraffic ")
+              .append("       ,mids.ip_desc ")
               .append(" from Module_Ip_Traffic_Statistics as mits1 ")
+              .append("      left join Module_Ip_Data_Setting mids ")
+              .append("      on ( mits1.group_id = mids.group_id ")
+              .append("           and mits1.ip_address = mids.ip_addr ) ")
               .append("     ,(select sum(mits.total_traffic) as sum_total ")
               .append("             ,sum(mits.upload_traffic) as sum_upload ")
               .append("             ,sum(mits.download_traffic) as sum_download ")
               .append("       from Module_Ip_Traffic_Statistics as mits ")
               .append("       where 1=1 ");
+
               if (StringUtils.isNotBlank(nfsVO.getQueryGroupId())) {
                   sb.append(" and mits.group_id = :groupId ");
               }
@@ -186,9 +197,12 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
                 sb.append(" and mits1.stat_date <= :queryDateEnd ");
             }
             if (StringUtils.isNotBlank(nfsVO.getSearchValue())) {
-                sb.append(" and mits1.ip_address like :searchValue ");
+                sb.append(" and ( mits1.ip_address like :searchValue ")
+                  .append("       or ")
+                  .append("       mids.ip_desc like :searchValue ")
+                  .append(" ) ");
             }
-            sb.append(" group by mits1.ip_address, mits1.group_id ");
+            sb.append(" group by mits1.ip_address, mits1.group_id, mids.ip_desc ");
 
             if (StringUtils.isNotBlank(nfsVO.getOrderColumn())) {
                 sb.append(" order by ").append(nfsVO.getOrderColumn()).append(" ").append(nfsVO.getOrderDirection());

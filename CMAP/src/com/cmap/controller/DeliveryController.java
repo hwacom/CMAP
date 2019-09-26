@@ -42,7 +42,7 @@ public class DeliveryController extends BaseController {
 
 	private static final String[] UI_SEARCH_BY_SCRIPT_COLUMNS = new String[] {"","","scriptName","scriptType.scriptTypeName","systemVersion","","","",""};
 	private static final String[] UI_RECORD_COLUMNS = new String[] {"","plm.begin_time","plm.create_by","dl.group_name","dl.device_name","dl.device_model","si.script_name","plm.remark","pls.result"};
-	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","dl.groupName","mbil.ipAddress","mbil.statusFlag","mbil.blockTime","mbil.blockReason","mbil.blockBy","mbil.openTime","mbil.openReason","mbil.openBy"};
+	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbil.ip_Address","mids.ip_Desc","mbil.status_Flag","mbil.block_Time","mbil.block_Reason","mbil.block_By","mbil.open_Time","mbil.open_Reason","mbil.open_By"};
 	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.groupName","dl.deviceName","mbpl.portId","mbpl.statusFlag","mbpl.blockTime","mbpl.blockReason","mbpl.blockBy","mbpl.openTime","mbpl.openReason","mbpl.openBy"};
 
 	@Autowired

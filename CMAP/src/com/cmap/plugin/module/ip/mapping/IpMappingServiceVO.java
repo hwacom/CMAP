@@ -23,6 +23,7 @@ public class IpMappingServiceVO extends CommonServiceVO {
     private String ipAddress;
     private String portId;
     private String portName;
+    private String ipDesc;
 
     private String showMsg;
     private String country;
@@ -140,5 +141,11 @@ public class IpMappingServiceVO extends CommonServiceVO {
     }
     public void setCountry(String country) {
         this.country = country;
+    }
+    public String getIpDesc() {
+        return ipDesc;
+    }
+    public void setIpDesc(String ipDesc) {
+        this.ipDesc = ipDesc;
     }
 }

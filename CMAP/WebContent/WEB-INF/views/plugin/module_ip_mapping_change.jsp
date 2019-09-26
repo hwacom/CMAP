@@ -108,6 +108,7 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="device.model" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.address" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="ip.remark" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="mac.address" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="port.name" /></th>
 		    </tr>

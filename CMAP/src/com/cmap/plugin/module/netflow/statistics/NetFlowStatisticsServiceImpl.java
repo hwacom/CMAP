@@ -417,6 +417,7 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         String totalTraffic = Objects.toString(entity[3], "0");
                         String uploadTraffic = Objects.toString(entity[4], "0");
                         String downloadTraffic = Objects.toString(entity[5], "0");
+                        String ipDesc = Objects.toString(entity[9], Env.IP_DESC_NULL_SHOW_WHAT);
 
                         if (StringUtils.isBlank(ipAddress) || StringUtils.isBlank(groupId)) {
                             return;
@@ -447,6 +448,7 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         vo.setTotalTraffic(convertByteSizeUnit(new BigDecimal(totalTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
                         vo.setUploadTraffic(convertByteSizeUnit(new BigDecimal(uploadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
                         vo.setDownloadTraffic(convertByteSizeUnit(new BigDecimal(downloadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                        vo.setIpDesc(ipDesc);
                         retList.add(vo);
                     }
                 });

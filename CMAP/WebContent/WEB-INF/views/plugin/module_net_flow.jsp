@@ -222,6 +222,10 @@
     		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_ipAddress"></div>
         </div>
         <div class="form-group row">
+        	<label for="viewIpMappingPortModal_ipDesc" class="col-md-2 col-sm-12 col-form-label"><spring:message code="ip.remark" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_ipDesc"></div>
+        </div>
+        <div class="form-group row">
         	<label for="viewIpMappingPortModal_portName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="port.name" /> :</label>
     		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_portName"></div>
         </div>

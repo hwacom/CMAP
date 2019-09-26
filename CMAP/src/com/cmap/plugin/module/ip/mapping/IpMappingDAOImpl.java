@@ -70,21 +70,21 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 	@Override
 	public List<Object[]> findEachIpAddressLastestModuleIpMacPortMapping(String groupId) {
 		/*
-		 * SELECT 
+		 * SELECT
 				m1.group_id
 			   ,m1.ip_address
 			   ,m1.mac_address
 			   ,m1.port_id
 			FROM `module_ip_mac_port_mapping` m1
 			    ,(SELECT
-			      	mm.group_id	
+			      	mm.group_id
 			       ,mm.ip_address
 			       ,max(create_time) create_time
 			      FROM `module_ip_mac_port_mapping` mm
 			      WHERE 1=1
 			      and mm.group_id = '15931'
 			      group BY
-			      	mm.group_id	
+			      	mm.group_id
 			       ,mm.ip_address
 			     ) m2
 			WHERE 1=1
@@ -124,6 +124,9 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 		sb.append(" SELECT ")
 		  .append("   count(distinct mc.MAPPING_ID) ")
 		  .append(" FROM Module_Ip_Mac_Port_Mapping_Change mc ")
+		  .append(" LEFT JOIN Module_Ip_Data_Setting mids ")
+		  .append(" ON ( mc.group_id = mids.group_id ")
+		  .append("      and mc.ip_address = mids.ip_addr ) ")
 		  .append("     ,Device_List dl ")
 		  .append("     ,Device_Port_Info dpi ")
 		  .append(" WHERE 1=1 ")
@@ -131,7 +134,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
           .append(" AND mc.device_id = dl.DEVICE_ID ")
           .append(" AND dl.device_model = dpi.DEVICE_MODEL ")
           .append(" AND mc.port_id = dpi.PORT_ID ");
-		
+
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
 			sb.append(" AND mc.group_id = :groupId ");
 		}
@@ -160,6 +163,8 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 			  .append("       mc.mac_address like :searchValue ")
 			  .append("		  or ")
 			  .append("       dpi.port_name like :searchValue ")
+			  .append("       or ")
+              .append("       mids.ip_desc like :searchValue ")
 			  .append("     ) ");
 		}
 
@@ -168,7 +173,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
         }
-        
+
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
 			q.setParameter("groupId", imsVO.getQueryGroup());
@@ -207,7 +212,11 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 		  .append("  ,mc.MAC_ADDRESS ")
 		  .append("  ,mc.PORT_ID ")
 		  .append("  ,dpi.PORT_NAME ")
+		  .append("  ,mids.IP_DESC ")
 		  .append(" FROM Module_Ip_Mac_Port_Mapping_Change mc ")
+		  .append(" LEFT JOIN Module_Ip_Data_Setting mids ")
+          .append(" ON ( mc.group_id = mids.group_id ")
+          .append("      and mc.ip_address = mids.ip_addr ) ")
 		  .append("     ,Device_List dl ")
 		  .append("     ,Device_Port_Info dpi ")
 		  .append(" WHERE 1=1 ")
@@ -215,7 +224,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
           .append(" AND mc.device_id = dl.DEVICE_ID ")
           .append(" AND dl.device_model = dpi.DEVICE_MODEL ")
           .append(" AND mc.port_id = dpi.PORT_ID ");
-		
+
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
 			sb.append(" AND mc.group_id = :groupId ");
 		}
@@ -244,9 +253,11 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 			  .append("       mc.mac_address like :searchValue ")
 			  .append("		  or ")
 			  .append("       dpi.port_name like :searchValue ")
+			  .append("       or ")
+			  .append("       mids.ip_desc like :searchValue ")
 			  .append("     ) ");
 		}
-		
+
 		// "","Create_Time","Group_Name","Device_Name","Device_Model","Ip_Address","Mac_Address","Port"
 		String orderColumn = imsVO.getOrderColumn();
 		String orderDirection = imsVO.getOrderDirection();
@@ -256,38 +267,42 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 			case "Create_Time":
 				sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME, mc.IP_ADDRESS, mc.CREATE_TIME ").append(orderDirection);
 				break;
-				
+
 			case "Group_Name":
 				sb.append(" dl.GROUP_NAME ").append(orderDirection).append(", dl.DEVICE_NAME, mc.IP_ADDRESS, mc.CREATE_TIME ");
 				break;
-				
+
 			case "Device_Name":
 				sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME ").append(orderDirection).append(", mc.IP_ADDRESS, mc.CREATE_TIME ");
 				break;
-				
+
 			case "Ip_Address":
 				sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME, mc.IP_ADDRESS ").append(orderDirection).append(", mc.CREATE_TIME ");
 				break;
-				
+
+			case "Ip_Desc":
+                sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME, mids.IP_DESC ").append(orderDirection).append(", mc.CREATE_TIME ");
+                break;
+
 			case "Mac_Address":
 				sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME, mc.Mac_Address ").append(orderDirection).append(", mc.IP_ADDRESS, mc.CREATE_TIME ");
 				break;
-				
+
 			case "Port":
 				sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME, dpi.PORT_NAME ").append(orderDirection).append(", mc.IP_ADDRESS, mc.CREATE_TIME ");
 				break;
-				
+
 			default:
 				sb.append(" dl.GROUP_NAME, dl.DEVICE_NAME, mc.IP_ADDRESS, mc.CREATE_TIME desc");
 				break;
 		}
-		
+
 		Session session = secondSessionFactory.getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
         }
-        
+
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
 			q.setParameter("groupId", imsVO.getQueryGroup());
@@ -326,7 +341,11 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 		  .append("  ,dl.device_model ")
 		  .append("  ,mimpm.port_id ")
 		  .append("  ,dpi.port_name ")
+		  .append("  ,mids.ip_desc ")
 		  .append(" FROM Module_Ip_Mac_Port_Mapping mimpm ")
+		  .append(" LEFT JOIN Module_Ip_Data_Setting mids ")
+		  .append(" ON ( mimpm.group_id = mids.group_id ")
+		  .append("      and mimpm.ip_address = mids.ip_addr ) ")
 		  .append("     ,Device_List dl ")
 		  .append("     ,Device_Port_Info dpi ")
 		  .append(" WHERE 1=1 ")
@@ -341,19 +360,19 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
           .append(" ORDER BY ")
           .append(" 	mimpm.RECORD_TIME DESC ")
           .append(" LIMIT 1 ");
-		
+
 		Session session = secondSessionFactory.getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
         }
-        
+
 		Query<?> q = session.createNativeQuery(sb.toString());
 		q.setParameter("groupId", groupId);
 		q.setParameter("ipAddress", ipAddress);
 		q.setParameter("queryDate", date);
 		q.setParameter("queryTime", time);
-		
+
 		return (List<Object[]>)q.list();
 	}
 }

@@ -37,7 +37,7 @@ public class NetFlowStatisticsController extends BaseController {
     @Autowired
     private NetFlowStatisticsService netFlowStatisticsService;
 
-    private static final String[] UI_TABLE_COLUMNS = new String[] {"","mits1.ip_Address","mits1.group_Id","percent","ttl_traffic","ttl_upload_traffic","ttl_download_traffic"};
+    private static final String[] UI_TABLE_COLUMNS = new String[] {"","mits1.ip_Address","mids.ip_desc","mits1.group_Id","percent","ttl_traffic","ttl_upload_traffic","ttl_download_traffic"};
 
     /**
      * 初始化選單

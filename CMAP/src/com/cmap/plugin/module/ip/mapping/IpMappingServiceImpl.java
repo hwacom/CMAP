@@ -24,6 +24,9 @@ import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.MibOidMapping;
+import com.cmap.plugin.module.ip.maintain.IpMaintainDAO;
+import com.cmap.plugin.module.ip.maintain.IpMaintainServiceVO;
+import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 import com.cmap.plugin.module.netflow.NetFlowService;
 import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.service.impl.CommonServiceImpl;
@@ -40,6 +43,9 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 
     @Autowired
     private IpMappingDAO ipMappingDAO;
+
+    @Autowired
+    private IpMaintainDAO ipMaintainDAO;
 
     @Autowired
     private NetFlowService netFlowService;
@@ -87,7 +93,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             for (DeviceList device : deviceL3) {
             	try {
             		snmpUtils = new SnmpV2Utils();
-                	
+
                 	String deviceListId = device.getDeviceListId();
                     String groupId = device.getGroupId();
                     String deviceId = device.getDeviceId();
@@ -143,10 +149,10 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     }
 
                     retMap.put(deviceId, macInfoMap);
-            		
+
             	} catch (Exception e) {
             		throw e;
-            		
+
             	} finally {
                     if (snmpUtils != null) {
                         try {
@@ -216,7 +222,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             for (DeviceList device : deviceL2) {
             	try {
             		snmpUtils = new SnmpV2Utils();
-            		
+
             		String deviceListId = device.getDeviceListId();
                     String groupId = device.getGroupId();
                     String deviceId = device.getDeviceId();
@@ -282,10 +288,10 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     }
 
                     retMap.put(deviceId, macInfoMap);
-                    
+
             	} catch (Exception e) {
             		throw e;
-            		
+
             	} finally {
                     if (snmpUtils != null) {
                         try {
@@ -630,6 +636,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         			vo.setMacAddress(Objects.toString(obj[8]));
         			vo.setPortId(Objects.toString(obj[9]));
         			vo.setPortName(Objects.toString(obj[10]));
+        			vo.setIpDesc(Objects.toString(obj[11], Env.IP_DESC_NULL_SHOW_WHAT));
         			retList.add(vo);
         		}
         	}
@@ -694,6 +701,20 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 				retVO.setDeviceName("N/A");
 				retVO.setDeviceModel("N/A");
 				retVO.setIpAddress(ipAddress);
+
+				// 查詢IP備註
+				IpMaintainServiceVO imsVO = new IpMaintainServiceVO();
+				imsVO.setQueryGroup(groupId);
+				imsVO.setQueryIp(ipAddress);
+				List<Object[]> ipMaintainObj = ipMaintainDAO.findModuleIpDataSetting(imsVO, null, null);
+
+				if (ipMaintainObj != null && !ipMaintainObj.isEmpty()) {
+				    ModuleIpDataSetting mids = (ModuleIpDataSetting)ipMaintainObj.get(0)[0];
+				    retVO.setIpDesc(mids != null ? mids.getIpDesc() : Env.IP_DESC_NULL_SHOW_WHAT);
+				} else {
+				    retVO.setIpDesc(Env.IP_DESC_NULL_SHOW_WHAT);
+				}
+
 				retVO.setPortName("N/A");
 
 				msg = messageSource.getMessage("msg.unknown.device", Locale.TAIWAN, null);  // 未知的設備
@@ -705,6 +726,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 				retVO.setDeviceName(Objects.toString(data[4]));
 				retVO.setDeviceModel(Objects.toString(data[5]));
 				retVO.setIpAddress(ipAddress);
+				retVO.setIpDesc(Objects.toString(data[8], Env.IP_DESC_NULL_SHOW_WHAT));
 				retVO.setPortName(Objects.toString(data[7]));
 			}
 

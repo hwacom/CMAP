@@ -21,7 +21,7 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     public long countModuleIpDataSetting(IpMaintainServiceVO imsVO) {
         StringBuffer sb = new StringBuffer();
         sb.append(" SELECT ")
-          .append("   count(mids.settingId) ")
+          .append("   count(distinct mids.settingId) ")
           .append(" FROM ModuleIpDataSetting mids ")
           .append("     ,DeviceList dl ")
           .append(" WHERE 1=1 ")
@@ -62,7 +62,7 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     public List<Object[]> findModuleIpDataSetting(
             IpMaintainServiceVO imsVO, Integer startRow, Integer pageLength) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" SELECT mids, dl ")
+        sb.append(" SELECT distinct mids, dl.groupName ")
           .append(" FROM ModuleIpDataSetting mids ")
           .append("     ,DeviceList dl ")
           .append(" WHERE 1=1 ")

@@ -154,16 +154,16 @@ function findBlockedIpRecordData(statusFlag) {
 	        },
 	        "createdRow": function( row, data, dataIndex ) {
 	        	   if(data.blockReason != null && data.blockReason.length > blockReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
-	        	      $(row).children('td').eq(6).attr('onclick','javascript:showFullScript($(this));');
-	        	      $(row).children('td').eq(6).addClass('cursor_zoom_in');
+	        	      $(row).children('td').eq(7).attr('onclick','javascript:showFullScript($(this));');
+	        	      $(row).children('td').eq(7).addClass('cursor_zoom_in');
 	        	   }
-	        	   $(row).children('td').eq(6).attr('content', data.blockReason);
+	        	   $(row).children('td').eq(7).attr('content', data.blockReason);
 	        	   
 	        	   if(data.openReason != null && data.openReason.length > openReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
-	        	      $(row).children('td').eq(9).attr('onclick','javascript:showFullScript($(this));');
-	        	      $(row).children('td').eq(9).addClass('cursor_zoom_in');
+	        	      $(row).children('td').eq(10).attr('onclick','javascript:showFullScript($(this));');
+	        	      $(row).children('td').eq(10).addClass('cursor_zoom_in');
 	        	   }
-	        	   $(row).children('td').eq(9).attr('content', data.openReason);
+	        	   $(row).children('td').eq(10).attr('content', data.openReason);
 	        	},
 			"ajax" : {
 				"url" : _ctx + '/delivery/getBlockedIpData.json',
@@ -184,7 +184,7 @@ function findBlockedIpRecordData(statusFlag) {
 					ajaxErrorHandler();
 				}
 			},
-			"order" : [[5 , 'desc' ]],
+			"order" : [[6 , 'desc' ]],
 			"pageLength" : 100,
 			/*
 			"initComplete": function(settings, json){
@@ -223,18 +223,20 @@ function findBlockedIpRecordData(statusFlag) {
 				$('td:eq(1)', row).attr('data-field', 'seq');
 				$('td:eq(2)', row).attr('data-field', 'groupName');
 				$('td:eq(3)', row).attr('data-field', 'ipAddress');
-				$('td:eq(4)', row).attr('data-field', 'status');
-				$('td:eq(5)', row).attr('data-field', 'blockTime');
-				$('td:eq(6)', row).attr('data-field', 'blockReason');
-				$('td:eq(7)', row).attr('data-field', 'blockBy');
-				$('td:eq(8)', row).attr('data-field', 'openTime');
-				$('td:eq(9)', row).attr('data-field', 'openReason');
-				$('td:eq(10)', row).attr('data-field', 'openBy');
+				$('td:eq(4)', row).attr('data-field', 'ipDesc');
+				$('td:eq(5)', row).attr('data-field', 'status');
+				$('td:eq(6)', row).attr('data-field', 'blockTime');
+				$('td:eq(7)', row).attr('data-field', 'blockReason');
+				$('td:eq(8)', row).attr('data-field', 'blockBy');
+				$('td:eq(9)', row).attr('data-field', 'openTime');
+				$('td:eq(10)', row).attr('data-field', 'openReason');
+				$('td:eq(11)', row).attr('data-field', 'openBy');
 			},
 			"columns" : [
 				{},{},
 				{ "data" : "groupName" , "className" : "left" },
 				{ "data" : "ipAddress" , "className" : "left" },
+				{ "data" : "ipDesc" , "className" : "left" },
 				{ "data" : "statusFlag" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
 				{},
@@ -264,7 +266,7 @@ function findBlockedIpRecordData(statusFlag) {
 						   	}
 				},
 				{
-					"targets" : [6],
+					"targets" : [7],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,
@@ -278,7 +280,7 @@ function findBlockedIpRecordData(statusFlag) {
 				}
 				,
 				{
-					"targets" : [9],
+					"targets" : [10],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,

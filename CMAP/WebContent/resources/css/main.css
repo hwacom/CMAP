@@ -1131,3 +1131,26 @@ button {
 .custom-option-style {
   font-size: .875rem;
 }
+
+/*##########################################################################################################################################*/
+.ip_data_setting_confirm_panel {
+	height: 300px;
+	overflow: scroll;
+	padding-top: 0px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+.ip_data_setting_confirm_panel table {
+	table-layout: fixed;
+}
+
+.ip_data_setting_confirm_panel table thead tr th {
+	position: sticky;
+	top: 0;
+}
+
+.ip_data_setting_confirm_panel > table > tbody > tr td {
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+}

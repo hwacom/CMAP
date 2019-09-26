@@ -48,7 +48,7 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
         }
         if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
             sb.append(" and ( ")
-              .append("       mbpl.portid like :searchValue ")
+              .append("       mbpl.portId like :searchValue ")
               .append("       or ")
               .append("       mbpl.blockBy like :searchValue ")
               .append("       or ")
@@ -72,7 +72,7 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
             q.setParameterList("excludeStatusFlag", pbrVO.getQueryExcludeStatusFlag());
         }
         if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
-            q.setParameter("searchValue", pbrVO.getQueryGroupId());
+            q.setParameter("searchValue", "%".concat(pbrVO.getSearchValue()).concat("%"));
         }
 
         return DataAccessUtils.longResult(q.list());
@@ -110,7 +110,7 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
         }
         if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
             sb.append(" and ( ")
-              .append("       mbpl.portid like :searchValue ")
+              .append("       mbpl.portId like :searchValue ")
               .append("       or ")
               .append("       mbpl.blockBy like :searchValue ")
               .append("       or ")
@@ -140,7 +140,7 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
             q.setParameterList("excludeStatusFlag", pbrVO.getQueryExcludeStatusFlag());
         }
         if (StringUtils.isNotBlank(pbrVO.getSearchValue())) {
-            q.setParameter("searchValue", "%".concat(pbrVO.getQueryGroupId()).concat("%"));
+            q.setParameter("searchValue", "%".concat(pbrVO.getSearchValue()).concat("%"));
         }
         if (startRow != null && pageLength != null) {
             q.setFirstResult(startRow);

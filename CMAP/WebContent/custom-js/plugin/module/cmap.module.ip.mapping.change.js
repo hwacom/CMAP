@@ -115,6 +115,7 @@ function findData(from, period) {
 				{ "data" : "deviceName" },
 				{ "data" : "deviceModel" , "orderable" : false },
 				{ "data" : "ipAddress" },
+				{ "data" : "ipDesc" },
 				{ "data" : "macAddress" },
 				{ "data" : "portName" }
 			],

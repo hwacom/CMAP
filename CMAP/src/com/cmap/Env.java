@@ -97,6 +97,7 @@ public class Env {
 	public static String TABLE_NAME_OF_FIREWALL_BLACK_LIST_RECORD;	         // 設定防火牆黑名單紀錄TABLE名稱
 
 	public static String ENABLE_CMD_LOG;						             // 設定是否開啟對設備下的CMD LOG
+	public static String IP_DESC_NULL_SHOW_WHAT;                             // 設定當IP備註未設定時，查詢結果欄位要顯示什麼值
 
 	public static List<String> DEVICE_LAYER_OF_ARP_TABLE = new ArrayList<>();  // 設定ARP_TABLE撈取的設備層級
     public static List<String> DEVICE_LAYER_OF_MAC_TABLE = new ArrayList<>();  // 設定MAC_TABLE撈取的設備層級

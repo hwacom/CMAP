@@ -33,7 +33,7 @@ public class IpMappingController extends BaseController {
     @Log
     private static Logger log;
 
-    private static final String[] UI_MAPPING_CHANGE_COLUMNS = new String[] {"","Create_Time","Group_Name","Device_Name","","Ip_Address","Mac_Address","Port"};
+    private static final String[] UI_MAPPING_CHANGE_COLUMNS = new String[] {"","Create_Time","Group_Name","Device_Name","","Ip_Address","Ip_Desc","Mac_Address","Port"};
 
     @Autowired
     private IpMappingService ipMappingService;
@@ -201,6 +201,7 @@ public class IpMappingController extends BaseController {
 			retMap.put("deviceName", imsVO.getDeviceName());
 			retMap.put("deviceModel", imsVO.getDeviceModel());
 			retMap.put("ipAddress", imsVO.getIpAddress());
+			retMap.put("ipDesc", imsVO.getIpDesc());
 			retMap.put("portName", imsVO.getPortName());
 			retMap.put("showMsg", imsVO.getShowMsg());
 

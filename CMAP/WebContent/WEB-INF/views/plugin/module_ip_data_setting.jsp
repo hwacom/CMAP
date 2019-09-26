@@ -12,8 +12,8 @@
       		<div class="container-fluid">
 	      	  <div class="form-group row" style="margin-top: -.3rem; margin-bottom: -.3rem;">
 	    	    <div class="col-lg-3 group-field-other">
-	    	    	<label for="queryGroup" class="font-weight-bold" style="width: 35%"><spring:message code="group.name" /></label>
-	    	    	<form:select path="queryGroup" id="queryGroup" style="width: 60%">
+	    	    	<span class="font-weight-bold" style="width: 25%"><spring:message code="group.name" /></span>
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="70%"  path="queryGroup" id="queryGroup">
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
@@ -101,7 +101,7 @@
 
 <!-- Modal [資料匯入] start -->
 <div class="modal fade" id="ipDataImportModal" tabindex="-1" role="dialog" aria-labelledby="ipDataImportLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xs" role="document">
+  <div class="modal-dialog modal-mid" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="ipDataImportLabel"><span id="msgModal_title">資料匯入</span></h5>
@@ -114,12 +114,18 @@
         	<div class="form-control form-control-sm col-12 export-description">
 	        	說明:<br>
 	        	<ol style="padding-left: 15px;">
-	        	  <li>一行代表一筆資料，以「逗號(,)」串接欄位</li>
-	        	  <li>欄位由左至右依序為: IP_Address > IP備註</li>
+	        	  <li>請以<font class="blue">CSV檔案格式</font>貼上/輸入資料。一行代表一筆資料，以「<font class="blue">逗號(,)</font>」串接欄位</li>
+	        	  <li>欄位由左至右依序為: <font class="blue">IP_Address > IP備註</font></li>
+	        	  <li>貼上的資料若有重複IP，將取<font class="blue">最後一筆</font>為主</li>
+	        	  <li>IP資料若已存在系統內，此次匯入將會<font class="blue">更新</font>既有資料</li>
+	        	  <li>若備註內容含有「<font class="blue">逗號(,)</font>」，請以「<font class="blue">雙引號(")</font>」<font class="blue">前後包夾整段備註</font>(參照第2條範例)</li>
+	        	  <li>若備註內容含有「<font class="blue">雙引號(")</font>」，請以<font class="blue">兩個「雙引號(")</font>」<font class="blue">替代</font>，並且以「<font class="blue">雙引號(")</font>」<font class="blue">前後包夾整段備註</font>(參照第3條範例)</li>
+	        	  <li>(上述第5、6點為CSV檔針對保留字元處理作法，<font style="text-decoration: underline;">若您是透過文字編輯器開啟CSV檔複製內容，則可忽略上述兩點</font>)</li>
 	        	</ol>
 	        	範例:<br>
 	        	192.168.1.100,IP備註1<br>
-	        	192.168.1.200,IP備註2<br>
+	        	192.168.1.200,<font class="red">"</font>備註內容有逗號,用雙引號包夾<font class="red">"</font><br>
+	        	192.168.1.300,<font class="red">"</font>前後雙引號包夾,<font class="blue">""</font>內容有雙引號則再多加一個<font class="blue">""</font><font class="red">"</font><br>
 	        	...
         	</div>
         </div>
@@ -131,12 +137,14 @@
     		</div>
         </div>
         <div id="div_confirm_panel" class="form-group row" style="display: none;">
-    		<div class="form-control form-control-sm col-12">
+    		<div class="form-control form-control-sm col-12 ip_data_setting_confirm_panel">
     			<table id="confirm_panel_table" style="width: 100%;">
     				<thead>
     				  <tr>
-    					<th class="var-td" style="width: 45%; color: blue !important;"><spring:message code="ip.address" /></th>
-    					<th class="var-td" style="width: 55%; color: blue !important;"><spring:message code="ip.remark" /></th>
+    				    <th class="var-td" style="width: 7%; color: blue !important;">#</th>
+    				    <th class="var-td" style="width: 20%; color: blue !important;"><spring:message code="group.name" /></th>
+    					<th class="var-td" style="width: 20%; color: blue !important;"><spring:message code="ip.address" /></th>
+    					<th class="var-td" style="width: 53%; color: blue !important;"><spring:message code="ip.remark" /></th>
     				  </tr>
     				</thead>
     				<tbody>
