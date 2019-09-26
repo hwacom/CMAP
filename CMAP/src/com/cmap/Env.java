@@ -380,8 +380,12 @@ public class Env {
 
 	// 設定資安通報下「開關PORT」的腳本SCRIPT_CODE
 	public static List<String> DELIVERY_SWITCH_PORT_SCRIPT_CODE = new ArrayList<>();
+	// 設定資安通報下「開關PORT」的IP開通腳本SCRIPT_INFO_ID for 解鎖按鈕
+	public static String DEFAULT_SWITCH_PORT_OPEN_SCRIPT_INFO_ID;
 	// 設定資安通報下「IP封鎖/開通」的腳本SCRIPT_CODE
 	public static List<String> DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE = new ArrayList<>();
+	// 設定資安通報下「IP封鎖/開通」的IP開通腳本SCRIPT_INFO_ID for 解鎖按鈕
+	public static String DEFAULT_IP_OPEN_SCRIPT_INFO_ID;
 	// 設定資安通報下「MAC封鎖/開通」的腳本SCRIPT_CODE
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE = new ArrayList<>();
 	/*

@@ -100,6 +100,8 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
           .append("  ,mbil.open_reason ")
           .append("  ,mbil.update_time ")
           .append("  ,mbil.update_by ")
+          .append("  ,mbil.list_id ")
+          .append("  ,mbil.device_id ")
           .append(" from Module_Blocked_Ip_List mbil ")
           .append(" left join Module_Ip_Data_Setting mids ")
           .append(" on ( mbil.group_id = mids.group_id ")
@@ -109,14 +111,17 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
           .append(" and mbil.group_Id = dl.group_Id ")
           .append(" and mbil.device_Id = dl.device_Id ");
 
+        if (StringUtils.isNotBlank(ibrVO.getQueryListId())) {
+            sb.append(" and mbil.list_Id = :listId ");
+        }
         if (StringUtils.isNotBlank(ibrVO.getQueryGroupId())) {
             sb.append(" and mbil.group_Id = :groupId ");
-        } else {
+        } else if (ibrVO.getQueryGroupIdList() != null && !ibrVO.getQueryGroupIdList().isEmpty()) {
             sb.append(" and mbil.group_Id in (:groupId) ");
         }
         if (StringUtils.isNotBlank(ibrVO.getQueryDeviceId())) {
             sb.append(" and mbil.device_Id = :deviceId ");
-        } else {
+        } else if (ibrVO.getQueryDeviceIdList() != null && !ibrVO.getQueryDeviceIdList().isEmpty()) {
             sb.append(" and mbil.device_Id in (:deviceId) ");
         }
         if (StringUtils.isNotBlank(ibrVO.getQueryIpAddress())) {
@@ -149,9 +154,19 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createNativeQuery(sb.toString());
 
-        q.setParameter("groupId", StringUtils.isNotBlank(ibrVO.getQueryGroupId()) ? ibrVO.getQueryGroupId() : ibrVO.getQueryGroupIdList());
-        q.setParameter("deviceId", StringUtils.isNotBlank(ibrVO.getQueryDeviceId()) ? ibrVO.getQueryDeviceId() : ibrVO.getQueryDeviceIdList());
-
+        if (StringUtils.isNotBlank(ibrVO.getQueryListId())) {
+            q.setParameter("listId", ibrVO.getQueryListId());
+        }
+        if (StringUtils.isNotBlank(ibrVO.getQueryGroupId())) {
+            q.setParameter("groupId", ibrVO.getQueryGroupId());
+        } else if (ibrVO.getQueryGroupIdList() != null && !ibrVO.getQueryGroupIdList().isEmpty()) {
+            q.setParameter("groupId", ibrVO.getQueryGroupIdList());
+        }
+        if (StringUtils.isNotBlank(ibrVO.getQueryDeviceId())) {
+            q.setParameter("deviceId", ibrVO.getQueryDeviceId());
+        } else if (ibrVO.getQueryDeviceIdList() != null && !ibrVO.getQueryDeviceIdList().isEmpty()) {
+            q.setParameter("deviceId", ibrVO.getQueryDeviceIdList());
+        }
         if (StringUtils.isNotBlank(ibrVO.getQueryIpAddress())) {
             q.setParameter("ipAddress", ibrVO.getQueryIpAddress());
         }

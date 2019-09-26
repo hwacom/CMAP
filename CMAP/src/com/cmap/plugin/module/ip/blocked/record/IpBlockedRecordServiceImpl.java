@@ -74,10 +74,14 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                 String openReason = Objects.toString(entity[10]);
                 Timestamp updateTime = entity[11] != null ? (Timestamp)entity[11] : null;
                 String updateBy = Objects.toString(entity[12]);
+                String listId = Objects.toString(entity[13]);
+                String deviceId = Objects.toString(entity[14]);
 
                 vo = new IpBlockedRecordVO();
+                vo.setListId(listId);
                 vo.setGroupId(groupId);
                 vo.setGroupName(groupName);
+                vo.setDeviceId(deviceId);
                 vo.setIpAddress(ipAddress);
                 vo.setIpDesc(ipDesc);
                 vo.setBlockTimeStr(blockTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(blockTime) : null);

@@ -5,6 +5,7 @@ import com.cmap.service.vo.CommonServiceVO;
 
 public class IpBlockedRecordVO extends CommonServiceVO {
 
+    private String queryListId;
     private String queryGroupId;
     private String queryDeviceId;
     private String queryIpAddress;
@@ -190,5 +191,11 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     }
     public void setIpDesc(String ipDesc) {
         this.ipDesc = ipDesc;
+    }
+    public String getQueryListId() {
+        return queryListId;
+    }
+    public void setQueryListId(String queryListId) {
+        this.queryListId = queryListId;
     }
 }

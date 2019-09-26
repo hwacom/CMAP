@@ -100,31 +100,31 @@ function showAddEditPanel() {
 function transDoubleQuota(oriText) {
 	var newText = oriText;
 	if ((newText.indexOf("\"") == 0) && (newText.lastIndexOf("\"") == (newText.length - 1))) {
-		console.log("first.");
+		//console.log("first.");
 		// 表示此資料含保留字
 		// 替換「""」為「"」
-		console.log("(Ori):" + newText);
+		//console.log("(Ori):" + newText);
 		newText = newText.replace(/\"\"/g, '"');
-		console.log("(1):" + newText);
+		//console.log("(1):" + newText);
 		newText = newText.substring(1);
 		newText = newText.substring(0, newText.length-1);
-		console.log("(2):" + newText);
+		//console.log("(2):" + newText);
 		
 	} else if ((newText.indexOf("\"") == 0) && (newText.lastIndexOf("\"") != (newText.length - 1))) {
-		console.log("second.");
-		console.log("(Ori):" + newText);
+		//console.log("second.");
+		//console.log("(Ori):" + newText);
 		newText = newText.replace(/\"\"/g, '"');
-		console.log("(1):" + newText);
+		//console.log("(1):" + newText);
 		newText = newText.substring(1);
-		console.log("(2):" + newText);
+		//console.log("(2):" + newText);
 		
 	} else if ((newText.indexOf("\"") != 0) && (newText.lastIndexOf("\"") == (newText.length - 1))) {
-		console.log("third.");
-		console.log("(Ori):" + newText);
+		//console.log("third.");
+		//console.log("(Ori):" + newText);
 		newText = newText.replace(/\"\"/g, '"');
-		console.log("(1):" + newText);
+		//console.log("(1):" + newText);
 		newText = newText.substring(0, newText.length-1);
-		console.log("(2):" + newText);
+		//console.log("(2):" + newText);
 	}
 	return newText;
 }

@@ -32,6 +32,7 @@ import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Controller
@@ -479,20 +480,76 @@ public class DeliveryController extends BaseController {
 	 */
 	@RequestMapping(value = "doIpOpenByBtn.json", method = RequestMethod.POST)
     public @ResponseBody AppResponse doIpOpenByBtn(Model model, HttpServletRequest request, HttpServletResponse response,
-            @RequestParam(name="listId[]", required=true) String[] listId,
-            @RequestParam(name="reason", required=false) String reason) {
+            @RequestParam(name="listId[]", required=true) String[] listIdArray,
+            @RequestParam(name="reason", required=false) String reasonInput) {
 
+	    DeliveryServiceVO retVO;
+	    DeliveryParameterVO pVO;
         try {
             //TODO
+            pVO = new DeliveryParameterVO();
+            List<String> groupIds = new ArrayList<>();
+            List<String> deviceIds = new ArrayList<>();
+            List<String> varKeys = new ArrayList<>();
+            List<List<String>> varValues = new ArrayList<>();
+
+            String scriptInfoId = Env.DEFAULT_IP_OPEN_SCRIPT_INFO_ID;
+            String scriptCode = null;
+            String groupId = null;
+            String deviceId = null;
+            String varKeyJson = null;
+            List<String> varValue = null;
+            String reason = reasonInput;
+
             // Step 1. 查解鎖腳本
+            retVO = deliveryService.getScriptInfoById(scriptInfoId);
 
+            scriptCode = retVO.getScriptCode();
+            varKeyJson = retVO.getActionScriptVariable();
+            Gson gson = new Gson();
+            varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
 
-            return new AppResponse(HttpServletResponse.SC_OK, null);
+            // Step 2. 準備必要參數
+            IpBlockedRecordVO ibrVO;
+            List<IpBlockedRecordVO> recordList = null;
+            for (String listId : listIdArray) {
+                ibrVO = new IpBlockedRecordVO();
+                ibrVO.setQueryListId(listId);
 
-        /*
+                recordList = ipRecordService.findModuleBlockedIpList(ibrVO, null, null);
+
+                if (recordList != null && !recordList.isEmpty()) {
+                    ibrVO = recordList.get(0);
+
+                    groupId = ibrVO.getGroupId();
+                    deviceId = ibrVO.getDeviceId();
+
+                    varValue = new ArrayList<>();
+                    varValue.add(ibrVO.getIpAddress()); // IP_ADDRESS
+
+                    groupIds.add(groupId);
+                    deviceIds.add(deviceId);
+                    varValues.add(varValue);
+                }
+            }
+
+            // Step 3. 呼叫共用
+            pVO.setScriptInfoId(scriptInfoId);
+            pVO.setScriptCode(scriptCode);
+            pVO.setGroupId(groupIds);
+            pVO.setDeviceId(deviceIds);
+            pVO.setVarKey(varKeys);
+            pVO.setVarValue(varValues);
+            pVO.setReason(reason);
+
+            retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, pVO, false, null, null, true);
+            String retVal = retVO.getRetMsg();
+
+            return new AppResponse(HttpServletResponse.SC_OK, retVal);
+
         } catch (ServiceLayerException sle) {
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, sle.getMessage());
-        */
+
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());

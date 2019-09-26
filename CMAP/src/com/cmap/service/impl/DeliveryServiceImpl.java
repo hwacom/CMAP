@@ -21,6 +21,7 @@ import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.dao.ScriptInfoDAO;
+import com.cmap.dao.vo.DeviceDAOVO;
 import com.cmap.dao.vo.ProvisionLogDAOVO;
 import com.cmap.dao.vo.ScriptInfoDAOVO;
 import com.cmap.exception.ServiceLayerException;
@@ -625,4 +626,21 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		}
 		return retVO;
 	}
+
+    @Override
+    public List<DeviceList> findGroupDeviceOfSpecifyLayer(String groupId, String deviceLayer)
+            throws ServiceLayerException {
+        List<DeviceList> retList = null;
+        try {
+            DeviceDAOVO dlDAOVO = new DeviceDAOVO();
+            dlDAOVO.setGroupId(groupId);
+            dlDAOVO.setDeviceLayer(deviceLayer);
+            retList = deviceDAO.findDeviceListByDAOVO(dlDAOVO);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("查找 " + deviceLayer + " 設備失敗");
+        }
+        return retList;
+    }
 }

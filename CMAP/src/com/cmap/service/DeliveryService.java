@@ -1,9 +1,9 @@
 package com.cmap.service;
 
 import java.util.List;
-
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.DeviceList;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 
@@ -61,4 +61,13 @@ public interface DeliveryService {
 	 * @throws ServiceLayerException
 	 */
 	public DeliveryServiceVO getProvisionLogById(String logStepId) throws ServiceLayerException;
+
+	/**
+	 * 查找該群組下指定的 Device_Layer 設備
+	 * @param groupId
+	 * @param deviceLayer
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public List<DeviceList> findGroupDeviceOfSpecifyLayer(String groupId, String deviceLayer) throws ServiceLayerException;
 }
