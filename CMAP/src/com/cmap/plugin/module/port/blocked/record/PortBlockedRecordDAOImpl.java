@@ -91,12 +91,12 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
 
         if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
             sb.append(" and mbpl.groupId = :groupId ");
-        } else {
+        } else if (pbrVO.getQueryGroupIdList() != null && !pbrVO.getQueryGroupIdList().isEmpty()) {
             sb.append(" and mbpl.groupId in (:groupId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
             sb.append(" and mbpl.deviceId = :deviceId ");
-        } else {
+        } else if (pbrVO.getQueryDeviceIdList() != null && !pbrVO.getQueryDeviceIdList().isEmpty()) {
             sb.append(" and mbpl.deviceId in (:deviceId) ");
         }
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
@@ -127,9 +127,16 @@ public class PortBlockedRecordDAOImpl extends BaseDaoHibernate implements PortBl
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());
 
-        q.setParameter("groupId", StringUtils.isNotBlank(pbrVO.getQueryGroupId()) ? pbrVO.getQueryGroupId() : pbrVO.getQueryGroupIdList());
-        q.setParameter("deviceId", StringUtils.isNotBlank(pbrVO.getQueryDeviceId()) ? pbrVO.getQueryDeviceId() : pbrVO.getQueryDeviceIdList());
-
+        if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            q.setParameter("groupId", pbrVO.getQueryGroupId());
+        } else if (pbrVO.getQueryGroupIdList() != null && !pbrVO.getQueryGroupIdList().isEmpty()) {
+            q.setParameter("groupId", pbrVO.getQueryGroupIdList());
+        }
+        if (StringUtils.isNotBlank(pbrVO.getQueryDeviceId())) {
+            q.setParameter("deviceId", pbrVO.getQueryDeviceId());
+        } else if (pbrVO.getQueryDeviceIdList() != null && !pbrVO.getQueryDeviceIdList().isEmpty()) {
+            q.setParameter("deviceId", pbrVO.getQueryDeviceIdList());
+        }
         if (StringUtils.isNotBlank(pbrVO.getQueryPortId())) {
             q.setParameter("portId", pbrVO.getQueryPortId());
         }

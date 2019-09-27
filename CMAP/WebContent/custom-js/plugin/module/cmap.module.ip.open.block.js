@@ -9,22 +9,16 @@ var _deductHeight = 0;
 var blockedIpTableHeight;
 
 $(document).ready(function() {
-	$("#btnIpOpen").click(function(e) {
-		doConfirmIpOpenByBtn();
-	});
-	
-	$("#btnDoOpen").click(function(e) {
-		doIpOpenByBtn();
-	});
+	checkboxOnChangeEvent();
 });
 
 function checkboxOnChangeEvent() {
 	// 判斷CheckBox有無勾選，決定解鎖按鈕是否可按
 	$('input[name=chkbox]').change(function (e) {
 		if ($('input[name=chkbox]:checked').length > 0) {
-			$('#btnIpOpen').attr('disabled', false);
+			$('#btnOpen').attr('disabled', false);
 		} else {
-			$('#btnIpOpen').attr('disabled', true);
+			$('#btnOpen').attr('disabled', true);
 		}
 	});
 }
@@ -64,23 +58,10 @@ function calBlockedIpSectionHeight() {
 	blockedIpTableHeight = blockedIpTableHeight < 165 ? 165 : blockedIpTableHeight;
 }
 
-function doConfirmIpOpenByBtn() {
-	/*
-	var check = confirm("按下確認後將立即執行IP開通作業，請再次確認是否執行?");
-	
-	if (check) {
-		doIpOpenByBtn();
-	}
-	*/
-	$("#openReasonModal").modal({
-		backdrop : 'static'
-	});
-}
-
 /**
  * 執行IP開通 by 「IP開通/封鎖」功能中的「解鎖」按鈕
  */
-function doIpOpenByBtn() {
+function doOpenByBtn() {
 	var listId = new Array();
 	
 	var checkedItem = $('input[name=chkbox]:checked');
@@ -89,8 +70,6 @@ function doIpOpenByBtn() {
 	}
 	
 	var reason = $("#openReasonModal_reason").val();
-	console.log(listId);
-	console.log("reason: " + reason);
 	
 	$.ajax({
 		url : _ctx + '/delivery/doIpOpenByBtn.json',
@@ -109,6 +88,8 @@ function doIpOpenByBtn() {
 		success : function(resp) {
 			if (resp.code == '200') {
 				alert(resp.message);
+				
+				findBlockedIpRecordData('B');
 				
 				setTimeout(function() {
 					$('#openReasonModal').modal('hide');

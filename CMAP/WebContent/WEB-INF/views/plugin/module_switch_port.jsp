@@ -55,7 +55,7 @@
 	            </c:if>
 	            
 	            <!-- 解鎖Button -->
-				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnPortOpen" disabled="disabled"><spring:message code="btn.port.open" /></button>
+				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.port.open" /></button>
 			</div>
 		</div>
 	</div>

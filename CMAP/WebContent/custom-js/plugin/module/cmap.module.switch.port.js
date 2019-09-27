@@ -9,18 +9,16 @@ var _deductHeight = 0;
 var blockedPortTableHeight;
 
 $(document).ready(function() {
-	$("#btnPortOpen").click(function(e) {
-		doConfirmIpOpenByBtn();
-	});
+	checkboxOnChangeEvent();
 });
 
 function checkboxOnChangeEvent() {
 	// 判斷CheckBox有無勾選，決定解鎖按鈕是否可按
 	$('input[name=chkbox]').change(function (e) {
 		if ($('input[name=chkbox]:checked').length > 0) {
-			$('#btnPortOpen').attr('disabled', false);
+			$('#btnOpen').attr('disabled', false);
 		} else {
-			$('#btnPortOpen').attr('disabled', true);
+			$('#btnOpen').attr('disabled', true);
 		}
 	});
 }
@@ -60,18 +58,10 @@ function calBlockedPortSectionHeight() {
 	blockedPortTableHeight = blockedPortTableHeight < 165 ? 165 : blockedPortTableHeight;
 }
 
-function doConfirmPortOpenByBtn() {
-	var check = confirm("按下確認後將立即執行Port開通作業，請再次確認是否執行?");
-	
-	if (check) {
-		doPortOpenByBtn();
-	}
-}
-
 /**
  * 執行Port開通 by 「Port開通/封鎖」功能中的「解鎖」按鈕
  */
-function doPortOpenByBtn() {
+function doOpenByBtn() {
 	var listId = new Array();
 	
 	var checkedItem = $('input[name=chkbox]:checked');
@@ -79,10 +69,13 @@ function doPortOpenByBtn() {
 		listId.push(checkedItem[i].value);
 	}
 	
+	var reason = $("#openReasonModal_reason").val();
+	
 	$.ajax({
 		url : _ctx + '/delivery/doPortOpenByBtn.json',
 		data : {
-			"listId" : listId
+			"listId" : listId,
+			"reason" : reason
 		},
 		type : "POST",
 		async: true,
@@ -96,8 +89,10 @@ function doPortOpenByBtn() {
 			if (resp.code == '200') {
 				alert(resp.message);
 				
+				findBlockedPortRecordData('B');
+				
 				setTimeout(function() {
-					$('#stepModal').modal('hide');
+					$('#openReasonModal').modal('hide');
 				}, 500);
 				
 			} else {

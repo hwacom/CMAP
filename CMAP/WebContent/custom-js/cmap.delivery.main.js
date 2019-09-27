@@ -53,7 +53,21 @@ $(document).ready(function() {
 	$("#stepModal_searchDevice").keyup(_.debounce(function(e) {
 		searchDevice($(this).val());
 	}, 500));
+	
+	$("#btnOpen").click(function(e) {
+		doConfirmOpenByBtn();
+	});
+	
+	$("#btnDoOpen").click(function(e) {
+		doOpenByBtn();
+	});
 });
+
+function doConfirmOpenByBtn() {
+	$("#openReasonModal").modal({
+		backdrop : 'static'
+	});
+}
 
 /*
  * 從「IP開通/封鎖」功能頁點擊「解鎖」按鈕事件

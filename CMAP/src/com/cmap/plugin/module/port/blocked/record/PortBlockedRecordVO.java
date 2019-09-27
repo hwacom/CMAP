@@ -5,6 +5,7 @@ import com.cmap.service.vo.CommonServiceVO;
 
 public class PortBlockedRecordVO extends CommonServiceVO {
 
+    private String queryListId;
     private String queryGroupId;
     private String queryDeviceId;
     private String queryPortId;
@@ -190,5 +191,11 @@ public class PortBlockedRecordVO extends CommonServiceVO {
     }
     public void setQueryDeviceIdList(List<String> queryDeviceIdList) {
         this.queryDeviceIdList = queryDeviceIdList;
+    }
+    public String getQueryListId() {
+        return queryListId;
+    }
+    public void setQueryListId(String queryListId) {
+        this.queryListId = queryListId;
     }
 }
