@@ -38,4 +38,27 @@ public interface IpMaintainDAO extends BaseDAO {
      * @return
      */
     public ModuleIpDataSetting findModuleIpDataSettingById(String settingId);
+
+    /**
+     * 查找資料 By ID From Secondary DB
+     * @param settingId
+     * @return
+     */
+    public ModuleIpDataSetting findModuleIpDataSettingByIdFromSecondaryDB(String settingId);
+
+    /**
+     * 查找資料 By Unique Key
+     * @param groupId
+     * @param ipAddr
+     * @return
+     */
+    public ModuleIpDataSetting findModuleIpDataSettingByUk(String groupId, String ipAddr);
+
+    /**
+     * 查找資料 By Unique Key From Secondary DB
+     * @param groupId
+     * @param ipAddr
+     * @return
+     */
+    public ModuleIpDataSetting findModuleIpDataSettingByUkFromSecondaryDB(String groupId, String ipAddr);
 }

@@ -66,7 +66,7 @@ function showAddModal() {
 	var groupId = $("#queryGroup").val();
 	
 	if (groupId == "") {
-		alert("請先選擇學校");
+		alert(msg_chooseGroup);
 		return;
 	}
 	
@@ -188,7 +188,8 @@ function changeModifyView() {
 		$('input[name=chkbox]:checked:eq('+i+')').parents("tr").children().eq(4).html(
 			//切換「IP備註」欄位為輸入框
 			function() {
-				var html = '<input type="text" name="modifyIpDesc" value="' + $(this).attr("content") +'" class="form-control form-control-sm" style="min-width: 200px" />';
+				var content = $(this).attr("content");
+				var html = '<input type="text" name="modifyIpDesc" value="' + content +'" class="form-control form-control-sm" style="min-width: 200px" />';
 				return html;
 			}
 		);
@@ -207,11 +208,16 @@ function envAction(action) {
 	var obj = new Object();
 	
 	if (action != "add") {
-		var settingIds = $("input[name='chkbox']:checked").map(function() {
-	     	return $(this).val();
+		var groupIds = $("input[name='chkbox']:checked").map(function() {
+	     	return $(this).data('groupid');
 	     }).get();
 		
-		obj.settingIds = settingIds;
+		var ipAddrs = $("input[name='chkbox']:checked").map(function() {
+	     	return $(this).data('ipaddr');
+	     }).get();
+		
+		obj.groupIds = groupIds;
+		obj.ipAddrs = ipAddrs;
 	}
 	
 	if (action == "update") {
@@ -337,7 +343,7 @@ function findData(from) {
 	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
 	        },
 	        "createdRow": function( row, data, dataIndex ) {
-	        	$(row).children('td').eq(4).attr('content', data.ipDesc);
+	        	$(row).children('td').eq(4).attr('content', htmlSpecialChars(data.ipDesc));
 	        },
 			"ajax" : {
 				"url" : _ctx + '/plugin/module/ipMaintain/getIpDataSetting.json',
@@ -410,7 +416,7 @@ function findData(from) {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.settingId+'>';
+								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.settingId+' data-groupId='+row.groupId+' data-ipAddr='+row.ipAddr+'>';
 								 return html;
 							 }
 				},

@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Resource;
+import javax.persistence.TransactionRequiredException;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -18,7 +20,6 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import com.cmap.Constants;
 import com.cmap.Env;
@@ -32,12 +33,10 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	@Log
 	private static Logger log;
 
-	@Autowired
-    @Qualifier("sessionFactory")
+	@Resource(name = "primarySessionFactory")
     private SessionFactory primarySessionFactory;
 
-	@Autowired
-	@Qualifier("secondSessionFactory")
+	@Resource(name = "secondSessionFactory")
     private SessionFactory secondSessionFactory;
 
 	protected static final String MARK_AS_DELETE = "Y";
@@ -217,6 +216,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
                 }
             }
             */
+
             Session session = null;
             Transaction tx = null;
 
@@ -255,6 +255,9 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
                         }
                     }
                 }
+
+            } catch (TransactionRequiredException tre) {
+                log.error(tre.toString());
 
             } catch (Exception e) {
                 log.error(e.toString(), e);
@@ -314,6 +317,9 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
                         }
                     }
                 }
+
+            } catch (TransactionRequiredException tre) {
+                log.error(tre.toString());
 
             } catch (Exception e) {
                 log.error(e.toString(), e);

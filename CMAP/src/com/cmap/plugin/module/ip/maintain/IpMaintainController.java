@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.TransactionRequiredException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -96,6 +97,9 @@ public class IpMaintainController extends BaseController {
 
         } catch (ServiceLayerException sle) {
             return new AppResponse(super.getLineNumber(), sle.getMessage());
+        } catch (TransactionRequiredException tre) {
+            log.error(tre.toString(), tre);
+            return new AppResponse(HttpServletResponse.SC_OK, "新增成功");
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(super.getLineNumber(), e.getMessage());
@@ -109,13 +113,15 @@ public class IpMaintainController extends BaseController {
         try {
             List<IpMaintainServiceVO> imsVOs = new ArrayList<>();
 
-            Iterator<JsonNode> idIt = jsonData.findValues(Constants.JSON_FIELD_SETTING_IDS).get(0).iterator();
+            Iterator<JsonNode> groupIdIt = jsonData.findValues(Constants.JSON_FIELD_GROUP_IDS).get(0).iterator();
+            Iterator<JsonNode> ipAddrIt = jsonData.findValues(Constants.JSON_FIELD_IP_ADDRS).get(0).iterator();
             Iterator<JsonNode> ipDescIt = jsonData.findValues(Constants.JSON_FIELD_IP_DESC).get(0).iterator();
 
             IpMaintainServiceVO imsVO;
-            while (idIt.hasNext()) {
+            while (groupIdIt.hasNext()) {
                 imsVO = new IpMaintainServiceVO();
-                imsVO.setSettingId(idIt.hasNext() ? idIt.next().asText() : null);
+                imsVO.setGroupId(groupIdIt.hasNext() ? groupIdIt.next().asText() : null);
+                imsVO.setIpAddr(ipAddrIt.hasNext() ? ipAddrIt.next().asText() : null);
                 imsVO.setModifyIpDesc(ipDescIt.hasNext() ? ipDescIt.next().asText() : null);
 
                 imsVOs.add(imsVO);
@@ -126,6 +132,9 @@ public class IpMaintainController extends BaseController {
 
         } catch (ServiceLayerException sle) {
             return new AppResponse(super.getLineNumber(), sle.getMessage());
+        } catch (TransactionRequiredException tre) {
+            log.error(tre.toString());
+            return new AppResponse(HttpServletResponse.SC_OK, "修改成功");
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(super.getLineNumber(), e.getMessage());
@@ -139,12 +148,14 @@ public class IpMaintainController extends BaseController {
         try {
             List<IpMaintainServiceVO> imsVOs = new ArrayList<>();
 
-            Iterator<JsonNode> idIt = jsonData.findValues(Constants.JSON_FIELD_SETTING_IDS).get(0).iterator();
+            Iterator<JsonNode> groupIdIt = jsonData.findValues(Constants.JSON_FIELD_GROUP_IDS).get(0).iterator();
+            Iterator<JsonNode> ipAddrIt = jsonData.findValues(Constants.JSON_FIELD_IP_ADDRS).get(0).iterator();
 
             IpMaintainServiceVO imsVO;
-            while (idIt.hasNext()) {
+            while (groupIdIt.hasNext()) {
                 imsVO = new IpMaintainServiceVO();
-                imsVO.setSettingId(idIt.hasNext() ? idIt.next().asText() : null);
+                imsVO.setGroupId(groupIdIt.hasNext() ? groupIdIt.next().asText() : null);
+                imsVO.setIpAddr(ipAddrIt.hasNext() ? ipAddrIt.next().asText() : null);
                 imsVOs.add(imsVO);
             }
 
@@ -153,6 +164,9 @@ public class IpMaintainController extends BaseController {
 
         } catch (ServiceLayerException sle) {
             return new AppResponse(super.getLineNumber(), sle.getMessage());
+        } catch (TransactionRequiredException tre) {
+            log.error(tre.toString());
+            return new AppResponse(HttpServletResponse.SC_OK, "刪除成功");
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(super.getLineNumber(), e.getMessage());

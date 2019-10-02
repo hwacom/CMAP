@@ -8,13 +8,18 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <meta name="description" content="">
     <meta name="author" content="">
+    <!-- Hwacom -->
+    <link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/hwacom_icon.ico">
+    
     <!-- 台灣大哥大 -->
     <!-- 
     <link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_taiwan_mobile.ico">
 	 -->
 	  
 	<!-- 桃機 -->
+	<!-- 
 	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_t3.ico">
+	 -->
 	 
 	<!-- 亞太 -->
 	<!-- 

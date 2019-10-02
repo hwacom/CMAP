@@ -130,3 +130,24 @@ function bindTrEventForSpecifyTableRadio(dataTable_className, dataTable_radioId)
         }
     });
 }
+
+function htmlSpecialChars(ch) {
+	if (ch===null) return '';
+	ch = ch.replace(/&/g, "&amp;");
+	ch = ch.replace(/\"/g, "&quot;");
+	ch = ch.replace(/\'/g, "&#039;");
+	ch = ch.replace(/</g, "&lt;");
+	ch = ch.replace(/>/g, "&gt;");
+	return ch;
+}
+
+
+function unHtmlSpecialChars(ch) {
+	if (ch===null) return '';
+	ch = ch.replace("&amp;", "&");
+	ch = ch.replace("&quot;", "\"");
+	ch = ch.replace("&#039; ","\'");
+	ch = ch.replace("&lt;", "<");
+	ch = ch.replace("&gt;", ">");
+	return ch;
+} 

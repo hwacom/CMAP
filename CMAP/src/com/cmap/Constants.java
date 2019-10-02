@@ -133,6 +133,8 @@ public class Constants {
 	public static final String JSON_FIELD_IP_ADDR = "modifyIpAddr";
 	public static final String JSON_FIELD_IP_DESC = "modifyIpDesc";
 	public static final String JSON_FIELD_GROUP_ID = "groupId";
+	public static final String JSON_FIELD_GROUP_IDS = "groupIds";
+	public static final String JSON_FIELD_IP_ADDRS = "ipAddrs";
 
 	public static final String DATA_MARK_DELETE = "Y";
 	public static final String DATA_MARK_NOT_DELETE = "N";

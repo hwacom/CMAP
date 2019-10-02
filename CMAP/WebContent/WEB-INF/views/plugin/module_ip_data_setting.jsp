@@ -173,4 +173,8 @@
 </div>
 <!-- Modal [資料匯入] end -->
 
+<script>
+	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
+</script>
+
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.maintain.min.js"></script>

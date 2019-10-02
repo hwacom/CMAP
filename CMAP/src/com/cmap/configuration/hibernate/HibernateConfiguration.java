@@ -5,6 +5,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -76,7 +77,19 @@ public class HibernateConfiguration {
         return dataSource;
     }
 
+    @Bean(name = "primarySessionFactory")
+    @Qualifier(value = "primarySessionFactory")
+    public LocalSessionFactoryBean primarySessionFactory() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource());
+        sessionFactory.setPackagesToScan(new String[] { "com.cmap.model", "com.cmap.plugin.module" });
+        sessionFactory.setHibernateProperties(hibernateProperties());
+        sessionFactory.setEntityInterceptor(new HibernateInterceptor());
+        return sessionFactory;
+     }
+
     @Bean(name = "secondSessionFactory")
+    @Qualifier(value = "secondSessionFactory")
     public LocalSessionFactoryBean secondSessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(secondDataSource());

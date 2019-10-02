@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
@@ -16,6 +17,7 @@ import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.impl.CommonServiceImpl;
 
 @Service("ipMaintainService")
+@Transactional
 public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMaintainService {
     @Log
     private static Logger log;
@@ -77,8 +79,6 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
             List<ModuleIpDataSetting> add2Entities = new ArrayList<>();
             List<ModuleIpDataSetting> update2Entities = new ArrayList<>();
 
-            ModuleIpDataSetting entity;
-
             // Step 1. 先剔除重複資料，重複資料已最後一筆為主
             String key;
             Map<String, IpMaintainServiceVO> uniqueMap = new HashMap<>();
@@ -88,61 +88,58 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
             }
 
             if (uniqueMap != null && !uniqueMap.isEmpty()) {
-                List<Object[]> qResultList;
-                IpMaintainServiceVO qVO;
+                ModuleIpDataSetting entity1;
+                ModuleIpDataSetting entity2;
+
+                String groupId;
+                String ipAddr;
                 for (IpMaintainServiceVO imsVO : uniqueMap.values()) {
                     // Step 2. 檢核 Group_ID + IP_ADDR 是否已存在，是的話做更新；否則新增
-                    qVO = new IpMaintainServiceVO();
-                    qVO.setQueryGroup(imsVO.getGroupId());
-                    qVO.setQueryIp(imsVO.getModifyIpAddr());
-                    qResultList = ipMaintainDAO.findModuleIpDataSetting(qVO, null, null);
+                    groupId = imsVO.getGroupId();
+                    ipAddr = imsVO.getModifyIpAddr();
+                    entity1 = ipMaintainDAO.findModuleIpDataSettingByUk(groupId, ipAddr);
 
-                    if (qResultList != null && !qResultList.isEmpty()) {
+                    if (entity1 != null) {
                         // 存在 => 更新
-                        entity = (ModuleIpDataSetting)qResultList.get(0)[0];
-                        entity.setIpDesc(imsVO.getModifyIpDesc());
-                        entity.setUpdateTime(currentTimestamp());
-                        entity.setUpdateBy(currentUserName());
-                        update1Entities.add(entity);
+                        entity1.setIpDesc(imsVO.getModifyIpDesc());
+                        entity1.setUpdateTime(currentTimestamp());
+                        entity1.setUpdateBy(currentUserName());
+                        update1Entities.add(entity1);
 
                     } else {
                         // 不存在 => 新增
-                        entity = new ModuleIpDataSetting();
-                        entity.setGroupId(imsVO.getGroupId());
-                        entity.setIpAddr(imsVO.getModifyIpAddr());
-                        entity.setIpDesc(imsVO.getModifyIpDesc());
-                        entity.setCreateTime(currentTimestamp());
-                        entity.setCreateBy(currentUserName());
-                        entity.setUpdateTime(currentTimestamp());
-                        entity.setUpdateBy(currentUserName());
-                        add1Entities.add(entity);
+                        entity1 = new ModuleIpDataSetting();
+                        entity1.setGroupId(imsVO.getGroupId());
+                        entity1.setIpAddr(imsVO.getModifyIpAddr());
+                        entity1.setIpDesc(imsVO.getModifyIpDesc());
+                        entity1.setCreateTime(currentTimestamp());
+                        entity1.setCreateBy(currentUserName());
+                        entity1.setUpdateTime(currentTimestamp());
+                        entity1.setUpdateBy(currentUserName());
+                        add1Entities.add(entity1);
                     }
 
                     // Step 2-2. 檢核 Group_ID + IP_ADDR 是否已存在Secondary DB，是的話做更新；否則新增
-                    qVO = new IpMaintainServiceVO();
-                    qVO.setQueryGroup(imsVO.getGroupId());
-                    qVO.setQueryIp(imsVO.getModifyIpAddr());
-                    qResultList = ipMaintainDAO.findModuleIpDataSettingFromSecondaryDB(qVO, null, null);
+                    entity2 = ipMaintainDAO.findModuleIpDataSettingByUkFromSecondaryDB(groupId, ipAddr);
 
-                    if (qResultList != null && !qResultList.isEmpty()) {
+                    if (entity2 != null) {
                         // 存在 => 更新
-                        entity = (ModuleIpDataSetting)qResultList.get(0)[0];
-                        entity.setIpDesc(imsVO.getModifyIpDesc());
-                        entity.setUpdateTime(currentTimestamp());
-                        entity.setUpdateBy(currentUserName());
-                        update2Entities.add(entity);
+                        entity2.setIpDesc(imsVO.getModifyIpDesc());
+                        entity2.setUpdateTime(currentTimestamp());
+                        entity2.setUpdateBy(currentUserName());
+                        update2Entities.add(entity2);
 
                     } else {
                         // 不存在 => 新增
-                        entity = new ModuleIpDataSetting();
-                        entity.setGroupId(imsVO.getGroupId());
-                        entity.setIpAddr(imsVO.getModifyIpAddr());
-                        entity.setIpDesc(imsVO.getModifyIpDesc());
-                        entity.setCreateTime(currentTimestamp());
-                        entity.setCreateBy(currentUserName());
-                        entity.setUpdateTime(currentTimestamp());
-                        entity.setUpdateBy(currentUserName());
-                        add2Entities.add(entity);
+                        entity2 = new ModuleIpDataSetting();
+                        entity2.setGroupId(imsVO.getGroupId());
+                        entity2.setIpAddr(imsVO.getModifyIpAddr());
+                        entity2.setIpDesc(imsVO.getModifyIpDesc());
+                        entity2.setCreateTime(currentTimestamp());
+                        entity2.setCreateBy(currentUserName());
+                        entity2.setUpdateTime(currentTimestamp());
+                        entity2.setUpdateBy(currentUserName());
+                        add2Entities.add(entity2);
                     }
                 }
 
@@ -152,12 +149,11 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
                 if (update1Entities != null && !update1Entities.isEmpty()) {
                     ipMaintainDAO.updateEntities(BaseDAO.TARGET_PRIMARY_DB, update1Entities);
                 }
-
                 if (add2Entities != null && !add2Entities.isEmpty()) {
-                    ipMaintainDAO.insertEntities2Secondary(add2Entities);
+                    ipMaintainDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, add2Entities);
                 }
                 if (update2Entities != null && !update2Entities.isEmpty()) {
-                    ipMaintainDAO.updateEntities2Secondary(update2Entities);
+                    ipMaintainDAO.updateEntities(BaseDAO.TARGET_SECONDARY_DB, update2Entities);
                 }
             }
 
@@ -173,29 +169,52 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
             throws ServiceLayerException {
         IpMaintainServiceVO retVO = new IpMaintainServiceVO();
         try {
-            List<ModuleIpDataSetting> updateEntities = new ArrayList<>();
-            ModuleIpDataSetting entity;
-            String settingId;
+            List<ModuleIpDataSetting> update1Entities = new ArrayList<>();
+            List<ModuleIpDataSetting> update2Entities = new ArrayList<>();
+
+            ModuleIpDataSetting entity1;
+            ModuleIpDataSetting entity2;
+            String groupId;
+            String ipAddr;
             String modifyIpDesc;
             for (IpMaintainServiceVO imsVO : updateList) {
-                settingId = imsVO.getSettingId();
+                groupId = imsVO.getGroupId();
+                ipAddr = imsVO.getIpAddr();
 
-                entity = ipMaintainDAO.findModuleIpDataSettingById(settingId);
+                // Step 1. 查找 Primary DB 資料
+                entity1 = ipMaintainDAO.findModuleIpDataSettingByUk(groupId, ipAddr);
 
-                if (entity == null) {
+                if (entity1 == null) {
                     continue;
 
                 } else {
                     modifyIpDesc = imsVO.getModifyIpDesc();
-                    entity.setIpDesc(modifyIpDesc);
-                    entity.setUpdateTime(currentTimestamp());
-                    entity.setUpdateBy(currentUserName());
-                    updateEntities.add(entity);
+                    entity1.setIpDesc(modifyIpDesc);
+                    entity1.setUpdateTime(currentTimestamp());
+                    entity1.setUpdateBy(currentUserName());
+                    update1Entities.add(entity1);
+                }
+
+                // Step 2. 查找 Secondary DB 資料
+                entity2 = ipMaintainDAO.findModuleIpDataSettingByUkFromSecondaryDB(groupId, ipAddr);
+
+                if (entity2 == null) {
+                    continue;
+
+                } else {
+                    modifyIpDesc = imsVO.getModifyIpDesc();
+                    entity2.setIpDesc(modifyIpDesc);
+                    entity2.setUpdateTime(currentTimestamp());
+                    entity2.setUpdateBy(currentUserName());
+                    update2Entities.add(entity2);
                 }
             }
 
-            if (updateEntities != null && !updateEntities.isEmpty()) {
-                ipMaintainDAO.updateEntities(BaseDAO.TARGET_ALL_DB, updateEntities);
+            if (update1Entities != null && !update1Entities.isEmpty()) {
+                ipMaintainDAO.updateEntities(BaseDAO.TARGET_PRIMARY_DB, update1Entities);
+            }
+            if (update2Entities != null && !update2Entities.isEmpty()) {
+                ipMaintainDAO.updateEntities(BaseDAO.TARGET_SECONDARY_DB, update2Entities);
             }
 
         } catch (Exception e) {
@@ -210,24 +229,43 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
             throws ServiceLayerException {
         IpMaintainServiceVO retVO = new IpMaintainServiceVO();
         try {
-            List<ModuleIpDataSetting> deleteEntities = new ArrayList<>();
-            ModuleIpDataSetting entity;
-            String settingId;
+            List<ModuleIpDataSetting> delete1Entities = new ArrayList<>();
+            List<ModuleIpDataSetting> delete2Entities = new ArrayList<>();
+
+            ModuleIpDataSetting entity1;
+            ModuleIpDataSetting entity2;
+            String groupId;
+            String ipAddr;
             for (IpMaintainServiceVO imsVO : deleteList) {
-                settingId = imsVO.getSettingId();
+                groupId = imsVO.getGroupId();
+                ipAddr = imsVO.getIpAddr();
 
-                entity = ipMaintainDAO.findModuleIpDataSettingById(settingId);
+                // Step 1. 查找 Primary DB 資料
+                entity1 = ipMaintainDAO.findModuleIpDataSettingByUk(groupId, ipAddr);
 
-                if (entity == null) {
+                if (entity1 == null) {
                     continue;
 
                 } else {
-                    deleteEntities.add(entity);
+                    delete1Entities.add(entity1);
+                }
+
+                // Step 2. 查找 Secondary DB 資料
+                entity2 = ipMaintainDAO.findModuleIpDataSettingByUkFromSecondaryDB(groupId, ipAddr);
+
+                if (entity2 == null) {
+                    continue;
+
+                } else {
+                    delete2Entities.add(entity2);
                 }
             }
 
-            if (deleteEntities != null && !deleteEntities.isEmpty()) {
-                ipMaintainDAO.deleteEntities(BaseDAO.TARGET_ALL_DB, deleteEntities);
+            if (delete1Entities != null && !delete1Entities.isEmpty()) {
+                ipMaintainDAO.deleteEntities(BaseDAO.TARGET_PRIMARY_DB, delete1Entities);
+            }
+            if (delete2Entities != null && !delete2Entities.isEmpty()) {
+                ipMaintainDAO.deleteEntities(BaseDAO.TARGET_SECONDARY_DB, delete2Entities);
             }
 
         } catch (Exception e) {

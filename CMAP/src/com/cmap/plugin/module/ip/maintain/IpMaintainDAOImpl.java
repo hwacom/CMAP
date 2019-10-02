@@ -1,13 +1,12 @@
 package com.cmap.plugin.module.ip.maintain;
 
 import java.util.List;
+import javax.annotation.Resource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +20,10 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     @Log
     private static Logger log;
 
-    @Autowired
-    @Qualifier("sessionFactory")
+    @Resource(name = "primarySessionFactory")
     private SessionFactory primarySessionFactory;
 
-    @Autowired
-    @Qualifier("secondSessionFactory")
+    @Resource(name = "secondSessionFactory")
     private SessionFactory secondSessionFactory;
 
     @Override
@@ -239,6 +236,123 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
 
             if (StringUtils.isNotBlank(settingId)) {
                 q.setParameter("settingId", settingId);
+            }
+            return (ModuleIpDataSetting)q.uniqueResult();
+
+        } catch (Exception e) {
+            throw e;
+
+        } finally {
+            if (session != null) {
+                session.getTransaction().commit();
+            }
+        }
+    }
+
+    @Override
+    public ModuleIpDataSetting findModuleIpDataSettingByIdFromSecondaryDB(String settingId) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" FROM ModuleIpDataSetting mids ")
+          .append(" WHERE 1=1 ");
+
+        if (StringUtils.isNotBlank(settingId)) {
+            sb.append(" AND mids.settingId = :settingId ");
+        }
+
+        Session session = secondSessionFactory.openSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+        //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+        try {
+            Query<?> q = session.createQuery(sb.toString());
+
+            if (StringUtils.isNotBlank(settingId)) {
+                q.setParameter("settingId", settingId);
+            }
+            return (ModuleIpDataSetting)q.uniqueResult();
+
+        } catch (Exception e) {
+            throw e;
+
+        } finally {
+            if (session != null) {
+                session.getTransaction().commit();
+            }
+        }
+    }
+
+    @Override
+    public ModuleIpDataSetting findModuleIpDataSettingByUk(String groupId, String ipAddr) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" FROM ModuleIpDataSetting mids ")
+          .append(" WHERE 1=1 ");
+
+        if (StringUtils.isNotBlank(groupId)) {
+            sb.append(" AND mids.groupId = :groupId ");
+        }
+        if (StringUtils.isNotBlank(ipAddr)) {
+            sb.append(" AND mids.ipAddr = :ipAddr ");
+        }
+
+        Session session = primarySessionFactory.openSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+        //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+        try {
+            Query<?> q = session.createQuery(sb.toString());
+
+            if (StringUtils.isNotBlank(groupId)) {
+                q.setParameter("groupId", groupId);
+            }
+            if (StringUtils.isNotBlank(ipAddr)) {
+                q.setParameter("ipAddr", ipAddr);
+            }
+            return (ModuleIpDataSetting)q.uniqueResult();
+
+        } catch (Exception e) {
+            throw e;
+
+        } finally {
+            if (session != null) {
+                session.getTransaction().commit();
+            }
+        }
+    }
+
+    @Override
+    public ModuleIpDataSetting findModuleIpDataSettingByUkFromSecondaryDB(String groupId, String ipAddr) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" FROM ModuleIpDataSetting mids ")
+          .append(" WHERE 1=1 ");
+
+        if (StringUtils.isNotBlank(groupId)) {
+            sb.append(" AND mids.groupId = :groupId ");
+        }
+        if (StringUtils.isNotBlank(ipAddr)) {
+            sb.append(" AND mids.ipAddr = :ipAddr ");
+        }
+
+        Session session = secondSessionFactory.openSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+        //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+        try {
+            Query<?> q = session.createQuery(sb.toString());
+
+            if (StringUtils.isNotBlank(groupId)) {
+                q.setParameter("groupId", groupId);
+            }
+            if (StringUtils.isNotBlank(ipAddr)) {
+                q.setParameter("ipAddr", ipAddr);
             }
             return (ModuleIpDataSetting)q.uniqueResult();
 
