@@ -21,7 +21,7 @@
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
 	  	<div class="col-sm-12 myTableSection mainTable" style="display:none;">
-			<table id="resultTable" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+			<table id="resultTable" class="dataTable dataTable_1 myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 		  	<thead class="center">
 		    	<tr>
 			      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
@@ -64,10 +64,10 @@
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
 		  	<div class="col-sm-12 myTableSection" style="display:none;">
-				<table id="resultTable_blockedIpRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+				<table id="resultTable_blockedIpRecord" class="dataTable dataTable_2 myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 			  	<thead class="center">
 			    	<tr>
-				      <th scope="col" nowrap="nowrap"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
+				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.address" /></th>

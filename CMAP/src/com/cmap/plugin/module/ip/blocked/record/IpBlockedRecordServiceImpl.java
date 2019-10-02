@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.service.impl.CommonServiceImpl;
@@ -156,12 +157,12 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                             lastestRecord.setRemark("無系統解鎖紀錄");
                             lastestRecord.setUpdateTime(currentTimestamp());
                             lastestRecord.setUpdateBy(currentUserName());
-                            ipRecordDAO.updateEntity(lastestRecord);
+                            ipRecordDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, lastestRecord);
 
                             // Step 2. 再寫入一筆新的紀錄
                             ModuleBlockedIpList newRecord = transVO2Model(ibrVO);
                             newRecord.setBlockTime(currentTimestamp());
-                            ipRecordDAO.insertEntity(newRecord);
+                            ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
 
                         } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
                             // B → O
@@ -172,7 +173,7 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                             lastestRecord.setOpenReason(ibrVO.getOpenReason());
                             lastestRecord.setUpdateTime(currentTimestamp());
                             lastestRecord.setUpdateBy(currentUserName());
-                            ipRecordDAO.updateEntity(lastestRecord);
+                            ipRecordDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, lastestRecord);
                         }
 
                     } else if (StringUtils.equals(preStatusFlag, Constants.STATUS_FLAG_OPEN)) {
@@ -180,7 +181,7 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                         // 寫入一筆新的紀錄
                         ModuleBlockedIpList newRecord = transVO2Model(ibrVO);
                         newRecord.setOpenTime(currentTimestamp());
-                        ipRecordDAO.insertEntity(newRecord);
+                        ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
                     }
 
                 } else {
@@ -196,7 +197,7 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                         newRecord.setOpenTime(currentTimestamp());
                     }
 
-                    ipRecordDAO.insertEntity(newRecord);
+                    ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
                 }
             }
 

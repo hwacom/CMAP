@@ -63,76 +63,32 @@ $(document).ready(function() {
 	});
 });
 
+function recordSectionRadioBoxOnChangeEvent() {
+	// 判斷底下封鎖紀錄RadioBox有無勾選，決定解鎖按鈕是否可按
+	$('input[name=radioBox_2]').change(function (e) {
+		if ($('input[name=radioBox_2]:checked').length > 0) {
+			$('#btnOpen').attr('disabled', false);
+		} else {
+			$('#btnOpen').attr('disabled', true);
+		}
+	});
+}
+
 function doConfirmOpenByBtn() {
 	$("#openReasonModal").modal({
 		backdrop : 'static'
 	});
 }
 
-/*
- * 從「IP開通/封鎖」功能頁點擊「解鎖」按鈕事件
- * 依照使用者於頁面上勾選要解鎖的IP列表，取得群組、IP(解鎖腳本變數)、供裝目標設備(該群組的L3 switch)
- * PS: 解鎖腳本依各群組L3 switch設備版本決定
- */
-//TODO
-function showDeliveryPanelByBtnIpOpen() {
-	window.sessionStorage.clear();
-	var scriptInfoId = $(':radio:checked').val();
-	$.ajax({
-		url : _ctx + '/delivery/getScriptInfo.json',
-		data : {
-			"scriptInfoId" : scriptInfoId
-		},
-		type : "POST",
-		dataType : 'json',
-		async: true,
-		success : function(resp) {
-			if (resp.code == '200') {
-				/* **************************************************************************
-				 * 派送Modal開啟前 >> 紀錄群組設備選單內容、腳本變數Key
-				 * **************************************************************************/
-				window.sessionStorage.setItem(_DELIVERY_SCRIPT_DEVICE_MODEL_, resp.data.deviceModel);
-				window.sessionStorage.setItem(_DELIVERY_DEVICE_MENU_JSON_STR_, resp.data.groupDeviceMenuJsonStr);
-				window.sessionStorage.setItem(_DELIVERY_VAR_KEY_, resp.data.actionScriptVariable);
-				
-				initStepPanel(3);
-				
-				STEP_NUM = 3;
-				initStepSection();
-				initStepBtn();
-				initStepImg();
-				initStepModalInput();
-				
-				/* **************************************************************************
-				 * 派送Modal開啟 >> 紀錄腳本ID、代碼、名稱
-				 * **************************************************************************/
-				window.sessionStorage.setItem(_DELIVERY_SCRIPT_INFO_ID_, scriptInfoId);
-				window.sessionStorage.setItem(_DELIVERY_SCRIPT_CODE_, resp.data.scriptCode);
-				window.sessionStorage.setItem(_DELIVERY_SCRIPT_NAME_, resp.data.scriptName);
-				
-				$('#stepModal').modal({
-					backdrop : 'static'
-				});
-				
-			} else {
-				alert(resp.message);
-			}
-		},
-		error : function(xhr, ajaxOptions, thrownError) {
-			ajaxErrorHandler();
-		},
-	});
-}
-
 function showDeliveryPanel() {
-	if ($(':radio:checked').length == 0) {
+	if ($('input[name=radioBox]:radio:checked').length == 0) {
 		alert("請先選擇腳本!!");
 		return;
 	}
 	
 	window.sessionStorage.clear();
 	
-	var scriptInfoId = $(':radio:checked').val();
+	var scriptInfoId = $('input[name=radioBox]:radio:checked').val();
 	
 	$.ajax({
 		url : _ctx + '/delivery/getScriptInfo.json',
@@ -979,7 +935,7 @@ function findData(from) {
 				
 				if (typeof findBlockedIpRecordData === 'function') {
 					findBlockedIpRecordData('B');
-					bindTrEventOnlyRadio();
+					bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
 				} else if (typeof findBlockedPortRecordData === 'function') {
 					findBlockedPortRecordData('B');
 					bindTrEventOnlyRadio();
@@ -1004,7 +960,7 @@ function findData(from) {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="radio" id="radioBox" name="radioBox" onclick="changeTrBgColor(this)" value='+row.scriptInfoId+'>';
+								 var html = '<input type="radio" id="radioBox_1" name="radioBox" onclick="changeTrBgColor(this)" value='+row.scriptInfoId+'>';
 								 return html;
 							 }
 				},

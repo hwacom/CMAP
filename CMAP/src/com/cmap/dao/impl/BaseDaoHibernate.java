@@ -14,8 +14,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import com.cmap.Constants;
 import com.cmap.Env;
@@ -23,12 +26,18 @@ import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceList;
+import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 
 public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	@Log
 	private static Logger log;
 
 	@Autowired
+    @Qualifier("sessionFactory")
+    private SessionFactory primarySessionFactory;
+
+	@Autowired
+	@Qualifier("secondSessionFactory")
     private SessionFactory secondSessionFactory;
 
 	protected static final String MARK_AS_DELETE = "Y";
@@ -151,25 +160,202 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
     }
 
 	@Override
-	public boolean insertEntities(List<? extends Object> entities) {
-		return processEntities(entities, Constants.DAO_ACTION_INSERT);
+	public boolean insertEntities(String targetDB, List<? extends Object> entities) {
+		return processEntities(targetDB, entities, Constants.DAO_ACTION_INSERT);
 	}
 
 	@Override
-    public boolean updateEntities(List<? extends Object> entities) {
-	    return processEntities(entities, Constants.DAO_ACTION_UPDATE);
+    public boolean updateEntities(String targetDB, List<? extends Object> entities) {
+	    return processEntities(targetDB, entities, Constants.DAO_ACTION_UPDATE);
     }
 
 	@Override
-    public boolean deleteEntities(List<? extends Object> entities) {
-        return processEntities(entities, Constants.DAO_ACTION_DELETE);
+    public boolean deleteEntities(String targetDB, List<? extends Object> entities) {
+        return processEntities(targetDB, entities, Constants.DAO_ACTION_DELETE);
     }
 
-	private boolean processEntities(List<? extends Object> entities, String processType) {
+	private boolean processEntities(String targetDB, List<? extends Object> entities, String processType) {
         boolean success = true;
 
-        int count = 1;
-        for (Object entity : entities) {
+        /*
+         * 複製一份LIST給如果要寫入多個DB使用，避免在寫入第二個DB時發生Key修改問題
+         * (identifier of an instance of com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting
+         *  was altered from 40283a816d70a673016d70a8572e0000 to 40283a816d70a673016d70a8712e0004)
+         */
+        List<Object> copyEntities = new ArrayList<>();
+
+        Object copyEntity = null;
+        for (Object obj : entities) {
+            if (obj instanceof ModuleIpDataSetting) {
+                copyEntity = new ModuleIpDataSetting();
+            }
+
+            if (copyEntity != null) {
+                BeanUtils.copyProperties(obj, copyEntity);
+                copyEntities.add(copyEntity);
+            }
+        }
+
+        if (StringUtils.equals(targetDB, TARGET_ALL_DB) || StringUtils.equals(targetDB, TARGET_PRIMARY_DB)) {
+            /*
+            int count = 1;
+            for (Object entity : entities) {
+                if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                    getHibernateTemplate().save(entity);
+
+                } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                    getHibernateTemplate().delete(entity);
+
+                } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                    getHibernateTemplate().update(entity);
+                }
+
+                count++;
+
+                if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
+                    getHibernateTemplate().flush();
+                }
+            }
+            */
+            Session session = null;
+            Transaction tx = null;
+
+            try {
+                session = primarySessionFactory.openSession();
+            } catch (HibernateException e) {
+                session = primarySessionFactory.openSession();
+            } finally {
+                if (session != null) {
+                    if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                        tx = session.beginTransaction();
+                    } else {
+                        tx = session.getTransaction();
+                    }
+                }
+            }
+
+            try {
+                if (session != null && tx != null) {
+                    int count = 1;
+                    for (Object entity : entities) {
+                        if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                            session.save(entity);
+
+                        } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                            session.delete(entity);
+
+                        } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                            session.update(entity);
+                        }
+
+                        count++;
+
+                        if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
+                            session.flush();
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+
+                if (tx != null) {
+                    tx.rollback();
+                    session.close();
+                }
+                return false;
+
+            } finally {
+                if (tx != null) {
+                    tx.commit();
+                }
+                if (session != null) {
+                    session.close();
+                }
+            }
+        }
+
+        if (StringUtils.equals(targetDB, TARGET_ALL_DB) || StringUtils.equals(targetDB, TARGET_SECONDARY_DB)) {
+            Session session = null;
+            Transaction tx = null;
+
+            try {
+                session = secondSessionFactory.openSession();
+            } catch (HibernateException e) {
+                session = secondSessionFactory.openSession();
+            } finally {
+                if (session != null) {
+                    if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                        tx = session.beginTransaction();
+                    } else {
+                        tx = session.getTransaction();
+                    }
+                }
+            }
+
+            try {
+                if (session != null && tx != null) {
+                    int count = 1;
+                    for (Object entity : copyEntities) {
+                        if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                            session.save(entity);
+
+                        } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                            session.delete(entity);
+
+                        } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                            session.update(entity);
+                        }
+
+                        count++;
+
+                        if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
+                            session.flush();
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+
+                if (tx != null) {
+                    tx.rollback();
+                    session.close();
+                }
+                return false;
+
+            } finally {
+                if (tx != null) {
+                    tx.commit();
+                }
+                if (session != null) {
+                    session.close();
+                }
+            }
+        }
+
+        return success;
+    }
+
+	@Override
+    public boolean insertEntity(String targetDB, Object entity) {
+        return processEntity(targetDB, entity, Constants.DAO_ACTION_INSERT);
+    }
+
+    @Override
+    public boolean updateEntity(String targetDB, Object entity) {
+        return processEntity(targetDB, entity, Constants.DAO_ACTION_UPDATE);
+    }
+
+	@Override
+	public boolean deleteEntity(String targetDB, Object entity) {
+	    return processEntity(targetDB, entity, Constants.DAO_ACTION_DELETE);
+	}
+
+	private boolean processEntity(String targetDB, Object entity, String processType) {
+        boolean success = true;
+
+        if (StringUtils.equals(targetDB, TARGET_ALL_DB) || StringUtils.equals(targetDB, TARGET_PRIMARY_DB)) {
             if (processType.equals(Constants.DAO_ACTION_INSERT)) {
                 getHibernateTemplate().save(entity);
 
@@ -180,44 +366,58 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
                 getHibernateTemplate().update(entity);
             }
 
-            count++;
+        }
 
-            if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
-                getHibernateTemplate().flush();
+        if (StringUtils.equals(targetDB, TARGET_ALL_DB) || StringUtils.equals(targetDB, TARGET_SECONDARY_DB)) {
+            Session session = null;
+            Transaction tx = null;
+
+            try {
+                session = secondSessionFactory.getCurrentSession();
+            } catch (HibernateException e) {
+                session = secondSessionFactory.openSession();
+            } finally {
+                if (session != null) {
+                    if (!session.getTransaction().isActive()) {
+                        tx = session.beginTransaction();
+                    } else {
+                        tx = session.getTransaction();
+                        tx.begin();
+                    }
+                }
+            }
+
+            try {
+                if (session != null && tx != null) {
+                    if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                        session.save(entity);
+
+                    } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                        session.delete(entity);
+
+                    } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                        session.update(entity);
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error(e.toString(), e);
+
+                if (tx != null) {
+                    tx.rollback();
+                    session.close();
+                }
+                return false;
+
+            } finally {
+                if (tx != null) {
+                    tx.commit();
+                }
+                if (session != null) {
+                    session.close();
+                }
             }
         }
-
-        return success;
-    }
-
-	@Override
-    public boolean insertEntity(Object entity) {
-        return processEntity(entity, Constants.DAO_ACTION_INSERT);
-    }
-
-    @Override
-    public boolean updateEntity(Object entity) {
-        return processEntity(entity, Constants.DAO_ACTION_UPDATE);
-    }
-
-	@Override
-	public boolean deleteEntity(Object entity) {
-	    return processEntity(entity, Constants.DAO_ACTION_DELETE);
-	}
-
-	private boolean processEntity(Object entity, String processType) {
-        boolean success = true;
-
-        if (processType.equals(Constants.DAO_ACTION_INSERT)) {
-            getHibernateTemplate().save(entity);
-
-        } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
-            getHibernateTemplate().delete(entity);
-
-        } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
-            getHibernateTemplate().update(entity);
-        }
-
         return success;
     }
 
@@ -385,4 +585,34 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 		}
 		return true;
 	}
+
+    @Override
+    public boolean insertEntity2Secondary(Object entity) {
+        return processEntity(TARGET_SECONDARY_DB, entity, Constants.DAO_ACTION_INSERT);
+    }
+
+    @Override
+    public boolean insertEntities2Secondary(List<? extends Object> entities) {
+        return processEntities(TARGET_SECONDARY_DB, entities, Constants.DAO_ACTION_INSERT);
+    }
+
+    @Override
+    public boolean updateEntity2Secondary(Object entity) {
+        return processEntity(TARGET_SECONDARY_DB, entity, Constants.DAO_ACTION_UPDATE);
+    }
+
+    @Override
+    public boolean updateEntities2Secondary(List<? extends Object> entities) {
+        return processEntities(TARGET_SECONDARY_DB, entities, Constants.DAO_ACTION_UPDATE);
+    }
+
+    @Override
+    public boolean deleteEntity2Secondary(Object entity) {
+        return processEntity(TARGET_SECONDARY_DB, entity, Constants.DAO_ACTION_DELETE);
+    }
+
+    @Override
+    public boolean deleteEntities2Secondary(List<? extends Object> entities) {
+        return processEntities(TARGET_SECONDARY_DB, entities, Constants.DAO_ACTION_DELETE);
+    }
 }

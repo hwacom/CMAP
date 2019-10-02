@@ -114,3 +114,19 @@ function isEmpty(obj) {
     }
     return true;
 }
+
+
+function bindTrEventForSpecifyTableRadio(dataTable_className, dataTable_radioId) {
+	var dataTable = '.'+dataTable_className+' tbody tr';
+	var radioBox = '#'+dataTable_radioId;
+	
+	$(dataTable).click(function(event) {
+        if (event.target.tagName !== 'A' && event.target.type !== 'checkbox' && event.target.type !== 'radio') {
+        	$(radioBox, this).prop('checked', ($(radioBox, this).is(':checked') ? false : true)).change();
+            
+            if ($(radioBox, this).attr('type') === 'radio') {
+          	  changeTrBgColor($(radioBox, this).get(0));
+            }
+        }
+    });
+}

@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.GroupSubnetDAO;
 import com.cmap.dao.MenuItemDAO;
@@ -408,8 +409,8 @@ public class CommonServiceImpl implements CommonService {
                     }
                 }
 
-                prtgDAO.deleteEntities(deleteEntities);
-                prtgDAO.insertEntities(insertEntities);
+                prtgDAO.deleteEntities(BaseDAO.TARGET_PRIMARY_DB, deleteEntities);
+                prtgDAO.insertEntities(BaseDAO.TARGET_PRIMARY_DB, insertEntities);
             }
 
             retVO.setJobExcuteResult(Result.SUCCESS);

@@ -33,6 +33,7 @@ import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.comm.enums.Step;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ScriptDefaultMappingDAO;
@@ -1167,7 +1168,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                           ,currentUserName()
 	                    );
 
-	                    configDAO.insertEntity(diffLogEntity);
+	                    configDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, diffLogEntity);
 
 	                    // 發信
 	                    //TODO
@@ -1386,7 +1387,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 					//再新增新資料
 					if (insertEntities != null && !insertEntities.isEmpty()) {
-						deviceDAO.insertEntities(insertEntities);
+						deviceDAO.insertEntities(BaseDAO.TARGET_PRIMARY_DB, insertEntities);
 					}
 				}
 

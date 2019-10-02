@@ -18,6 +18,7 @@ import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.SysMailDAO;
@@ -310,7 +311,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	            setting.setUpdateBy(getUserName());
 	            setting.setUpdateTime(currentTimestamp());
 
-	            vmSwitchDAO.updateEntity(setting);
+	            vmSwitchDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, setting);
 	        }
 
 	    } catch (Exception e) {

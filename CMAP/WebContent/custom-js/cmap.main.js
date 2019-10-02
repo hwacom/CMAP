@@ -280,8 +280,8 @@ function bindTrEventOnlyRadio() {
         if (event.target.tagName !== 'A' && event.target.type !== 'checkbox' && event.target.type !== 'radio') {
             $(':radio', this).prop('checked', ($(':radio', this).is(':checked') ? false : true)).change();
             
-            if ($('#chkbox',this).attr('type') === 'radio') {
-          	  changeTrBgColor($('#chkbox',this).get(0));
+            if ($('#chkbox', this).attr('type') === 'radio') {
+          	  changeTrBgColor($('#chkbox', this).get(0));
             }
         }
     });

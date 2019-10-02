@@ -9,19 +9,8 @@ var _deductHeight = 0;
 var blockedPortTableHeight;
 
 $(document).ready(function() {
-	checkboxOnChangeEvent();
-});
 
-function checkboxOnChangeEvent() {
-	// 判斷CheckBox有無勾選，決定解鎖按鈕是否可按
-	$('input[name=chkbox]').change(function (e) {
-		if ($('input[name=chkbox]:checked').length > 0) {
-			$('#btnOpen').attr('disabled', false);
-		} else {
-			$('#btnOpen').attr('disabled', true);
-		}
-	});
-}
+});
 
 /**********************************************************************************************************
  *** 計算BlockedPortList區塊DataTable可呈顯的高度
@@ -64,7 +53,7 @@ function calBlockedPortSectionHeight() {
 function doOpenByBtn() {
 	var listId = new Array();
 	
-	var checkedItem = $('input[name=chkbox]:checked');
+	var checkedItem = $('input[name=radioBox_2]:checked');
 	for (var i=0; i<checkedItem.length; i++) {
 		listId.push(checkedItem[i].value);
 	}
@@ -184,8 +173,8 @@ function findBlockedPortRecordData(statusFlag) {
 				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
-				bindTrEventOnlyCheckbox();
-				checkboxOnChangeEvent();
+				bindTrEventForSpecifyTableRadio('dataTable_2', 'radioBox_2');
+				recordSectionRadioBoxOnChangeEvent();
 				
 				var pathname = window.location.pathname;
 				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
@@ -235,7 +224,7 @@ function findBlockedPortRecordData(statusFlag) {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.listId+'>';
+								 var html = '<input type="radio" id="radioBox_2" name="radioBox_2" onclick="changeTrBgColor(this)" value='+row.listId+'>';
 								 return html;
 							 }
 				},

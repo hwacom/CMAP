@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
 @Repository("netFlowStatisticsDAO")
@@ -87,7 +88,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
 
     @Override
     public void saveOrUpdateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
-        insertEntities(entities);
+        insertEntities(BaseDAO.TARGET_SECONDARY_DB, entities);
     }
 
     @Override

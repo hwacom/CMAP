@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.model.DeviceList;
@@ -136,12 +137,12 @@ public class PortBlockedRecordServiceImpl extends CommonServiceImpl implements P
                             lastestRecord.setRemark("無系統解鎖紀錄");
                             lastestRecord.setUpdateTime(currentTimestamp());
                             lastestRecord.setUpdateBy(currentUserName());
-                            portRecordDAO.updateEntity(lastestRecord);
+                            portRecordDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, lastestRecord);
 
                             // Step 2. 再寫入一筆新的紀錄
                             ModuleBlockedPortList newRecord = transVO2Model(pbrVO);
                             newRecord.setBlockTime(currentTimestamp());
-                            portRecordDAO.insertEntity(newRecord);
+                            portRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
 
                         } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
                             // B → O
@@ -152,7 +153,7 @@ public class PortBlockedRecordServiceImpl extends CommonServiceImpl implements P
                             lastestRecord.setOpenReason(pbrVO.getOpenReason());
                             lastestRecord.setUpdateTime(currentTimestamp());
                             lastestRecord.setUpdateBy(currentUserName());
-                            portRecordDAO.updateEntity(lastestRecord);
+                            portRecordDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, lastestRecord);
                         }
 
                     } else if (StringUtils.equals(preStatusFlag, Constants.STATUS_FLAG_OPEN)) {
@@ -160,7 +161,7 @@ public class PortBlockedRecordServiceImpl extends CommonServiceImpl implements P
                         // 寫入一筆新的紀錄
                         ModuleBlockedPortList newRecord = transVO2Model(pbrVO);
                         newRecord.setOpenTime(currentTimestamp());
-                        portRecordDAO.insertEntity(newRecord);
+                        portRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
                     }
 
                 } else {
@@ -176,7 +177,7 @@ public class PortBlockedRecordServiceImpl extends CommonServiceImpl implements P
                         newRecord.setOpenTime(currentTimestamp());
                     }
 
-                    portRecordDAO.insertEntity(newRecord);
+                    portRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
                 }
             }
 

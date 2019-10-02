@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.vo.DeviceDAOVO;
 import com.cmap.exception.ServiceLayerException;
@@ -445,7 +446,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	}
 
         	if (!artTableList.isEmpty()) {
-        		ipMappingDAO.insertEntities(artTableList);
+        		ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, artTableList);
         	}
         	log.info("jobId: " + jobId + " >> artTableList size: " + artTableList.size());
         	endTime = System.currentTimeMillis();
@@ -474,7 +475,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	}
 
         	if (!macTableList.isEmpty()) {
-        		ipMappingDAO.insertEntities(macTableList);
+        		ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, macTableList);
         	}
         	log.info("jobId: " + jobId + " >> macTableList size: " + macTableList.size());
         	endTime = System.currentTimeMillis();
@@ -502,7 +503,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	}
 
         	if (!mappingList.isEmpty()) {
-        		ipMappingDAO.insertEntities(mappingList);
+        		ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, mappingList);
         	}
         	log.info("jobId: " + jobId + " >> ipMacPortMappingList size: " + mappingList.size());
         	endTime = System.currentTimeMillis();
@@ -566,7 +567,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             }
 
             if (!mappingChangeList.isEmpty()) {
-            	ipMappingDAO.insertEntities(mappingChangeList);
+            	ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, mappingChangeList);
             }
             log.info("jobId: " + jobId + " >> ipMacPortMappingChangeList size: " + mappingChangeList.size());
 

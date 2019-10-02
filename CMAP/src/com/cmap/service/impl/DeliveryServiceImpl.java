@@ -18,6 +18,7 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.dao.ScriptInfoDAO;
@@ -527,7 +528,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				access.setCreateBy(dsVO.getActionBy());
 				access.setUpdateTime(access.getCreateTime());
 				access.setUpdateBy(dsVO.getCreateBy());
-				provisionLogDAO.insertEntity(access);
+				provisionLogDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, access);
 
 			} else {
 

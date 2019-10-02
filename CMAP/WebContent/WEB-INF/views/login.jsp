@@ -9,12 +9,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- 台灣大哥大 -->
+    <!-- 
     <link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_taiwan_mobile.ico">
-	 
-	<!-- 桃機 -->
-	<!-- 
-	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_t3.ico">
 	 -->
+	  
+	<!-- 桃機 -->
+	<link rel="icon" sizes="16x16" href="${pageContext.request.contextPath}/resources/images/icon_t3.ico">
 	 
 	<!-- 亞太 -->
 	<!-- 

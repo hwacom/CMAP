@@ -5,15 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.exception.ServiceLayerException;
@@ -247,7 +246,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 			}
 
 			if (!doChk) {
-				provisionLogDAO.insertEntity(entity);
+				provisionLogDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, entity);
 
 			} else {
 				final String psJSON = palVO.getParameterJson();
@@ -275,7 +274,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 					success = false;
 				}
 
-				provisionLogDAO.insertEntity(entity);
+				provisionLogDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, entity);
 
 				if (success) {
 					retVO.setAccessLogChkResult(true);

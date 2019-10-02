@@ -18,6 +18,7 @@ import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.ScriptType;
+import com.cmap.dao.BaseDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.JobService;
@@ -79,7 +80,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                 logEntity.setUpdateTime(currentTimestamp());
                 logEntity.setUpdateBy(getUserName());
 
-                clusterMigrateDAO.insertEntity(logEntity);
+                clusterMigrateDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, logEntity);
 
                 /*
                  * Step 3. 開啟 Cluster migrate 排程 (若有傳入要開啟 JOB 時)
@@ -449,10 +450,10 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                         }
 
                         // by 此次 migrate 的 cluster 有哪些運作服務寫入 log
-                        clusterMigrateDAO.insertEntities(insertLogEntities);
+                        clusterMigrateDAO.insertEntities(BaseDAO.TARGET_PRIMARY_DB, insertLogEntities);
 
                         // 刪除最原始的一筆
-                        clusterMigrateDAO.deleteEntity(logEntity);
+                        clusterMigrateDAO.deleteEntity(BaseDAO.TARGET_PRIMARY_DB, logEntity);
 
                         insertLogEntities = null;
 
@@ -507,7 +508,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
         logEntity.setRemark(remark);
         logEntity.setUpdateTime(currentTimestamp());
         logEntity.setUpdateBy(getUserName());
-        clusterMigrateDAO.updateEntity(logEntity);
+        clusterMigrateDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, logEntity);
     }
 
     /**

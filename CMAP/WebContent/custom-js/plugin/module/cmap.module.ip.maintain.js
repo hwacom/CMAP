@@ -147,6 +147,7 @@ function showAddConfirmPanel() {
 		var firstCommaIdx = dataLine.indexOf(",");
 		if (firstCommaIdx == -1) {
 			alert("第 " + (i+1) + " 行格式錯誤! (未含逗點)");
+			$("#confirm_panel_table > tbody > tr").remove();	// 清空table tbody內容
 			return;
 		}
 		
@@ -247,6 +248,7 @@ function envAction(action) {
 			var firstCommaIdx = dataLine.indexOf(",");
 			if (firstCommaIdx == -1) {
 				alert("第 " + (i+1) + " 行格式錯誤! (未含逗點)");
+				$("#confirm_panel_table > tbody > tr").remove();	// 清空table tbody內容
 				return;
 			}
 			
