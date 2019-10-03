@@ -156,7 +156,7 @@ function bindScrollEvent() {
 				if (rowCount >= pageLength) { //查詢結果筆數有超過分頁筆數才作動
 					//if (scrollTop > (scrollTopMax - (scrollTopMax*0.3))) {
 					//捲到最底才查找下一批資料
-					if (scrollTop >= scrollTopMax) { 
+					if (scrollTop >= ( scrollTopMax - 100 )) { // scrollTopMax - 100 確保解析度問題導致 scrollTop 達不到 scrollTopMax 位置
 						if (!waitForNextData) {
 							waitForNextData = true;
 							findNextData();
