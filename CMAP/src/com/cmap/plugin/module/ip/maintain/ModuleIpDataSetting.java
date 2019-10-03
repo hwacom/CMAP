@@ -25,6 +25,9 @@ public class ModuleIpDataSetting implements java.io.Serializable {
     @Column(name = "ip_addr", nullable = false)
     private String ipAddr;
 
+    @Column(name = "mac_addr", nullable = false)
+    private String macAddr;
+
     @Column(name = "ip_desc", nullable = false)
     private String ipDesc;
 
@@ -47,13 +50,14 @@ public class ModuleIpDataSetting implements java.io.Serializable {
         super();
     }
 
-    public ModuleIpDataSetting(String settingId, String groupId, String ipAddr, String ipDesc,
-            String remark, Timestamp createTime, String createBy, Timestamp updateTime,
-            String updateBy) {
+    public ModuleIpDataSetting(String settingId, String groupId, String ipAddr, String macAddr,
+            String ipDesc, String remark, Timestamp createTime, String createBy,
+            Timestamp updateTime, String updateBy) {
         super();
         this.settingId = settingId;
         this.groupId = groupId;
         this.ipAddr = ipAddr;
+        this.macAddr = macAddr;
         this.ipDesc = ipDesc;
         this.remark = remark;
         this.createTime = createTime;
@@ -84,6 +88,14 @@ public class ModuleIpDataSetting implements java.io.Serializable {
 
     public void setIpAddr(String ipAddr) {
         this.ipAddr = ipAddr;
+    }
+
+    public String getMacAddr() {
+        return macAddr;
+    }
+
+    public void setMacAddr(String macAddr) {
+        this.macAddr = macAddr;
     }
 
     public String getIpDesc() {

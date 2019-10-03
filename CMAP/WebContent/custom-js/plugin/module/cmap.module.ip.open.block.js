@@ -173,7 +173,6 @@ function findBlockedIpRecordData(statusFlag) {
 				$("div.dataTables_paginate").parent().addClass('col-sm-6');
 				
 				bindTrEventForSpecifyTableRadio('dataTable_2', 'radioBox_2');
-				recordSectionRadioBoxOnChangeEvent();
 				
 				var pathname = window.location.pathname;
 				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
@@ -182,6 +181,9 @@ function findBlockedIpRecordData(statusFlag) {
 					$('[data-field="openTime"]').hide();
 					$('[data-field="openReason"]').hide();
 					$('[data-field="openBy"]').hide();
+					
+					recordSectionRadioBoxOnChangeEvent();
+					
 				} else if (lastPath === "/ipBlocked") {
 					$('[data-field="action"]').hide();
 				}
@@ -196,10 +198,10 @@ function findBlockedIpRecordData(statusFlag) {
 				$('td:eq(4)', row).attr('data-field', 'ipDesc');
 				$('td:eq(5)', row).attr('data-field', 'status');
 				$('td:eq(6)', row).attr('data-field', 'blockTime');
-				$('td:eq(7)', row).attr('data-field', 'blockReason');
-				$('td:eq(8)', row).attr('data-field', 'blockBy');
-				$('td:eq(9)', row).attr('data-field', 'openTime');
-				$('td:eq(10)', row).attr('data-field', 'openReason');
+				$('td:eq(7)', row).attr('data-field', 'openTime');
+				$('td:eq(8)', row).attr('data-field', 'blockReason');
+				$('td:eq(9)', row).attr('data-field', 'openReason');
+				$('td:eq(10)', row).attr('data-field', 'blockBy');
 				$('td:eq(11)', row).attr('data-field', 'openBy');
 			},
 			"columns" : [
@@ -209,10 +211,10 @@ function findBlockedIpRecordData(statusFlag) {
 				{ "data" : "ipDesc" , "className" : "left" },
 				{ "data" : "statusFlag" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
-				{},
-				{ "data" : "blockBy" , "className" : "center" },
 				{ "data" : "openTimeStr" , "className" : "center" },
 				{},
+				{},
+				{ "data" : "blockBy" , "className" : "center" },
 				{ "data" : "openBy" , "className" : "center" },
 			],
 			"columnDefs" : [ 
@@ -236,7 +238,7 @@ function findBlockedIpRecordData(statusFlag) {
 						   	}
 				},
 				{
-					"targets" : [7],
+					"targets" : [8],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,
@@ -250,7 +252,7 @@ function findBlockedIpRecordData(statusFlag) {
 				}
 				,
 				{
-					"targets" : [10],
+					"targets" : [9],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,

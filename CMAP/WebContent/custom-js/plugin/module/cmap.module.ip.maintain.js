@@ -129,6 +129,83 @@ function transDoubleQuota(oriText) {
 	return newText;
 }
 
+//清空table tbody內容
+function cleanConfirmPanelTable() {
+	$("#confirm_panel_table > tbody > tr").remove();	// 清空table tbody內容
+}
+
+//檢核資料格式
+function chkDataLineFormat(lineNum, firstCommaIdx, secondCommaIdx) {
+	if (firstCommaIdx == -1) {
+		alert("第 " + lineNum + " 行格式錯誤!<br>錯誤原因: <font color='red'>未含逗點</font>");
+		return false;
+		
+	} else if (firstCommaIdx === secondCommaIdx) {
+		alert("第 " + lineNum + " 行格式錯誤!<br>錯誤原因: <font color='red'>缺少欄位</font>");
+		return false;
+	}
+	return true;
+}
+
+// 檢核資料內容
+function chkDataLineValue(lineNum, ipAddr, macAddr, ipDesc) {
+	// (1)檢核必填欄位
+	if (ipAddr === "") {
+		alert("第 " + lineNum + " 行資料檢核失敗!<br>錯誤原因: <font color='red'>IP_Address必填</font>");
+		return false;
+		
+	} else if (ipDesc === "") {
+		alert("第 " + lineNum + " 行資料檢核失敗!<br>錯誤原因: <font color='red'>IP備註必填</font>");
+		return false;
+	}
+	
+	// (2)檢核IP格式
+	var ipDotCount = (ipAddr.match(/\./g) || []).length;
+	
+	if (ipDotCount != 3) {
+		alert("第 " + lineNum + " 行資料檢核失敗!<br>錯誤原因: <font color='red'>IP_Address格式錯誤</font>");
+		return false;
+	}
+	
+	// (3)檢核IP值
+	var ipArray = ipAddr.split(".");
+	
+	for (var i=0; i<ipArray.length; i++) {
+		var ip = ipArray[i];
+		
+		if (ip < 0 || ip > 255) {
+			alert("第 " + lineNum + " 行資料檢核失敗!<br>錯誤原因: <font color='red'>IP_Address數值錯誤</font>");
+			return false;
+		}
+	}
+	
+	// (4)若MAC有填值，檢核MAC格式
+	if (macAddr != "") {
+		var macColonCount = (macAddr.match(/:/g) || []).length;
+		
+		if (macColonCount != 5) {
+			alert("第 " + lineNum + " 行資料檢核失敗!<br>錯誤原因: <font color='red'>MAC_Address格式錯誤</font>");
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+function getCommaIdx(dataLine, layer) {
+	if (layer === "FIRST") {
+		var firstCommaIdx = dataLine.indexOf(",");
+		return firstCommaIdx;
+		
+	} else if (layer === "SECOND") {
+		var firstCommaIdx = dataLine.indexOf(",");
+		var subDataLine = dataLine.substring(firstCommaIdx+1, dataLine.length).trim();
+		
+		var secondCommaIdx = subDataLine.indexOf(",");
+		return firstCommaIdx + 1 + secondCommaIdx;
+	}
+}
+
 function showAddConfirmPanel() {
 	var dataSet = $("#ipDataImportModal_dataSet").val();
 	
@@ -140,24 +217,35 @@ function showAddConfirmPanel() {
 	var groupName = $("#queryGroup option:selected").text();
 	var tr, td;
 	var dataList = dataSet.split("\n");
-	var dataLine, ipAddr, ipDesc;
+	var dataLine, ipAddr, macAddr, ipDesc, lineNum;
 	for (var i=0; i<dataList.length; i++) {
+		lineNum = i + 1;
 		dataLine = dataList[i];
 		
-		var firstCommaIdx = dataLine.indexOf(",");
-		if (firstCommaIdx == -1) {
-			alert("第 " + (i+1) + " 行格式錯誤! (未含逗點)");
-			$("#confirm_panel_table > tbody > tr").remove();	// 清空table tbody內容
+		var firstCommaIdx = getCommaIdx(dataLine, "FIRST");
+		var secondCommaIdx = getCommaIdx(dataLine, "SECOND");
+		
+		// 檢核資料格式
+		if (!chkDataLineFormat(lineNum, firstCommaIdx, secondCommaIdx)) {
+			cleanConfirmPanelTable();
 			return;
 		}
 		
 		ipAddr = transDoubleQuota(dataLine.substring(0, firstCommaIdx).trim());
-		ipDesc = transDoubleQuota(dataLine.substring(firstCommaIdx+1, dataLine.length).trim());
+		macAddr = transDoubleQuota(dataLine.substring(firstCommaIdx+1, secondCommaIdx).trim());
+		ipDesc = transDoubleQuota(dataLine.substring(secondCommaIdx+1, dataLine.length).trim());
+		
+		// 檢核資料內容
+		if (!chkDataLineValue(lineNum, ipAddr, macAddr, ipDesc)) {
+			cleanConfirmPanelTable();
+			return;
+		}
 		
 		tr = $("<tr></tr>");
 		tr.append($("<td></td>").text(i + 1));			// 序欄位
 		tr.append($("<td></td>").text(groupName));
 		tr.append($("<td></td>").text(ipAddr));
+		tr.append($("<td></td>").text(macAddr));
 		tr.append($("<td></td>").text(ipDesc));
 		$("#confirm_panel_table > tbody").append(tr);	// 將資料加到table tbody內
 	}
@@ -186,6 +274,14 @@ function changeModifyView() {
 		$('input[name=chkbox]:checked:eq('+i+')').attr('disabled','disabled'); //關閉列表勾選框
 		
 		$('input[name=chkbox]:checked:eq('+i+')').parents("tr").children().eq(4).html(
+			//切換「MAC_Address」欄位為輸入框
+			function() {
+				var content = $(this).attr("content");
+				var html = '<input type="text" name="modifyMacAddr" value="' + content +'" class="form-control form-control-sm" style="min-width: 200px" />';
+				return html;
+			}
+		);
+		$('input[name=chkbox]:checked:eq('+i+')').parents("tr").children().eq(5).html(
 			//切換「IP備註」欄位為輸入框
 			function() {
 				var content = $(this).attr("content");
@@ -221,10 +317,14 @@ function envAction(action) {
 	}
 	
 	if (action == "update") {
+		var modifyMacAddr = $("input[name='modifyMacAddr']").map(function() {
+							    	 return $(this).val();
+							      }).get();
 		var modifyIpDesc = $("input[name='modifyIpDesc']").map(function() {
 						         	 return $(this).val();
 						          }).get();
 		
+		obj.modifyMacAddr = modifyMacAddr;
 		obj.modifyIpDesc = modifyIpDesc;
 		
 	} else if (action == "delete") {
@@ -245,28 +345,42 @@ function envAction(action) {
 		
 		var obj = new Object();
 		var array_ipAddr = new Array();
+		var array_macAddr = new Array();
 		var array_ipDesc = new Array();
 		var dataList = dataSet.split("\n");
+		var lineNum;
 		
 		for (var i=0; i<dataList.length; i++) {
+			lineNum = i + 1;
 			dataLine = dataList[i];
 			
-			var firstCommaIdx = dataLine.indexOf(",");
-			if (firstCommaIdx == -1) {
-				alert("第 " + (i+1) + " 行格式錯誤! (未含逗點)");
-				$("#confirm_panel_table > tbody > tr").remove();	// 清空table tbody內容
+			var firstCommaIdx = getCommaIdx(dataLine, "FIRST");
+			var secondCommaIdx = getCommaIdx(dataLine, "SECOND");
+			
+			// 檢核資料格式
+			if (!chkDataLineFormat(lineNum, firstCommaIdx, secondCommaIdx)) {
+				cleanConfirmPanelTable();
 				return;
 			}
 			
 			ipAddr = transDoubleQuota(dataLine.substring(0, firstCommaIdx).trim());
-			ipDesc = transDoubleQuota(dataLine.substring(firstCommaIdx+1, dataLine.length).trim());
+			macAddr = transDoubleQuota(dataLine.substring(firstCommaIdx+1, secondCommaIdx).trim());
+			ipDesc = transDoubleQuota(dataLine.substring(secondCommaIdx+1, dataLine.length).trim());
+			
+			// 檢核資料內容
+			if (!chkDataLineValue(lineNum, ipAddr, macAddr, ipDesc)) {
+				cleanConfirmPanelTable();
+				return;
+			}
 			
 			array_ipAddr.push(ipAddr);
+			array_macAddr.push(macAddr);
 			array_ipDesc.push(ipDesc);
 		}
 		
 		obj.groupId = $("#queryGroup").val();
 		obj.modifyIpAddr = array_ipAddr;
+		obj.modifyMacAddr = array_macAddr;
 		obj.modifyIpDesc = array_ipDesc;
 	}
 	
@@ -343,7 +457,8 @@ function findData(from) {
 	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
 	        },
 	        "createdRow": function( row, data, dataIndex ) {
-	        	$(row).children('td').eq(4).attr('content', htmlSpecialChars(data.ipDesc));
+	        	$(row).children('td').eq(4).attr('content', htmlSpecialChars(data.macAddr));
+	        	$(row).children('td').eq(5).attr('content', htmlSpecialChars(data.ipDesc));
 	        },
 			"ajax" : {
 				"url" : _ctx + '/plugin/module/ipMaintain/getIpDataSetting.json',
@@ -407,6 +522,7 @@ function findData(from) {
 				{},{},
 				{ "data" : "groupName" , "className" : "center" },
 				{ "data" : "ipAddr" , "className" : "center" },
+				{ "data" : "macAddr" , "className" : "center" },
 				{ "data" : "ipDesc" }
 			],
 			"columnDefs" : [

@@ -24,6 +24,8 @@ public class Env {
 	/**
 	 * 設定MENU TREE功能是否顯示
 	 */
+	public static String SHOW_MENU_TREE_USER_GUIDE_DOWNLOAD;                    // 系統操作手冊下載
+
 	public static String SHOW_MENU_TREE_CONTROL_PLATFORM;					    // 間控平台
 	public static String SHOW_MENU_ITEM_PRTG_INDEX;                             // 間控平台 > 首頁
 	public static String SHOW_MENU_ITEM_PRTG_DASHBOARD;                         // 間控平台 > DASHBOARD

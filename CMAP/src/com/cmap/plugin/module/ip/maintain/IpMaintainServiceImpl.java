@@ -101,6 +101,7 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
 
                     if (entity1 != null) {
                         // 存在 => 更新
+                        entity1.setMacAddr(imsVO.getModifyMacAddr());
                         entity1.setIpDesc(imsVO.getModifyIpDesc());
                         entity1.setUpdateTime(currentTimestamp());
                         entity1.setUpdateBy(currentUserName());
@@ -111,6 +112,7 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
                         entity1 = new ModuleIpDataSetting();
                         entity1.setGroupId(imsVO.getGroupId());
                         entity1.setIpAddr(imsVO.getModifyIpAddr());
+                        entity1.setMacAddr(imsVO.getModifyMacAddr());
                         entity1.setIpDesc(imsVO.getModifyIpDesc());
                         entity1.setCreateTime(currentTimestamp());
                         entity1.setCreateBy(currentUserName());
@@ -124,6 +126,7 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
 
                     if (entity2 != null) {
                         // 存在 => 更新
+                        entity2.setMacAddr(imsVO.getModifyMacAddr());
                         entity2.setIpDesc(imsVO.getModifyIpDesc());
                         entity2.setUpdateTime(currentTimestamp());
                         entity2.setUpdateBy(currentUserName());
@@ -134,6 +137,7 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
                         entity2 = new ModuleIpDataSetting();
                         entity2.setGroupId(imsVO.getGroupId());
                         entity2.setIpAddr(imsVO.getModifyIpAddr());
+                        entity2.setMacAddr(imsVO.getModifyMacAddr());
                         entity2.setIpDesc(imsVO.getModifyIpDesc());
                         entity2.setCreateTime(currentTimestamp());
                         entity2.setCreateBy(currentUserName());
@@ -176,6 +180,7 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
             ModuleIpDataSetting entity2;
             String groupId;
             String ipAddr;
+            String modifyMacAddr;
             String modifyIpDesc;
             for (IpMaintainServiceVO imsVO : updateList) {
                 groupId = imsVO.getGroupId();
@@ -188,7 +193,10 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
                     continue;
 
                 } else {
+                    modifyMacAddr = imsVO.getModifyMacAddr();
                     modifyIpDesc = imsVO.getModifyIpDesc();
+
+                    entity1.setMacAddr(modifyMacAddr);
                     entity1.setIpDesc(modifyIpDesc);
                     entity1.setUpdateTime(currentTimestamp());
                     entity1.setUpdateBy(currentUserName());
@@ -202,7 +210,7 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
                     continue;
 
                 } else {
-                    modifyIpDesc = imsVO.getModifyIpDesc();
+                    entity2.setMacAddr(modifyMacAddr);
                     entity2.setIpDesc(modifyIpDesc);
                     entity2.setUpdateTime(currentTimestamp());
                     entity2.setUpdateBy(currentUserName());

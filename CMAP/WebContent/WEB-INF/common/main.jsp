@@ -163,6 +163,17 @@
         <nav class="web-menu col-md-2 d-none d-md-block sidebar sidebar-bg">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
+              <!-- [系統操作手冊下載] START -->
+              <c:if test="${Env.SHOW_MENU_TREE_USER_GUIDE_DOWNLOAD eq __SHOW__}">
+	              <li class="nav-item">
+	                <a class="nav-link toggleMenuLink" id="toggleMenu_prtg" href="#" onclick="javascript:window.open('${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/${pageContext.request.contextPath}resource/download/userGuide','_blank')">
+	                  <span data-feather="book-open"></span>
+	                  	<span><spring:message code="func.user.guide.download" /></span>
+	                </a>
+	              </li>
+	          </c:if>
+	          <!-- [系統操作手冊下載] END -->
+	          
               <!-- [間控平台] START -->
               <c:if test="${Env.SHOW_MENU_TREE_CONTROL_PLATFORM eq __SHOW__}">
 	              <li class="nav-item">
@@ -297,17 +308,6 @@
 					        </c:if>
 	                    </sec:authorize>
 	                    <!-- [所有學校即時連線數排行] END -->
-	                    
-	                    <!-- [系統操作手冊下載] START -->
-				        <c:if test="${Env.SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD eq __SHOW__}">
-				        	<li class="subMenu-item">
-		                    	<a id="mp_userGuide" href="#" onclick="javascript:window.open('${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/${pageContext.request.contextPath}resource/download/userGuide','_blank')">
-		                    	  <span data-feather="download"></span>
-		                    	  	<span><spring:message code="func.user.guide.download" /></span>
-		                    	</a>
-		                    </li>
-				        </c:if>
-	                    <!-- [系統操作手冊下載] END -->
 	                </ul>
 		          </li>
 	          </c:if>

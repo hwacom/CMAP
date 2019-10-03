@@ -77,10 +77,10 @@
 		      <th scope="col" nowrap="nowrap" data-field="ipDesc"><spring:message code="ip.remark" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
 		    </tr>
 		  </thead>

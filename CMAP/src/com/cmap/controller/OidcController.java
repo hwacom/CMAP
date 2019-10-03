@@ -269,6 +269,8 @@ public class OidcController extends BaseController {
         session.setAttribute(Constants.OIDC_USER_NAME, userName);
         session.setAttribute(Constants.OIDC_EMAIL, email);
 
+        session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, userName);  // for Apache Tomcat admin session page show "Guessed User name"
+
         // Set up a JWT processor to parse the tokens and then check their signature
         // and validity time window (bounded by the "iat", "nbf" and "exp" claims)
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();

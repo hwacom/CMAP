@@ -42,11 +42,16 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         if (StringUtils.isNotBlank(imsVO.getQueryIp())) {
             sb.append(" AND mids.ipAddr = :ipAddr ");
         }
+        if (StringUtils.isNotBlank(imsVO.getQueryMac())) {
+            sb.append(" AND mids.macAddr = :macAddr ");
+        }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
             sb.append(" and ( ")
               .append("       dl.groupName like :searchValue ")
               .append("       or ")
               .append("       mids.ipAddr like :searchValue ")
+              .append("       or ")
+              .append("       mids.macAddr like :searchValue ")
               .append("       or ")
               .append("       mids.ipDesc like :searchValue ")
               .append("     ) ");
@@ -67,6 +72,9 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             }
             if (StringUtils.isNotBlank(imsVO.getQueryIp())) {
                 q.setParameter("ipAddr", imsVO.getQueryIp());
+            }
+            if (StringUtils.isNotBlank(imsVO.getQueryMac())) {
+                q.setParameter("macAddr", imsVO.getQueryMac());
             }
             if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
                 q.setParameter("searchValue", "%".concat(imsVO.getSearchValue()).concat("%"));
@@ -99,11 +107,16 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         if (StringUtils.isNotBlank(imsVO.getQueryIp())) {
             sb.append(" AND mids.ipAddr = :ipAddr ");
         }
+        if (StringUtils.isNotBlank(imsVO.getQueryMac())) {
+            sb.append(" AND mids.macAddr = :macAddr ");
+        }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
             sb.append(" and ( ")
               .append("       dl.groupName like :searchValue ")
               .append("       or ")
               .append("       mids.ipAddr like :searchValue ")
+              .append("       or ")
+              .append("       mids.macAddr like :searchValue ")
               .append("       or ")
               .append("       mids.ipDesc like :searchValue ")
               .append("     ) ");
@@ -129,6 +142,9 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             }
             if (StringUtils.isNotBlank(imsVO.getQueryIp())) {
                 q.setParameter("ipAddr", imsVO.getQueryIp());
+            }
+            if (StringUtils.isNotBlank(imsVO.getQueryMac())) {
+                q.setParameter("macAddr", imsVO.getQueryMac());
             }
             if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
                 q.setParameter("searchValue", "%".concat(imsVO.getSearchValue()).concat("%"));
@@ -165,11 +181,16 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         if (StringUtils.isNotBlank(imsVO.getQueryIp())) {
             sb.append(" AND mids.ipAddr = :ipAddr ");
         }
+        if (StringUtils.isNotBlank(imsVO.getQueryMac())) {
+            sb.append(" AND mids.macAddr = :macAddr ");
+        }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
             sb.append(" and ( ")
               .append("       dl.groupName like :searchValue ")
               .append("       or ")
               .append("       mids.ipAddr like :searchValue ")
+              .append("       or ")
+              .append("       mids.macAddr like :searchValue ")
               .append("       or ")
               .append("       mids.ipDesc like :searchValue ")
               .append("     ) ");
@@ -194,6 +215,9 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             }
             if (StringUtils.isNotBlank(imsVO.getQueryIp())) {
                 q.setParameter("ipAddr", imsVO.getQueryIp());
+            }
+            if (StringUtils.isNotBlank(imsVO.getQueryMac())) {
+                q.setParameter("macAddr", imsVO.getQueryMac());
             }
             if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
                 q.setParameter("searchValue", "%".concat(imsVO.getSearchValue()).concat("%"));

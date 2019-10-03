@@ -6,17 +6,20 @@ public class IpMaintainServiceVO extends CommonServiceVO {
 
     private String queryGroup;
     private String queryIp;
+    private String queryMac;
 
     private String settingId;
     private String groupId;
     private String groupName;
     private String ipAddr;
+    private String macAddr;
     private String ipDesc;
     private String remark;
     private String updateBy;
     private String updateTimeStr;
 
     private String modifyIpAddr;
+    private String modifyMacAddr;
     private String modifyIpDesc;
 
     public String getQueryGroup() {
@@ -30,6 +33,12 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     }
     public void setQueryIp(String queryIp) {
         this.queryIp = queryIp;
+    }
+    public String getQueryMac() {
+        return queryMac;
+    }
+    public void setQueryMac(String queryMac) {
+        this.queryMac = queryMac;
     }
     public String getSettingId() {
         return settingId;
@@ -56,6 +65,14 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     @Override
     public void setIpAddr(String ipAddr) {
         this.ipAddr = ipAddr;
+    }
+    @Override
+    public String getMacAddr() {
+        return macAddr;
+    }
+    @Override
+    public void setMacAddr(String macAddr) {
+        this.macAddr = macAddr;
     }
     public String getIpDesc() {
         return ipDesc;
@@ -86,6 +103,12 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     }
     public void setModifyIpAddr(String modifyIpAddr) {
         this.modifyIpAddr = modifyIpAddr;
+    }
+    public String getModifyMacAddr() {
+        return modifyMacAddr;
+    }
+    public void setModifyMacAddr(String modifyMacAddr) {
+        this.modifyMacAddr = modifyMacAddr;
     }
     public String getModifyIpDesc() {
         return modifyIpDesc;

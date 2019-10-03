@@ -68,13 +68,13 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                 String ipDesc = Objects.toString(entity[3], Env.IP_DESC_NULL_SHOW_WHAT);
                 String statusFlag = Objects.toString(entity[4]);
                 Timestamp blockTime = entity[5] != null ? (Timestamp)entity[5] : null;
-                String blockBy = Objects.toString(entity[6]);
-                String blockReason = Objects.toString(entity[7]);
+                String blockBy = Objects.toString(entity[6], null);
+                String blockReason = Objects.toString(entity[7], null);
                 Timestamp openTime = entity[8] != null ? (Timestamp)entity[8] : null;
-                String openBy = Objects.toString(entity[9]);
-                String openReason = Objects.toString(entity[10]);
+                String openBy = Objects.toString(entity[9], null);
+                String openReason = Objects.toString(entity[10], null);
                 Timestamp updateTime = entity[11] != null ? (Timestamp)entity[11] : null;
-                String updateBy = Objects.toString(entity[12]);
+                String updateBy = Objects.toString(entity[12], null);
                 String listId = Objects.toString(entity[13]);
                 String deviceId = Objects.toString(entity[14]);
 
