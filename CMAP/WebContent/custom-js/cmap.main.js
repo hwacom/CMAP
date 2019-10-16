@@ -531,8 +531,8 @@ function getResourceDownloadLink(fileId) {
  *** AJAX 回應異常時處理動作
  **********************************************************************************************************/
 function ajaxErrorHandler() {
-	alert('連線逾時，頁面將重新導向');
-	location.reload();
+	alert('連線逾時，頁面將導回首頁');
+	location.href = window.location.origin;
 }
 
 $.fn.serializeObject = function()

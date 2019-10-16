@@ -55,6 +55,7 @@ import com.cmap.service.DeliveryService;
 import com.cmap.service.impl.jobs.BaseJobImpl.Result;
 import com.cmap.service.vo.DataPollerServiceVO;
 import com.cmap.service.vo.DeliveryParameterVO;
+import com.cmap.utils.impl.CommonUtils;
 
 @Service("dataPollerService")
 @Transactional
@@ -649,6 +650,9 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 		final String filePath = setting.getFilePath();
 		final String fileNameRegex = setting.getFileNameRegex();
 
+		final String backupSourceFile = setting.getBackupSourceFile();
+		final String backupFilePath = setting.getBackupFilePath();
+
 		File dir = new File(filePath);
 		FileFilter fileFilter = new WildcardFileFilter(fileNameRegex);
 
@@ -677,13 +681,12 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 			 * 檔案備份流程 (Backup_Source_File = "Y")
 			 * 先移動至備份夾後再讀檔
 			 */
-			final String backupFilePath = setting.getBackupFilePath();
 			final String backupFileAppendExt = Constants.FORMAT_YYYYMMDD_HH24MISS_NOSYMBOL.format(new Date());
 			final String today = Constants.FORMAT_YYYY_MM_DD_NOSYMBOL.format(new Date());
 			final String fileName = file.getName().substring(0, file.getName().lastIndexOf("."));
 			final String fileExtName = file.getName().substring(file.getName().lastIndexOf(".") + 1);
 
-			if (setting.getBackupSourceFile().equals(Constants.DATA_Y)) {
+			if (backupSourceFile.equals(Constants.DATA_Y)) {
 				//備份夾以日期再分開存放
 				final String targetFolder = backupFilePath + File.separator + today;
 				Path path = Paths.get(targetFolder);
@@ -710,6 +713,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 //					moveFile = file.renameTo(targetFile);
 					try {
 						Files.move(file.toPath(), targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+					    //moveFile = file.renameTo(targetFilePath.toFile());
 						moveFile = true;
 						break;
 
@@ -979,10 +983,12 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
 	private DataPollerServiceVO readFileContents2CSVFormat4DB(Map<String, List<String>> retRecordListMap, File file, DataPollerSetting setting, Map<Integer, DataPollerServiceVO> mappingMap, Map<String, String> specialSetFieldMap) throws ServiceLayerException {
 		DataPollerServiceVO retVO = new DataPollerServiceVO();
-		List<Map<String, String>> sourceEntryMapList = new ArrayList<>();	//紀錄來源資料key-value for後續若有要執行腳本時使用
+		List<Map<String, String>> sourceEntryMapList = new ArrayList<>();	// 紀錄來源資料key-value for後續若有要執行腳本時使用
 
 		Map<String, String> tmpSpecialFieldMap = null;
 		final String dataType = setting.getDataType();
+		final String zipBackupFile = setting.getZipBackupFile();          // 是否壓縮備份檔案
+		final String deleteBackupFile = setting.getDeleteBackupFile();    // 是否刪除備份檔案
 
 		switch (dataType) {
 			case Constants.DATA_TYPE_OF_NET_FLOW:
@@ -1046,7 +1052,11 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 			                            ? Integer.parseInt(settingSkipHeadLinesCount) : 0;
 
 			// 逐行讀取檔案內容
-			long ttlSize = Files.lines(Paths.get(file.getPath()), Charset.forName(charset)).count() - skipHeadLinesCount;
+			//long ttlSize = Files.lines(Paths.get(file.getPath()), Charset.forName(charset)).count() - skipHeadLinesCount;
+            long ttlSize = 0;
+			try(Stream<String> stream = Files.lines(Paths.get(file.getPath()), Charset.forName(charset))) {
+			    ttlSize = stream.count() - skipHeadLinesCount;
+			}
 			List<List<String>> sliceList = new LinkedList<>();
 			List<String> tmpList = new LinkedList<>();
 			int sliceSize =
@@ -1098,6 +1108,66 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 			    br = null;
 			    isr = null;
 			    fis = null;
+
+			    // 若有設定要壓縮備份檔案，則在此部分讀完檔案內容後作壓縮
+			    if (StringUtils.equals(zipBackupFile, Constants.DATA_Y)) {
+			        try {
+			            List<File> srcFileList = new ArrayList<>();
+	                    srcFileList.add(file);
+
+	                    String fileFullPath = file.getPath().toString();
+	                    String zipFilePath = null;
+
+	                    if (fileFullPath.indexOf(".csv") != -1) {
+	                        zipFilePath = fileFullPath.replace(".csv", ".zip");
+	                    } else {
+	                        zipFilePath = fileFullPath.concat(".zip");
+	                    }
+
+	                    if (StringUtils.isNotBlank(zipFilePath)) {
+	                        File zipFile = new File(zipFilePath);
+	                        CommonUtils.zipFiles(srcFileList, zipFile);
+	                    }
+
+			        } catch (Exception e) {
+			            log.error(e.toString(), e);
+			        }
+			    }
+
+			    // 若有設定要刪除備份檔案，則在此部分讀完檔案內容後作刪除
+			    if (StringUtils.equals(deleteBackupFile, Constants.DATA_Y)) {
+			        boolean deleteFile = false;
+			        int runTime = 0;
+                    while (runTime < 3) {
+                        try {
+
+                            deleteFile = file.delete();
+                            if (deleteFile) {
+                                break;
+
+                            } else {
+                                // 刪除檔案失敗retry 3次 (間格等待1秒)
+                                runTime++;
+
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException ie) {
+                                    ie.printStackTrace();
+                                }
+                            }
+
+                        } catch (Exception e) {
+                            // 刪除檔案失敗retry 3次 (間格等待1秒)
+                            runTime++;
+
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ie) {
+                                ie.printStackTrace();
+                            }
+                        }
+                    }
+			    }
 			}
 
 			for (List<String> slice : sliceList) {

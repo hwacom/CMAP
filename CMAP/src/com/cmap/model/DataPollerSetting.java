@@ -122,6 +122,12 @@ public class DataPollerSetting {
 	@Column(name = "backup_file_path", nullable = true)
 	private String backupFilePath;
 
+	@Column(name = "zip_backup_file", nullable = false)
+    private String zipBackupFile;
+
+	@Column(name = "delete_backup_file", nullable = false)
+    private String deleteBackupFile;
+
 	@Column(name = "delete_flag", nullable = true)
 	private String deleteFlag;
 
@@ -157,8 +163,9 @@ public class DataPollerSetting {
             String storeFileNameFormat, String recordByDay, String recordByDayInterval,
             String recordByDayClean, String recordByDayReferField, String recordByMapping,
             String deleteSourceFile, String backupSourceFile, String backupFilePath,
-            String deleteFlag, Timestamp deleteTime, String deleteBy, Timestamp createTime,
-            String createBy, Timestamp updateTime, String updateBy) {
+            String zipBackupFile, String deleteBackupFile, String deleteFlag, Timestamp deleteTime,
+            String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime,
+            String updateBy) {
         super();
         this.settingId = settingId;
         this.mappingCode = mappingCode;
@@ -194,6 +201,8 @@ public class DataPollerSetting {
         this.deleteSourceFile = deleteSourceFile;
         this.backupSourceFile = backupSourceFile;
         this.backupFilePath = backupFilePath;
+        this.zipBackupFile = zipBackupFile;
+        this.deleteBackupFile = deleteBackupFile;
         this.deleteFlag = deleteFlag;
         this.deleteTime = deleteTime;
         this.deleteBy = deleteBy;
@@ -473,6 +482,22 @@ public class DataPollerSetting {
 
     public void setBackupFilePath(String backupFilePath) {
         this.backupFilePath = backupFilePath;
+    }
+
+    public String getZipBackupFile() {
+        return zipBackupFile;
+    }
+
+    public void setZipBackupFile(String zipBackupFile) {
+        this.zipBackupFile = zipBackupFile;
+    }
+
+    public String getDeleteBackupFile() {
+        return deleteBackupFile;
+    }
+
+    public void setDeleteBackupFile(String deleteBackupFile) {
+        this.deleteBackupFile = deleteBackupFile;
     }
 
     public String getDeleteFlag() {
