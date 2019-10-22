@@ -1,13 +1,16 @@
 package com.cmap.security;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class SecurityUtil {
 
 	public static SecurityUser getSecurityUser() {
+	    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+	        return null;
+	    }
+
 		Object object = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		if (object instanceof UserDetails) {

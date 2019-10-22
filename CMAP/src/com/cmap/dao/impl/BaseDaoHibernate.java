@@ -27,7 +27,9 @@ import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceList;
+import com.cmap.plugin.module.clustermigrate.ModuleClusterMigrateLog;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
+import com.cmap.plugin.module.netflow.statistics.ModuleIpTrafficStatistics;
 
 public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	@Log
@@ -187,6 +189,16 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
         for (Object obj : entities) {
             if (obj instanceof ModuleIpDataSetting) {
                 copyEntity = new ModuleIpDataSetting();
+
+            } else if (obj instanceof ModuleIpTrafficStatistics) {
+                copyEntity = new ModuleIpTrafficStatistics();
+
+            } else if (obj instanceof ModuleClusterMigrateLog) {
+                copyEntity = new ModuleClusterMigrateLog();
+
+            } else {
+                log.error("Entity object can't mapping to specify instance class!!");
+                return false;
             }
 
             if (copyEntity != null) {
