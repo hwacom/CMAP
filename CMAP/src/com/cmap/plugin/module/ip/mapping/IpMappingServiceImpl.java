@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
@@ -30,6 +32,7 @@ import com.cmap.plugin.module.ip.maintain.IpMaintainServiceVO;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 import com.cmap.plugin.module.netflow.NetFlowService;
 import com.cmap.plugin.module.netflow.NetFlowVO;
+import com.cmap.service.MibService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.utils.ConnectUtils;
 import com.cmap.utils.impl.SnmpV2Utils;
@@ -39,6 +42,9 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
     @Log
     private static Logger log;
 
+    @Autowired
+    private MibService mibService;
+    
     @Autowired
     private DeviceDAO deviceDAO;
 
@@ -72,7 +78,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         ConnectUtils snmpUtils = null;
         try {
         	// 準備ARP_TABLE的OID清單
-        	List<MibOidMapping> arpTableOidMapping = ipMappingDAO.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_ARP_TABLE}));
+        	List<MibOidMapping> arpTableOidMapping = mibService.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_ARP_TABLE}));
 
         	if (arpTableOidMapping == null || (arpTableOidMapping != null && arpTableOidMapping.isEmpty())) {
         		throw new ServiceLayerException("未設定 Arp_Table OID!! >> [OID_NAME: atTable]");
@@ -82,7 +88,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 
         	// 準備ARP_TABLE底下需要的Field的OID清單
         	Map<String, String> tableEntryMap = null;
-        	List<MibOidMapping> arpTableEntryOidMapping = ipMappingDAO.findMibOidMappingOfTableEntryByNameLike(Env.OID_NAME_OF_ARP_TABLE);
+        	List<MibOidMapping> arpTableEntryOidMapping = mibService.findMibOidMappingOfTableEntryByNameLike(Env.OID_NAME_OF_ARP_TABLE);
         	if (arpTableEntryOidMapping != null && !arpTableEntryOidMapping.isEmpty()) {
         		tableEntryMap = new HashMap<>();
         		for (MibOidMapping mapping : arpTableEntryOidMapping) {
@@ -201,7 +207,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         ConnectUtils snmpUtils = null;
         try {
         	// 準備MAC_TABLE的OID清單
-        	List<MibOidMapping> macTableOidMapping = ipMappingDAO.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_MAC_TABLE}));
+        	List<MibOidMapping> macTableOidMapping = mibService.findMibOidMappingByNames(Arrays.asList(new String[] {Env.OID_NAME_OF_MAC_TABLE}));
 
         	if (macTableOidMapping == null || (macTableOidMapping != null && macTableOidMapping.isEmpty())) {
         		throw new ServiceLayerException("未設定 Mac_Table OID!! >> [OID_NAME: dot1dTpFdbTable]");
@@ -211,7 +217,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 
         	// 準備MAC_TABLE底下需要的Field的OID清單
         	Map<String, String> entryMap = null;
-        	List<MibOidMapping> macTableEntryOidMapping = ipMappingDAO.findMibOidMappingOfTableEntryByNameLike(Env.OID_NAME_OF_MAC_TABLE);
+        	List<MibOidMapping> macTableEntryOidMapping = mibService.findMibOidMappingOfTableEntryByNameLike(Env.OID_NAME_OF_MAC_TABLE);
         	if (macTableEntryOidMapping != null && !macTableEntryOidMapping.isEmpty()) {
         		entryMap = new HashMap<>();
         		for (MibOidMapping mapping : macTableEntryOidMapping) {

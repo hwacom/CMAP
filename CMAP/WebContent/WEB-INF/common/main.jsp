@@ -308,6 +308,17 @@
 					        </c:if>
 	                    </sec:authorize>
 	                    <!-- [所有學校即時連線數排行] END -->
+	                    
+	                    <!-- [Interface狀態清單] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_INTERFACE_STATUS_LIST eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_interfaceStatusList" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/portStatusViewer')">
+		                    	  <span data-feather="hard-drive"></span>
+		                    	  	<span><spring:message code="func.interface.status.list" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+	                    <!-- [Interface狀態清單] END -->
 	                </ul>
 		          </li>
 	          </c:if>

@@ -8,8 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.Resource;
 import javax.persistence.TransactionRequiredException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -21,12 +23,15 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
 import com.cmap.model.ConfigVersionInfo;
+import com.cmap.model.DeviceDetailInfo;
 import com.cmap.model.DeviceList;
+import com.cmap.model.PrtgUserRightSetting;
 import com.cmap.plugin.module.clustermigrate.ModuleClusterMigrateLog;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 import com.cmap.plugin.module.netflow.statistics.ModuleIpTrafficStatistics;
@@ -185,25 +190,30 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
          */
         List<Object> copyEntities = new ArrayList<>();
 
-        Object copyEntity = null;
-        for (Object obj : entities) {
-            if (obj instanceof ModuleIpDataSetting) {
-                copyEntity = new ModuleIpDataSetting();
+        if (StringUtils.equals(targetDB, TARGET_ALL_DB)) {
+        	/*
+        	 * 若有需要同時寫兩邊DB的資料，需在此定義Object instance
+        	 */
+        	Object copyEntity = null;
+            for (Object obj : entities) {
+                if (obj instanceof ModuleIpDataSetting) {
+                    copyEntity = new ModuleIpDataSetting();
 
-            } else if (obj instanceof ModuleIpTrafficStatistics) {
-                copyEntity = new ModuleIpTrafficStatistics();
+                } else if (obj instanceof ModuleIpTrafficStatistics) {
+                    copyEntity = new ModuleIpTrafficStatistics();
 
-            } else if (obj instanceof ModuleClusterMigrateLog) {
-                copyEntity = new ModuleClusterMigrateLog();
+                } else if (obj instanceof ModuleClusterMigrateLog) {
+                    copyEntity = new ModuleClusterMigrateLog();
 
-            } else {
-                log.error("Entity object can't mapping to specify instance class!!");
-                return false;
-            }
+                } else {
+                    log.error("Entity object can't mapping to specify instance class!!");
+                    return false;
+                }
 
-            if (copyEntity != null) {
-                BeanUtils.copyProperties(obj, copyEntity);
-                copyEntities.add(copyEntity);
+                if (copyEntity != null) {
+                    BeanUtils.copyProperties(obj, copyEntity);
+                    copyEntities.add(copyEntity);
+                }
             }
         }
 
@@ -311,21 +321,48 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
             try {
                 if (session != null && tx != null) {
                     int count = 1;
-                    for (Object entity : copyEntities) {
-                        if (processType.equals(Constants.DAO_ACTION_INSERT)) {
-                            session.save(entity);
+                    
+                    if (StringUtils.equals(targetDB, TARGET_ALL_DB)) {
+                    	/*
+                    	 * 如果是要同時寫入兩個DB時，則寫入Secondary DB採用copyEntities
+                    	 */
+                    	for (Object entity : copyEntities) {
+                            if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                                session.save(entity);
 
-                        } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
-                            session.delete(entity);
+                            } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                                session.delete(entity);
 
-                        } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
-                            session.update(entity);
+                            } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                                session.update(entity);
+                            }
+
+                            count++;
+
+                            if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
+                                session.flush();
+                            }
                         }
+                    } else if (StringUtils.equals(targetDB, TARGET_SECONDARY_DB)) {
+                    	/*
+                    	 * 如果是單純只要寫入Secondary DB，則採用一開始傳入的entities即可
+                    	 */
+                    	for (Object entity : entities) {
+                            if (processType.equals(Constants.DAO_ACTION_INSERT)) {
+                                session.save(entity);
 
-                        count++;
+                            } else if (processType.equals(Constants.DAO_ACTION_DELETE)) {
+                                session.delete(entity);
 
-                        if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
-                            session.flush();
+                            } else if (processType.equals(Constants.DAO_ACTION_UPDATE)) {
+                                session.update(entity);
+                            }
+
+                            count++;
+
+                            if (count >= Env.DEFAULT_BATCH_INSERT_FLUSH_COUNT) {
+                                session.flush();
+                            }
                         }
                     }
                 }

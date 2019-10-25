@@ -39,6 +39,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_SESSION;       // 間控平台 > 各校即時連線數排行
     public static String SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_SESSION;   // 間控平台 > 所有學校即時連線數排行
     public static String SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD;                    // 間控平台 > 系統操作手冊下載
+    public static String SHOW_MENU_ITEM_INTERFACE_STATUS_LIST;                  // 間控平台 > Interface狀態清單
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
@@ -287,6 +288,12 @@ public class Env {
 	public static String OID_NAME_OF_MAC_TABLE;
 	public static String OID_NAME_OF_MAC_TABLE_PORT_ID;
 	public static String OID_NAME_OF_MAC_TABLE_MAC_ADDRESS;
+	
+	public static String OID_NAME_OF_IF_TABLE;
+	public static String OID_NAME_OF_IF_TABLE_INDEX;
+	public static String OID_NAME_OF_IF_TABLE_DESCRIPTION;
+	public static String OID_NAME_OF_IF_TABLE_ADMIN_STATUS;
+	public static String OID_NAME_OF_IF_TABLE_OPER_STATUS;
 
 	public static String CLI_VAR_ENABLE_PWD;
 	public static String CLI_VAR_PWD;

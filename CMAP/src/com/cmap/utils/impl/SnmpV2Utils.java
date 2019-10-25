@@ -294,22 +294,41 @@ public class SnmpV2Utils implements ConnectUtils {
             	    for (VariableBinding vb : vbs) {
                         String vbOID = vb.getOid().toString();
                         String vbValue = vb.getVariable().toString();
-
+                        
                         for (Map.Entry<String, String> entry : entryMap.entrySet()) {
                             String oidKey = entry.getValue().substring(1);
                             String oidName = entry.getKey();
 
                             if (vbOID.startsWith(oidKey)) {
-                                String tableKey = vbOID.split(oidKey)[1];
+                            	String[] oidSplit = vbOID.split(oidKey);
+                            	
+                            	/*
+                            	 * 解析此 OID entry 是否為我們想要的資料
+                            	 * [Ex]:
+                            	 *   vbOID = 1.3.6.1.2.1.2.2.1.10.22
+                            	 *   oidKey = 1.3.6.1.2.1.2.2.1.1
+                            	 *   若只判斷 startsWith 則會符合，但此 vbOID 並不是我們要的 entry
+                            	 *   因此多加使用 oidKey 切割 vbOID，判斷切割後的結果，陣列[1]的值是否 startsWith 「.」
+                            	 *   (1) 上述 vbOID 接割後，陣列[1]=0.22 >> Not startsWith 「.」
+                            	 *   (2) 若vbOID = 1.3.6.1.2.1.2.2.1.1.22，接割後陣列[1]=.22 >> Yes, startsWith 「.」
+                            	 *   (PS: oidKey切割後，最後1碼數字代表此筆entry對應的Table index是多少)
+                            	 */
+                            	if (oidSplit != null && oidSplit.length > 1) {
+                            		String oidEntryIndex = oidSplit[1];
+                            		
+                            		if (StringUtils.isNotBlank(oidEntryIndex) && oidEntryIndex.startsWith(".")) {
+                                        String tableKey = vbOID.split(oidKey)[1];
 
-                                Map<String, String> tableEntry = null;
-                                if (tableMap.containsKey(tableKey)) {
-                                    tableEntry = tableMap.get(tableKey);
-                                } else {
-                                    tableEntry = new HashMap<>();
-                                }
-                                tableEntry.put(oidName, vbValue);
-                                tableMap.put(tableKey, tableEntry);
+                                        Map<String, String> tableEntry = null;
+                                        if (tableMap.containsKey(tableKey)) {
+                                            tableEntry = tableMap.get(tableKey);
+                                        } else {
+                                            tableEntry = new HashMap<>();
+                                        }
+                                        tableEntry.put(oidName, vbValue);
+                                        tableMap.put(tableKey, tableEntry);
+                            		}
+                            	}
                             }
                         }
                     }

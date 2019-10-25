@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.ip.mapping;
 
 import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -11,9 +12,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
-import com.cmap.model.MibOidMapping;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Repository("ipMappingDAO")
@@ -40,32 +41,6 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         q.setParameter("deviceId", deviceId);
         return (List<ModuleMacTableExcludePort>)q.list();
     }
-
-    @Override
-    public List<MibOidMapping> findMibOidMappingByNames(List<String> oidNames) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(" from MibOidMapping mom ")
-          .append(" where 1=1 ")
-          .append(" and mom.oidName in (:oidNames) ");
-
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-        Query<?> q = session.createQuery(sb.toString());
-        q.setParameterList("oidNames", oidNames);
-        return (List<MibOidMapping>)q.list();
-    }
-
-	@Override
-	public List<MibOidMapping> findMibOidMappingOfTableEntryByNameLike(String tableOidName) {
-		StringBuffer sb = new StringBuffer();
-        sb.append(" from MibOidMapping mom ")
-          .append(" where 1=1 ")
-          .append(" and mom.oidName like :tableOidName ");
-
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-        Query<?> q = session.createQuery(sb.toString());
-        q.setParameter("tableOidName", tableOidName + ".%");
-        return (List<MibOidMapping>)q.list();
-	}
 
 	@Override
 	public List<Object[]> findEachIpAddressLastestModuleIpMacPortMapping(String groupId) {
