@@ -4,16 +4,20 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmap.annotation.Log;
 import com.cmap.dao.UserDAO;
 import com.cmap.model.UserRightSetting;
 
 @Repository("userDAO")
 @Transactional
 public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public List<UserRightSetting> findUserRightSetting(String belongGroup, String[] roles, String account) {
 		StringBuffer sb = new StringBuffer();

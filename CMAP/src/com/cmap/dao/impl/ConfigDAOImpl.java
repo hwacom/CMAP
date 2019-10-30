@@ -6,10 +6,12 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.vo.ConfigVersionInfoDAOVO;
 import com.cmap.model.ConfigContentSetting;
@@ -19,7 +21,9 @@ import com.cmap.model.ConfigVersionInfo;
 @Repository
 @Transactional
 public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public long countConfigVersionInfoByDAOVO(ConfigVersionInfoDAOVO cviDAOVO) {
 		StringBuffer sb = new StringBuffer();

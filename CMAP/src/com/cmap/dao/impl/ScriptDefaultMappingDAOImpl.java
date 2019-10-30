@@ -5,9 +5,12 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.ScriptDefaultMappingDAO;
 import com.cmap.dao.vo.ScriptDAOVO;
@@ -17,7 +20,9 @@ import com.cmap.model.ScriptListDefault;
 @Repository("scriptListDefaultDAOImpl")
 @Transactional
 public class ScriptDefaultMappingDAOImpl extends BaseDaoHibernate implements ScriptDefaultMappingDAO {
-
+	@Log
+    private static Logger log;
+	
 	private List<ScriptDAOVO> transModel2DAOVO(List<ScriptListDefault> modelList) {
 		List<ScriptDAOVO> voList = new ArrayList<>();
 

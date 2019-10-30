@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 
+import com.cmap.annotation.Log;
 import com.cmap.dao.vo.ScriptDAOVO;
 import com.cmap.model.ScriptInfo;
 
 public class ScriptStepDAOImpl extends BaseDaoHibernate {
-
+	@Log
+    private static Logger log;
+	
 	protected List<ScriptDAOVO> transModel2DAOVO(List<? extends Object> modelList) {
 		List<ScriptDAOVO> voList = new ArrayList<>();
 

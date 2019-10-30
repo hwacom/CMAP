@@ -4,16 +4,20 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmap.annotation.Log;
 import com.cmap.dao.ProtocolDAO;
 import com.cmap.model.ProtocolSpec;
 
 @Repository("protocolDAOImpl")
 @Transactional
 public class ProtocolDAOImpl extends BaseDaoHibernate implements ProtocolDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public List<ProtocolSpec> findAllProtocolSpec() {
 		StringBuffer sb = new StringBuffer();

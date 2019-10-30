@@ -327,7 +327,8 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
             String groupId, Date statDate, Map<String, Map<String, Long>> ipTrafficMap) throws ServiceLayerException {
 
         if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
-            List<ModuleIpTrafficStatistics> entities = new ArrayList<>();
+            List<ModuleIpTrafficStatistics> insertEntities = new ArrayList<>();
+            List<ModuleIpTrafficStatistics> updateEntities = new ArrayList<>();
 
             ipTrafficMap.forEach(new BiConsumer<String, Map<String, Long>>() {
                 @Override
@@ -336,11 +337,14 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                     Long downloadSize = trafficMap.containsKey(Constants.DOWNLOAD) ? trafficMap.get(Constants.DOWNLOAD) : 0;
                     Long uploadSize = trafficMap.containsKey(Constants.UPLOAD) ? trafficMap.get(Constants.UPLOAD) : 0;
 
+                    boolean doInsert = false;
+                    
                     // Step 1. 查找是否已有紀錄
                     ModuleIpTrafficStatistics entity =
                             netFlowStatisticsDAO.findModuleIpStatisticsByUK(groupId, statDate, ipAddress);
 
                     if (entity == null) {
+                    	doInsert = true;
                         entity = new ModuleIpTrafficStatistics();
                         entity.setGroupId(groupId);
                         entity.setStatDate(statDate);
@@ -365,12 +369,22 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         entity.setUploadTraffic(entity.getUploadTraffic() + uploadSize);
                         entity.setUpdateTime(currentTimestamp());
                         entity.setUpdateBy(getUserName());
-                        entities.add(entity);
+                        
+                        if (doInsert) {
+                        	insertEntities.add(entity);
+                        } else {
+                        	updateEntities.add(entity);
+                        }
                     }
                 }
             });
 
-            netFlowStatisticsDAO.saveOrUpdateModuleIpStatistics(entities);
+            if (insertEntities != null && !insertEntities.isEmpty()) {
+            	netFlowStatisticsDAO.insertModuleIpStatistics(insertEntities);
+            }
+            if (updateEntities != null && !updateEntities.isEmpty()) {
+            	netFlowStatisticsDAO.updateModuleIpStatistics(updateEntities);
+            }
         }
     }
 

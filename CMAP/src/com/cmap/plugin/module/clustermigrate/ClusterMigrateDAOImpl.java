@@ -3,15 +3,20 @@ package com.cmap.plugin.module.clustermigrate;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Repository("clusterMigrateDAO")
 @Transactional
 public class ClusterMigrateDAOImpl extends BaseDaoHibernate implements ClusterMigrateDAO {
-
+	@Log
+    private static Logger log;
+	
     @Override
     public List<ModuleClusterMigrateSetting> getClusterMigrateSetting(String settingName) {
         StringBuffer sb = new StringBuffer();

@@ -2,15 +2,20 @@ package com.cmap.dao.impl;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.ResourceDAO;
 import com.cmap.model.ResourceInfo;
 
 @Repository
 @Transactional
 public class ResourceDAOImpl extends BaseDaoHibernate implements ResourceDAO {
-
+	@Log
+    private static Logger log;
+	
     @Override
     public ResourceInfo getResourceInfoById(String id) {
         StringBuffer sb = new StringBuffer();

@@ -342,6 +342,14 @@ public class DeliveryController extends BaseController {
 			dsVO.setSearchValue(searchValue);
 			dsVO.setOrderColumn(UI_SEARCH_BY_SCRIPT_COLUMNS[orderColIdx]);
 			dsVO.setOrderDirection(orderDirection);
+			
+			try {
+				boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+				dsVO.setAdmin(isAdmin);
+				
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+			}
 
 			switch (onlyOneScript) {
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_SWITCH_PORT:

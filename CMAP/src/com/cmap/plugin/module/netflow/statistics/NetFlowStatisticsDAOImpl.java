@@ -87,8 +87,13 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
     }
 
     @Override
-    public void saveOrUpdateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
+    public void insertModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
         insertEntities(BaseDAO.TARGET_SECONDARY_DB, entities);
+    }
+    
+    @Override
+    public void updateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
+    	updateEntities(BaseDAO.TARGET_SECONDARY_DB, entities);
     }
 
     @Override

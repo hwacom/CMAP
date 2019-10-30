@@ -23,6 +23,7 @@ import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.vo.MibVO;
 import com.cmap.utils.ConnectUtils;
 import com.cmap.utils.impl.SnmpV2Utils;
+import com.mysql.cj.util.StringUtils;
 
 @Service("portStatusViewerService")
 public class PortStatusViewerServiceImpl extends CommonServiceImpl implements PortStatusViewerService {
@@ -118,7 +119,24 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
                 	String portName = ifTableEntryMap.get(Env.OID_NAME_OF_IF_TABLE_DESCRIPTION);
                 	String portAdminStatus = ifTableEntryMap.get(Env.OID_NAME_OF_IF_TABLE_ADMIN_STATUS);
                 	String portOperStatus = ifTableEntryMap.get(Env.OID_NAME_OF_IF_TABLE_OPER_STATUS);
-
+                	
+                	// 判斷此 PortName 是否在要排除的清單內
+                	List<String> excludePortNameList = Env.PORT_STATUS_EXCLUDE_IF_NAME_LIKE;
+                	if (excludePortNameList != null && !excludePortNameList.isEmpty()) {
+                		boolean keepGoing = true; // false=要排除此筆Port
+                		for (String exPortName : excludePortNameList) {
+                			if (StringUtils.indexOfIgnoreCase(portName, exPortName) != -1) {
+                				// 若在排除清單內則跳過此筆資料
+                				keepGoing = false;
+                				break;
+                			}
+                		}
+                		
+                		if (!keepGoing) {
+                			continue;
+                		}
+                	}
+                	
                 	vo.setGroupId(groupId);
                 	vo.setGroupName(groupName);
                 	vo.setDeviceId(deviceId);

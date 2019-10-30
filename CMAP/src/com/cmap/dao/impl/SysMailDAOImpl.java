@@ -3,8 +3,11 @@ package com.cmap.dao.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.SysMailDAO;
 import com.cmap.dao.vo.SysMailDAOVO;
 import com.cmap.model.SysMailContentSetting;
@@ -13,7 +16,9 @@ import com.cmap.model.SysMailListSetting;
 @Repository("sysMailDAO")
 @Transactional
 public class SysMailDAOImpl extends BaseDaoHibernate implements SysMailDAO {
-
+	@Log
+    private static Logger log;
+	
     @Override
     public SysMailDAOVO getMailListSettingBySettingIdAndCode(String settingId, String settingCode) {
         SysMailDAOVO retDAOVO = null;

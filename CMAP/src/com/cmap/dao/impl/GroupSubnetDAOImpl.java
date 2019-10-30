@@ -3,15 +3,20 @@ package com.cmap.dao.impl;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.GroupSubnetDAO;
 import com.cmap.model.GroupSubnetSetting;
 
 @Repository
 @Transactional
 public class GroupSubnetDAOImpl extends BaseDaoHibernate implements GroupSubnetDAO {
-
+	@Log
+    private static Logger log;
+	
     @Override
     public List<GroupSubnetSetting> getGroupSubnetSettingByGroupId(String groupId) {
         StringBuffer sb = new StringBuffer();

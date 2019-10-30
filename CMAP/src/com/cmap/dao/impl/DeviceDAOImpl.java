@@ -5,10 +5,12 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.vo.DeviceDAOVO;
 import com.cmap.model.DeviceDetailInfo;
@@ -19,7 +21,9 @@ import com.cmap.model.DeviceLoginInfo;
 @Repository("deviceDAO")
 @Transactional
 public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public DeviceList findDeviceListByDeviceListId(String deviceListId) {
 		StringBuffer sb = new StringBuffer();

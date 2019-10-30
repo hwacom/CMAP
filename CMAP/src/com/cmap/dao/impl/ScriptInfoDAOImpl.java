@@ -1,14 +1,19 @@
 package com.cmap.dao.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
+import com.cmap.annotation.Log;
 import com.cmap.dao.ScriptInfoDAO;
 import com.cmap.dao.vo.ScriptInfoDAOVO;
 import com.cmap.exception.ServiceLayerException;
@@ -17,7 +22,9 @@ import com.cmap.model.ScriptInfo;
 @Repository
 @Transactional
 public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public long countScriptInfo(ScriptInfoDAOVO daovo) {
 		StringBuffer sb = new StringBuffer();
@@ -75,13 +82,39 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			q.setParameter("systemDefault", daovo.getQuerySystemDefault());
 		}
+		
+		List<String> scriptList = new ArrayList<>();
 		if (daovo.isOnlySwitchPort()) {
-			q.setParameterList("scriptCode", Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE);
+			if (Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE != null) {
+				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE);
+			}
+			// 若使用者為管理者，多查出中心端的Port控制腳本
+			if (daovo.isAdmin() && Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
+			
 		} else if (daovo.isOnlyIpOpenBlock()) {
-			q.setParameterList("scriptCode", Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
+			if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE != null) {
+				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
+			}
+			// 若使用者為管理者，多查出中心端的IP控制腳本
+			if (daovo.isAdmin() && Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
+			
 		} else if (daovo.isOnlyMacOpenBlock()) {
-			q.setParameterList("scriptCode", Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE);
+			if (Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE != null) {
+				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE);
+			}
+			// 若使用者為管理者，多查出中心端的MAC控制腳本
+			if (daovo.isAdmin() && Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
 		}
+		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(daovo.getSearchValue()).concat("%"));
 	    }
@@ -157,12 +190,36 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			q.setParameter("systemDefault", daovo.getQuerySystemDefault());
 		}
+		List<String> scriptList = new ArrayList<>();
 		if (daovo.isOnlySwitchPort()) {
-			q.setParameterList("scriptCode", Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE);
+			if (Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE != null) {
+				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE);
+			}
+			// 若使用者為管理者，多查出中心端的Port控制腳本
+			if (daovo.isAdmin() && Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
+			
 		} else if (daovo.isOnlyIpOpenBlock()) {
-			q.setParameterList("scriptCode", Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
+			if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE != null) {
+				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
+			}
+			// 若使用者為管理者，多查出中心端的IP控制腳本
+			if (daovo.isAdmin() && Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
+			
 		} else if (daovo.isOnlyMacOpenBlock()) {
-			q.setParameterList("scriptCode", Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE);
+			if (Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE != null) {
+				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE);
+			}
+			// 若使用者為管理者，多查出中心端的MAC控制腳本
+			if (daovo.isAdmin() && Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
 		}
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(daovo.getSearchValue()).concat("%"));

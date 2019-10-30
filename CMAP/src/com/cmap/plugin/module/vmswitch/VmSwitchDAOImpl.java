@@ -4,13 +4,18 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
 @Repository("vmSwitchDAOImpl")
 @Transactional
 public class VmSwitchDAOImpl extends BaseDaoHibernate implements VmSwitchDAO {
+	@Log
+    private static Logger log;
 
 	@Override
 	public ModuleVmNameMapping findVmNameMappingInfoByApiVmName(String apiVmName) {

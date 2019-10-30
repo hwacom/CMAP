@@ -25,10 +25,16 @@ public interface NetFlowStatisticsDAO extends BaseDAO {
     public ModuleIpTrafficStatistics findModuleIpStatisticsByUK(String groupId, Date statDate, String ipAddress);
 
     /**
-     * 新增 or 修改IP流量資料
+     *  新增 IP流量資料
      * @param entities
      */
-    public void saveOrUpdateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities);
+    public void insertModuleIpStatistics(List<ModuleIpTrafficStatistics> entities);
+    
+    /**
+     * 修改IP流量資料
+     * @param entities
+     */
+    public void updateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities);
 
     /**
      * 取得符合條件資料筆數

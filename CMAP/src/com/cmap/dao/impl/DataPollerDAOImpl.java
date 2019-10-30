@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.DataPollerDAO;
 import com.cmap.model.DataPollerMapping;
 import com.cmap.model.DataPollerScriptSetting;
@@ -17,7 +19,9 @@ import com.cmap.model.DataPollerTargetSetting;
 @Repository("dataPollerDAO")
 @Transactional
 public class DataPollerDAOImpl extends BaseDaoHibernate implements DataPollerDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public DataPollerSetting findDataPollerSettingBySettingId(String settingId) {
 		StringBuffer sb = new StringBuffer();

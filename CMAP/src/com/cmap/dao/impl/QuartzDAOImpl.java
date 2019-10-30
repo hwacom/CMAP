@@ -5,17 +5,21 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmap.annotation.Log;
 import com.cmap.dao.QuartzDAO;
 import com.cmap.dao.vo.QuartzDAOVO;
 
 @Repository("quartzDAOImpl")
 @Transactional
 public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public long countQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception {
 		StringBuffer sb = new StringBuffer();

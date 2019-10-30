@@ -5,16 +5,20 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
 @Repository("firewallDAO")
 @Transactional
 public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
-
+	@Log
+    private static Logger log;
+	
     @Override
     public List<ModuleFirewallLogSetting> getFirewallLogSetting(String settingName) {
         StringBuffer sb = new StringBuffer();

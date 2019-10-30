@@ -3,9 +3,11 @@ package com.cmap.dao.impl;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.PrtgDAO;
 import com.cmap.model.DeviceList;
 import com.cmap.model.PrtgAccountMapping;
@@ -15,7 +17,9 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 @Repository("prtgDAO")
 @Transactional
 public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public PrtgAccountMapping findPrtgAccountMappingBySourceId(String sourceId) {
 		StringBuffer sb = new StringBuffer();

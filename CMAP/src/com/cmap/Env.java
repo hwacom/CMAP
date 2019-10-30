@@ -136,6 +136,8 @@ public class Env {
 
 	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
 	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱
+	
+	public static List<String> PORT_STATUS_EXCLUDE_IF_NAME_LIKE = new ArrayList<>();	// 設定Interface狀態查詢功能，查詢結果要排除掉的Interface名稱(前後模糊比對，不看大小寫)
 
 	/**
 	 * GROUP_NAME下拉選單排序相關設定
@@ -389,14 +391,20 @@ public class Env {
 
 	// 設定資安通報下「開關PORT」的腳本SCRIPT_CODE
 	public static List<String> DELIVERY_SWITCH_PORT_SCRIPT_CODE = new ArrayList<>();
+	// 設定資安通報下「開關PORT」的腳本SCRIPT_CODE (For 中心端腳本)
+	public static List<String> DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
 	// 設定資安通報下「開關PORT」的IP開通腳本SCRIPT_INFO_ID for 解鎖按鈕
 	public static String DEFAULT_SWITCH_PORT_OPEN_SCRIPT_INFO_ID;
 	// 設定資安通報下「IP封鎖/開通」的腳本SCRIPT_CODE
 	public static List<String> DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE = new ArrayList<>();
+	// 設定資安通報下「IP封鎖/開通」的腳本SCRIPT_CODE (For 中心端腳本)
+	public static List<String> DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
 	// 設定資安通報下「IP封鎖/開通」的IP開通腳本SCRIPT_INFO_ID for 解鎖按鈕
 	public static String DEFAULT_IP_OPEN_SCRIPT_INFO_ID;
 	// 設定資安通報下「MAC封鎖/開通」的腳本SCRIPT_CODE
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE = new ArrayList<>();
+	// 設定資安通報下「MAC封鎖/開通」的腳本SCRIPT_CODE (For 中心端腳本)
+	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
 	/*
 	 * OpenID
 	 */

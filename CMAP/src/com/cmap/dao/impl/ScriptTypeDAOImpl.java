@@ -5,17 +5,21 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.ScriptTypeDAO;
 import com.cmap.model.ScriptType;
 
 @Repository
 @Transactional
 public class ScriptTypeDAOImpl extends BaseDaoHibernate implements ScriptTypeDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public List<ScriptType> findScriptTypeByDefaultFlag(String defaultFlag) {
 		StringBuffer sb = new StringBuffer();

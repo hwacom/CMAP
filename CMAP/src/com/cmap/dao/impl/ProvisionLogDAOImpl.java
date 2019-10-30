@@ -4,9 +4,12 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.dao.vo.ProvisionLogDAOVO;
 import com.cmap.model.ProvisionAccessLog;
@@ -19,7 +22,9 @@ import com.cmap.model.ProvisionLogStep;
 @Repository("provisionLogDAOImpl")
 @Transactional
 public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLogDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public long countProvisionLogByDAOVO(ProvisionLogDAOVO daovo) {
 		StringBuffer sb = new StringBuffer();

@@ -20,6 +20,8 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	private boolean onlySwitchPort = false;
 	private boolean onlyIpOpenBlock = false;
 	private boolean onlyMacOpenBlock = false;
+	
+	private boolean isAdmin = false;
 
 	private String retMsg;
 	private List<String> cmdOutputList = new ArrayList<>();
@@ -398,4 +400,10 @@ public class DeliveryServiceVO extends CommonServiceVO {
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
     }
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 }

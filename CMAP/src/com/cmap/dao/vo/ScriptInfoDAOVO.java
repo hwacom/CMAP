@@ -10,6 +10,8 @@ public class ScriptInfoDAOVO extends CommonDAOVO {
 	private boolean onlySwitchPort = false;
 	private boolean onlyIpOpenBlock = false;
 	private boolean onlyMacOpenBlock = false;
+	
+	private boolean isAdmin = false;
 
 	public String getQueryScriptTypeId() {
 		return queryScriptTypeId;
@@ -58,5 +60,11 @@ public class ScriptInfoDAOVO extends CommonDAOVO {
 	}
 	public void setOnlyMacOpenBlock(boolean onlyMacOpenBlock) {
 		this.onlyMacOpenBlock = onlyMacOpenBlock;
+	}
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 }

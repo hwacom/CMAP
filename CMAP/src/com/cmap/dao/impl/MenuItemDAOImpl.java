@@ -4,17 +4,21 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
+import com.cmap.annotation.Log;
 import com.cmap.dao.MenuItemDAO;
 import com.cmap.model.MenuItem;
 
 @Repository("menuItemDAOImpl")
 @Transactional
 public class MenuItemDAOImpl extends BaseDaoHibernate implements MenuItemDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public List<MenuItem> findMenuItemByMenuCode(String menuCode) throws Exception {
 		StringBuffer sb = new StringBuffer();

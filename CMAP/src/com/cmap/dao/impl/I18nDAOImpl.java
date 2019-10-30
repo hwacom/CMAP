@@ -3,15 +3,20 @@ package com.cmap.dao.impl;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.annotation.Log;
 import com.cmap.dao.I18nDAO;
 import com.cmap.model.I18n;
 
 @Repository
 @Transactional
 public class I18nDAOImpl extends BaseDaoHibernate implements I18nDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public I18n findI18n(String key, String locale){
 		StringBuffer sb = new StringBuffer();

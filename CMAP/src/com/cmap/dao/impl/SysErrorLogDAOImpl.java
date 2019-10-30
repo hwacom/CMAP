@@ -5,10 +5,12 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmap.annotation.Log;
 import com.cmap.dao.SysErrorLogDAO;
 import com.cmap.dao.vo.SysLogDAOVO;
 import com.cmap.model.SysErrorLog;
@@ -16,7 +18,9 @@ import com.cmap.model.SysErrorLog;
 @Repository("sysErrorLogDAO")
 @Transactional
 public class SysErrorLogDAOImpl extends BaseDaoHibernate implements SysErrorLogDAO {
-
+	@Log
+    private static Logger log;
+	
 	@Override
 	public long countSysErrorLogByDAOVO(SysLogDAOVO daovo) {
 		StringBuffer sb = new StringBuffer();
