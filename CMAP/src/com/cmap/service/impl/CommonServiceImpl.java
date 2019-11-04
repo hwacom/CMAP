@@ -739,7 +739,7 @@ public class CommonServiceImpl implements CommonService {
 
         // Enter your correct gmail UserID and Password
         // if you have 2FA enabled then provide App Specific Password
-        transport.connect("smtp.gmail.com", "shinhwa520@gmail.com", "@Ken52034!");
+        transport.connect("smtp.gmail.com", "mail_account@gmail.com", "password");
         transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
         transport.close();
     }

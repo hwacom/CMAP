@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.wifipollrer;
+package com.cmap.plugin.module.wifipoller;
 
 import java.security.Principal;
 import java.util.Map;
