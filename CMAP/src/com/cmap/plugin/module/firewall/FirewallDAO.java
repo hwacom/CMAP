@@ -2,8 +2,9 @@ package com.cmap.plugin.module.firewall;
 
 import java.util.List;
 import java.util.Map;
+import com.cmap.dao.BaseDAO;
 
-public interface FirewallDAO {
+public interface FirewallDAO extends BaseDAO {
 
     /**
      * 查找 Module_Firewall_Log_Setting 設定資料

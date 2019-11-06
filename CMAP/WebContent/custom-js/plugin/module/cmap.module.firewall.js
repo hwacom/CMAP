@@ -65,12 +65,52 @@ $(document).ready(function() {
 			$('#querySrcPort').val("");
 			$('#queryDstIp').val("");
 			$('#queryDstPort').val("");
-			$('[data-ipPortSec]').hide();
+			$('#queryAction').val("");
+			
+			$('#query_SrcIp_mobile').val("");
+			$('#query_SrcPort_mobile').val("");
+			$('#query_DstIp_mobile').val("");
+			$('#query_DstPort_mobile').val("");
+			$('#queryActionMobile').val("");
+			
+			$('[data-specifiedSec]').hide();
 		} else {
-			$('[data-ipPortSec]').show();
+			$('[data-specifiedSec]').show();
+		}
+		
+		changeActionMenu(option);
+	});
+	
+	var queryTypeCode = $("#queryType").val();
+	changeActionMenu(queryTypeCode);
+});
+
+function changeActionMenu(queryTypeCode) {
+	$( "select[id^='queryAction'] option" ).remove();
+	$( "select[id^='queryAction']" ).append("<option value=''>== ALL ==</option>");
+	
+	$.ajax({
+		url  : _ctx + '/plugin/module/firewall/log/getActionMenu',
+		data : {
+			queryType: queryTypeCode
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		success : function(resp) {
+
+			if (resp.code == '200') {
+				var obj = $.parseJSON(resp.data.action);
+				$.each(obj, function(key, value){
+					$( "select[id^='queryAction']" ).append("<option value='"+key+"'>"+value+"</option>");
+				});
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
 		}
 	});
-});
+}
 
 function countDown(status) {
 	if (status == 'START') {
@@ -182,6 +222,7 @@ function findNextData() {
 			"querySrcPort" : $("#querySrcPort").val(),
 			"queryDstIp" : $("#queryDstIp").val(),
 			"queryDstPort" : $("#queryDstPort").val(),
+			"queryAction" : $("#queryAction").val(),
 			"queryDateBegin" : $("#queryDateBegin").val(),
 			"queryDateEnd" : $("#queryDateEnd").val(),
 			"queryTimeBegin" : $("#queryTimeBegin").val(),
@@ -226,7 +267,7 @@ function findNextData() {
 				eNum = 0;
 			}
 			
-			$("#current_count").text('顯示第 ' + sNum + ' 至 ' + eNum + ' 項結果，共');
+			$("#current_count").text('顯示第 ' + sNum + ' 至 ' + eNum + ' 項結果');
 		},
 		error : function(xhr, ajaxOptions, thrownError) {
 			$("#current_count").text('<ERROR>');
@@ -268,6 +309,22 @@ function addRow(dataList) {
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 }
 
+function adjustDataTableShowCountString() {
+	var sNum, eNum;
+	if ($(".dataTables_empty").length == 0) { //有查到資料
+		sNum = 1;
+		eNum = $("#resultTable > tBody > tr").length;
+	} else {
+		sNum = 0;
+		eNum = 0;
+	}
+	$("#resultTable_info").html(
+		'<div class="row" style="padding-left: 15px;">' +
+			'<div id="current_count">顯示第 ' + sNum + ' 至 ' + eNum + ' 項結果' +
+		'</div>'
+	);
+}
+
 function getTotalFilteredCount() {
 	var dataObj = new Object();
 	if ($('#queryFrom').val() == 'WEB') {
@@ -277,6 +334,7 @@ function getTotalFilteredCount() {
 		dataObj.querySrcPort = $("#querySrcPort").val(),
 		dataObj.queryDstIp = $("#queryDstIp").val(),
 		dataObj.queryDstPort = $("#queryDstPort").val(),
+		dataObj.queryAction = $("#queryAction").val(),
 		dataObj.queryDateBegin = $("#queryDateBegin").val(),
 		dataObj.queryDateEnd = $("#queryDateEnd").val(),
 		dataObj.queryTimeBegin = $("#queryTimeBegin").val(),
@@ -289,6 +347,7 @@ function getTotalFilteredCount() {
 		dataObj.querySrcPort = $("#query_SrcPort_mobile").val(),
 		dataObj.queryDstIp = $("#query_DstIp_mobile").val(),
 		dataObj.queryDstPort = $("#query_DstPort_mobile").val(),
+		dataObj.queryAction = $("#queryActionMobile").val(),
 		dataObj.queryDateBegin = $("#queryDateBegin_mobile").val(),
 		dataObj.queryDateEnd = $("#queryDateEnd_mobile").val(),
 		dataObj.queryTimeBegin = $("#queryTimeBegin").val(),
@@ -338,6 +397,10 @@ function getTotalFilteredCount() {
 	});
 }
 
+function showTotalCountMsg(totalCount) {
+	$("#totalCountMsg").val("資料總筆數大約為 " + totalCount.numberFormat(0, '.', ',') + " 筆");
+}
+
 //查詢按鈕動作
 function findData(from) {
 	$('#queryFrom').val(from);
@@ -372,7 +435,11 @@ function findData(from) {
 		$(".myTableSection").show();
 		/*$('[data-field]').hide();*/
 		
-		resultTable = $('#resultTable').DataTable(
+		resultTable = $('#resultTable').on(
+			'xhr.dt', function (e, settings, json, xhr) {
+	            showTotalCountMsg(json.recordsTotal);
+	        }
+		).DataTable(
 		{
 			"autoWidth" 	: true,
 			"paging" 		: false,
@@ -403,6 +470,7 @@ function findData(from) {
 						d.querySrcPort = $("#querySrcPort").val(),
 						d.queryDstIp = $("#queryDstIp").val(),
 						d.queryDstPort = $("#queryDstPort").val(),
+						d.queryAction = $("#queryAction").val(),
 						d.queryDateBegin = $("#queryDateBegin").val(),
 						d.queryDateEnd = $("#queryDateEnd").val(),
 						d.queryTimeBegin = $("#queryTimeBegin").val(),
@@ -415,6 +483,7 @@ function findData(from) {
 						d.querySrcPort = $("#query_SrcPort_mobile").val(),
 						d.queryDstIp = $("#query_DstIp_mobile").val(),
 						d.queryDstPort = $("#query_DstPort_mobile").val(),
+						d.queryAction = $("#queryActionMobile").val(),
 						d.queryDateBegin = $("#queryDateBegin_mobile").val(),
 						d.queryDateEnd = $("#queryDateEnd_mobile").val(),
 						d.queryTimeBegin = $("#queryTimeBegin").val(),
@@ -603,7 +672,8 @@ function findData(from) {
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				startNum = pageLength; //初始查詢完成後startNum固定為pageLength大小
 				lastScrollYPos = $(".dataTables_scrollBody").prop("scrollTop");
-				getTotalFilteredCount();
+				//getTotalFilteredCount();
+				adjustDataTableShowCountString();
 				bindTrEvent();
 			},
 			"rowCallback": function( row, data ) {

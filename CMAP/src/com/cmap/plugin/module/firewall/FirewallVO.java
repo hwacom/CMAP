@@ -15,6 +15,7 @@ public class FirewallVO extends CommonServiceVO {
     private String querySrcPort;
     private String queryDstIp;
     private String queryDstPort;
+    private String queryAction;
     private int[] queryMonths;
 
     private String settingName;
@@ -273,5 +274,11 @@ public class FirewallVO extends CommonServiceVO {
     }
     public void setQueryMonths(int[] queryMonths) {
         this.queryMonths = queryMonths;
+    }
+    public String getQueryAction() {
+        return queryAction;
+    }
+    public void setQueryAction(String queryAction) {
+        this.queryAction = queryAction;
     }
 }

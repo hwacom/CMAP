@@ -28,6 +28,7 @@ import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DataPollerService;
+import com.google.gson.Gson;
 
 @Controller
 @RequestMapping("/plugin/module/firewall/log")
@@ -52,9 +53,12 @@ public class FirewallController extends BaseController {
     private void initMenu(Model model, HttpServletRequest request) {
         Map<String, String> typeListMap = null;
         Map<String, String> devNameListMap = null;
+        Map<String, String> actionListMap = null;
         try {
             typeListMap = getMenuItem("FIREWALL_LOG_QUERY_TYPE", true);
             devNameListMap = getMenuItem("FIREWALL_LOG_QUERY_DEV_NAME", true);
+            actionListMap = new HashMap<>();
+            actionListMap.put("=== ALL ===", "");
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -67,6 +71,10 @@ public class FirewallController extends BaseController {
             model.addAttribute("queryDevName", "");
             model.addAttribute("queryDevNameMobile", "");
             model.addAttribute("devNameList", devNameListMap);
+
+            model.addAttribute("queryAction", "");
+            model.addAttribute("queryActionMobile", "");
+            model.addAttribute("actionList", actionListMap);
 
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
             model.addAttribute("timeout", Env.TIMEOUT_4_FIREWALL_LOG_QUERY);
@@ -133,6 +141,36 @@ public class FirewallController extends BaseController {
         return firewallService.getFieldNameList(queryType, DataPollerService.FIELD_TYPE_TARGET);
     }
 
+    @RequestMapping(value = "getActionMenu", method = RequestMethod.POST, produces="application/json;odata=verbose")
+    public @ResponseBody AppResponse getActionMenu(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryType", required=false) String queryType) {
+
+        Map<String, String> actionMap;
+        try {
+            AppResponse appResponse;
+            if (StringUtils.isBlank(queryType)) {
+                appResponse = new AppResponse(HttpServletResponse.SC_NO_CONTENT, "類別未選擇，動作選單清空");
+                return appResponse;
+            }
+
+            actionMap = firewallService.getActionMenu(queryType);
+
+            if (actionMap != null && !actionMap.isEmpty()) {
+                appResponse = new AppResponse(HttpServletResponse.SC_OK, "取得動作選單成功");
+                appResponse.putData("action",  new Gson().toJson(actionMap));
+
+            } else {
+                appResponse = new AppResponse(HttpServletResponse.SC_NOT_FOUND, "無法取得動作選單");
+            }
+
+            return appResponse;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
     @RequestMapping(value = "getFirewallLogCount.json", method = RequestMethod.POST)
     public @ResponseBody AppResponse getFirewallLogCount(
             Model model, HttpServletRequest request, HttpServletResponse response,
@@ -142,6 +180,7 @@ public class FirewallController extends BaseController {
             @RequestParam(name="querySrcPort", required=false, defaultValue="") String querySrcPort,
             @RequestParam(name="queryDstIp", required=false, defaultValue="") String queryDstIp,
             @RequestParam(name="queryDstPort", required=false, defaultValue="") String queryDstPort,
+            @RequestParam(name="queryAction", required=false, defaultValue="") String queryAction,
             @RequestParam(name="queryDateBegin", required=true, defaultValue="") String queryDateBegin,
             @RequestParam(name="queryDateEnd", required=true, defaultValue="") String queryDateEnd,
             @RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
@@ -206,12 +245,13 @@ public class FirewallController extends BaseController {
             fVO.setQueryType(queryType);
             fVO.setQueryDevName(queryDevName);
 
-            // 查詢類別非「System」時才有IP、Port查詢條件
+            // 查詢類別非「System」時才有IP、Port、動作查詢條件
             if (!StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_SYSTEM)) {
                 fVO.setQuerySrcIp(querySrcIp);
                 fVO.setQuerySrcPort(querySrcPort);
                 fVO.setQueryDstIp(queryDstIp);
                 fVO.setQueryDstPort(queryDstPort);
+                fVO.setQueryAction(queryAction);
             }
 
             fVO.setQueryDateBegin(queryDateBegin);
@@ -272,6 +312,7 @@ public class FirewallController extends BaseController {
             @RequestParam(name="querySrcPort", required=false, defaultValue="") String querySrcPort,
             @RequestParam(name="queryDstIp", required=false, defaultValue="") String queryDstIp,
             @RequestParam(name="queryDstPort", required=false, defaultValue="") String queryDstPort,
+            @RequestParam(name="queryAction", required=false, defaultValue="") String queryAction,
             @RequestParam(name="queryDateBegin", required=true, defaultValue="") String queryDateBegin,
             @RequestParam(name="queryDateEnd", required=true, defaultValue="") String queryDateEnd,
             @RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
@@ -352,10 +393,16 @@ public class FirewallController extends BaseController {
             fVO = new FirewallVO();
             fVO.setQueryType(queryType);
             fVO.setQueryDevName(queryDevName);
-            fVO.setQuerySrcIp(querySrcIp);
-            fVO.setQuerySrcPort(querySrcPort);
-            fVO.setQueryDstIp(queryDstIp);
-            fVO.setQueryDstPort(queryDstPort);
+
+            // 查詢類別非「System」時才有IP、Port、動作查詢條件
+            if (!StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_SYSTEM)) {
+                fVO.setQuerySrcIp(querySrcIp);
+                fVO.setQuerySrcPort(querySrcPort);
+                fVO.setQueryDstIp(queryDstIp);
+                fVO.setQueryDstPort(queryDstPort);
+                fVO.setQueryAction(queryAction);
+            }
+
             fVO.setQueryDateBegin(queryDateBegin);
             fVO.setQueryDateEnd(queryDateEnd);
             fVO.setQueryTimeBegin(queryTimeBegin);
@@ -391,7 +438,7 @@ public class FirewallController extends BaseController {
                         : firewallService.findFirewallLogRecordFromDB(fVO, startNum, pageLength, fieldsMap);
 
                 filteredTotal = dataList.size();
-                total = filteredTotal;
+                total = firewallService.getTableRoughlyTotalCount(fVO);
             }
 
         } catch (ServiceLayerException sle) {

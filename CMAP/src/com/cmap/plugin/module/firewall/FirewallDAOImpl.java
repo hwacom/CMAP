@@ -18,7 +18,7 @@ import com.cmap.dao.impl.BaseDaoHibernate;
 public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
 	@Log
     private static Logger log;
-	
+
     @Override
     public List<ModuleFirewallLogSetting> getFirewallLogSetting(String settingName) {
         StringBuffer sb = new StringBuffer();
@@ -65,6 +65,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
               }
               if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                   sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+              }
+              if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                  if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                      sb.append(" and ").append(stName).append(".action is null ");
+                  } else {
+                      sb.append(" and ").append(stName).append(".action = :queryAction ");
+                  }
               }
               /*
               if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
@@ -125,6 +132,9 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
             q.setParameter("queryDstPort", fVO.getQueryDstPort());
         }
+        if (StringUtils.isNotBlank(fVO.getQueryAction()) && !StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+            q.setParameter("queryAction", fVO.getQueryAction());
+        }
         if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
             q.setParameter("beginDate", fVO.getQueryDateBegin());
         }
@@ -181,6 +191,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 }
                 if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                     sb.append(" and ").append(" ").append(stName).append(".dst_port = :queryDstPort ");
+                }
+                if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                    if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                        sb.append(" and ").append(" ").append(stName).append(".action is null ");
+                    } else {
+                        sb.append(" and ").append(" ").append(stName).append(".action = :queryAction ");
+                    }
                 }
                 /*
                 if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
@@ -249,6 +266,9 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
             q.setParameter("queryDstPort", fVO.getQueryDstPort());
         }
+        if (StringUtils.isNotBlank(fVO.getQueryAction()) && !StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+            q.setParameter("queryAction", fVO.getQueryAction());
+        }
         if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
             q.setParameter("beginDate", fVO.getQueryDateBegin());
         }
@@ -309,6 +329,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -368,6 +395,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -426,6 +460,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             }
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
+            }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
             }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
@@ -533,6 +574,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -584,6 +632,9 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         }
         if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
             q.setParameter("queryDstPort", fVO.getQueryDstPort());
+        }
+        if (StringUtils.isNotBlank(fVO.getQueryAction()) && !StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+            q.setParameter("queryAction", fVO.getQueryAction());
         }
         if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
             q.setParameter("beginDate", fVO.getQueryDateBegin());
@@ -651,6 +702,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -677,8 +735,22 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
                 sb.append(sfb);
             }
 
-            //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
-            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+            // 各別TABLE先 order by 後限制筆數，避免所有資料JOIN
+            if (StringUtils.isNotBlank(orderColumnName)
+                    // 排除此查詢類別沒有的欄位
+                    && (!StringUtils.equals(orderColumnName, "DATE")
+                        && !StringUtils.equals(orderColumnName, "TIME")
+                        && !StringUtils.equals(orderColumnName, "SEVERITY")
+                        && !StringUtils.equals(orderColumnName, "SRC_COUNTRY")
+                        && !StringUtils.equals(orderColumnName, "SERVICE")
+                        && !StringUtils.equals(orderColumnName, "URL")
+                        && !StringUtils.equals(orderColumnName, "SENT_BYTE")
+                        && !StringUtils.equals(orderColumnName, "RCVD_BYTE")
+                        && !StringUtils.equals(orderColumnName, "UTM_ACTION")
+                        && !StringUtils.equals(orderColumnName, "LEVEL")
+                        && !StringUtils.equals(orderColumnName, "USER")
+                        && !StringUtils.equals(orderColumnName, "MESSAGE")
+                        && !StringUtils.equals(orderColumnName, "ATTACK"))) {
                 sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
 
             } else {
@@ -719,6 +791,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -746,7 +825,18 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             }
 
             //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
-            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+            if (StringUtils.isNotBlank(orderColumnName)
+                    // 排除此查詢類別沒有的欄位
+                    && (!StringUtils.equals(orderColumnName, "DATE")
+                        && !StringUtils.equals(orderColumnName, "TIME")
+                        && !StringUtils.equals(orderColumnName, "SEVERITY")
+                        && !StringUtils.equals(orderColumnName, "SRC_COUNTRY")
+                        && !StringUtils.equals(orderColumnName, "SERVICE")
+                        && !StringUtils.equals(orderColumnName, "URL")
+                        && !StringUtils.equals(orderColumnName, "LEVEL")
+                        && !StringUtils.equals(orderColumnName, "USER")
+                        && !StringUtils.equals(orderColumnName, "MESSAGE")
+                        && !StringUtils.equals(orderColumnName, "ATTACK"))) {
                 sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
 
             } else {
@@ -787,6 +877,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -814,7 +911,19 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             }
 
             //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
-            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+            if (StringUtils.isNotBlank(orderColumnName)
+                    // 排除此查詢類別沒有的欄位
+                    && (!StringUtils.equals(orderColumnName, "DATE")
+                        && !StringUtils.equals(orderColumnName, "TIME")
+                        && !StringUtils.equals(orderColumnName, "SERVICE")
+                        && !StringUtils.equals(orderColumnName, "URL")
+                        && !StringUtils.equals(orderColumnName, "APP")
+                        && !StringUtils.equals(orderColumnName, "SENT_BYTE")
+                        && !StringUtils.equals(orderColumnName, "RCVD_BYTE")
+                        && !StringUtils.equals(orderColumnName, "UTM_ACTION")
+                        && !StringUtils.equals(orderColumnName, "LEVEL")
+                        && !StringUtils.equals(orderColumnName, "USER")
+                        && !StringUtils.equals(orderColumnName, "MESSAGE"))) {
                 sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
 
             } else {
@@ -870,7 +979,25 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             }
 
             //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
-            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+            if (StringUtils.isNotBlank(orderColumnName)
+                    // 排除此查詢類別沒有的欄位
+                    && (!StringUtils.equals(orderColumnName, "DATE")
+                        && !StringUtils.equals(orderColumnName, "TIME")
+                        && !StringUtils.equals(orderColumnName, "SEVERITY")
+                        && !StringUtils.equals(orderColumnName, "SRC_IP")
+                        && !StringUtils.equals(orderColumnName, "SRC_PORT")
+                        && !StringUtils.equals(orderColumnName, "SRC_COUNTRY")
+                        && !StringUtils.equals(orderColumnName, "DST_IP")
+                        && !StringUtils.equals(orderColumnName, "DST_PORT")
+                        && !StringUtils.equals(orderColumnName, "PROTO")
+                        && !StringUtils.equals(orderColumnName, "SERVICE")
+                        && !StringUtils.equals(orderColumnName, "URL")
+                        && !StringUtils.equals(orderColumnName, "APP")
+                        && !StringUtils.equals(orderColumnName, "ACTION")
+                        && !StringUtils.equals(orderColumnName, "SENT_BYTE")
+                        && !StringUtils.equals(orderColumnName, "RCVD_BYTE")
+                        && !StringUtils.equals(orderColumnName, "UTM_ACTION")
+                        && !StringUtils.equals(orderColumnName, "ATTACK"))) {
                 sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
 
             } else {
@@ -911,6 +1038,13 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
                 sb.append(" and ").append(stName).append(".dst_port = :queryDstPort ");
             }
+            if (StringUtils.isNotBlank(fVO.getQueryAction())) {
+                if (StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+                    sb.append(" and ").append(stName).append(".action is null ");
+                } else {
+                    sb.append(" and ").append(stName).append(".action = :queryAction ");
+                }
+            }
             if (StringUtils.isNotBlank(fVO.getQueryDateBegin()) && StringUtils.isNotBlank(fVO.getQueryTimeBegin())) {
                 sb.append(" and (").append(stName).append(".date >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and ").append(stName).append(".time >= :beginTime) ");
             }
@@ -938,7 +1072,18 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
             }
 
             //各別TABLE先 order by 後限制筆數，避免所有資料JOIN
-            if (StringUtils.isNotBlank(orderColumnName) && !StringUtils.equals(orderColumnName, "DATE") && !StringUtils.equals(orderColumnName, "TIME")) {
+            if (StringUtils.isNotBlank(orderColumnName)
+                    // 排除此查詢類別沒有的欄位
+                    && (!StringUtils.equals(orderColumnName, "DATE")
+                        && !StringUtils.equals(orderColumnName, "TIME")
+                        && !StringUtils.equals(orderColumnName, "SEVERITY")
+                        && !StringUtils.equals(orderColumnName, "SRC_COUNTRY")
+                        && !StringUtils.equals(orderColumnName, "APP")
+                        && !StringUtils.equals(orderColumnName, "UTM_ACTION")
+                        && !StringUtils.equals(orderColumnName, "LEVEL")
+                        && !StringUtils.equals(orderColumnName, "USER")
+                        && !StringUtils.equals(orderColumnName, "MESSAGE")
+                        && !StringUtils.equals(orderColumnName, "ATTACK"))) {
                 sb.append(" order by ").append(stName).append(".").append(orderColumnName).append(" ").append(orderDirection);
 
             } else {
@@ -978,6 +1123,9 @@ public class FirewallDAOImpl extends BaseDaoHibernate implements FirewallDAO {
         }
         if (StringUtils.isNotBlank(fVO.getQueryDstPort())) {
             q.setParameter("queryDstPort", fVO.getQueryDstPort());
+        }
+        if (StringUtils.isNotBlank(fVO.getQueryAction()) && !StringUtils.equals(fVO.getQueryAction(), Constants.EMPTY)) {
+            q.setParameter("queryAction", fVO.getQueryAction());
         }
         if (StringUtils.isNotBlank(fVO.getQueryDateBegin())) {
             q.setParameter("beginDate", fVO.getQueryDateBegin());

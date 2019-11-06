@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.BaseDAO;
+import com.cmap.dao.vo.CommonDAOVO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.service.DataPollerService;
@@ -315,5 +317,81 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
             throw new ServiceLayerException("查詢失敗，請重新操作");
         }
         return retList;
+    }
+
+    @Override
+    public Map<String, String> getActionMenu(String queryType) throws ServiceLayerException {
+        Map<String, String> retMap = new HashMap<>();
+        try {
+            String queryMenuCode = null;
+
+            switch (queryType) {
+                case Constants.FIREWALL_LOG_TYPE_APP:
+                    queryMenuCode = Constants.FIREWALL_LOG_ACTION_APP;
+                    break;
+                case Constants.FIREWALL_LOG_TYPE_FORWARDING:
+                    queryMenuCode = Constants.FIREWALL_LOG_ACTION_FORWARDING;
+                    break;
+                case Constants.FIREWALL_LOG_TYPE_INTRUSION:
+                    queryMenuCode = Constants.FIREWALL_LOG_ACTION_INTRUSION;
+                    break;
+                case Constants.FIREWALL_LOG_TYPE_SYSTEM:
+                    queryMenuCode = Constants.FIREWALL_LOG_ACTION_SYSTEM;
+                    break;
+                case Constants.FIREWALL_LOG_TYPE_WEBFILTER:
+                    queryMenuCode = Constants.FIREWALL_LOG_ACTION_WEBFILTER;
+                    break;
+            }
+
+            if (StringUtils.isNotBlank(queryMenuCode)) {
+                retMap = getMenuItem(queryMenuCode, true);
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retMap;
+    }
+
+    @Override
+    public long getTableRoughlyTotalCount(FirewallVO fVO) throws ServiceLayerException {
+        long retVal = 0;
+        try {
+            String queryType = fVO.getQueryType();
+            int beginMonth = fVO.getQueryMonths()[0];
+            int endMonth = fVO.getQueryMonths()[1];
+
+            String[] tableNames = null;
+            if (StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)) {
+                tableNames = new String[5];
+                tableNames[0] = Constants.FIREWALL_LOG_TABLE_NAME_OF_APP;
+                tableNames[1] = Constants.FIREWALL_LOG_TABLE_NAME_OF_FORWARDING;
+                tableNames[2] = Constants.FIREWALL_LOG_TABLE_NAME_OF_INTRUSION;
+                tableNames[3] = Constants.FIREWALL_LOG_TABLE_NAME_OF_SYSTEM;
+                tableNames[4] = Constants.FIREWALL_LOG_TABLE_NAME_OF_WEBFILTER;
+
+            } else {
+                tableNames = new String[1];
+                tableNames[0] = getQueryTableName(fVO);
+            }
+
+            String tName = null;
+            CommonDAOVO cVO = null;
+            for (String tableName : tableNames) {
+                for (int month = beginMonth; month <= endMonth; month++) {
+                    tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
+                    cVO = firewallDAO.getTableInformation(BaseDAO.TARGET_PRIMARY_DB, tName);
+
+                    if (cVO != null) {
+                        long tableRows = cVO.getTableInfoOfRows();
+                        retVal += tableRows;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVal;
     }
 }
