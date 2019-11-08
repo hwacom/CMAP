@@ -632,13 +632,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	/**
-	 * [Step] 取得預設腳本內容
+	 * [Step] 取得指定腳本指令W內容
 	 * @param script
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	private List<ScriptServiceVO> loadSpecifiedScript(String scriptInfoId, String scriptCode, List<Map<String, String>> varMapList, List<ScriptServiceVO> scripts) throws ServiceLayerException {
-		return scriptService.loadSpecifiedScript(scriptInfoId, scriptCode, varMapList, scripts);
+	private List<ScriptServiceVO> loadSpecifiedScript(String scriptInfoId, String scriptCode, List<Map<String, String>> varMapList, List<ScriptServiceVO> scripts, String scriptMode) throws ServiceLayerException {
+		return scriptService.loadSpecifiedScript(scriptInfoId, scriptCode, varMapList, scripts, scriptMode);
 	}
 
 	/**
@@ -1737,17 +1737,22 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 				steps = Env.SEND_SCRIPT;
 
-				List<ScriptServiceVO> scripts = null;
+				String scriptInfoId = scriptInfo.getScriptInfoId();
+                String scriptCode = scriptInfo.getScriptCode();
+                boolean doAlternativeProcess = false;   // 決定是否要跑替代方案腳本(目前 for IP封鎖 > MAC封鎖<替代>)
+
+				List<ScriptServiceVO> scripts = null;       // 存放 Action 腳本指令
+				List<ScriptServiceVO> checkScripts = null;  // 存放 Check 腳本指令
 				ConfigInfoVO ciVO = null;					// 裝置相關設定資訊VO
 
 				for (Step _step : steps) {
 					switch (_step) {
 						case LOAD_SPECIFIED_SCRIPT:
 							try {
-								psStepVO.setScriptCode(scriptInfo.getScriptCode());
-								processVO.setScriptCode(scriptInfo.getScriptCode());
+								psStepVO.setScriptCode(scriptCode);
+								processVO.setScriptCode(scriptCode);
 
-								scripts = loadSpecifiedScript(scriptInfo.getScriptInfoId(), scriptInfo.getScriptCode(), varMapList, scripts);
+								scripts = loadSpecifiedScript(scriptInfoId, scriptCode, varMapList, scripts, Constants.SCRIPT_MODE_ACTION);
 
 								/*
 								 * Provision_Log_Step
@@ -1761,6 +1766,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								log.error(e.toString(), e);
 								throw new ServiceLayerException("讀取腳本資料時失敗 [ 錯誤代碼: LOAD_SPECIFIED_SCRIPT ]");
 							}
+
+						case LOAD_SPECIFIED_CHECK_SCRIPT:
+						    try {
+						        checkScripts = loadSpecifiedScript(scriptInfoId, scriptCode, varMapList, scripts, Constants.SCRIPT_MODE_CHECK);
+						        break;
+
+						    } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("讀取檢核腳本資料時失敗 [ 錯誤代碼: LOAD_SPECIFIED_CHECK_SCRIPT ]");
+                            }
 
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
@@ -1835,6 +1850,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case CHECK_PROVISION_RESULT:
 							try {
+							    // 判斷當前供裝是否為IP封鎖，是的話才做檢核 (TODO:未來應該應用在所有供裝)
+							    if (Env.SCRIPT_CODE_OF_IP_BLOCK.contains(scriptCode)) {
+
+							        // Action 腳本供裝失敗，註記要執行替代方案
+							        doAlternativeProcess = true;
+							    }
+
 								break;
 
 							} catch (Exception e) {
@@ -1854,13 +1876,37 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case WRITE_SPECIFY_LOG:
                             try {
-                                String scriptCode = scriptInfo.getScriptCode();
                                 writeSpecifyLog(ciVO, scriptCode, varMapList, reason);
                                 break;
 
                             } catch (Exception e) {
                                 log.error(e.toString(), e);
                                 throw new ServiceLayerException("寫入指定LOG table時失敗 [ 錯誤代碼: WRITE_SPECIFY_LOG ]");
+                            }
+
+						case DO_SPECIFIED_ALTERNATIVE_ACTION:
+						    try {
+						        // 先判斷是否有要走替代方案
+						        if (doAlternativeProcess) {
+						            // 判斷當前執行的供裝是否為IP封鎖腳本
+	                                if (Env.SCRIPT_CODE_OF_IP_BLOCK.contains(scriptCode)) {
+	                                    /*
+	                                     * Step 1. 查找要封裝的IP是否存在於ARP_TABLE，不存在則結束並提示訊息
+	                                     * [資料表: module_arp_table]
+	                                     */
+
+
+	                                    /*
+	                                     * Step 2. IP存在，取得對應的MAC並執行MAC封鎖供裝
+	                                     */
+	                                }
+						        }
+
+                                break;
+
+                            } catch (Exception e) {
+                                log.error(e.toString(), e);
+                                throw new ServiceLayerException("執行替代方案流程時失敗 [ 錯誤代碼: DO_SPECIFIED_ALTERNATIVE_ACTION ]");
                             }
 
 						default:

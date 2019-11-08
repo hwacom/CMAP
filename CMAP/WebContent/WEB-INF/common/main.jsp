@@ -250,6 +250,19 @@
 	                    </sec:authorize>
 	                    <!-- [核心路由器出口流量圖] END -->
 	                    
+	                    <!-- [Firewall出口流量圖] START -->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_FIREWALL_OUTPUT eq __SHOW__}">
+					        	<li class="subMenu-item">
+			                    	<a id="mp_firewallOutput" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/firewallOutput')">
+			                    	  <span data-feather="activity"></span>
+			                    	  	<span><spring:message code="func.prtg.firewall.output" /></span>
+			                    	</a>
+			                    </li>
+					        </c:if>
+	                    </sec:authorize>
+	                    <!-- [Firewall出口流量圖] END -->
+	                    
 	                    <!-- [各校出口端流量圖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT eq __SHOW__}">
 	                    	<li class="subMenu-item">

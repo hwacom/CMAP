@@ -480,6 +480,26 @@ public class PrtgController extends BaseController {
         }
     }
 
+	@RequestMapping(value = "getPrtgFirewallOutputUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getPrtgFirewallOutputUri(
+            Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        try {
+            String firewallOutputUrl = Env.PRTG_DEFAULT_FIREWALL_OUTPUT_URI;   //如果沒設定則取得預設MAP
+            firewallOutputUrl = composePrtgUrl(request, firewallOutputUrl);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", firewallOutputUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
+
 	@RequestMapping(value = "getPrtgDeviceFailureUri", method = RequestMethod.POST)
 	public @ResponseBody AppResponse getPrtgDeviceFailureUri(
 			Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -677,6 +697,17 @@ public class PrtgController extends BaseController {
 		}
 		return "prtg/abnormal_traffic";
 	}
+
+	@RequestMapping(value = "/firewallOutput", method = RequestMethod.GET)
+    public String prtgFirewallOutput(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/firewall_output";
+    }
 
 	@RequestMapping(value = "/email/update", method = RequestMethod.GET)
     public String prtgEmailUpdate(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {

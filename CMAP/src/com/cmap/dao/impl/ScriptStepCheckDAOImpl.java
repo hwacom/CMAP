@@ -1,14 +1,12 @@
 package com.cmap.dao.impl;
 
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.ScriptStepDAO;
@@ -19,9 +17,13 @@ import com.cmap.dao.vo.ScriptDAOVO;
 public class ScriptStepCheckDAOImpl extends ScriptStepDAOImpl implements ScriptStepDAO {
 	@Log
     private static Logger log;
-	
+
 	@Override
 	public List<ScriptDAOVO> findScriptStepByScriptInfoIdOrScriptCode(String scriptInfoId, String scriptCode) {
+	    if (StringUtils.isBlank(scriptInfoId) && StringUtils.isBlank(scriptCode)) {
+            return null;
+        }
+
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from ScriptStepCheck ssa ")
 		  .append(" where 1=1 ")
