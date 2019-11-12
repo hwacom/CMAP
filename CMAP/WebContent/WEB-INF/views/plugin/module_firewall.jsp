@@ -31,21 +31,24 @@
 	    	    		<spring:message code="btn.query" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2 group-field-other">
+	    	    <div class="col-lg-3 group-field-other">
 	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
 	    	    </div>
 	    	  </div>
 	    	  <div class="form-group row" style="margin-bottom: -.2rem;">
-	    	    <div class="col-lg-12 group-field-other">
-	    	    	<label for="queryDateBegin" class="font-weight-bold must" style="width: 5%"><spring:message code="time" /></label>
-	    	    	<input type="date" id="queryDateBegin" style="width: 12%">
-	    	    	<input type="time" id="queryTimeBegin" style="width: 10%">
+	    	    <div class="col-lg-9 group-field-other">
+	    	    	<label for="queryDateBegin" class="font-weight-bold must" style="width: 6%"><spring:message code="time" /></label>
+	    	    	<input type="date" id="queryDateBegin" style="width: 17%">
+	    	    	<input type="time" id="queryTimeBegin" style="width: 15%">
 	    	    	~
-	    	    	<input type="date" id="queryDateEnd" style="width: 12%">
-	    	    	<input type="time" id="queryTimeEnd" style="width: 10%">
+	    	    	<input type="date" id="queryDateEnd" style="width: 17%">
+	    	    	<input type="time" id="queryTimeEnd" style="width: 15%">
+	    	    </div>
+	    	    <div class="col-lg-3 group-field-other">
+	    	    	<input type="text" id="totalCountMsg" disabled="disabled" style="width: 100%">
 	    	    </div>
 	    	  </div>
-	    	  <div data-ipPortSec="1" class="form-group row" style="margin-bottom: -.2rem;">
+	    	  <div data-specifiedSec="1" class="form-group row" style="margin-bottom: -.2rem;">
 	    	    <div class="col-lg-4 group-field-other">
 					<label for="querySrcIp" class="font-weight-bold" style="width: 15%"><spring:message code="src.ip" /></label>
 					<input type="text" id="querySrcIp" class="input-ip" style="width: 40%">
@@ -59,6 +62,13 @@
 					&nbsp;
 					<label for="queryDstPort" class="font-weight-bold" style="width: 18%"><spring:message code="dst.port" /></label>
 					<input type="text" id="queryDstPort" class="input-port" style="width: 20%">
+				</div>
+				<div class="col-lg-2 group-field-other">
+					<label for="queryAction" class="font-weight-bold" style="width: 25%"><spring:message code="action" /></label>
+					<form:select path="queryAction" id="queryAction" style="width: 70%">
+                        <form:option value="" label="=== ALL ===" />
+                        <form:options items="${actionList}" />
+                    </form:select>
 				</div>
 			  </div>
 	      	</div>
@@ -92,21 +102,28 @@
                         <form:options items="${devNameList}" />
                     </form:select>
 				  </div>
-		    	  <div data-ipPortSec="1" class="form-group row">
+		    	  <div data-specifiedSec="1" class="form-group row">
 		    	  	<label for="query_SrcIp_mobile" class="col-sm-2 col-form-label"><spring:message code="src.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_SrcIp_mobile">
 				  </div>
-				  <div data-ipPortSec="1" class="form-group row">
+				  <div data-specifiedSec="1" class="form-group row">
 		    	  	<label for="query_SrcPort_mobile" class="col-sm-2 col-form-label"><spring:message code="src.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_SrcPort_mobile">
 				  </div>
-				  <div data-ipPortSec="1" class="form-group row">
+				  <div data-specifiedSec="1" class="form-group row">
 		    	  	<label for="query_DstIp_mobile" class="col-sm-2 col-form-label"><spring:message code="dst.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_DstIp_mobile">
 				  </div>
-				  <div data-ipPortSec="1" class="form-group row">
+				  <div data-specifiedSec="1" class="form-group row">
 		    	  	<label for="query_DstPort_mobile" class="col-sm-2 col-form-label"><spring:message code="dst.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_DstPort_mobile">
+				  </div>
+				  <div data-specifiedSec="1" class="form-group row">
+		    	  	<label for="queryActionMobile" class="col-sm-2 col-form-label"><spring:message code="action" /></label>
+		    	  	<form:select path="queryActionMobile" id="queryActionMobile" style="width: 75%">
+                        <form:option value="" label="=== ALL ===" />
+                        <form:options items="${actionList}" />
+                    </form:select>
 				  </div>
 				  <div class="form-group row">
 				  	<label for="queryDateBegin_mobile" class="col-sm-2 col-form-label"><spring:message code="date" /><spring:message code="time" /></label>

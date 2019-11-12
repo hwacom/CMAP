@@ -8,10 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 import javax.annotation.Resource;
 import javax.persistence.TransactionRequiredException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -23,11 +22,11 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
-
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
+import com.cmap.dao.vo.CommonDAOVO;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceList;
 import com.cmap.plugin.module.clustermigrate.ModuleClusterMigrateLog;
@@ -319,7 +318,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
             try {
                 if (session != null && tx != null) {
                     int count = 1;
-                    
+
                     if (StringUtils.equals(targetDB, TARGET_ALL_DB)) {
                     	/*
                     	 * 如果是要同時寫入兩個DB時，則寫入Secondary DB採用copyEntities
@@ -667,5 +666,68 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
     @Override
     public boolean deleteEntities2Secondary(List<? extends Object> entities) {
         return processEntities(TARGET_SECONDARY_DB, entities, Constants.DAO_ACTION_DELETE);
+    }
+
+    @Override
+    public CommonDAOVO getTableInformation(String targetDB, String tableName) {
+        CommonDAOVO retVO = new CommonDAOVO();
+        Session session = null;
+        Transaction tx = null;
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append(" select ")
+              .append("   table_name ")
+              .append("  ,table_rows ")
+              .append("  ,row_format ")
+              .append("  ,data_length / 1024 AS 'data(K)' ")
+              .append("  ,index_length / 1024 AS 'index(K)' ")
+              .append(" from INFORMATION_SCHEMA.TABLES ")
+              .append(" where 1=1 ")
+              .append(" and table_name = :tableName ");
+
+            if (StringUtils.equals(targetDB, TARGET_PRIMARY_DB)) {
+                try {
+                    session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+                } catch (HibernateException e) {
+                    session = getHibernateTemplate().getSessionFactory().openSession();
+                }
+
+            } else if (StringUtils.equals(targetDB, TARGET_SECONDARY_DB)) {
+                try {
+                    session = secondSessionFactory.getCurrentSession();
+                } catch (HibernateException e) {
+                    session = secondSessionFactory.openSession();
+                }
+            }
+
+            if (session != null) {
+
+                if (session.getTransaction().isActive()) {
+                    tx = session.getTransaction();
+                } else {
+                    tx = session.beginTransaction();
+                }
+
+                Query<?> q = session.createNativeQuery(sb.toString());
+                q.setParameter("tableName", tableName);
+
+                List<Object[]> retList = (List<Object[]>)q.list();
+                if (retList != null && !retList.isEmpty()) {
+                    Object[] tableInfo = retList.get(0);
+                    retVO.setTableInfoOfTableName(Objects.toString(tableInfo[0], "N/A"));
+                    retVO.setTableInfoOfRows(Long.valueOf(Objects.toString(tableInfo[1], "0")));
+                    retVO.setTableInfoOfRowFormat(Objects.toString(tableInfo[2], "N/A"));
+                    retVO.setTableInfoOfDataSizeInKBytes(Objects.toString(tableInfo[3], "N/A"));
+                    retVO.setTableInfoOfIndexSizeInKBytes(Objects.toString(tableInfo[4], "N/A"));
+                }
+
+            } else {
+                return null;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVO;
     }
 }

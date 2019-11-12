@@ -94,7 +94,8 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 	}
 
 	@Override
-	public List<ScriptServiceVO> loadSpecifiedScript(String scriptInfoId, String scriptCode, List<Map<String, String>> varMapList, List<ScriptServiceVO> scripts) throws ServiceLayerException {
+	public List<ScriptServiceVO> loadSpecifiedScript(
+	        String scriptInfoId, String scriptCode, List<Map<String, String>> varMapList, List<ScriptServiceVO> scripts, String scriptMode) throws ServiceLayerException {
 		List<ScriptServiceVO> retScriptList = null;
 
 		if (scripts != null && !scripts.isEmpty()) {
@@ -104,7 +105,14 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 			scripts = new ArrayList<>();
 		}
 
-		List<ScriptDAOVO> daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(scriptInfoId, scriptCode);
+		List<ScriptDAOVO> daovoList = null;
+
+		if (StringUtils.equals(scriptMode, Constants.SCRIPT_MODE_ACTION)) {
+		    daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(scriptInfoId, scriptCode);
+
+		} else if (StringUtils.equals(scriptMode, Constants.SCRIPT_MODE_CHECK)) {
+		    daovoList = scriptStepCheckDAO.findScriptStepByScriptInfoIdOrScriptCode(scriptInfoId, scriptCode);
+		}
 
 		ScriptServiceVO ssVO;
 		for (ScriptDAOVO daovo : daovoList) {

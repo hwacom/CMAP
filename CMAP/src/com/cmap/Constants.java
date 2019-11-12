@@ -24,6 +24,7 @@ public class Constants {
 	public static final String USERROLE_USER = "USER";
 	public static final String FIELD_NAME_UPDATE_BY = "updateBy";
 	public static final String UNKNOWN = "unknown";
+	public static final String EMPTY = "(EMPTY)";
 
 	public static final String VM_SWITCH_HOST_NAME = "vmSwitchHostName";
 
@@ -326,6 +327,21 @@ public class Constants {
 	public static final String FIREWALL_LOG_TYPE_INTRUSION = "INTRUSION";
 	public static final String FIREWALL_LOG_TYPE_SYSTEM = "SYSTEM";
 	public static final String FIREWALL_LOG_TYPE_WEBFILTER = "WEBFILTER";
+
+	/*
+	 * 定義 Firewall_Log 查詢功能內，「動作」選單 by類別在Table(MENU_ITEM)裡對應的MENU_CODE是什麼
+	 */
+	public static final String FIREWALL_LOG_ACTION_APP = "FIREWALL_LOG_APP_ACTION";
+    public static final String FIREWALL_LOG_ACTION_FORWARDING = "FIREWALL_LOG_FORWARDING_ACTION";
+    public static final String FIREWALL_LOG_ACTION_INTRUSION = "FIREWALL_LOG_INTRUSION_ACTION";
+    public static final String FIREWALL_LOG_ACTION_SYSTEM = "FIREWALL_LOG_SYSTEM_ACTION";
+    public static final String FIREWALL_LOG_ACTION_WEBFILTER = "FIREWALL_LOG_WEBFILTER_ACTION";
+
+    public static final String FIREWALL_LOG_TABLE_NAME_OF_APP = "MODULE_FIREWALL_LOG_APP";
+    public static final String FIREWALL_LOG_TABLE_NAME_OF_FORWARDING = "MODULE_FIREWALL_LOG_FORWARDING";
+    public static final String FIREWALL_LOG_TABLE_NAME_OF_INTRUSION = "MODULE_FIREWALL_LOG_INTRUSION";
+    public static final String FIREWALL_LOG_TABLE_NAME_OF_SYSTEM = "MODULE_FIREWALL_LOG_SYSTEM";
+    public static final String FIREWALL_LOG_TABLE_NAME_OF_WEBFILTER = "MODULE_FIREWALL_LOG_WEBFILTER";
 
 	/*
 	 * OIDC

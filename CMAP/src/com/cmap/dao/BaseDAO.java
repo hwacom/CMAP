@@ -2,6 +2,7 @@ package com.cmap.dao;
 
 import java.nio.file.Path;
 import java.util.List;
+import com.cmap.dao.vo.CommonDAOVO;
 
 public interface BaseDAO {
 
@@ -44,4 +45,6 @@ public interface BaseDAO {
 	public boolean deleteEntitiesByNativeSQL(List<String> nativeSQLs);
 
 	public boolean insertEntities2File(Path filePath, List<String> recordList, boolean appendFile);
+
+	public CommonDAOVO getTableInformation(String targetDB, String tableName);
 }
