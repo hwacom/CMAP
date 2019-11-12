@@ -250,6 +250,19 @@
 	                    </sec:authorize>
 	                    <!-- [核心路由器出口流量圖] END -->
 	                    
+	                    <!-- [Firewall出口流量圖] START -->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_FIREWALL_OUTPUT eq __SHOW__}">
+					        	<li class="subMenu-item">
+			                    	<a id="mp_firewallOutput" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/firewallOutput')">
+			                    	  <span data-feather="activity"></span>
+			                    	  	<span><spring:message code="func.prtg.firewall.output" /></span>
+			                    	</a>
+			                    </li>
+					        </c:if>
+	                    </sec:authorize>
+	                    <!-- [Firewall出口流量圖] END -->
+	                    
 	                    <!-- [各校出口端流量圖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_OUTPUT eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -570,6 +583,19 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [網卡MAC開通/封鎖] END -->
+	                    
+	                    <!-- [網卡MAC封鎖紀錄查詢] START -->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_MAC_BLOCKED_RECORD eq __SHOW__}">
+		                    	<li class="subMenu-item">
+			                    	<a id="cm_macBlockedRecord" href="${pageContext.request.contextPath}/record/macBlocked">
+			                    	  <span data-feather="at-sign"></span>
+			                    	  	<span><spring:message code="func.mac.open.block.record" /></span>
+			                    	</a>
+			                    </li>
+		                    </c:if>
+	                    </sec:authorize>
+	                    <!-- [網卡MAC封鎖紀錄查詢] END -->
 	                    
 	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
