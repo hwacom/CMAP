@@ -141,7 +141,7 @@ public class Env {
 	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
 	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱
 	public static String KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;            // 設定MAC開通/封鎖的MAC_ADDRESS變數名稱
-	
+
 	public static List<String> PORT_STATUS_EXCLUDE_IF_NAME_LIKE = new ArrayList<>();	// 設定Interface狀態查詢功能，查詢結果要排除掉的Interface名稱(前後模糊比對，不看大小寫)
 
 	/**
