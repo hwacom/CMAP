@@ -790,6 +790,8 @@ function doDelivery() {
 					findBlockedIpRecordData('B');
 				} else if (typeof findBlockedPortRecordData === 'function') {
 					findBlockedPortRecordData('B');
+				} else if (typeof findBlockedMacRecordData === 'function') {
+					findBlockedMacRecordData('B');
 				}
 				
 			} else {
@@ -939,6 +941,9 @@ function findData(from) {
 				} else if (typeof findBlockedPortRecordData === 'function') {
 					findBlockedPortRecordData('B');
 					bindTrEventOnlyRadio();
+				} else if (typeof findBlockedMacRecordData === 'function') {
+					findBlockedMacRecordData('B');
+					bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
 				} else {
 					bindTrEvent();
 				}

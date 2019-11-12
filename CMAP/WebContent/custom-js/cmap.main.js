@@ -75,13 +75,6 @@ $(document).ready(function() {
     		resultTable_blockedIpRecord.ajax.reload();
     	}
     	
-    	//封鎖/解鎖MAC
-    	if (typeof resultTable_blockedMacRecord !== "undefined") {
-    		calBlockedMacSectionHeight();
-    		$('.dataTables_scrollBody').css('max-height', dataTableHeight);
-    		resultTable_blockedMacRecord.ajax.reload();
-    	}
-    	
     	if (typeof $("#checkAll") !== "undefined") {
 			$('input[name=checkAll]').prop('checked', false).change();
 		}

@@ -66,7 +66,6 @@ public class Env {
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_IP_BLOCKED_RECORD;                   // 資安通報 > IP封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
-	public static String SHOW_MENU_ITEM_MAC_BLOCKED_RECORD;                  // 資安通報 > MAC封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
 
     public static String SHOW_MENU_TREE_ABNORMAL_MANAGEMENT;                 // 障礙管理
@@ -135,12 +134,9 @@ public class Env {
 	public static List<String> SCRIPT_CODE_OF_IP_BLOCK = new ArrayList<>();    // 設定IP封鎖的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_PORT_OPEN = new ArrayList<>();   // 設定PORT開通的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_PORT_BLOCK = new ArrayList<>();  // 設定PORT封鎖的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_MAC_OPEN = new ArrayList<>();    // 設定MAC開通的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_MAC_BLOCK = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
-	
+
 	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
 	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱
-	public static String KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;            // 設定MAC開通/封鎖的MAC_ADDRESS變數名稱
 
 	public static List<String> PORT_STATUS_EXCLUDE_IF_NAME_LIKE = new ArrayList<>();	// 設定Interface狀態查詢功能，查詢結果要排除掉的Interface名稱(前後模糊比對，不看大小寫)
 
@@ -411,8 +407,6 @@ public class Env {
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE = new ArrayList<>();
 	// 設定資安通報下「MAC封鎖/開通」的腳本SCRIPT_CODE (For 中心端腳本)
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
-	// 設定資安通報下「MAC封鎖/開通」的MAC開通腳本SCRIPT_INFO_ID for 解鎖按鈕
-	public static String DEFAULT_MAC_OPEN_SCRIPT_INFO_ID;
 	/*
 	 * OpenID
 	 */

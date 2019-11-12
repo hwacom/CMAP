@@ -50,8 +50,6 @@ import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
-import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
-import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
@@ -113,9 +111,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	@Autowired
     private PortBlockedRecordService portRecordService;
 
-	@Autowired
-	private MacBlockedRecordService macRecordService;
-	
 	@Override
 	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
 		StepServiceVO retVO = new StepServiceVO();
@@ -657,8 +652,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
             List<String> ipBlockScriptCodeList = Env.SCRIPT_CODE_OF_IP_BLOCK;
             List<String> portOpenScriptCodeList = Env.SCRIPT_CODE_OF_PORT_OPEN;
             List<String> portBlockScriptCodeList = Env.SCRIPT_CODE_OF_PORT_BLOCK;
-            List<String> macOpenScriptCodeList = Env.SCRIPT_CODE_OF_MAC_OPEN;
-            List<String> macBlockScriptCodeList = Env.SCRIPT_CODE_OF_MAC_BLOCK;
 
             BlockType blockType = null;
             String actionStatusFlag = null;
@@ -677,32 +670,19 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
             } else if (portBlockScriptCodeList.contains(scriptCode)) {
                 blockType = BlockType.PORT;
                 actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
-                
-            } else if (macOpenScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.MAC;
-                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
+            }
 
-            } else if (macBlockScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.MAC;
-                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
+            if (blockType != null) {
+                switch (blockType) {
+                    case IP:
+                        writeModuleBlockIpListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                        break;
 
-            } 
-
-			if (blockType != null) {
-				switch (blockType) {
-				case IP:
-					writeModuleBlockIpListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-					break;
-
-				case PORT:
-					writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-					break;
-
-				case MAC:
-					writeModuleBlockMacListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-					break;
-				}
-			}
+                    case PORT:
+                        writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                        break;
+                }
+            }
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -788,46 +768,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         }
     }
 
-    private void writeModuleBlockMacListRecord(
-            ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
-        String groupId = ciVO.getGroupId();
-        String deviceId = ciVO.getDeviceId();
-
-        String macAddressVarKey = Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;
-
-        List<MacBlockedRecordVO> mbrVOs = new ArrayList<>();
-        MacBlockedRecordVO mbrVO = null;
-        for (Map<String, String> varMap : varMapList) {
-            String macAddress = varMap.get(macAddressVarKey);
-            if (StringUtils.isBlank(macAddress)) {
-                throw new ServiceLayerException("系統參數異常無法執行，請重新操作! (macAddress為空)");
-            }
-
-            mbrVO = new MacBlockedRecordVO();
-            mbrVO.setGroupId(groupId);
-            mbrVO.setDeviceId(deviceId);
-            mbrVO.setMacAddress(macAddress);
-            mbrVO.setStatusFlag(actionStatusFlag);
-
-            if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
-                mbrVO.setBlockBy(currentUserName());
-                mbrVO.setBlockReason(remark);
-
-            } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
-                mbrVO.setOpenBy(currentUserName());
-                mbrVO.setOpenReason(remark);
-            }
-
-            mbrVO.setRemark(remark);
-
-            mbrVOs.add(mbrVO);
-        }
-
-        if (mbrVOs != null && !mbrVOs.isEmpty()) {
-            macRecordService.saveOrUpdateRecord(mbrVOs);
-        }
-    }
-    
 	/**
 	 * [Step] 查找設備連線資訊
 	 * @param configInfoVO

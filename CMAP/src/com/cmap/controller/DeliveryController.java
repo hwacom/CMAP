@@ -6,8 +6,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
@@ -24,6 +27,8 @@ import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
+import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
@@ -45,7 +50,8 @@ public class DeliveryController extends BaseController {
 	private static final String[] UI_RECORD_COLUMNS = new String[] {"","plm.begin_time","plm.create_by","dl.group_name","dl.device_name","dl.device_model","si.script_name","plm.remark","pls.result"};
 	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbil.ip_Address","mids.ip_Desc","mbil.status_Flag","mbil.block_Time","mbil.block_Reason","mbil.block_By","mbil.open_Time","mbil.open_Reason","mbil.open_By"};
 	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.groupName","dl.deviceName","mbpl.portId","mbpl.statusFlag","mbpl.blockTime","mbpl.blockReason","mbpl.blockBy","mbpl.openTime","mbpl.openReason","mbpl.openBy"};
-
+	private static final String[] UI_BLOCKED_MAC_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbml.mac_Address","mbml.status_Flag","mbml.block_Time","mbml.block_Reason","mbml.block_By","mbml.open_Time","mbml.open_Reason","mbml.open_By"};
+	
 	@Autowired
 	private DeliveryService deliveryService;
 
@@ -55,6 +61,9 @@ public class DeliveryController extends BaseController {
 	@Autowired
     private PortBlockedRecordService portRecordService;
 
+	@Autowired
+	private MacBlockedRecordService macRecordService;
+	
 	private Map<String, String> groupListMap = null;
 	private Map<String, String> deviceListMap = null;
 	private Map<String, String> scriptTypeMap = null;
@@ -279,6 +288,74 @@ public class DeliveryController extends BaseController {
 		return "plugin/module_mac_open_block";
 	}
 
+	/**
+	 * 查找被封鎖過的Mac紀錄
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param groupId
+	 * @param macAddress
+	 * @param startNum
+	 * @param pageLength
+	 * @param searchValue
+	 * @param orderColIdx
+	 * @param orderDirection
+	 * @return
+	 */
+	@RequestMapping(value = "getBlockedMacData.json", method = RequestMethod.POST)
+    public @ResponseBody DatatableResponse getBlockedMacData(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryGroupId", required=false, defaultValue="") String queryGroupId,
+            @RequestParam(name="queryDeviceId", required=false, defaultValue="") String queryDeviceId,
+            @RequestParam(name="queryMacAddress", required=false, defaultValue="") String queryMacAddress,
+            @RequestParam(name="queryStatusFlag", required=false, defaultValue="") String queryStatusFlag,
+            @RequestParam(name="queryBeginDate", required=false, defaultValue="") String queryBeginDate,
+            @RequestParam(name="queryEndDate", required=false, defaultValue="") String queryEndDate,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="5") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
+
+        long total = 0;
+        long filterdTotal = 0;
+        List<MacBlockedRecordVO> dataList = new ArrayList<>();
+        MacBlockedRecordVO mrVO;
+        try {
+            mrVO = new MacBlockedRecordVO();
+
+            setQueryGroupList(request, mrVO, StringUtils.isNotBlank(queryGroupId) ? "queryGroupId" : "queryGroupIdList", queryGroupId);
+            setQueryDeviceList(request, mrVO, StringUtils.isNotBlank(queryDeviceId) ? "queryDeviceId" : "queryDeviceIdList", queryGroupId, queryDeviceId);
+
+            mrVO.setQueryMacAddress(queryMacAddress);
+            if (StringUtils.isNotBlank(queryStatusFlag)) {
+                mrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            }
+            mrVO.setQueryBeginDate(queryBeginDate);
+            mrVO.setQueryEndDate(queryEndDate);
+            mrVO.setPageLength(pageLength);
+            mrVO.setSearchValue(searchValue);
+            mrVO.setOrderColumn(UI_BLOCKED_MAC_RECORD_COLUMNS[orderColIdx]);
+            mrVO.setOrderDirection(orderDirection);
+
+            filterdTotal = macRecordService.countModuleBlockedMacList(mrVO);
+
+            if (filterdTotal != 0) {
+                dataList = macRecordService.findModuleBlockedMacList(mrVO, startNum, pageLength);
+            }
+
+            total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
+
+        } catch (ServiceLayerException sle) {
+        } catch (Exception e) {
+
+        } finally {
+            //initMenu(model, request);
+        }
+
+        return new DatatableResponse(total, dataList, filterdTotal);
+    }
+	
 	@RequestMapping(value = "record", method = RequestMethod.GET)
 	public String record(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -533,6 +610,91 @@ public class DeliveryController extends BaseController {
 
                     varValue = new ArrayList<>();
                     varValue.add(ibrVO.getIpAddress()); // IP_ADDRESS
+
+                    groupIds.add(groupId);
+                    deviceIds.add(deviceId);
+                    varValues.add(varValue);
+                }
+            }
+
+            // Step 3. 呼叫共用
+            pVO.setScriptInfoId(scriptInfoId);
+            pVO.setScriptCode(scriptCode);
+            pVO.setGroupId(groupIds);
+            pVO.setDeviceId(deviceIds);
+            pVO.setVarKey(varKeys);
+            pVO.setVarValue(varValues);
+            pVO.setReason(reason);
+
+            retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, pVO, false, null, null, true);
+            String retVal = retVO.getRetMsg();
+
+            return new AppResponse(HttpServletResponse.SC_OK, retVal);
+
+        } catch (ServiceLayerException sle) {
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, sle.getMessage());
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+
+	/**
+	 * 執行Mac開通 by 「Mac開通/封鎖」功能中的「解鎖」按鈕
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param listId
+	 * @return
+	 */
+	@RequestMapping(value = "doMacOpenByBtn.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse doMacOpenByBtn(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="listId[]", required=true) String[] listIdArray,
+            @RequestParam(name="reason", required=false) String reasonInput) {
+
+	    DeliveryServiceVO retVO;
+	    DeliveryParameterVO pVO;
+        try {
+            pVO = new DeliveryParameterVO();
+            List<String> groupIds = new ArrayList<>();
+            List<String> deviceIds = new ArrayList<>();
+            List<String> varKeys = new ArrayList<>();
+            List<List<String>> varValues = new ArrayList<>();
+
+            String scriptInfoId = Env.DEFAULT_MAC_OPEN_SCRIPT_INFO_ID;
+            String scriptCode = null;
+            String groupId = null;
+            String deviceId = null;
+            String varKeyJson = null;
+            List<String> varValue = null;
+            String reason = reasonInput;
+
+            // Step 1. 查解鎖腳本
+            retVO = deliveryService.getScriptInfoById(scriptInfoId);
+
+            scriptCode = retVO.getScriptCode();
+            varKeyJson = retVO.getActionScriptVariable();
+            Gson gson = new Gson();
+            varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
+
+            // Step 2. 準備必要參數
+            MacBlockedRecordVO mbrVO;
+            List<MacBlockedRecordVO> recordList = null;
+            for (String listId : listIdArray) {
+                mbrVO = new MacBlockedRecordVO();
+                mbrVO.setQueryListId(listId);
+
+                recordList = macRecordService.findModuleBlockedMacList(mbrVO, null, null);
+
+                if (recordList != null && !recordList.isEmpty()) {
+                    mbrVO = recordList.get(0);
+
+                    groupId = mbrVO.getGroupId();
+                    deviceId = mbrVO.getDeviceId();
+
+                    varValue = new ArrayList<>();
+                    varValue.add(mbrVO.getMacAddress()); // IP_ADDRESS
 
                     groupIds.add(groupId);
                     deviceIds.add(deviceId);

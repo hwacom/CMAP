@@ -584,19 +584,6 @@
 	                    </c:if>
 	                    <!-- [網卡MAC開通/封鎖] END -->
 	                    
-	                    <!-- [網卡MAC封鎖紀錄查詢] START -->
-	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
-	                    	<c:if test="${Env.SHOW_MENU_ITEM_MAC_BLOCKED_RECORD eq __SHOW__}">
-		                    	<li class="subMenu-item">
-			                    	<a id="cm_macBlockedRecord" href="${pageContext.request.contextPath}/record/macBlocked">
-			                    	  <span data-feather="at-sign"></span>
-			                    	  	<span><spring:message code="func.mac.open.block.record" /></span>
-			                    	</a>
-			                    </li>
-		                    </c:if>
-	                    </sec:authorize>
-	                    <!-- [網卡MAC封鎖紀錄查詢] END -->
-	                    
 	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
 	                    	<li class="subMenu-item">
