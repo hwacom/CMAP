@@ -50,6 +50,8 @@ import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
+import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
@@ -111,6 +113,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	@Autowired
     private PortBlockedRecordService portRecordService;
 
+	@Autowired
+    private MacBlockedRecordService macRecordService;
+	
 	@Override
 	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
 		StepServiceVO retVO = new StepServiceVO();
@@ -121,7 +126,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		ProvisionServiceVO psRetryVO;
 		ProvisionServiceVO psDeviceVO;
 
+		// 設定 retry 次數，預設為1表示不做retry
 		final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
+		// 紀錄當前執行的回合數
 		int round = 1;
 
 		/*
@@ -149,6 +156,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				ConnectionMode deviceMode = null;
 				ConnectionMode fileServerMode = null;
 
+				/*
+				 * 依照設定決定以下參數的走法:
+				 * (1) steps = 定義供裝的步驟 (定義在Env.java內，程式依照定義的步驟順序執行流程)
+				 * (2) deviceMode = 定義預設的連線設備方式(by SSH/Telnet)；若[device_login_info]內有特別設定某個設備，則依照該table內connection_mode定義的連線方式執行
+				 * (3) fileServerMode = 定義連線File_Server方式(by FTP/SFTP/TFTP)
+				 *
+				 * 目前設備組態檔備份方式大致分為兩種:
+				 * (1) 於設備內下指令「copy running-config/startup-config tftp:」，直接由設備端將組態檔上傳到TFTP or FTP
+				 * (2) 於設備內下指令「show running-config/startup-config」，再由程式將設備吐出的組態內容copy回來生成file上傳到TFTP or FTP
+				 */
 				switch (Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE) {
 					case Constants.DEVICE_CONFIG_BACKUP_MODE_TELNET_SSH_FTP:
 						steps = Env.BACKUP_BY_TELNET;
@@ -207,14 +224,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				FileUtils fileUtils = null;					// 連線FileServer物件
 
 				for (Step _step : steps) {
-
+				    // 依照定義的步驟開始執行
 					switch (_step) {
 						case LOAD_DEFAULT_SCRIPT:
 							try {
 								scripts = loadDefaultScript(deviceListId, scripts, ScriptType.BACKUP);
 
 								/*
-								 * Provision_Log_Step
+								 * Provision_Log_Step => for 最後寫入供裝紀錄Table使用
 								 */
 								final String scriptName = (scripts != null && !scripts.isEmpty()) ? scripts.get(0).getScriptName() : null;
 								final String scriptCode = (scripts != null && !scripts.isEmpty()) ? scripts.get(0).getScriptCode() : null;
@@ -237,7 +254,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
-								 * Provision_Log_Device
+								 * Provision_Log_Device => for 最後寫入供裝紀錄Table使用
 								 */
 								if (!retryRound) {
 									psDeviceVO = new ProvisionServiceVO();
@@ -427,7 +444,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			} catch (ServiceLayerException sle) {
 				/*
-				 * Provision_Log_Retry
+				 * Provision_Log_Retry => for 最後寫入供裝紀錄Table使用 (執行過程失敗，紀錄歷程)
 				 */
 				psRetryVO = new ProvisionServiceVO();
 				psRetryVO.setResult(Result.ERROR.toString());
@@ -453,7 +470,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			} catch (Exception e) {
 				/*
-				 * Provision_Log_Retry
+				 * Provision_Log_Retry (執行過程失敗，紀錄歷程)
 				 */
 				psRetryVO = new ProvisionServiceVO();
 				psRetryVO.setResult(Result.ERROR.toString());
@@ -510,7 +527,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		StepServiceVO retVO = new StepServiceVO();
 		retVO.setJobExcuteResultRecords(Integer.toString(vsVOs.size()));
 
+		// 設定 retry 次數，預設為1表示不做retry
 		final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
+		// 紀錄當前執行的回合數
 		int round = 1;
 
 		boolean success = true;
@@ -520,6 +539,12 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				ConnectionMode downloadMode = null;
 				ConnectionMode uploadMode = null;
 
+				/*
+				 * 此method是在做Local端(設備→PRTG Server)設備組態備份檔異地備份到Remote端(PRTG Server→Backup Server)設備
+				 * 目前僅有一種執行流程:
+				 * downloadMode = 從Local端下載備份檔 (目前設備→PRTG Server皆是使用TFTP服務)
+				 * uploadMode = 將上述下載的備份檔上傳到Remote端 (目前Remote端皆是使用FTP服務)
+				 */
 				switch (Env.DEFAULT_BACKUP_FILE_BACKUP_MODE) {
 					case Constants.BACKUP_FILE_BACKUP_MODE_NULL_FTP_FTP:
 						steps = null;
@@ -681,6 +706,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                     case PORT:
                         writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
                         break;
+                        
+                    case MAC:
+                        writeModuleBlockMacListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                        break;
                 }
             }
 
@@ -690,11 +719,21 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         }
     }
 
+    /**
+     * 寫入 IP封鎖 紀錄資料
+     * @param ciVO
+     * @param scriptCode
+     * @param varMapList
+     * @param actionStatusFlag
+     * @param remark
+     * @throws ServiceLayerException
+     */
     private void writeModuleBlockIpListRecord(
             ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
         String groupId = ciVO.getGroupId();
         String deviceId = ciVO.getDeviceId();
 
+        // 定義IP封鎖腳本中「IP_Address」的變數名稱 for 寫入異動紀錄table使用
         String ipAddressVarKey = Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;
 
         List<IpBlockedRecordVO> ibrVOs = new ArrayList<>();
@@ -730,11 +769,21 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         }
     }
 
+    /**
+     * 寫入 Port封鎖 紀錄資料
+     * @param ciVO
+     * @param scriptCode
+     * @param varMapList
+     * @param actionStatusFlag
+     * @param remark
+     * @throws ServiceLayerException
+     */
     private void writeModuleBlockPortListRecord(
             ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
         String groupId = ciVO.getGroupId();
         String deviceId = ciVO.getDeviceId();
 
+        // 定義IP封鎖腳本中「Port」的變數名稱 for 寫入異動紀錄table使用
         String portIdVarKey = Env.KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;
 
         List<PortBlockedRecordVO> pbrVOs = new ArrayList<>();
@@ -768,6 +817,46 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         }
     }
 
+    private void writeModuleBlockMacListRecord(
+            ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
+        String groupId = ciVO.getGroupId();
+        String deviceId = ciVO.getDeviceId();
+
+        String macAddressVarKey = Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;
+
+        List<MacBlockedRecordVO> mbrVOs = new ArrayList<>();
+        MacBlockedRecordVO mbrVO = null;
+        for (Map<String, String> varMap : varMapList) {
+            String macAddress = varMap.get(macAddressVarKey);
+            if (StringUtils.isBlank(macAddress)) {
+                throw new ServiceLayerException("系統參數異常無法執行，請重新操作! (macAddress為空)");
+            }
+
+            mbrVO = new MacBlockedRecordVO();
+            mbrVO.setGroupId(groupId);
+            mbrVO.setDeviceId(deviceId);
+            mbrVO.setMacAddress(macAddress);
+            mbrVO.setStatusFlag(actionStatusFlag);
+
+            if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                mbrVO.setBlockBy(currentUserName());
+                mbrVO.setBlockReason(remark);
+
+            } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
+                mbrVO.setOpenBy(currentUserName());
+                mbrVO.setOpenReason(remark);
+            }
+
+            mbrVO.setRemark(remark);
+
+            mbrVOs.add(mbrVO);
+        }
+
+        if (mbrVOs != null && !mbrVOs.isEmpty()) {
+            macRecordService.saveOrUpdateRecord(mbrVOs);
+        }
+    }
+    
 	/**
 	 * [Step] 查找設備連線資訊
 	 * @param configInfoVO
@@ -1203,6 +1292,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	    }
 	}
 
+	/**
+	 * 取得指定版本號的組態檔內容
+	 * @param configInfoVO
+	 * @return
+	 */
 	private List<String> getConfigContent(ConfigInfoVO configInfoVO) {
 		List<String> retList = new ArrayList<>();
 
@@ -1687,7 +1781,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		ProvisionServiceVO psRetryVO;
 		ProvisionServiceVO psDeviceVO;
 
+		// 定義retry次數，預設為1表示不retry
 		final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
+		// 紀錄當前執行回合數
 		int round = 1;
 
 		/*
@@ -1717,22 +1813,26 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				Step[] steps = null;
 				ConnectionMode deviceMode = null;
 
+				/*
+				 * 此method是在執行指定的腳本，此處是在決定連線設備的方式
+				 * 先看呼叫端是否有給定connectionMode；沒有的話則依照[組態備份]所設定的連線方式
+				 */
 				if (connectionMode != null) {
 					deviceMode = connectionMode;
 
 				} else {
 					switch (Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE) {
-					case Constants.DEVICE_CONFIG_BACKUP_MODE_TELNET_SSH_FTP:
-					case Constants.DEVICE_CONFIG_BACKUP_MODE_TFTP_SSH_TFTP:
-					case Constants.DEVICE_CONFIG_BACKUP_MODE_FTP_SSH_FTP:
-						deviceMode = ConnectionMode.SSH;
-						break;
+    					case Constants.DEVICE_CONFIG_BACKUP_MODE_TELNET_SSH_FTP:
+    					case Constants.DEVICE_CONFIG_BACKUP_MODE_TFTP_SSH_TFTP:
+    					case Constants.DEVICE_CONFIG_BACKUP_MODE_FTP_SSH_FTP:
+    						deviceMode = ConnectionMode.SSH;
+    						break;
 
-					case Constants.DEVICE_CONFIG_BACKUP_MODE_TFTP_TELNET_TFTP:
-					case Constants.DEVICE_CONFIG_BACKUP_MODE_FTP_TELNET_FTP:
-						deviceMode = ConnectionMode.TELNET;
-						break;
-				}
+    					case Constants.DEVICE_CONFIG_BACKUP_MODE_TFTP_TELNET_TFTP:
+    					case Constants.DEVICE_CONFIG_BACKUP_MODE_FTP_TELNET_FTP:
+    						deviceMode = ConnectionMode.TELNET;
+    						break;
+    				}
 				}
 
 				steps = Env.SEND_SCRIPT;
@@ -1755,7 +1855,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								scripts = loadSpecifiedScript(scriptInfoId, scriptCode, varMapList, scripts, Constants.SCRIPT_MODE_ACTION);
 
 								/*
-								 * Provision_Log_Step
+								 * Provision_Log_Step => for 後續寫入供裝紀錄table使用
 								 */
 								final String scriptName = (scripts != null && !scripts.isEmpty()) ? scripts.get(0).getScriptName() : null;
 								psStepVO.setRemark(scriptName);
@@ -1783,7 +1883,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
-								 * Provision_Log_Device
+								 * Provision_Log_Device => for 後續寫入供裝紀錄table使用
 								 */
 								if (!retryRound) {
 									psDeviceVO = new ProvisionServiceVO();
@@ -1921,7 +2021,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			} catch (ServiceLayerException sle) {
 				/*
-				 * Provision_Log_Retry
+				 * Provision_Log_Retry => for 後續寫入供裝紀錄table使用(執行失敗，紀錄歷程)
 				 */
 				psRetryVO = new ProvisionServiceVO();
 				psRetryVO.setResult(Result.ERROR.toString());
@@ -1948,7 +2048,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				log.error(e.toString(), e);
 
 				/*
-				 * Provision_Log_Retry
+				 * Provision_Log_Retry => for 後續寫入供裝紀錄table使用(執行失敗，紀錄歷程)
 				 */
 				psRetryVO = new ProvisionServiceVO();
 				psRetryVO.setResult(Result.ERROR.toString());
@@ -2004,7 +2104,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
     public StepServiceVO doCommands(ConnectionMode connectionMode, String deviceListId,
             Map<String, String> deviceInfo, List<ScriptServiceVO> cmdList, boolean sysTrigger,
             String triggerBy, String triggerRemark) {
-
+	    /*
+	     * 此Method不讀取腳本資料，由前端呼叫功能準備好要執行的指令(cmdList)依序執行
+	     */
 	    StepServiceVO processVO = new StepServiceVO();
 
         ProvisionServiceVO psMasterVO = new ProvisionServiceVO();
@@ -2013,11 +2115,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         ProvisionServiceVO psRetryVO;
         ProvisionServiceVO psDeviceVO;
 
+        // 定義retry次數，預設為1表示不retry
         final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
+        // 紀錄當前執行回合數
         int round = 1;
 
         /*
-         * Provision_Log_Master & Step
+         * Provision_Log_Master & Step => for 後續寫入供裝紀錄table使用
          */
         final String userName = sysTrigger ? triggerBy : SecurityUtil.getSecurityUser() != null
                                                             ? SecurityUtil.getSecurityUser().getUsername() : Constants.SYS;
@@ -2056,7 +2160,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                                 ciVO.setTimes(String.valueOf(round));
 
                                 /*
-                                 * Provision_Log_Device
+                                 * Provision_Log_Device => for 後續寫入供裝紀錄table使用
                                  */
                                 if (!retryRound) {
                                     psDeviceVO = new ProvisionServiceVO();
@@ -2152,7 +2256,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
             } catch (ServiceLayerException sle) {
                 /*
-                 * Provision_Log_Retry
+                 * Provision_Log_Retry => for 後續寫入供裝紀錄table使用(執行失敗，紀錄歷程)
                  */
                 psRetryVO = new ProvisionServiceVO();
                 psRetryVO.setResult(Result.ERROR.toString());
@@ -2179,7 +2283,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                 log.error(e.toString(), e);
 
                 /*
-                 * Provision_Log_Retry
+                 * Provision_Log_Retry => for 後續寫入供裝紀錄table使用(執行失敗，紀錄歷程)
                  */
                 psRetryVO = new ProvisionServiceVO();
                 psRetryVO.setResult(Result.ERROR.toString());
@@ -2247,11 +2351,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		ProvisionServiceVO psRetryVO;
 		ProvisionServiceVO psDeviceVO;
 
+		// 定義retry次數，預設為1表示不retry
 		final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
+		// 紀錄當前執行回合數
 		int round = 1;
 
 		/*
-		 * Provision_Log_Master & Step
+		 * Provision_Log_Master & Step => for 後續寫入供裝紀錄table使用
 		 */
 		final String userName = triggerBy;
 		final String userIp = SecurityUtil.getSecurityUser() != null ? SecurityUtil.getSecurityUser().getUser().getIp() : Constants.UNKNOWN;
@@ -2304,8 +2410,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				/*
 				 * 還原方式:
 				 * (1) CLI >> by 命令逐行派送
-				 * (2) FTP >> 在設備上下命令透過FTP上抓組態檔還原到設備
-				 * (3) TFTP >> 在設備上下命令透過TFTP上抓組態檔還原到設備
+				 * (2) FTP >> 在設備上下命令透過FTP上抓組態檔還原到設備 (copy ftp:<帳號>:<密碼>@<要還原的組態檔路徑>)
+				 * (3) TFTP >> 在設備上下命令透過TFTP上抓組態檔還原到設備 (copy tftp:<帳號>:<密碼>@<要還原的組態檔路徑>)
 				 */
 				switch (restoreMethod) {
 					case CLI:
@@ -2724,6 +2830,38 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		}
 	}
 
+	/**
+	 * 此方法在逐行讀取組態檔內容，並參照table設定[config_content_setting]決定哪些內容要取出(+)或刪除(-)
+	 * 目前主要for[亞太HeNBGW/ePDG]的組態還原，因為不能將整份檔案copy覆蓋到運行的組態，只能將需要還原的片段取出並透過供裝的方式修改運行中組態的內容
+	 *
+	 * table設定的方式說明:
+	 * (1) content_start_regex = 定義起始的組態內容正則表示式，當比對符合時便開始進行判斷此區段是否要取出or刪除流程
+	 * (2) content_layer = 定義上述表示式，必須要符合哪個層級
+	 *     [ex]:
+	 *          「interface]←這word可能出現在組態檔內容不同位置
+	 *          config
+	 *            interface ....<a>
+	 *            exit
+	 *
+	 *            some section
+	 *              interface ....<b>
+	 *              exit
+	 *            exit
+	 *          exit
+	 *
+	 *          => interface出現在<a>這行時，前面有[兩個]空白並依照參數設定的[1個層級是由幾個空白組成](假設設定值為2)得出此段是第1個layer (2/2=1)
+	 *          => interface出現在<b>這行時，前面有[四個]空白，得出此段是第2個layer (4/2=2)
+	 *          [1個層級是由幾個空白組成] = Env.CONFIG_CONTENT_ONE_LAYER_EQUAL_TO_WHITE_SPACE_COUNT
+	 *
+	 *      ※ 會有此設定是因為相同表示式可能出現在不同區段內，必須更明確指定我們要的是哪一塊
+	 * (3) content_end_regex = 定義該區段結尾的指令文字為何
+	 * (4) action = 定義是要取出(+) or 刪除(-)
+	 * @param configContentList
+	 * @param settings
+	 * @param hasPositiveSetting
+	 * @return
+	 * @throws ServiceLayerException
+	 */
 	private List<String> runConfigAndSettingCheck(List<String> configContentList, List<ConfigVO> settings, boolean hasPositiveSetting) throws ServiceLayerException {
 		List<String> retList = new ArrayList<>();
 
@@ -2906,6 +3044,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		return retList;
 	}
 
+	/**
+	 * 計算此行組態內容是第幾個層級(layer)
+	 * @param content
+	 * @return
+	 */
 	private int chkCurrentContentLineLayer(String content) {
 		int whiteSpaceCount = 0;
 		for (int i=0; i<content.length(); i++) {
@@ -2927,6 +3070,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		return layer;
 	}
 
+	/**
+	 * 檢核設備SSH連線是否enable
+	 */
     @Override
     public boolean chkSSHIsEnable(ConfigInfoVO ciVO) {
         boolean sshEnable = false;
