@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
-import com.cmap.dao.BaseDAO;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
 @Repository("netFlowStatisticsDAO")
@@ -88,12 +87,43 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
 
     @Override
     public void insertModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
-        insertEntities(BaseDAO.TARGET_SECONDARY_DB, entities);
+        for (ModuleIpTrafficStatistics entity : entities) {
+            try {
+                getHibernateTemplate().getSessionFactory().getCurrentSession().save(entity);
+
+            } catch (Exception e) {
+                /*
+                 * Y191114, Ken
+                 * 其中更新失敗的不處理，繼續處理其他筆資料
+                 */
+                log.error(e.toString(), e);
+            }
+        }
+        //insertEntities(BaseDAO.TARGET_PRIMARY_DB, entities);
     }
-    
+
     @Override
     public void updateModuleIpStatistics(List<ModuleIpTrafficStatistics> entities) {
-    	updateEntities(BaseDAO.TARGET_SECONDARY_DB, entities);
+        for (ModuleIpTrafficStatistics entity : entities) {
+            try {
+                getHibernateTemplate().getSessionFactory().getCurrentSession().update(entity);
+
+            } catch (Exception e) {
+                /*
+                 * Y191114, Ken
+                 * 其中更新失敗的不處理，繼續處理其他筆資料
+                 */
+                log.error(e.toString(), e);
+            }
+        }
+        /*
+         * Y191114, Ken
+         * 原方法會發生Transaction lock timeout問題
+         * 推測應為先前流程[Query此筆資料]與此處[Update資料]調用的session不同
+         * 導致[update-session]在wait[query-session]釋放lock而timeout
+         * 暫時改為不調用共用method
+         */
+    	//updateEntities(BaseDAO.TARGET_PRIMARY_DB, entities);
     }
 
     @Override

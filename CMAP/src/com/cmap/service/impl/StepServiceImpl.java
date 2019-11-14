@@ -1900,6 +1900,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							}
 
 						case CHECK_PROVISION_RESULT:
+						    //TODO
 							try {
 							    // 判斷當前供裝是否為IP封鎖，是的話才做檢核 (TODO:未來應該應用在所有供裝)
 							    if (Env.SCRIPT_CODE_OF_IP_BLOCK.contains(scriptCode)) {
@@ -1936,6 +1937,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                             }
 
 						case DO_SPECIFIED_ALTERNATIVE_ACTION:
+						    //TODO
 						    try {
 						        // 先判斷是否有要走替代方案
 						        if (doAlternativeProcess) {
