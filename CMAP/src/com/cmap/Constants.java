@@ -123,6 +123,8 @@ public class Constants {
 	public static final String QUARTZ_PARA_MAIL_LIST_SETTING_ID = "jobMailListSettingId";
 	public static final String QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID = "jobIpMacPortMappingPollerGroupId";
 
+	public static final String PARA_IP_ADDRESS = "IP_ADDRESS";
+
 	public static final String DATA_POLLER_FILE_BY_FTP = "FTP";
 	public static final String DATA_POLLER_FILE_BY_SFTP = "SFTP";
 	public static final String DATA_POLLER_FILE_BY_LOCAL_DIR = "LOCAL_DIR";

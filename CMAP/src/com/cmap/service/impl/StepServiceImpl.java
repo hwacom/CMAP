@@ -50,6 +50,8 @@ import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.ip.mapping.IpMappingDAO;
+import com.cmap.plugin.module.ip.mapping.ModuleArpTable;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
@@ -68,8 +70,10 @@ import com.cmap.service.vo.StepServiceVO;
 import com.cmap.service.vo.VersionServiceVO;
 import com.cmap.utils.ConnectUtils;
 import com.cmap.utils.FileUtils;
+import com.cmap.utils.ProvisionUtils;
 import com.cmap.utils.impl.CommonUtils;
 import com.cmap.utils.impl.FtpFileUtils;
+import com.cmap.utils.impl.PingUtils;
 import com.cmap.utils.impl.SshUtils;
 import com.cmap.utils.impl.TFtpFileUtils;
 import com.cmap.utils.impl.TelnetUtils;
@@ -115,7 +119,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 	@Autowired
     private MacBlockedRecordService macRecordService;
-	
+
+	@Autowired
+	private IpMappingDAO ipMappingDAO;
+
 	@Override
 	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
 		StepServiceVO retVO = new StepServiceVO();
@@ -706,7 +713,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                     case PORT:
                         writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
                         break;
-                        
+
                     case MAC:
                         writeModuleBlockMacListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
                         break;
@@ -856,7 +863,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
             macRecordService.saveOrUpdateRecord(mbrVOs);
         }
     }
-    
+
 	/**
 	 * [Step] 查找設備連線資訊
 	 * @param configInfoVO
@@ -1839,7 +1846,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 				String scriptInfoId = scriptInfo.getScriptInfoId();
                 String scriptCode = scriptInfo.getScriptCode();
+
                 boolean doAlternativeProcess = false;   // 決定是否要跑替代方案腳本(目前 for IP封鎖 > MAC封鎖<替代>)
+                Map<String, Object> alternativeProcessParaMap = new HashMap<>();    // 紀錄替代方案腳本流程所需參數
 
 				List<ScriptServiceVO> scripts = null;       // 存放 Action 腳本指令
 				List<ScriptServiceVO> checkScripts = null;  // 存放 Check 腳本指令
@@ -1949,13 +1958,109 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							}
 
 						case CHECK_PROVISION_RESULT:
-						    //TODO
+						    /*
+						     * Y191115, Ken
+						     * 目前針對[苗栗教網]IP封鎖流程，可能發生 by IP封鎖無效，必須改採 by MAC封鎖
+						     * 因此需檢核 IP封鎖 的結果正不正常 >> 透過 Ping IP 來檢查
+						     */
 							try {
-							    // 判斷當前供裝是否為IP封鎖，是的話才做檢核 (TODO:未來應該應用在所有供裝)
+							    // 判斷當前供裝是否為IP封鎖，是的話才做檢核
+							    // TODO:未來應該應用在所有供裝
 							    if (Env.SCRIPT_CODE_OF_IP_BLOCK.contains(scriptCode)) {
 
-							        // Action 腳本供裝失敗，註記要執行替代方案
-							        doAlternativeProcess = true;
+							        // 初始化檢核工具 >> IP供裝檢核採用 PingUtils
+							        ProvisionUtils pingUtils = new PingUtils();
+
+							        // 定義IP封鎖腳本中「IP_Address」的變數名稱 for 待會取得此次封鎖的IP
+							        String ipAddressVarKey = Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;
+
+							        // 要檢核的 IP
+							        String pingIp = null;
+
+							        /*
+							         * 迴圈跑供裝參數List
+							         * 目前[IP封鎖]一次只能封鎖1個IP，但還是先保留彈性 for 未來如果有要強化一次可封鎖多筆
+							         */
+							        int totalPingTimes = 10;                     // 最大Ping嘗試次數(預設值)
+							        long intervalOfPing = 1000;                  // Ping間隔時間(預設值)
+							        int timesOfPing = 1;                         // Ping次數
+							        int timesOfPingFailedContinuous = 0;         // 連續Ping失敗次數
+							        int targetTimesOfPingFailedContinuous = 3;   // 連續Ping失敗次數目標值(預設值)
+
+							        // 若參數檔(sys_config_setting)有設定值，則以參數檔的數值為準
+							        if (Env.PROVISION_CHECK_PARA_4_TOTAL_PING_TIMES != null) {
+							            totalPingTimes = Env.PROVISION_CHECK_PARA_4_TOTAL_PING_TIMES;
+							        }
+							        if (Env.PROVISION_CHECK_PARA_4_INTERVAL_OF_PING != null) {
+							            intervalOfPing = new Long(Env.PROVISION_CHECK_PARA_4_INTERVAL_OF_PING);
+                                    }
+							        if (Env.PROVISION_CHECK_PARA_4_TARGET_TIMES_OF_PING_FAILED_CONTINUOUS != null) {
+							            targetTimesOfPingFailedContinuous = Env.PROVISION_CHECK_PARA_4_TARGET_TIMES_OF_PING_FAILED_CONTINUOUS;
+                                    }
+
+							        boolean stopPing = false;
+
+							        Map<String, String> paraMap = null;
+							        List<String> ipList = new ArrayList<>();     // 紀錄 Ping 可通的 IP 清單，for 後續走替代方案時使用
+
+							        for (Map<String, String> varMap : varMapList) {
+							            pingIp = varMap.get(ipAddressVarKey);
+
+							            if (StringUtils.isBlank(pingIp)) {
+							                continue;
+							            }
+
+							            // 準備呼叫 PingUtils 所需參數
+							            paraMap = new HashMap<>();
+							            paraMap.put(Constants.PARA_IP_ADDRESS, pingIp);
+
+							            boolean pingResult = false;  // 每一次 Ping 的結果
+							            boolean checkResult = false; // 紀錄此 IP 最終 Ping 結果 (true=不通，供裝成功；false=可通，須走替代方案)
+
+							            /*
+							             * 預設 Ping 失敗判斷邏輯 = 連續 Ping 不通達三次以上
+							             * 若其中發生 Ping 可通狀況，則歸零重新計算，必須「連續」Ping 不通達到目標值才認定真的不通
+							             * 最大嘗試 Ping 次數 = totalPingTimes
+							             * 兩次 Ping 間格時間  = intervalOfPing
+							             */
+							            while (timesOfPing <= totalPingTimes && !stopPing) {
+							                // 檢核此 IP 是否還 ping 的通
+	                                        pingResult = pingUtils.doCheck(paraMap);
+
+	                                        if (!pingResult) {
+	                                            timesOfPingFailedContinuous++; // Ping 失敗 >> 次數+1
+
+	                                            if (timesOfPingFailedContinuous >= targetTimesOfPingFailedContinuous) {
+	                                                // 連續 Ping 失敗達目標值 >> 中止 Ping
+	                                                stopPing = true;
+	                                                checkResult = true;
+	                                            }
+
+	                                        } else {
+	                                            // Ping 成功 >> 次數歸零
+	                                            timesOfPingFailedContinuous = 0;
+	                                        }
+
+	                                        try {
+	                                            Thread.sleep(intervalOfPing);
+	                                        } catch (InterruptedException ie) {
+                                                log.error(ie.toString(), ie);
+                                            }
+
+	                                        timesOfPing++;
+							            }
+
+							            if (!checkResult) {
+							                // IP 最終還是 Ping 的通，記錄下 IP for 後續替代方案使用
+							                ipList.add(pingIp);
+							                doAlternativeProcess = true;   // 檢核多筆 IP Ping 結果，只要有其中1筆 Ping 可通就必須走替代方案
+							            }
+							        }
+
+							        if (doAlternativeProcess && ipList != null && !ipList.isEmpty()) {
+							            // 將需要走替代方案的 IP 清單記錄到 MAP for 後續流程使用
+							            alternativeProcessParaMap.put(Constants.PARA_IP_ADDRESS, ipList);
+							        }
 							    }
 
 								break;
@@ -1992,15 +2097,148 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						        if (doAlternativeProcess) {
 						            // 判斷當前執行的供裝是否為IP封鎖腳本
 	                                if (Env.SCRIPT_CODE_OF_IP_BLOCK.contains(scriptCode)) {
-	                                    /*
-	                                     * Step 1. 查找要封裝的IP是否存在於ARP_TABLE，不存在則結束並提示訊息
-	                                     * [資料表: module_arp_table]
-	                                     */
 
+	                                    // 取出需要走替代方案的 IP 清單
+	                                    List<String> ipList = (List<String>)alternativeProcessParaMap.get(Constants.PARA_IP_ADDRESS);
 
-	                                    /*
-	                                     * Step 2. IP存在，取得對應的MAC並執行MAC封鎖供裝
-	                                     */
+	                                    // 查找此次供裝設備是哪個GroupID
+	                                    String groupId = null;
+	                                    DeviceList dlEntity = deviceDAO.findDeviceListByDeviceListId(deviceListId);
+
+	                                    if (dlEntity == null) {
+	                                        // 查不到設備資料無法執行後續流程
+	                                        log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> 查無設備資料 (DeviceListId: " + deviceListId + ")");
+	                                        throw new ServiceLayerException("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> 查無設備資料");
+	                                    }
+
+	                                    // 查找[MAC封鎖]腳本
+                                        ScriptInfo macBlockScriptInfo = null;
+                                        try {
+                                            macBlockScriptInfo = scriptService.loadDefaultScriptInfo(deviceListId, ScriptType.MAC_BLOCK);
+
+                                        } catch (Exception e) {
+                                            log.error(e.toString(), e);
+                                        }
+
+                                        if (macBlockScriptInfo == null) {
+                                            // 查不到預設[MAC封鎖]腳本無法執行後續流程
+                                            log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> 查無預設[MAC封鎖]腳本");
+                                            throw new ServiceLayerException("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> 查無預設[MAC封鎖]腳本");
+                                        }
+
+	                                    List<ModuleArpTable> arpTableList = null;
+	                                    Map<String, String> macBlockVarMap = null;
+	                                    List<Map<String, String>> macBlockVarMapList = null;
+	                                    String macAddr = null;
+
+	                                    List<String> ipNotExistInArpTableList = null;      // 紀錄 IP 不存在於 ARP_TABLE 的清單
+	                                    List<String> ipExecuteMacBlockFailedList = null;   // 紀錄 IP 在執行 MAC 封鎖時失敗的清單
+
+	                                    // 迴圈跑 IP 清單，執行替代方案流程
+	                                    for (String ip : ipList) {
+	                                        /*
+	                                         * Step 1. 查找要封裝的IP是否存在於ARP_TABLE，不存在則結束並提示訊息
+	                                         * [資料表: module_arp_table]
+	                                         */
+	                                        arpTableList = ipMappingDAO.findModuleArpTable(groupId, null, 1);
+
+	                                        // 若 IP 不存在於 ARP_TABLE 內，則註記此 IP 供裝失敗
+	                                        if (arpTableList == null || (arpTableList != null && arpTableList.isEmpty())) {
+	                                            // 記錄下哪一筆IP不存在於ARP_TABLE
+	                                            log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> IP不存在於ARP_TABLE (IP: " + ip + ")");
+
+	                                            if (ipNotExistInArpTableList == null) {
+	                                                ipNotExistInArpTableList = new ArrayList<>();
+	                                            }
+
+	                                            ipNotExistInArpTableList.add(ip);
+
+	                                            // 繼續執行下一筆
+	                                            continue;
+	                                        }
+
+	                                        /*
+	                                         * Step 2. IP存在，取得對應的MAC並執行MAC封鎖供裝
+	                                         */
+	                                        macAddr = arpTableList.get(0).getMacAddr();
+
+	                                        //TODO
+	                                        //TODO
+	                                        //TODO
+	                                        //TODO
+	                                        //TODO
+                                            //TODO
+                                            //TODO
+                                            //TODO
+	                                        //TODO
+                                            //TODO
+                                            //TODO
+                                            //TODO
+	                                        // 準備[MAC封鎖]所需參數
+	                                        String paraNameOfMac = Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;
+
+	                                        macBlockVarMap = new HashMap<>();
+	                                        macBlockVarMap.put(paraNameOfMac, macAddr);
+
+	                                        macBlockVarMapList = new ArrayList<>();
+	                                        macBlockVarMapList.add(macBlockVarMap);
+
+	                                        try {
+	                                            // 呼叫執行[MAC封鎖]腳本
+	                                            doScript(
+	                                                    connectionMode,
+	                                                    deviceListId,
+	                                                    deviceInfo,
+	                                                    macBlockScriptInfo,    // 替換成[MAC封鎖]的Script_Info
+	                                                    macBlockVarMapList,    // 替換成[MAC封鎖]的腳本參數
+	                                                    sysTrigger,
+	                                                    triggerBy,
+	                                                    triggerRemark,
+	                                                    reason);
+
+	                                        } catch (Exception e) {
+	                                            log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> " + e.toString());
+	                                            log.error(e.toString(), e);
+
+                                                if (ipExecuteMacBlockFailedList == null) {
+                                                    ipExecuteMacBlockFailedList = new ArrayList<>();
+                                                }
+
+                                                ipExecuteMacBlockFailedList.add(ip);
+	                                        }
+	                                    }
+
+	                                    // 若有紀錄執行失敗的 IP 清單，則於此組合錯誤訊息
+	                                    StringBuffer errorMsg = null;
+	                                    if (ipNotExistInArpTableList != null || ipExecuteMacBlockFailedList != null) {
+	                                        errorMsg = new StringBuffer();
+	                                        int idx = 1;
+
+	                                        if (!ipNotExistInArpTableList.isEmpty()) {
+	                                            errorMsg.append("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> IP不存在於ARP_TABLE")
+	                                                    .append("<br>");
+
+	                                            for (String ip : ipNotExistInArpTableList) {
+	                                                errorMsg.append("IP<").append(idx).append(">: ").append(ip).append("<br>");
+	                                                idx++;
+	                                            }
+	                                        }
+
+	                                        if (!ipExecuteMacBlockFailedList.isEmpty()) {
+                                                errorMsg.append("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> [MAC封鎖]供裝失敗")
+                                                        .append("<br>");
+
+                                                for (String ip : ipExecuteMacBlockFailedList) {
+                                                    errorMsg.append("IP<").append(idx).append(">: ").append(ip).append("<br>");
+                                                    idx++;
+                                                }
+                                            }
+	                                    }
+
+	                                    // 若錯誤訊息不為空，則拋出Exception
+	                                    if (errorMsg != null) {
+	                                        throw new ServiceLayerException(errorMsg.toString());
+	                                    }
 	                                }
 						        }
 

@@ -4,11 +4,29 @@ import java.util.List;
 import java.util.Map;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.ScriptInfo;
 import com.cmap.service.vo.ScriptServiceVO;
 
 public interface ScriptService {
 
+    /**
+     * 取得預設腳本資料並替換掉指令中參數部分，回傳替換好的指令List
+     * @param deviceListId
+     * @param script
+     * @param type
+     * @return
+     * @throws ServiceLayerException
+     */
 	public List<ScriptServiceVO> loadDefaultScript(String deviceListId, List<ScriptServiceVO> script, ScriptType type) throws ServiceLayerException;
+
+	/**
+	 * 取得預設腳本的 Script_Info 資料
+	 * @param deviceListId
+	 * @param type
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public ScriptInfo loadDefaultScriptInfo(String deviceListId, ScriptType type) throws ServiceLayerException;
 
 	/**
 	 * 取得指定腳本 Action / Check 指令內容

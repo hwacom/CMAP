@@ -93,6 +93,36 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 		return script;
 	}
 
+    @Override
+    public ScriptInfo loadDefaultScriptInfo(String deviceListId, ScriptType type)throws ServiceLayerException {
+        ScriptInfo retEntity = null;
+
+        DeviceList device = null;
+        if (!StringUtils.equals(deviceListId, "*")) {
+            device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
+        }
+
+        String deviceModel = device != null ? device.getDeviceModel() : Env.MEANS_ALL_SYMBOL;
+        String scriptCode = scriptListDefaultDAO.findDefaultScriptCodeBySystemVersion(type, deviceModel);
+
+        if (scriptCode == null) {
+            if (!StringUtils.equals(deviceModel, Env.MEANS_ALL_SYMBOL)) {
+                scriptCode = scriptListDefaultDAO.findDefaultScriptCodeBySystemVersion(type, "*");  //帶入機器系統版本號查不到腳本時，將版本調整為*號後再查找一次預設腳本
+
+            } else {
+                throw new ServiceLayerException("未設定[" + type + "]預設腳本");
+            }
+
+            if (scriptCode == null) {
+                throw new ServiceLayerException("未設定[" + type + "]預設腳本");
+            }
+        }
+
+        // 查找 Script_Info 資料
+        retEntity = scriptInfoDAO.findScriptInfoByIdOrCode(null, scriptCode);
+        return retEntity;
+    }
+
 	@Override
 	public List<ScriptServiceVO> loadSpecifiedScript(
 	        String scriptInfoId, String scriptCode, List<Map<String, String>> varMapList, List<ScriptServiceVO> scripts, String scriptMode) throws ServiceLayerException {
