@@ -1,7 +1,6 @@
 package com.cmap.plugin.module.ip.mapping;
 
 import java.util.List;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -40,6 +38,35 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         q.setParameter("groupId", groupId);
         q.setParameter("deviceId", deviceId);
         return (List<ModuleMacTableExcludePort>)q.list();
+    }
+
+    @Override
+    public List<ModuleArpTable> findModuleArpTable(String groupId, String deviceId, Integer limit) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" from ModuleArpTable mat ")
+          .append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(groupId)) {
+            sb.append(" and mat.groupId = :groupId ");
+        }
+        if (StringUtils.isNotBlank(deviceId)) {
+            sb.append(" and mat.deviceId = :deviceId ");
+        }
+        sb.append(" order by mat.updateTime desc ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        if (StringUtils.isNotBlank(groupId)) {
+            q.setParameter("groupId", groupId);
+        }
+        if (StringUtils.isNotBlank(deviceId)) {
+            q.setParameter("deviceId", deviceId);
+        }
+        if (limit != null) {
+            q.setFirstResult(0);
+            q.setMaxResults(limit);
+        }
+        return (List<ModuleArpTable>)q.list();
     }
 
 	@Override

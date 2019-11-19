@@ -306,13 +306,18 @@ public class CommonServiceImpl implements CommonService {
                         List<PrtgUserRightSetting> rightSettingList = prtgDAO.findPrtgUserRightSetting(account, null);
 
                         if (rightSettingList != null && !rightSettingList.isEmpty()) {
-                            // 判斷與既有差異是否有差異，決定要新增 or 刪除
-                            String type = null, oldValue = null;
+                            // 判斷與既有是否有差異，決定要新增 or 刪除
+                            String type = null, oldValue = null, oldParentNode = null;
                             boolean isExist;
                             for (PrtgUserRightSetting setting : rightSettingList) {
                                 isExist = false;
                                 type = setting.getSettingType();
                                 oldValue = setting.getSettingValue();
+                                /*
+                                 * 若setting_type=G(群組)，parentNode為空
+                                 * 若setting_type=D(設備)，parentNode會記錄該設備掛在哪個group_id底下
+                                 */
+                                oldParentNode = setting.getParentNode();
 
                                 if (StringUtils.equals(type, Constants.PRTG_RIGHT_SETTING_TYPE_OF_GROUP)) {
                                     //:::[ 群組 ]::://
@@ -342,15 +347,25 @@ public class CommonServiceImpl implements CommonService {
                                 } else if (StringUtils.equals(type, Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE)) {
                                     //:::[ 設備 ]::://
                                     if (deviceVOList == null || (deviceVOList != null && deviceVOList.isEmpty())) {
-                                        // 若此次從 PRTG 取得的群組清單為空 => [刪除]設定
+                                        // 若此次從 PRTG 取得的設備清單為空 => [刪除]設定
                                         deleteEntities.add(setting);
 
                                     } else {
+                                        String newGroupId;
                                         String newDeviceId;
+                                        PrtgUserDeviceDetailVO pddVO = null;
                                         for (Iterator<PrtgUserDeviceDetailVO> it = deviceVOList.iterator(); it.hasNext();) {
-                                            newDeviceId = it.next().getObjid();
+                                            pddVO = it.next();
+                                            newGroupId = pddVO.getParentid();
+                                            newDeviceId = pddVO.getObjid();
 
-                                            if (StringUtils.equals(oldValue, newDeviceId)) {
+                                            /*
+                                             * Y191115, Ken
+                                             * 增加判斷設備歸屬的群組ID (若PRTG上有操作將設備移動到不同群組的話)
+                                             * >> oldParentNode = 既有設定下的parent_id (群組ID)
+                                             * >> newGroupId = 此次從PRTG撈回的設備歸屬群組ID
+                                             */
+                                            if (StringUtils.equals(oldParentNode, newGroupId) && StringUtils.equals(oldValue, newDeviceId)) {
                                                 // 既有設定存在於此次從 PRTG 撈回的清單內 => 設定保留，刪除 PRTG 清單資料，中斷迴圈往下一筆設定
                                                 isExist = true;
                                                 it.remove();
@@ -506,6 +521,11 @@ public class CommonServiceImpl implements CommonService {
                         }
 
                         if (!noNeedToAddOrModify) {
+                            /*
+                             * Y191115, Ken
+                             * 增加塞入Group_Id，若是將設備移動到別的群組時，Device_Id不會更改但要記得改歸屬的Group_Id
+                             */
+                            dl.setGroupId(deviceInfoMap.get(Constants.GROUP_ID));
                             dl.setGroupName(deviceInfoMap.get(Constants.GROUP_NAME));
                             dl.setGroupEngName(deviceInfoMap.get(Constants.GROUP_ENG_NAME));
                             dl.setDeviceName(deviceInfoMap.get(Constants.DEVICE_NAME));
