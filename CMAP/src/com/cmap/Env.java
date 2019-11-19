@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.Step;
 
@@ -67,6 +66,7 @@ public class Env {
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_IP_BLOCKED_RECORD;                   // 資安通報 > IP封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
+	public static String SHOW_MENU_ITEM_MAC_BLOCKED_RECORD;                  // 資安通報 > MAC封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
 
     public static String SHOW_MENU_TREE_ABNORMAL_MANAGEMENT;                 // 障礙管理
@@ -135,9 +135,12 @@ public class Env {
 	public static List<String> SCRIPT_CODE_OF_IP_BLOCK = new ArrayList<>();    // 設定IP封鎖的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_PORT_OPEN = new ArrayList<>();   // 設定PORT開通的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_PORT_BLOCK = new ArrayList<>();  // 設定PORT封鎖的腳本代碼
+	public static List<String> SCRIPT_CODE_OF_MAC_OPEN = new ArrayList<>();    // 設定MAC開通的腳本代碼
+	public static List<String> SCRIPT_CODE_OF_MAC_BLOCK = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
 
 	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
 	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱
+	public static String KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;            // 設定MAC開通/封鎖的MAC_ADDRESS變數名稱
 
 	public static List<String> PORT_STATUS_EXCLUDE_IF_NAME_LIKE = new ArrayList<>();	// 設定Interface狀態查詢功能，查詢結果要排除掉的Interface名稱(前後模糊比對，不看大小寫)
 
@@ -384,6 +387,13 @@ public class Env {
 	public static String BOOT_INFO_PARA_TITLE_OF_IMAGE;
 	public static String BOOT_INFO_PARA_TITLE_OF_CONFIG;
 
+	/*
+	 * 供裝結果檢核流程(Step.CHECK_PROVISION_RESULT)所需參數設定
+	 */
+	public static Integer PROVISION_CHECK_PARA_4_TOTAL_PING_TIMES;
+	public static Integer PROVISION_CHECK_PARA_4_INTERVAL_OF_PING;
+	public static Integer PROVISION_CHECK_PARA_4_TARGET_TIMES_OF_PING_FAILED_CONTINUOUS;
+
 	// 設定是否啟用組態檔內容比對差異時發MAIL通知
 	public static Boolean ENABLE_CONFIG_DIFF_NOTIFY;
 	// 設定組態檔備份時是否要參照比對模板
@@ -408,8 +418,8 @@ public class Env {
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE = new ArrayList<>();
 	// 設定資安通報下「MAC封鎖/開通」的腳本SCRIPT_CODE (For 中心端腳本)
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
-	// 設定資安通報下「MAC封鎖/開通」的IP開通腳本SCRIPT_INFO_ID for 解鎖按鈕
-		public static String DEFAULT_MAC_OPEN_SCRIPT_INFO_ID;
+	// 設定資安通報下「MAC封鎖/開通」的MAC開通腳本SCRIPT_INFO_ID for 解鎖按鈕
+	public static String DEFAULT_MAC_OPEN_SCRIPT_INFO_ID;
 	/*
 	 * OpenID
 	 */
@@ -441,6 +451,9 @@ public class Env {
 
 	public static String DEFAULT_DATA_EXPORT_TEMP_LOCATION;    // 設定預設資料匯出時暫存資料夾路徑
 
+	/**
+	 * 執行指定腳本流程
+	 */
 	public static final Step[] SEND_SCRIPT = new Step[] {
 			Step.LOAD_SPECIFIED_SCRIPT,
 			Step.FIND_DEVICE_CONNECT_INFO,
@@ -454,6 +467,10 @@ public class Env {
 			Step.CLOSE_DEVICE_CONNECTION,
 			Step.WRITE_SPECIFY_LOG,
 	};
+
+	/**
+	 * 執行呼叫端傳入的指令集(不執行腳本，由前端呼叫的功能傳入要執行的指令)
+	 */
 	public static final Step[] SEND_COMMANDS = new Step[] {
             Step.FIND_DEVICE_CONNECT_INFO,
             Step.FIND_DEVICE_LOGIN_INFO,
@@ -463,6 +480,11 @@ public class Env {
             Step.CHECK_PROVISION_RESULT,
             Step.CLOSE_DEVICE_CONNECTION
     };
+
+	/**
+	 * 組態備份 by Telnet，下達「show [running/startup] config」
+	 * 並擷取回設備吐出的內容 > 產生落地檔 > 上傳TFTP
+	 */
 	public static final Step[] BACKUP_BY_TELNET = new Step[] {
 			Step.LOAD_DEFAULT_SCRIPT,
 			Step.FIND_DEVICE_CONNECT_INFO,
@@ -479,6 +501,11 @@ public class Env {
 			Step.CLOSE_FILE_SERVER_CONNECTION,
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO
 	};
+
+	/**
+	 * 組態備份 by TFTP，下達「copy [running/startup] config tftp:]
+	 * 直接由設備端產生組態檔案 > 上傳TFTP
+	 */
 	public static final Step[] BACKUP_BY_TFTP = new Step[] {
 			Step.LOAD_DEFAULT_SCRIPT,
 			Step.FIND_DEVICE_CONNECT_INFO,
@@ -495,6 +522,11 @@ public class Env {
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
 			Step.VERSION_DIFF_NOTIFY
 	};
+
+	/**
+	 * 組態備份 by FTP，下達「copy [running/startup] config ftp:]
+     * 直接由設備端產生組態檔案 > 上傳FTP
+	 */
 	public static final Step[] BACKUP_BY_FTP = new Step[] {
 			Step.LOAD_DEFAULT_SCRIPT,
 			Step.FIND_DEVICE_CONNECT_INFO,
@@ -512,17 +544,31 @@ public class Env {
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
             Step.VERSION_DIFF_NOTIFY
 	};
+
+	/**
+	 * 從 TFTP 下載檔案
+	 */
 	public static final Step[] DOWNLOAD_FILE_FROM_TFTP = new Step[] {
 			Step.CONNECT_FILE_SERVER_4_DOWNLOAD,
 			Step.DOWNLOAD_FILE,
 			Step.CLOSE_FILE_SERVER_CONNECTION
 	};
+
+	/**
+	 * 從 FTP 下載檔案
+	 */
 	public static final Step[] DOWNLOAD_FILE_FROM_FTP = new Step[] {
 			Step.CONNECT_FILE_SERVER_4_DOWNLOAD,
 			Step.LOGIN_FILE_SERVER_4_DOWNLOAD,
 			Step.DOWNLOAD_FILE,
 			Step.CLOSE_FILE_SERVER_CONNECTION
 	};
+
+	/**
+	 * 將 PRTG Server 端備份下來的設備組態檔，再異地備份到其他 Server
+	 * PRTG Server → TFTP下載組態檔
+	 * Other Servver → FTP上傳
+	 */
 	public static final Step[] BACKUP_FILE_DOWNLOAD_FROM_TFTP_AND_UPLOAD_2_FTP = new Step[] {
 			Step.CONNECT_FILE_SERVER_4_DOWNLOAD,
 			Step.DOWNLOAD_FILE,
@@ -532,6 +578,12 @@ public class Env {
 			Step.UPLOAD_FILE_SERVER,
 			Step.CLOSE_FILE_SERVER_CONNECTION
 	};
+
+	/**
+	 * 組態還原 by Telnet/SSH 下達指令
+	 * 目前for[亞太]ePDG/HeNBGW組態還原
+	 * 因為不能直接用整個檔案覆蓋，必須先截取出需要還原的組態內容後，再透過CLI方式下達指令修改運作中的組態內容以達到還原目的
+	 */
 	public static final Step[] RESTORE_BY_CLI = new Step[] {
 			Step.FIND_DEVICE_CONNECT_INFO,
 			Step.FIND_DEVICE_LOGIN_INFO,
@@ -547,6 +599,11 @@ public class Env {
 			Step.SEND_COMMANDS,
 			Step.CLOSE_DEVICE_CONNECTION
 	};
+
+	/**
+	 * 還原組態檔 by FTP，下達指令「copy ftp://[FTP_LOGIN_ACT]:[FTP_LOGIN_PWD]@[FTP_URL][FTP_CONFIG_FILE_PATH] [DEVICE_FLASH_PATH]」
+	 * 直接在設備內從FTP下載要覆蓋的組態檔版本，透過檔案覆蓋的方式，最後將設備reboot進行生效
+	 */
 	public static final Step[] RESTORE_BY_FTP = new Step[] {
 			Step.FIND_DEVICE_CONNECT_INFO,
 			Step.FIND_DEVICE_LOGIN_INFO,
@@ -557,6 +614,10 @@ public class Env {
 			Step.SEND_COMMANDS,
 			Step.CLOSE_DEVICE_CONNECTION
 	};
+
+	/**
+	 * (目前尚未有此實作)
+	 */
 	public static final Step[] RESTORE_BY_LOCAL = new Step[] {
             Step.FIND_DEVICE_CONNECT_INFO,
             Step.FIND_DEVICE_LOGIN_INFO,
@@ -567,6 +628,12 @@ public class Env {
             Step.SEND_COMMANDS,
             Step.CLOSE_DEVICE_CONNECTION
     };
+
+	/**
+	 * 還原組態檔 by FTP，下達指令「copy tftp://....」
+     * 直接在設備內從FTP下載要覆蓋的組態檔版本，透過檔案覆蓋的方式，最後將設備reboot進行生效
+     * (目前尚未有此實作)
+	 */
 	public static final Step[] RESTORE_BY_TFTP = new Step[] {
 			Step.FIND_DEVICE_CONNECT_INFO,
 			Step.FIND_DEVICE_LOGIN_INFO,
