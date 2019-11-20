@@ -199,7 +199,10 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
                 }
 
                 if (processVO == null || (processVO != null && !processVO.isSuccess())) {
-                    errorSb.append("[" + (idx+1) + "] >> 群組名稱:【" + groupName + "】/設備名稱:【" + deviceName + "】供裝失敗" + Constants.HTML_BREAK_LINE_SYMBOL);
+                    errorSb.append("[" + (idx+1) + "] >> 群組名稱:【" + groupName + "】/設備名稱:【" + deviceName + "】" + Constants.HTML_BREAK_LINE_SYMBOL)
+                           .append("失敗原因:" + Constants.HTML_BREAK_LINE_SYMBOL)
+                           .append(processVO.getMessage())
+                           .append("------------------------------------------------------------------------------------------------");
                     failedCount++;
                     continue;
                 }
@@ -210,7 +213,10 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
             } catch (ServiceLayerException sle) {
                 log.error(sle.toString(), sle);
-                errorSb.append("[" + (idx+1) + "] >> 群組ID:【" + groupId + "】/設備ID:【" + deviceId + "】供裝失敗" + Constants.HTML_BREAK_LINE_SYMBOL);
+                errorSb.append("[" + (idx+1) + "] >> 群組ID:【" + groupId + "】/設備ID:【" + deviceId + "】" + Constants.HTML_BREAK_LINE_SYMBOL)
+                       .append("失敗原因:" + Constants.HTML_BREAK_LINE_SYMBOL)
+                	   .append(sle.toString() + Constants.HTML_BREAK_LINE_SYMBOL)
+                       .append("------------------------------------------------------------------------------------------------");
                 failedCount++;
                 continue;
 

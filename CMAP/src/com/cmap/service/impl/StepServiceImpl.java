@@ -58,6 +58,7 @@ import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ConfigService;
+import com.cmap.service.ProvisionService;
 import com.cmap.service.ScriptService;
 import com.cmap.service.StepService;
 import com.cmap.service.VersionService;
@@ -122,6 +123,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 	@Autowired
 	private IpMappingDAO ipMappingDAO;
+	
+	@Autowired
+	private ProvisionService provisionService;
 
 	@Override
 	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
@@ -684,6 +688,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
             List<String> ipBlockScriptCodeList = Env.SCRIPT_CODE_OF_IP_BLOCK;
             List<String> portOpenScriptCodeList = Env.SCRIPT_CODE_OF_PORT_OPEN;
             List<String> portBlockScriptCodeList = Env.SCRIPT_CODE_OF_PORT_BLOCK;
+            List<String> macOpenScriptCodeList = Env.SCRIPT_CODE_OF_MAC_OPEN;
+            List<String> macBlockScriptCodeList = Env.SCRIPT_CODE_OF_MAC_BLOCK;
 
             BlockType blockType = null;
             String actionStatusFlag = null;
@@ -701,6 +707,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
             } else if (portBlockScriptCodeList.contains(scriptCode)) {
                 blockType = BlockType.PORT;
+                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
+                
+            } else if (macOpenScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.MAC;
+                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
+
+            } else if (macBlockScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.MAC;
                 actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
             }
 
@@ -1814,8 +1828,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		ConnectUtils connectUtils = null;			// 連線裝置物件
 		List<String> outputList = null;
 
+		boolean stopRetry = false;
 		boolean retryRound = false;
-		while (round <= RETRY_TIMES) {
+		while (round <= RETRY_TIMES && !stopRetry) {
 			try {
 				Step[] steps = null;
 				ConnectionMode deviceMode = null;
@@ -2066,6 +2081,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								break;
 
 							} catch (Exception e) {
+								// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
+								stopRetry = true;
 								log.error(e.toString(), e);
 								throw new ServiceLayerException("檢核供裝派送結果時失敗 [ 錯誤代碼: CHECK_PROVISION_RESULT ]");
 							}
@@ -2076,6 +2093,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								break;
 
 							} catch (Exception e) {
+								// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
+								stopRetry = true;
 								log.error(e.toString(), e);
 								throw new ServiceLayerException("關閉與設備間連線時失敗 [ 錯誤代碼: CLOSE_DEVICE_CONNECTION ]");
 							}
@@ -2086,6 +2105,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                                 break;
 
                             } catch (Exception e) {
+                            	// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
+								stopRetry = true;
                                 log.error(e.toString(), e);
                                 throw new ServiceLayerException("寫入指定LOG table時失敗 [ 錯誤代碼: WRITE_SPECIFY_LOG ]");
                             }
@@ -2110,6 +2131,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                                        log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> 查無設備資料 (DeviceListId: " + deviceListId + ")");
 	                                        throw new ServiceLayerException("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> 查無設備資料");
 	                                    }
+	                                    
+	                                    groupId = dlEntity.getGroupId();
 
 	                                    // 查找[MAC封鎖]腳本
                                         ScriptInfo macBlockScriptInfo = null;
@@ -2140,12 +2163,12 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                                         * Step 1. 查找要封裝的IP是否存在於ARP_TABLE，不存在則結束並提示訊息
 	                                         * [資料表: module_arp_table]
 	                                         */
-	                                        arpTableList = ipMappingDAO.findModuleArpTable(groupId, null, 1);
+	                                        arpTableList = ipMappingDAO.findModuleArpTable(groupId, null, ip, 1);
 
 	                                        // 若 IP 不存在於 ARP_TABLE 內，則註記此 IP 供裝失敗
 	                                        if (arpTableList == null || (arpTableList != null && arpTableList.isEmpty())) {
 	                                            // 記錄下哪一筆IP不存在於ARP_TABLE
-	                                            log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> IP不存在於ARP_TABLE (IP: " + ip + ")");
+	                                            log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> IP不存在於ARP_TABLE (GroupId: " + groupId + ", IP: " + ip + ")");
 
 	                                            if (ipNotExistInArpTableList == null) {
 	                                                ipNotExistInArpTableList = new ArrayList<>();
@@ -2183,18 +2206,28 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                                        macBlockVarMapList = new ArrayList<>();
 	                                        macBlockVarMapList.add(macBlockVarMap);
 
+	                                        ProvisionServiceVO subMasterVO = new ProvisionServiceVO();
+	                                        StepServiceVO subProcessVO = null;
+	                                        boolean macBlockSuccess = true;
+	                                        String subReason = "IP封鎖無效，改以MAC封鎖 [IP: " + ip + "]";
 	                                        try {
+	                                        	subMasterVO.setLogMasterId(UUID.randomUUID().toString());
+	                                        	subMasterVO.setBeginTime(new Date());
+	                                        	subMasterVO.setUserName(sysTrigger ? triggerBy : SecurityUtil.getSecurityUser().getUsername());
+	                                            
 	                                            // 呼叫執行[MAC封鎖]腳本
-	                                            doScript(
-	                                                    connectionMode,
-	                                                    deviceListId,
-	                                                    deviceInfo,
-	                                                    macBlockScriptInfo,    // 替換成[MAC封鎖]的Script_Info
-	                                                    macBlockVarMapList,    // 替換成[MAC封鎖]的腳本參數
-	                                                    sysTrigger,
-	                                                    triggerBy,
-	                                                    triggerRemark,
-	                                                    reason);
+	                                            subProcessVO = doScript(
+				                                                    connectionMode,
+				                                                    deviceListId,
+				                                                    deviceInfo,
+				                                                    macBlockScriptInfo,    // 替換成[MAC封鎖]的Script_Info
+				                                                    macBlockVarMapList,    // 替換成[MAC封鎖]的腳本參數
+				                                                    sysTrigger,
+				                                                    triggerBy,
+				                                                    triggerRemark,
+				                                                    subReason);
+	                                            
+	                                            subMasterVO.getDetailVO().addAll(subProcessVO.getPsVO().getDetailVO());
 
 	                                        } catch (Exception e) {
 	                                            log.error("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> " + e.toString());
@@ -2205,7 +2238,25 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                                                 }
 
                                                 ipExecuteMacBlockFailedList.add(ip);
+                                                macBlockSuccess = false;
 	                                        }
+	                                        
+	                                        if (subProcessVO == null || (subProcessVO != null && !subProcessVO.isSuccess())) {
+	                                        	macBlockSuccess = false;
+	                                        }
+	                                        
+	                                        String msg = "";
+	                                        String[] args = null;
+                                            if (macBlockSuccess) {
+                                                msg = "供裝成功";
+                                            } else {
+                                                msg = "供裝失敗";
+                                            }
+	                                        
+	                                        subMasterVO.setEndTime(new Date());
+	                                        subMasterVO.setResult(CommonUtils.converMsg(msg, args));
+	                                        subMasterVO.setReason(subReason);
+	                                        provisionService.insertProvisionLog(subMasterVO);
 	                                    }
 
 	                                    // 若有紀錄執行失敗的 IP 清單，則於此組合錯誤訊息
@@ -2214,7 +2265,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                                        errorMsg = new StringBuffer();
 	                                        int idx = 1;
 
-	                                        if (!ipNotExistInArpTableList.isEmpty()) {
+	                                        if (ipNotExistInArpTableList != null && !ipNotExistInArpTableList.isEmpty()) {
 	                                            errorMsg.append("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> IP不存在於ARP_TABLE")
 	                                                    .append("<br>");
 
@@ -2224,7 +2275,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                                            }
 	                                        }
 
-	                                        if (!ipExecuteMacBlockFailedList.isEmpty()) {
+	                                        if (ipExecuteMacBlockFailedList != null && !ipExecuteMacBlockFailedList.isEmpty()) {
                                                 errorMsg.append("[IP封鎖]未起作用(Ping可通)，欲執行[MAC封鎖]時失敗 >> [MAC封鎖]供裝失敗")
                                                         .append("<br>");
 
@@ -2244,7 +2295,15 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                                 break;
 
+                            } catch (ServiceLayerException sle) {
+                            	// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
+								stopRetry = true;
+                                log.error(sle.toString(), sle);
+                                throw sle;
+                            	
                             } catch (Exception e) {
+                            	// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
+								stopRetry = true;
                                 log.error(e.toString(), e);
                                 throw new ServiceLayerException("執行替代方案流程時失敗 [ 錯誤代碼: DO_SPECIFIED_ALTERNATIVE_ACTION ]");
                             }
@@ -2265,13 +2324,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				 */
 				psRetryVO = new ProvisionServiceVO();
 				psRetryVO.setResult(Result.ERROR.toString());
-				psRetryVO.setMessage(sle.toString());
+				psRetryVO.setMessage(sle.getMessage());
 				psRetryVO.setRetryOrder(round);
 				psStepVO.getRetryVO().add(psRetryVO); // add RetryVO to StepVO
 
 				processVO.setSuccess(false);
 				processVO.setResult(Result.ERROR);
-				processVO.setMessage(sle.toString());
+				processVO.setMessage(sle.getMessage());
 				processVO.setCmdProcessLog(sle.getMessage());
 
 				retryRound = true;
@@ -2292,13 +2351,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				 */
 				psRetryVO = new ProvisionServiceVO();
 				psRetryVO.setResult(Result.ERROR.toString());
-				psRetryVO.setMessage(e.toString());
+				psRetryVO.setMessage(e.getMessage());
 				psRetryVO.setRetryOrder(round);
 				psStepVO.getRetryVO().add(psRetryVO); // add RetryVO to StepVO
 
 				processVO.setSuccess(false);
 				processVO.setResult(Result.ERROR);
-				processVO.setMessage(e.toString());
+				processVO.setMessage(e.getMessage());
 				processVO.setCmdProcessLog(e.getMessage());
 
 				retryRound = true;

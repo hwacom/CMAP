@@ -41,7 +41,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
     }
 
     @Override
-    public List<ModuleArpTable> findModuleArpTable(String groupId, String deviceId, Integer limit) {
+    public List<ModuleArpTable> findModuleArpTable(String groupId, String deviceId, String ipAddress, Integer limit) {
         StringBuffer sb = new StringBuffer();
         sb.append(" from ModuleArpTable mat ")
           .append(" where 1=1 ");
@@ -52,6 +52,9 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         if (StringUtils.isNotBlank(deviceId)) {
             sb.append(" and mat.deviceId = :deviceId ");
         }
+        if (StringUtils.isNotBlank(ipAddress)) {
+            sb.append(" and mat.ipAddr = :ipAddress ");
+        }
         sb.append(" order by mat.updateTime desc ");
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
@@ -61,6 +64,9 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         }
         if (StringUtils.isNotBlank(deviceId)) {
             q.setParameter("deviceId", deviceId);
+        }
+        if (StringUtils.isNotBlank(ipAddress)) {
+        	q.setParameter("ipAddress", ipAddress);
         }
         if (limit != null) {
             q.setFirstResult(0);

@@ -11,7 +11,7 @@ public interface IpMappingDAO extends BaseDAO {
      * @param deviceId
      * @return
      */
-    public List<ModuleArpTable> findModuleArpTable(String groupId, String deviceId, Integer limit);
+    public List<ModuleArpTable> findModuleArpTable(String groupId, String deviceId, String ipAddress, Integer limit);
 
     public List<ModuleMacTableExcludePort> findModuleMacTableExcludePort(String groupId, String deviceId);
 

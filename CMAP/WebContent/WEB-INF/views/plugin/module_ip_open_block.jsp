@@ -1,6 +1,14 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ include file="../../common/taglib.jsp" %>
+
+<style>
+  .ui-dialog {
+    width: 700px !important;
+    left: 418px !important;
+  }
+</style>
+
 <section>
 
   <div class="container-fluid">
