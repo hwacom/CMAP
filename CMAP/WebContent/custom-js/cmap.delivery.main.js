@@ -75,6 +75,8 @@ function recordSectionRadioBoxOnChangeEvent() {
 }
 
 function doConfirmOpenByBtn() {
+	$("#openReasonModal_reason").val("");
+	
 	$("#openReasonModal").modal({
 		backdrop : 'static'
 	});

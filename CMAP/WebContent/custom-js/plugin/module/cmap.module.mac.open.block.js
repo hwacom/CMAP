@@ -176,7 +176,7 @@ function findBlockedMacRecordData(statusFlag) {
 				
 				var pathname = window.location.pathname;
 				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
-				if (lastPath === "/MacOpenBlock") {
+				if (lastPath === "/macOpenBlock") {
 					$('[data-field="status"]').hide();
 					$('[data-field="openTime"]').hide();
 					$('[data-field="openReason"]').hide();
