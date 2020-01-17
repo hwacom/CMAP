@@ -3,7 +3,7 @@
  */
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_alarmSummary");
+	initMenuStatus("toggleMenu_abnormalAlarm", "toggleMenu_abnormalAlarm_items", "mp_alarmSummary");
 
 	adjustHeight();
 	

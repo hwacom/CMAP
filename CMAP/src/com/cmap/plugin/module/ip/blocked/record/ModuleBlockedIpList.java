@@ -48,7 +48,13 @@ public class ModuleBlockedIpList implements java.io.Serializable {
 
     @Column(name = "open_reason", nullable = true)
     private String openReason;
-
+    
+    @Column(name = "script_code")
+    private String scriptCode;
+    
+    @Column(name = "script_name")
+    private String scriptName;
+    
     @Column(name = "remark", nullable = true)
     private String remark;
 
@@ -64,13 +70,14 @@ public class ModuleBlockedIpList implements java.io.Serializable {
     @Column(name = "update_by", nullable = false)
     private String updateBy;
 
+    
     public ModuleBlockedIpList() {
         super();
     }
 
     public ModuleBlockedIpList(String listId, String groupId, String deviceId, String ipAddress,
             String statusFlag, Timestamp blockTime, String blockBy, String blockReason,
-            Timestamp openTime, String openBy, String openReason, String remark,
+            Timestamp openTime, String openBy, String openReason, String scriptCode, String scriptName, String remark,
             Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
         super();
         this.listId = listId;
@@ -84,6 +91,8 @@ public class ModuleBlockedIpList implements java.io.Serializable {
         this.openTime = openTime;
         this.openBy = openBy;
         this.openReason = openReason;
+        this.scriptCode = scriptCode;
+        this.scriptName = scriptName;
         this.remark = remark;
         this.createTime = createTime;
         this.createBy = createBy;
@@ -179,7 +188,23 @@ public class ModuleBlockedIpList implements java.io.Serializable {
         this.openReason = openReason;
     }
 
-    public String getRemark() {
+    public String getScriptCode() {
+		return scriptCode;
+	}
+
+	public void setScriptCode(String scriptCode) {
+		this.scriptCode = scriptCode;
+	}
+
+	public String getScriptName() {
+		return scriptName;
+	}
+
+	public void setScriptName(String scriptName) {
+		this.scriptName = scriptName;
+	}
+
+	public String getRemark() {
         return remark;
     }
 

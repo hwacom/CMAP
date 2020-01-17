@@ -3,7 +3,7 @@
  */
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_abnormalAlarm", "toggleMenu_abnormalAlarm_items", "ip_record");
+	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "ip_record");
 	changeDeviceMenu("queryDevice", $("#queryGroup").val());
 });
 

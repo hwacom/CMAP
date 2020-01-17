@@ -15,5 +15,6 @@ public enum ScriptType {
 	SERVICE_RESTART,
 	IP_BLOCK,
 	PORT_BLOCK,
-	MAC_BLOCK
+	MAC_BLOCK,
+	MAC_OPEN
 }

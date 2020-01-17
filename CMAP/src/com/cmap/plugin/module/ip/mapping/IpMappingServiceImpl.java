@@ -113,10 +113,10 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     if (loginInfo != null) {
                     	communityString = loginInfo.getCommunityString();
                     	udpPort = loginInfo.getUdpPort();
-                    } else {
-                    	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
-                    	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
                     }
+                    
+                    communityString = StringUtils.isBlank(communityString)? Env.DEFAULT_DEVICE_COMMUNITY_STRING : communityString;
+                    udpPort =  udpPort == null ? Env.DEFAULT_DEVICE_UDP_PORT : udpPort;
 
                     String udpAddress = "udp:" + deviceIp + "/" + udpPort;
                     // 連接設備
@@ -151,6 +151,8 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     	ipsVO.setMacAddress(macAddress);
                     	ipsVO.setIpAddress(ipAddress);
                     	ipsVO.setInterfaceId(interfaceId);
+                    	
+                    	log.info("ipsVO deviceId: " + deviceId + ",ipAddress: " + ipAddress+ ",macAddress: " + macAddress );
 
                     	macInfoMap.put(macAddress, ipsVO);
                     }
@@ -383,6 +385,8 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             	String L2DeviceId = L2DeviceEntry.getKey();
                 Map<String, IpMappingServiceVO> L2DeviceMacTable = L2DeviceEntry.getValue();
 
+                log.info("new poller L2 deviceId: " + L2DeviceMacTable.get("deviceId") );
+
                 // 跑L2 device MacTable 資料
                 for (Map.Entry<String, IpMappingServiceVO> L2MacTableEntry : L2DeviceMacTable.entrySet()) {
                     String macAddress = L2MacTableEntry.getKey();
@@ -398,6 +402,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     */
 
                     IpMappingServiceVO mtEntryVO = L2MacTableEntry.getValue();
+                    log.info("macAddress : " + macAddress );
 
                     // 跑L3 取得MAC_ADDRESS對應IP_ADDRESS
                     for (Map.Entry<String, Map<String, IpMappingServiceVO>> L3ArpTableEntry : L3ArpTableMap.entrySet()) {
@@ -405,10 +410,14 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 
                         // 若該Group底下L2 switch的MAC table不為空，且存在該MAC address資料才往下取得該MAC連接的PortID
                         if (L3DeviceArpTable != null && !L3DeviceArpTable.isEmpty()) {
+                        	log.info("L3DeviceArpTable have same macAddress: " + L3DeviceArpTable.containsKey(macAddress) + "!!" );
+
                             if (L3DeviceArpTable.containsKey(macAddress)) {
                                 IpMappingServiceVO atEntryVO = L3DeviceArpTable.get(macAddress);
                                 String ipAddress = atEntryVO.getIpAddress();
                                 String portId = mtEntryVO.getPortId();
+                                
+                                log.info("L3DeviceArpTable ipAddress: " + ipAddress + ", portId:" +portId );
 
                                 mappingVO = new IpMappingServiceVO();
                                 mappingVO.setExecuteDate(executeDate);
@@ -420,7 +429,10 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 
                                 ipMacPortMappingList.add(mappingVO);
                             }
+                        }else {
+                        	log.info("L3DeviceArpTable is null!!" );
                         }
+                        	
                     }
                 }
             }

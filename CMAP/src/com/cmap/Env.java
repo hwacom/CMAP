@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.Step;
 
@@ -109,6 +110,7 @@ public class Env {
 
 	public static String DEVICE_LAYER_L3;                                    // 設定PRTG中設定的tag，表示device layer為L3的字串
 	public static String DEVICE_LAYER_L2;                                    // 設定PRTG中設定的tag，表示device layer為L2的字串
+	public static String DEVICE_LAYER_LC;                                    // 設定PRTG中設定的tag，表示device layer為LC的字串
 
 	public static String MAIL_SERVER_HOST;
 	public static String MAIL_SERVER_PORT;
@@ -130,6 +132,7 @@ public class Env {
 	public static Integer FIREWALL_LOG_PAGE_LENGTH;                          // 設定 FIREWALL_LOG 查詢功能，每次查詢的筆數上限
 
 	public static String ENABLE_LOG_USER_OPERATIONS;						 // 設定是否啟用USER操作紀錄到DB
+	public static String ENABLE_SECONDARY_DB;								 // 設定是否啟用第二台DB
 
 	public static List<String> SCRIPT_CODE_OF_IP_OPEN = new ArrayList<>();     // 設定IP開通的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_IP_BLOCK = new ArrayList<>();    // 設定IP封鎖的腳本代碼
@@ -382,7 +385,23 @@ public class Env {
 	public static String DEFAULT_NET_FLOW_FILE_NAME_REGEX;
 	public static String DEFAULT_NET_FLOW_DATA_TYPE;
 	public static String NET_FLOW_IP_STAT_SEND_TO_PRTG_SERVER_IP;
+	
+	public static String ABNORMAL_NET_FLOW_LIMIT_BLOCK_SIZE;			//自動鎖定流量SIZE
+	public static Integer NET_FLOW_LIMIT_BLOCK_UNIT_OF_TOTOAL_FLOW;	//自動鎖定流量轉換單位上限
+	public static String NET_FLOW_LIMIT_BLOCK_LIMIT_TYPE;				//自動鎖定流量方式total:總量/upload:上傳/download:下載
+	public static String DELIVERY_IP_AUTO_BLOCK_SCRIPT_CODE;			//自動鎖定流量腳本SCRIPT_CODE
+	public static String NET_FLOW_LIMIT_BLOCK_DEVICE_MODEL;			//自動鎖定流量篩選device model
 
+	public static String DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME;		//同步設備記錄者名稱
+	public static List<String> DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE = new ArrayList<>();
+	//同步設備上ip封鎖清單
+	public static List<String>  DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
+	//同步設備上ip封鎖清單 For admin
+	public static List<String>  DELIVERY_SYNC_SWITCH_PORT_RECORD_SCRIPT_CODE = new ArrayList<>();
+	//同步設備上port封鎖清單 For admin
+	public static List<String>  DELIVERY_SYNC_MAC_BLOCK_RECORD_SCRIPT_CODE = new ArrayList<>();
+	//同步設備上mac封鎖清單 For admin
+	
 	public static String BOOT_INFO_PARA_TITLE_OF_PRIORITY;
 	public static String BOOT_INFO_PARA_TITLE_OF_IMAGE;
 	public static String BOOT_INFO_PARA_TITLE_OF_CONFIG;
@@ -451,6 +470,8 @@ public class Env {
 
 	public static String DEFAULT_DATA_EXPORT_TEMP_LOCATION;    // 設定預設資料匯出時暫存資料夾路徑
 
+	public static String OIDC_URL_OF_CHIAYI_CITY;
+	
 	/**
 	 * 執行指定腳本流程
 	 */

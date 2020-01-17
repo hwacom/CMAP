@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -163,7 +164,11 @@ public class DeliveryController extends BaseController {
 
             //pbrVO.setQueryPortAddress(queryPortAddress);
             if (StringUtils.isNotBlank(queryStatusFlag)) {
-                pbrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+                if(queryStatusFlag.equals(Constants.STATUS_FLAG_SYNC)) {
+                	pbrVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
+            	}else {
+            		pbrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            	}
             }
             pbrVO.setQueryBeginDate(queryBeginDate);
             pbrVO.setQueryEndDate(queryEndDate);
@@ -176,8 +181,20 @@ public class DeliveryController extends BaseController {
 
             if (filterdTotal != 0) {
                 dataList = portRecordService.findModuleBlockedPortList(pbrVO, startNum, pageLength);
+                
             }
 
+            if(Constants.STATUS_FLAG_SYNC.equals(queryStatusFlag)) {
+				boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
+				String prtgLoginAccount = Objects
+						.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+				if (deliveryService.doSyncDevicePortBlockedList(isAdmin, prtgLoginAccount, pbrVO, dataList)) {
+					dataList = portRecordService.findModuleBlockedPortList(pbrVO, startNum, pageLength);
+				}
+				filterdTotal = dataList.size();
+        	}
+            
             total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
 
         } catch (ServiceLayerException sle) {
@@ -205,6 +222,22 @@ public class DeliveryController extends BaseController {
 		return "plugin/module_ip_open_block";
 	}
 
+	@RequestMapping(value = "ipOpenBlock4Admin", method = RequestMethod.GET)
+	public String ipOpenBlock4Admin(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+		try {
+
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+
+		} finally {
+			initMenu(model, request);
+		}
+
+		return "plugin/module_ip_open_block_4admin";
+	}
+	
+	
 	/**
 	 * 查找被封鎖過的IP紀錄
 	 * @param model
@@ -239,14 +272,20 @@ public class DeliveryController extends BaseController {
         List<IpBlockedRecordVO> dataList = new ArrayList<>();
         IpBlockedRecordVO irVO;
         try {
+        	
             irVO = new IpBlockedRecordVO();
 
             setQueryGroupList(request, irVO, StringUtils.isNotBlank(queryGroupId) ? "queryGroupId" : "queryGroupIdList", queryGroupId);
             setQueryDeviceList(request, irVO, StringUtils.isNotBlank(queryDeviceId) ? "queryDeviceId" : "queryDeviceIdList", queryGroupId, queryDeviceId);
 
             irVO.setQueryIpAddress(queryIpAddress);
+            
             if (StringUtils.isNotBlank(queryStatusFlag)) {
-                irVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            	if(queryStatusFlag.equals(Constants.STATUS_FLAG_SYNC)) {
+            		irVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
+            	}else {
+                    irVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            	}
             }
             irVO.setQueryBeginDate(queryBeginDate);
             irVO.setQueryEndDate(queryEndDate);
@@ -255,12 +294,27 @@ public class DeliveryController extends BaseController {
             irVO.setOrderColumn(UI_BLOCKED_IP_RECORD_COLUMNS[orderColIdx]);
             irVO.setOrderDirection(orderDirection);
 
+            boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
+			irVO.setAdmin(isAdmin);
+			
             filterdTotal = ipRecordService.countModuleBlockedIpList(irVO);
 
             if (filterdTotal != 0) {
                 dataList = ipRecordService.findModuleBlockedIpList(irVO, startNum, pageLength);
+                
             }
 
+            if(Constants.STATUS_FLAG_SYNC.equals(queryStatusFlag) && StringUtils.isNotBlank(irVO.getQueryGroupId())) {
+            	
+				String prtgLoginAccount = Objects
+						.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+				if (deliveryService.doSyncDeviceIpBlockedList(isAdmin, prtgLoginAccount, irVO, dataList)) {
+					dataList = ipRecordService.findModuleBlockedIpList(irVO, startNum, pageLength);
+				}
+				filterdTotal = dataList.size();
+        	}
+            
             total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
 
         } catch (ServiceLayerException sle) {
@@ -329,7 +383,11 @@ public class DeliveryController extends BaseController {
 
             mrVO.setQueryMacAddress(queryMacAddress);
             if (StringUtils.isNotBlank(queryStatusFlag)) {
-                mrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+                if(queryStatusFlag.equals(Constants.STATUS_FLAG_SYNC)) {
+                	mrVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
+            	}else {
+            		mrVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            	}
             }
             mrVO.setQueryBeginDate(queryBeginDate);
             mrVO.setQueryEndDate(queryEndDate);
@@ -342,8 +400,20 @@ public class DeliveryController extends BaseController {
 
             if (filterdTotal != 0) {
                 dataList = macRecordService.findModuleBlockedMacList(mrVO, startNum, pageLength);
+                
             }
 
+            if(Constants.STATUS_FLAG_SYNC.equals(queryStatusFlag)) {
+				boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
+				String prtgLoginAccount = Objects
+						.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+				if (deliveryService.doSyncDeviceMacBlockedList(isAdmin, prtgLoginAccount, mrVO, dataList)) {
+					dataList = macRecordService.findModuleBlockedMacList(mrVO, startNum, pageLength);
+				}
+				filterdTotal = dataList.size();
+        	}
+            
             total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
 
         } catch (ServiceLayerException sle) {
@@ -481,7 +551,7 @@ public class DeliveryController extends BaseController {
 
 		DeliveryServiceVO dsVO;
 		try {
-			dsVO = deliveryService.getScriptInfoById(scriptInfoId);
+			dsVO = deliveryService.getScriptInfoByIdOrCode(scriptInfoId, null);
 			final String deviceModel = dsVO.getDeviceModel();
 
 			//取得Group & Device選單內容
@@ -568,7 +638,7 @@ public class DeliveryController extends BaseController {
             @RequestParam(name="listId[]", required=true) String[] listIdArray,
             @RequestParam(name="reason", required=false) String reasonInput) {
 
-	    DeliveryServiceVO retVO;
+	    DeliveryServiceVO retVO = null;
 	    DeliveryParameterVO pVO;
         try {
             pVO = new DeliveryParameterVO();
@@ -577,34 +647,39 @@ public class DeliveryController extends BaseController {
             List<String> varKeys = new ArrayList<>();
             List<List<String>> varValues = new ArrayList<>();
 
-            String scriptInfoId = Env.DEFAULT_IP_OPEN_SCRIPT_INFO_ID;
+//            String scriptInfoId = Env.DEFAULT_IP_OPEN_SCRIPT_INFO_ID;
             String scriptCode = null;
             String groupId = null;
             String deviceId = null;
             String varKeyJson = null;
             List<String> varValue = null;
             String reason = reasonInput;
-
-            // Step 1. 查解鎖腳本
-            retVO = deliveryService.getScriptInfoById(scriptInfoId);
-
-            scriptCode = retVO.getScriptCode();
-            varKeyJson = retVO.getActionScriptVariable();
-            Gson gson = new Gson();
-            varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
-
-            // Step 2. 準備必要參數
+            String[] scriptCodeArr;
+            
+            // Step 1. 準備必要參數
             IpBlockedRecordVO ibrVO;
             List<IpBlockedRecordVO> recordList = null;
+            boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
+            
             for (String listId : listIdArray) {
                 ibrVO = new IpBlockedRecordVO();
                 ibrVO.setQueryListId(listId);
-
+                ibrVO.setAdmin(isAdmin);
+                
                 recordList = ipRecordService.findModuleBlockedIpList(ibrVO, null, null);
 
                 if (recordList != null && !recordList.isEmpty()) {
                     ibrVO = recordList.get(0);
+                    scriptCodeArr = ibrVO.getScriptCode().split("_");
+                    scriptCode = scriptCodeArr[0]+"_"+ String.format("%03d",Integer.parseInt(scriptCodeArr[1])+1);
+                    		
+                    // Step 2. 查解鎖腳本
+                    retVO = deliveryService.getScriptInfoByIdOrCode(null, scriptCode);
 
+                    varKeyJson = retVO.getActionScriptVariable();
+                    Gson gson = new Gson();
+                    varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
+                    
                     groupId = ibrVO.getGroupId();
                     deviceId = ibrVO.getDeviceId();
 
@@ -618,7 +693,7 @@ public class DeliveryController extends BaseController {
             }
 
             // Step 3. 呼叫共用
-            pVO.setScriptInfoId(scriptInfoId);
+            pVO.setScriptInfoId(retVO.getScriptInfoId());
             pVO.setScriptCode(scriptCode);
             pVO.setGroupId(groupIds);
             pVO.setDeviceId(deviceIds);
@@ -671,7 +746,7 @@ public class DeliveryController extends BaseController {
             String reason = reasonInput;
 
             // Step 1. 查解鎖腳本
-            retVO = deliveryService.getScriptInfoById(scriptInfoId);
+            retVO = deliveryService.getScriptInfoByIdOrCode(scriptInfoId, null);
 
             scriptCode = retVO.getScriptCode();
             varKeyJson = retVO.getActionScriptVariable();
@@ -756,7 +831,7 @@ public class DeliveryController extends BaseController {
             String reason = reasonInput;
 
             // Step 1. 查解鎖腳本
-            retVO = deliveryService.getScriptInfoById(scriptInfoId);
+            retVO = deliveryService.getScriptInfoByIdOrCode(scriptInfoId, null);
 
             scriptCode = retVO.getScriptCode();
             varKeyJson = retVO.getActionScriptVariable();
@@ -879,4 +954,5 @@ public class DeliveryController extends BaseController {
 			//initMenu(model, request);
 		}
 	}
+	
 }

@@ -51,4 +51,11 @@ public interface NetFlowStatisticsService {
      * @throws ServiceLayerException
      */
     public List<NetFlowStatisticsVO> findModuleSessionStatistics(NetFlowStatisticsVO nfsVO) throws ServiceLayerException;
+
+    /**
+     * 批次使用偵測流量超量自動鎖定IP
+     * @return
+     * @throws ServiceLayerException
+     */
+    public List<Object[]> executeNetFlowIpAutoLock() throws ServiceLayerException;
 }

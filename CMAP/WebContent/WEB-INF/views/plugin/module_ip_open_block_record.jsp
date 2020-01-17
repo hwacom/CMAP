@@ -82,6 +82,7 @@
 		      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="scriptName"><spring:message code="block.rule" /></th>
 		    </tr>
 		  </thead>
 		</table>

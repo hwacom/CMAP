@@ -451,7 +451,7 @@ public class PrtgApiUtils implements ApiUtils {
 					request.getSession().setAttribute(Constants.PASSHASH, retVal);
 
 					//判斷OIDC_SCHOOL_ID有無值，無值則塞login username(非走OPENID)
-					String sourceId = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID));
+					String sourceId = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID), null);
 
 					if (StringUtils.isBlank(sourceId)) {
 					    request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);

@@ -1,6 +1,8 @@
 package com.cmap.plugin.module.ip.blocked.record;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -8,6 +10,8 @@ import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
@@ -102,6 +106,8 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
           .append("  ,mbil.update_by ")
           .append("  ,mbil.list_id ")
           .append("  ,mbil.device_id ")
+          .append("  ,mbil.script_code ")
+          .append("  ,mbil.script_name ")
           .append(" from Module_Blocked_Ip_List mbil ")
           .append(" left join Module_Ip_Data_Setting mids ")
           .append(" on ( mbil.group_id = mids.group_id ")
@@ -133,6 +139,9 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
         if (ibrVO.getQueryExcludeStatusFlag() != null && !ibrVO.getQueryExcludeStatusFlag().isEmpty()) {
             sb.append(" and mbil.status_Flag not in (:excludeStatusFlag) ");
         }
+        
+        sb.append(" and mbil.script_Code in (:scriptCode) ");
+        
         if (StringUtils.isNotBlank(ibrVO.getSearchValue())) {
             sb.append(" and ( ")
               .append("       mbil.ip_Address like :searchValue ")
@@ -150,7 +159,7 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
         } else {
             sb.append(" order by mbil.block_Time desc ");
         }
-
+		
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createNativeQuery(sb.toString());
 
@@ -184,6 +193,17 @@ public class IpBlockedRecordDAOImpl extends BaseDaoHibernate implements IpBlocke
             q.setMaxResults(pageLength);
         }
 
+
+        List<String> scriptList = new ArrayList<>();
+        if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE != null) {
+			scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
+		}
+		// 若使用者為管理者，多查出中心端的IP控制腳本
+		if (ibrVO.isAdmin() && Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
+			scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+		}
+		q.setParameterList("scriptCode", scriptList);
+		
         return (List<Object[]>)q.list();
     }
 

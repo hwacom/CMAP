@@ -194,7 +194,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		request.getSession().setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
 		//            Map<String, String> authMap = composeUserNamePasswordMap(requestBody);
-
+		
 		switch (Env.LOGIN_AUTH_MODE) {
 			case Constants.LOGIN_AUTH_MODE_PRTG:
 				loginAuthByPRTG(request, username, password);
@@ -203,6 +203,10 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			case Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI:
 				loginAuthByOIDC(request, response);
 				break;
+				
+//			case Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI:
+//				loginAuthByOIDC(request, response);
+//				break;
 		}
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);

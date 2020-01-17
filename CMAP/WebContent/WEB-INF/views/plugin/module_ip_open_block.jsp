@@ -55,7 +55,7 @@
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findBlockedIpRecordData()">
+		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findBlockedIpRecordData('B')">
 		               	<form:option value="" label="== ALL ==" />
 		                <form:options items="${groupList}" />
 		            </form:select>
@@ -64,6 +64,9 @@
 	            
 	            <!-- 解鎖Button -->
 				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.ip.open" /></button>
+				<button type="button"  style="width: 200px" class="btn btn-primary btn-sm"  id="btnSync_record">
+    	    		<spring:message code="synchronize.switch.ip" />
+    	    	</button>
 			</div>
 		</div>
 	</div>
@@ -78,7 +81,7 @@
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="mac.address" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.address" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.remark" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
@@ -87,15 +90,13 @@
 				      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="scriptName"><spring:message code="block.rule" /></th>
 				    </tr>
 				  </thead>
 				</table>
 		  	</div>
-		</div>
+		</div>		
   	</div>
-  	
-  </div>
-
 </section>
 
 <!-- Modal [View] start -->

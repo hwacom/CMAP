@@ -51,4 +51,15 @@ public interface NetFlowStatisticsDAO extends BaseDAO {
      * @return
      */
     public List<Object[]> findModuleIpStatisticsRanking(NetFlowStatisticsVO nfsVO, Integer startRow, Integer pageLength);
+
+    /**
+     * 查找IP流量超量資料
+     * @param nowDateStr
+     * @param limitSize
+     * @param limitColumn
+     * @param deviceModel
+     * @return
+     */
+	public List<Object[]> findModuleIpStatisticsRankingOverLimit(String nowDateStr, String limitSize,
+			String limitColumn, List<String> deviceModel);
 }

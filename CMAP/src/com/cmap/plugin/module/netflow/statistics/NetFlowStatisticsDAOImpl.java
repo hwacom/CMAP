@@ -3,6 +3,7 @@ package com.cmap.plugin.module.netflow.statistics;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
@@ -274,6 +276,79 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
 
         } catch (ParseException pe) {
             log.error(pe.toString(), pe);
+            return null;
+        }
+    }
+    
+    @Override
+	public List<Object[]> findModuleIpStatisticsRankingOverLimit(String nowDateStr, String limitSize,
+			String limitColumn, List<String> deviceModel) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append(" select mits.ip_address ")
+              .append("       ,mits.group_id ")
+              .append("       ,dev.device_id ")
+              .append("       ,mits.total_traffic ")
+              .append("       ,mits.upload_traffic ")
+              .append("       ,mits.download_traffic ")
+              .append(" from Module_Ip_Traffic_Statistics as mits ");
+
+            if (deviceModel != null && deviceModel.size() != 0) {
+				sb.append("		left join device_list dev ")
+				  .append("		on mits.group_id=dev.group_id and dev.device_model in ( :deviceModel )");
+			}
+			sb.append(" where 1=1 ");
+            sb.append(" and mits.stat_date = :nowDateStr ");
+            sb.append(" and NOT EXISTS ( ");
+            sb.append("       SELECT mbil.ip_address");
+            sb.append("       FROM Module_Blocked_Ip_List mbil ");
+            sb.append("       WHERE mbil.ip_address=mits.ip_address");
+            sb.append("       and mbil.status_flag='B')");
+            
+			switch (StringUtils.lowerCase(limitColumn)) {
+
+			case "total_traffic":
+			case "total":
+				sb.append(" and mits.total_traffic >= :limitSize ");
+				break;
+				
+			case "upload_traffic":
+			case "upload":
+				sb.append(" and mits.upload_traffic >= :limitSize ");
+				break;
+				
+			case "download_traffic":
+			case "download":
+				sb.append(" and mits.download_traffic >= :limitSize ");
+				break;
+				
+			default:
+				sb.append(" and ( mits.total_traffic >= :limitSize ");
+				sb.append(" or  mits.upload_traffic >= :limitSize ");
+				sb.append(" or  mits.download_traffic >= :limitSize )");
+				break;
+			}
+            
+            Session session = secondSessionFactory.getCurrentSession();
+
+            if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                session.beginTransaction();
+            }
+
+            Query<?> q = session.createNativeQuery(sb.toString());
+            if (StringUtils.isNotBlank(nowDateStr)) {
+                q.setParameter("nowDateStr", nowDateStr);
+            }
+            if (StringUtils.isNotBlank(limitSize)) {
+                q.setParameter("limitSize", limitSize);
+            }
+            if (deviceModel != null && deviceModel.size() != 0) {
+                q.setParameter("deviceModel", deviceModel);
+            }
+            return (List<Object[]>)q.list();
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
             return null;
         }
     }

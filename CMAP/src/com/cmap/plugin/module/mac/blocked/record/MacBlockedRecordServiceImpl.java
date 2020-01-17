@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
 import com.cmap.exception.ServiceLayerException;
@@ -205,4 +207,56 @@ public class MacBlockedRecordServiceImpl extends CommonServiceImpl implements Ma
             throw new ServiceLayerException("新增或更新封鎖紀錄時異常! (ModuleBlockedMacList)");
         }
     }
+    
+
+    @Override
+    public MacBlockedRecordVO checkMacBlockedList(String groupId, String deviceId, String macAddress , List<MacBlockedRecordVO> dbRecordList) {
+    	String msgBlock = messageSource.getMessage("status.flag.block", Locale.TAIWAN, null);       // B-封鎖
+    	String sycReason = messageSource.getMessage("synchronize.switch.mac", Locale.TAIWAN, null);
+    	
+		for (MacBlockedRecordVO recVO : dbRecordList) {
+			if (recVO.getGroupId().equals(groupId) && recVO.getDeviceId().equals(deviceId)
+					&& recVO.getMacAddress().equals(macAddress)
+					&& (recVO.getStatusFlag().equals(Constants.STATUS_FLAG_BLOCK) || recVO.getStatusFlag().equals(msgBlock))) {
+				log.debug("IpBlockedRecord ==> 設備同步資訊比對相同，" + recVO.getGroupId() + ", "
+						+ recVO.getDeviceId() + ", " + macAddress + "，block_by," + recVO.getBlockBy());
+				return recVO;
+			}
+			
+		}
+		
+		MacBlockedRecordVO mbrVO = new MacBlockedRecordVO();
+		mbrVO.setGroupId(groupId);
+		mbrVO.setDeviceId(deviceId);
+		mbrVO.setMacAddress(macAddress);
+		mbrVO.setStatusFlag(msgBlock);
+		mbrVO.setBlockReason(sycReason);
+		mbrVO.setStatusFlag(Constants.STATUS_FLAG_BLOCK);
+		
+		return mbrVO;
+	}
+    
+    @Override
+    public List<MacBlockedRecordVO> compareMacBlockedList(List<MacBlockedRecordVO> dbRecordList, Map<String, MacBlockedRecordVO> compareMap) {
+    	
+    	String msgBlock = messageSource.getMessage("status.flag.block", Locale.TAIWAN, null);       // B-封鎖
+        List<MacBlockedRecordVO> resultList = new ArrayList<MacBlockedRecordVO>();
+        
+		for (MacBlockedRecordVO recVO : dbRecordList) {
+			//不存在同步結果清單中的自動解鎖
+			if(!compareMap.containsKey(recVO.getDeviceId()+recVO.getMacAddress())) {
+				log.debug("compareMacBlockedList ==> 不存在同步結果清單中，" + recVO.getGroupId() + ", "
+						+ recVO.getDeviceId() + ", " + recVO.getMacAddress()+ "，block_by," + recVO.getBlockBy());
+				if(recVO.getStatusFlag().equals(Constants.STATUS_FLAG_BLOCK) || recVO.getStatusFlag().equals(msgBlock)) {
+					recVO.setStatusFlag(Constants.STATUS_FLAG_OPEN);
+					recVO.setOpenReason("Switch內查無封鎖記錄");
+					recVO.setOpenBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
+					resultList.add(recVO);
+				}
+			}
+			
+		}
+		
+		return resultList;
+	}
 }

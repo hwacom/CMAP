@@ -95,4 +95,20 @@ public class RecordController extends BaseController {
 
 		return "plugin/module_mac_open_block_record";
 	}
+	
+
+	@RequestMapping(value = "blockedListRecord", method = RequestMethod.GET)
+	public String blockListRecord(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+		try {
+
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+
+		} finally {
+			initMenu(model, request);
+		}
+
+		return "plugin/module_block_list_record";
+	}
 }

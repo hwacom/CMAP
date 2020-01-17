@@ -3,6 +3,7 @@ package com.cmap.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -288,6 +290,30 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 				retVO.setScriptName(entity.getScriptName());
 				retVO.setActionScript(entity.getActionScript());
 				retVO.setCheckScript(entity.getCheckScript());
+				retVO.setActionScriptVariable(entity.getActionScriptVariable());
+
+			} else {
+				throw new ServiceLayerException("查無此腳本內容，請重新操作");
+			}
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			throw new ServiceLayerException("查詢腳本內容異常，請重新操作");
+		}
+		return retVO;
+	}
+	
+	@Override
+	public ScriptServiceVO getScriptInfoByScriptCode(String scriptCode) throws ServiceLayerException {
+		ScriptServiceVO retVO = new ScriptServiceVO();
+		try {
+			ScriptInfo entity = scriptInfoDAO.findScriptInfoByIdOrCode(null, scriptCode);
+
+			if (entity != null) {
+				retVO.setScriptName(entity.getScriptName());
+				retVO.setActionScript(entity.getActionScript());
+				retVO.setCheckScript(entity.getCheckScript());
+				retVO.setActionScriptVariable(entity.getActionScriptVariable());
 
 			} else {
 				throw new ServiceLayerException("查無此腳本內容，請重新操作");

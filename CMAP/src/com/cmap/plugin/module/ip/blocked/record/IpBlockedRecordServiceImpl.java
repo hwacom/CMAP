@@ -2,16 +2,18 @@ package com.cmap.plugin.module.ip.blocked.record;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -77,6 +79,8 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                 String updateBy = Objects.toString(entity[12], null);
                 String listId = Objects.toString(entity[13]);
                 String deviceId = Objects.toString(entity[14]);
+                String scriptCode = Objects.toString(entity[15]);
+                String scriptName = Objects.toString(entity[16]);
 
                 vo = new IpBlockedRecordVO();
                 vo.setListId(listId);
@@ -98,6 +102,8 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                                     : StringUtils.equals(statusFlag, Constants.STATUS_FLAG_OPEN)
                                         ? msgOpen
                                         : msgUnknown);
+                vo.setScriptCode(scriptCode);
+                vo.setScriptName(scriptName);
 
                 retList.add(vo);
             }
@@ -132,7 +138,7 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                 qVO.setQueryGroupId(ibrVO.getGroupId());
                 qVO.setQueryDeviceId(ibrVO.getDeviceId());
                 qVO.setQueryIpAddress(ibrVO.getIpAddress());
-                qVO.setQueryExcludeStatusFlag(Arrays.asList(Constants.STATUS_FLAG_UNKNOWN, Constants.STATUS_FLAG_OPEN)); // 狀態U/O的不查
+//                qVO.setQueryExcludeStatusFlag(Arrays.asList(Constants.STATUS_FLAG_UNKNOWN, Constants.STATUS_FLAG_OPEN)); // 狀態U/O的不查
 
                 String actionStatusFlag = ibrVO.getStatusFlag();
                 String preStatusFlag = "";
@@ -141,6 +147,7 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
 
                 if (lastestRecord != null) {
                     preStatusFlag = lastestRecord.getStatusFlag();
+                    
                     /*
                      * 有查到資料，依照情境處理:
                      * (1) B(前狀態) → B(目前執行) => 表示可能USER先前曾自己登入設備解鎖 or 重複執行 => 更新前一筆紀錄狀態為「U」& 再寫入一筆新的紀錄
@@ -149,20 +156,21 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                      * (4) O(前狀態) → O(目前執行) => 表示可能USER先前是自己登入設備封鎖 or 根本沒封鎖過 => 寫入一筆新的紀錄
                      */
                     if (StringUtils.equals(preStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                    	                    	
                         if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
                             // B → B
                             // Step 1. 更新前一筆紀錄狀態為「U」
-                            lastestRecord.setStatusFlag(Constants.STATUS_FLAG_UNKNOWN);
-                            lastestRecord.setOpenReason("無系統解鎖紀錄");
-                            lastestRecord.setRemark("無系統解鎖紀錄");
+//                            lastestRecord.setStatusFlag(Constants.STATUS_FLAG_UNKNOWN);
+//                            lastestRecord.setOpenReason("無系統解鎖紀錄");
+//                            lastestRecord.setRemark("無系統解鎖紀錄");
                             lastestRecord.setUpdateTime(currentTimestamp());
                             lastestRecord.setUpdateBy(currentUserName());
                             ipRecordDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, lastestRecord);
 
                             // Step 2. 再寫入一筆新的紀錄
-                            ModuleBlockedIpList newRecord = transVO2Model(ibrVO);
-                            newRecord.setBlockTime(currentTimestamp());
-                            ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
+//                            ModuleBlockedIpList newRecord = transVO2Model(ibrVO);
+//                            newRecord.setBlockTime(currentTimestamp());
+//                            ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
 
                         } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
                             // B → O
@@ -179,9 +187,18 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
                     } else if (StringUtils.equals(preStatusFlag, Constants.STATUS_FLAG_OPEN)) {
                         // O → B 、 O → O
                         // 寫入一筆新的紀錄
-                        ModuleBlockedIpList newRecord = transVO2Model(ibrVO);
-                        newRecord.setOpenTime(currentTimestamp());
-                        ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
+                    	if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                    		ModuleBlockedIpList newRecord = transVO2Model(ibrVO);
+                            newRecord.setBlockTime(currentTimestamp());
+                            newRecord.setBlockBy(currentUserName());
+                            ipRecordDAO.insertEntity(BaseDAO.TARGET_PRIMARY_DB, newRecord);
+                            
+                    	}else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
+                    		lastestRecord.setUpdateTime(currentTimestamp());
+                            lastestRecord.setUpdateBy(currentUserName());
+                            ipRecordDAO.updateEntity(BaseDAO.TARGET_PRIMARY_DB, lastestRecord);
+                    	}
+                        
                     }
 
                 } else {
@@ -206,4 +223,55 @@ public class IpBlockedRecordServiceImpl extends CommonServiceImpl implements IpB
             throw new ServiceLayerException("新增或更新封鎖紀錄時異常! (ModuleBlockedIpList)");
         }
     }
+    
+    @Override
+    public IpBlockedRecordVO checkIpblockedList(String groupId, String deviceId, String ipAddress , List<IpBlockedRecordVO> dbRecordList) {
+    	String msgBlock = messageSource.getMessage("status.flag.block", Locale.TAIWAN, null);       // B-封鎖
+    	String sycReason = messageSource.getMessage("synchronize.switch.ip", Locale.TAIWAN, null);
+    	
+		for (IpBlockedRecordVO recVO : dbRecordList) {
+			if (recVO.getGroupId().equals(groupId) && recVO.getDeviceId().equals(deviceId)
+					&& recVO.getIpAddress().equals(ipAddress)
+					&& (recVO.getStatusFlag().equals(Constants.STATUS_FLAG_BLOCK) || recVO.getStatusFlag().equals(msgBlock))) {
+				log.debug("IpBlockedRecord ==> 設備同步資訊比對相同，" + recVO.getGroupId() + ", "
+						+ recVO.getDeviceId() + ", " + ipAddress + "，block_by," + recVO.getBlockBy());
+				return recVO;
+			}
+			
+		}
+		
+		IpBlockedRecordVO ibrVO = new IpBlockedRecordVO();
+		ibrVO.setGroupId(groupId);
+		ibrVO.setDeviceId(deviceId);
+		ibrVO.setIpAddress(ipAddress);
+		ibrVO.setStatusFlag(msgBlock);
+		ibrVO.setBlockReason(sycReason);
+		ibrVO.setStatusFlag(Constants.STATUS_FLAG_BLOCK);
+		
+		return ibrVO;
+	}
+    
+    @Override
+    public List<IpBlockedRecordVO> compareIpblockedList(List<IpBlockedRecordVO> dbRecordList, Map<String, IpBlockedRecordVO> compareMap) {
+    	
+    	String msgBlock = messageSource.getMessage("status.flag.block", Locale.TAIWAN, null);       // B-封鎖    	
+        List<IpBlockedRecordVO> resultList = new ArrayList<IpBlockedRecordVO>();
+        
+		for (IpBlockedRecordVO recVO : dbRecordList) {
+			//不存在同步結果清單中的自動解鎖
+			if(!compareMap.containsKey(recVO.getDeviceId()+recVO.getIpAddress())) {
+				log.debug("IpBlockedRecord ==> 不存在同步結果清單中，" + recVO.getGroupId() + ", "
+						+ recVO.getDeviceId() + ", " + recVO.getIpAddress() + "，block_by," + recVO.getBlockBy());
+				if(recVO.getStatusFlag().equals(Constants.STATUS_FLAG_BLOCK) || recVO.getStatusFlag().equals(msgBlock)) {
+					recVO.setStatusFlag(Constants.STATUS_FLAG_OPEN);
+					recVO.setOpenReason("Switch內查無封鎖記錄");
+					recVO.setOpenBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
+					resultList.add(recVO);
+				}
+			}
+			
+		}
+		
+		return resultList;
+	}
 }

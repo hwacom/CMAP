@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.cmap.Constants;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -57,7 +60,17 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         }
         sb.append(" order by mat.updateTime desc ");
 
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Session session ;
+        if (Constants.DATA_Y.equals(Env.ENABLE_SECONDARY_DB)) {
+        	session = secondSessionFactory.getCurrentSession();
+        	
+        	if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                session.beginTransaction();
+            }
+        }else {
+        	session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        }
+        
         Query<?> q = session.createQuery(sb.toString());
         if (StringUtils.isNotBlank(groupId)) {
             q.setParameter("groupId", groupId);

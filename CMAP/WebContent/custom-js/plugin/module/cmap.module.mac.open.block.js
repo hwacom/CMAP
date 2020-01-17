@@ -9,7 +9,10 @@ var _deductHeight = 0;
 var blockedMacTableHeight;
 
 $(document).ready(function() {
-	
+	$("#btnSync_record").click(function(e) {
+		findBlockedMacRecordData('S');
+		//bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
+	});
 });
 
 /**********************************************************************************************************
@@ -145,9 +148,10 @@ function findBlockedMacRecordData(statusFlag) {
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroupId = $("#queryGroup_mobile").val()
 					}
-					if (statusFlag == 'B') {
+					if (statusFlag == 'B' || statusFlag == 'S') {
 						d.queryStatusFlag = statusFlag;
 					}
+					
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {

@@ -9,7 +9,9 @@ var _deductHeight = 0;
 var blockedPortTableHeight;
 
 $(document).ready(function() {
-
+	$("#btnSync_record").click(function(e) {
+		findBlockedPortRecordData('S');
+	});
 });
 
 /**********************************************************************************************************
@@ -146,9 +148,10 @@ function findBlockedPortRecordData(statusFlag) {
 						d.queryGroupId = $("#queryGroup_mobile").val();
 						d.queryDeviceId = $("#queryDevice_mobile").val();
 					}
-					if (statusFlag == 'B') {
+					if (statusFlag == 'B' || statusFlag == 'S') {
 						d.queryStatusFlag = statusFlag;
 					}
+					
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {

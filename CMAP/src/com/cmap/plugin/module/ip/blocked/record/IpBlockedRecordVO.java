@@ -32,10 +32,14 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     private String remark;
     private String updateTimeStr;
     private String updateBy;
-
+	private String scriptCode;
+	private String scriptName;
+    
     private String groupName;
     private String deviceName;
 
+	private boolean isAdmin = false;
+	
     public String getQueryGroupId() {
         return queryGroupId;
     }
@@ -144,7 +148,19 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     public void setOpenReason(String openReason) {
         this.openReason = openReason;
     }
-    public String getRemark() {
+    public String getScriptCode() {
+		return scriptCode;
+	}
+	public void setScriptCode(String scriptCode) {
+		this.scriptCode = scriptCode;
+	}
+	public String getScriptName() {
+		return scriptName;
+	}
+	public void setScriptName(String scriptName) {
+		this.scriptName = scriptName;
+	}
+	public String getRemark() {
         return remark;
     }
     public void setRemark(String remark) {
@@ -162,7 +178,7 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     public void setUpdateBy(String updateBy) {
         this.updateBy = updateBy;
     }
-    public String getGroupName() {
+	public String getGroupName() {
         return groupName;
     }
     public void setGroupName(String groupName) {
@@ -198,4 +214,10 @@ public class IpBlockedRecordVO extends CommonServiceVO {
     public void setQueryListId(String queryListId) {
         this.queryListId = queryListId;
     }
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 }

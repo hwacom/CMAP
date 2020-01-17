@@ -940,7 +940,8 @@ function findData(from) {
 				if (typeof findBlockedIpRecordData === 'function') {
 					findBlockedIpRecordData('B');
 					bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
-				} else if (typeof findBlockedPortRecordData === 'function') {
+				} else 
+					if (typeof findBlockedPortRecordData === 'function') {
 					findBlockedPortRecordData('B');
 					bindTrEventOnlyRadio();
 				} else if (typeof findBlockedMacRecordData === 'function') {

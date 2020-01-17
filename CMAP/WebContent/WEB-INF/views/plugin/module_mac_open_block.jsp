@@ -55,7 +55,7 @@
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findBlockedMacRecordData()">
+		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findBlockedMacRecordData('S')">
 		               	<form:option value="" label="== ALL ==" />
 		                <form:options items="${groupList}" />
 		            </form:select>
@@ -64,6 +64,9 @@
 	            
 	            <!-- 解鎖Button -->
 				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.mac.open" /></button>
+				<button type="button"  style="width: 210px" class="btn btn-primary btn-sm"  id="btnSync_record">
+    	    		<spring:message code="synchronize.switch.mac" />
+    	    	</button>
 			</div>
 		</div>
 	</div>

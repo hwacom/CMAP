@@ -33,6 +33,7 @@ public class Constants {
 
 	public static final String LOGIN_AUTH_MODE_OIDC_MIAOLI = "OIDC_MAC";
 	public static final String LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI = "OIDC_NTPC";
+	public static final String LOGIN_AUTH_MODE_OIDC_CHIAYI = "OIDC_CY";
 	public static final String LOGIN_AUTH_MODE_PRTG = "PRTG";
 	public static final String LOGIN_AUTH_MODE_PRIME = "PRIME";
 	public static final String LOGIN_AUTH_MODE_DB = "DB";
@@ -150,6 +151,7 @@ public class Constants {
 	public static final String STATUS_FLAG_DELETE = "X";
 	public static final String STATUS_FLAG_BLOCK = "B";
 	public static final String STATUS_FLAG_UNKNOWN = "U";
+	public static final String STATUS_FLAG_SYNC = "S";
 
 	public static final String PROCESS_OPEN = "O";
 	public static final String PROCESS_ING = "*";
@@ -372,6 +374,7 @@ public class Constants {
 	public static final String APACHE_TOMCAT_SESSION_USER_NAME = "user";
 
 	public static final String OIDC_MLC_CONFIGURATION_ENDPOINT = "https://mlc.sso.edu.tw/.well-known/openid-configuration";
+	public static final String OIDC_CY_CONFIGURATION_ENDPOINT = "https://cy.sso.edu.tw/.well-known/openid-configuration";
 
 	public static final String PRTG_LOGIN_ACCOUNT = "PRTG_LOGIN_ACCOUNT";
 	public static final String PRTG_LOGIN_PASSWORD = "PRTG_LOGIN_PASSWORD";

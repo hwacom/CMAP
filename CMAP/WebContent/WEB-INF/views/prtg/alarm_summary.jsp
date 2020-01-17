@@ -11,7 +11,7 @@
    <iframe id="prtgFrame" 
    		   class="scrollbar-macosx" 
    		   width=100% 
-   		   height=700 
+   		   style="height:calc(100vh - 55px)" 
    		   frameborder="0" 
    		   src="${IFRAME_URI }" 
    		   sandbox="allow-forms allow-scripts allow-same-origin"

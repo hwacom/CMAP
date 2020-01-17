@@ -74,4 +74,12 @@ public interface ScriptService {
 	 * @throws ServiceLayerException
 	 */
 	public ScriptServiceVO getScriptInfoByScriptInfoId(String scriptInfoId) throws ServiceLayerException;
+
+	/**
+	 * 以 Script_Code 查找資料
+	 * @param scriptCode
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public ScriptServiceVO getScriptInfoByScriptCode(String scriptCode) throws ServiceLayerException;
 }

@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.mac.blocked.record;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cmap.exception.ServiceLayerException;
 
@@ -28,4 +29,23 @@ public interface MacBlockedRecordService {
      * @throws ServiceLayerException
      */
     public void saveOrUpdateRecord(List<MacBlockedRecordVO> mbrVOs) throws ServiceLayerException;
+
+    /**
+     * 檢核比對DB封鎖記錄清單
+     * @param groupId
+     * @param deviceId
+     * @param macAddress
+     * @param dbRecordList
+     * @return
+     */
+    public MacBlockedRecordVO checkMacBlockedList(String groupId, String deviceId, String macAddress, List<MacBlockedRecordVO> dbRecordList);
+    
+    /**
+     * 比對同步結果與DB資料
+     * @param dbRecordList
+     * @param compareMap
+     * @return
+     */
+    public List<MacBlockedRecordVO> compareMacBlockedList(List<MacBlockedRecordVO> dbRecordList, Map<String, MacBlockedRecordVO> compareMap);
+
 }

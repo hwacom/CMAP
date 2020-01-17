@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -23,6 +25,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -488,4 +491,23 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
         // TODO 自動產生的方法 Stub
         return null;
     }
+    
+	@Override
+    public List<Object[]> executeNetFlowIpAutoLock() throws ServiceLayerException {
+
+        try {
+            // Step 1. 取得流量異常設定值
+            final String limitSize = Env.ABNORMAL_NET_FLOW_LIMIT_BLOCK_SIZE;
+            final String limitSizeUnit = convertByteSizeUnit(
+                    new BigDecimal(Env.ABNORMAL_NET_FLOW_LIMIT_BLOCK_SIZE), Env.NET_FLOW_LIMIT_BLOCK_UNIT_OF_TOTOAL_FLOW).replace(" ", "");
+            final String nowDateStr = Constants.FORMAT_YYYY_MM_DD.format(new Date());
+            
+			return netFlowStatisticsDAO.findModuleIpStatisticsRankingOverLimit(nowDateStr, limitSize, Env.NET_FLOW_LIMIT_BLOCK_LIMIT_TYPE,
+					Arrays.asList(Env.NET_FLOW_LIMIT_BLOCK_DEVICE_MODEL));
+            
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            throw new ServiceLayerException("NET_FLOW 偵測流量超量自動鎖定IP處理過程發生非預期異常!! (" + e.getMessage() + ")");
+        }
+     }
 }

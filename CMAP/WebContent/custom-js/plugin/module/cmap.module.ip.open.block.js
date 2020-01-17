@@ -9,7 +9,9 @@ var _deductHeight = 0;
 var blockedIpTableHeight;
 
 $(document).ready(function() {
-	
+	$("#btnSync_record").click(function(e) {
+		findBlockedIpRecordData('S');
+	});
 });
 
 /**********************************************************************************************************
@@ -98,13 +100,12 @@ function doOpenByBtn() {
 function findBlockedIpRecordData(statusFlag) {
 	calBlockedIpSectionHeight();
 
-	if (typeof resultTable_blockedIpRecord !== "undefined") {
+	if (typeof resultTable_blockedIpRecord !== "undefined" && typeof statusFlag == "undefined") {
 		//resultTable.clear().draw(); server-side is enabled.
 		resultTable_blockedIpRecord.ajax.reload();
 		
 	} else {
 		$("#divBlockedIpRecord").show();
-		
 		resultTable_blockedIpRecord = $('#resultTable_blockedIpRecord').DataTable(
 		{
 			"autoWidth" 	: true,
@@ -119,6 +120,7 @@ function findBlockedIpRecordData(statusFlag) {
 			"scrollX"		: true,
 			"scrollY"		: blockedIpTableHeight,
 			"scrollCollapse": true,
+			"bDestroy"		: true,
 			"language" : {
 	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
 	        },
@@ -145,9 +147,11 @@ function findBlockedIpRecordData(statusFlag) {
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroupId = $("#queryGroup_mobile").val()
 					}
-					if (statusFlag == 'B') {
+
+					if (typeof statusFlag !== "undefined" && (statusFlag == 'B' || statusFlag == 'S')) {
 						d.queryStatusFlag = statusFlag;
 					}
+					
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
@@ -176,7 +180,7 @@ function findBlockedIpRecordData(statusFlag) {
 				
 				var pathname = window.location.pathname;
 				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
-				if (lastPath === "/ipOpenBlock") {
+				if (lastPath === "/ipOpenBlock" || lastPath === "/ipOpenBlock4Admin") {
 					$('[data-field="status"]').hide();
 					$('[data-field="openTime"]').hide();
 					$('[data-field="openReason"]').hide();
@@ -203,6 +207,7 @@ function findBlockedIpRecordData(statusFlag) {
 				$('td:eq(9)', row).attr('data-field', 'openReason');
 				$('td:eq(10)', row).attr('data-field', 'blockBy');
 				$('td:eq(11)', row).attr('data-field', 'openBy');
+				$('td:eq(12)', row).attr('data-field', 'scriptName');
 			},
 			"columns" : [
 				{},{},
@@ -216,6 +221,7 @@ function findBlockedIpRecordData(statusFlag) {
 				{},
 				{ "data" : "blockBy" , "className" : "center" },
 				{ "data" : "openBy" , "className" : "center" },
+				{ "data" : "scriptName", "defaultContent" : ""},
 			],
 			"columnDefs" : [ 
 				{

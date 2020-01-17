@@ -8,7 +8,7 @@
   	 }
    </style>
    
-   <iframe id="prtgFrame" class="scrollbar-macosx" width=100% height=700 frameborder="0" src="${IFRAME_URI }">
+   <iframe id="prtgFrame" class="scrollbar-macosx" width=100% style="height:calc(100vh - 55px)" frameborder="0" src="${IFRAME_URI }">
   	 Failed to open PRTG main page.
    </iframe>
    

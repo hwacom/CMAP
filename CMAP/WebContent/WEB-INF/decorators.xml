@@ -16,6 +16,12 @@
 	<decorator name="formredirection" page="views/formredirection.jsp">
 		<pattern>/login/authByOIDC_NTPC</pattern>
 	</decorator>
+	<decorator name="loginOIDC_CY" page="views/login_openid_cy.jsp">
+		<pattern>/loginOIDC_CY</pattern>
+	</decorator>
+	<decorator name="formredirection" page="views/formredirection.jsp">
+		<pattern>/login/authByOIDC_CY</pattern>
+	</decorator>
 	<decorator name="accessDenied" page="views/access_denied.jsp">
 		<pattern>/accessDenied*</pattern>
 	</decorator>

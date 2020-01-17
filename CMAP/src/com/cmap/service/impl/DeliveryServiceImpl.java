@@ -2,22 +2,26 @@ package com.cmap.service.impl;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
+import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ProvisionLogDAO;
@@ -32,6 +36,12 @@ import com.cmap.model.DeviceList;
 import com.cmap.model.ProvisionAccessLog;
 import com.cmap.model.ProvisionLogStep;
 import com.cmap.model.ScriptInfo;
+import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
+import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
+import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
+import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
+import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DeliveryService;
 import com.cmap.service.ProvisionService;
@@ -63,203 +73,215 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	@Autowired
 	private ProvisionService provisionService;
 
+	@Autowired
+	private IpBlockedRecordService ipBlockedRecordService;
+
+	@Autowired
+	private PortBlockedRecordService portBlockRecordService;
+	
+	@Autowired
+	private MacBlockedRecordService macBlockRecordService;
+	
 	@Override
-    public DeliveryServiceVO doDelivery(ConnectionMode connectionMode, DeliveryParameterVO dpVO,
-            boolean sysTrigger, String triggerBy, String triggerRemark, boolean chkParameters) throws ServiceLayerException {
+	public DeliveryServiceVO doDelivery(ConnectionMode connectionMode, DeliveryParameterVO dpVO, boolean sysTrigger,
+			String triggerBy, String triggerRemark, boolean chkParameters) throws ServiceLayerException {
 
-        DeliveryServiceVO retVO = new DeliveryServiceVO();
-        try {
-            /*
-             * Step 1.再次驗證傳入的參數值合法性
-             */
-            boolean chkSuccess = false;
+		DeliveryServiceVO retVO = new DeliveryServiceVO();
+		try {
+			/*
+			 * Step 1.再次驗證傳入的參數值合法性
+			 */
+			boolean chkSuccess = false;
 
-            if (chkParameters) {
-                chkSuccess = checkDeliveryParameter(dpVO);
+			if (chkParameters) {
+				chkSuccess = checkDeliveryParameter(dpVO);
 
-            } else {
-                chkSuccess = true;
-            }
+			} else {
+				chkSuccess = true;
+			}
 
-            if (!chkSuccess) {
-                throw new ServiceLayerException("供裝前系統檢核不通過，請重新操作；若仍再次出現此訊息，請與系統維護商聯繫");
+			if (!chkSuccess) {
+				throw new ServiceLayerException("供裝前系統檢核不通過，請重新操作；若仍再次出現此訊息，請與系統維護商聯繫");
 
-            } else {
-                retVO = goDelivery(connectionMode, dpVO, sysTrigger, triggerBy, triggerRemark);
-            }
+			} else {
+				retVO = goDelivery(connectionMode, dpVO, sysTrigger, triggerBy, triggerRemark);
+			}
 
-        } catch (ServiceLayerException sle) {
-            log.error(sle.toString(), sle);
-            throw sle;
+		} catch (ServiceLayerException sle) {
+			log.error(sle.toString(), sle);
+			throw sle;
 
-        } catch (Exception e) {
-            log.error(e.toString(), e);
-            throw new ServiceLayerException(e);
-        }
-        return retVO;
-    }
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			throw new ServiceLayerException(e);
+		}
+		return retVO;
+	}
 
-    private DeliveryServiceVO goDelivery(ConnectionMode connectionMode, DeliveryParameterVO dpVO, boolean sysTrigger, String triggerBy, String triggerRemark) throws ServiceLayerException {
-        DeliveryServiceVO retVO = new DeliveryServiceVO();
-        String retMsg = "";
+	private DeliveryServiceVO goDelivery(ConnectionMode connectionMode, DeliveryParameterVO dpVO, boolean sysTrigger,
+			String triggerBy, String triggerRemark) throws ServiceLayerException {
+		DeliveryServiceVO retVO = new DeliveryServiceVO();
+		String retMsg = "";
 
-        //Step 1.取得腳本資料
-        final String scriptInfoId = dpVO.getScriptInfoId();
-        final String scriptCode = dpVO.getScriptCode();
-        ScriptInfo scriptInfo = scriptInfoDAO.findScriptInfoByIdOrCode(scriptInfoId, scriptCode);
+		// Step 1.取得腳本資料
+		final String scriptInfoId = dpVO.getScriptInfoId();
+		final String scriptCode = dpVO.getScriptCode();
+		ScriptInfo scriptInfo = scriptInfoDAO.findScriptInfoByIdOrCode(scriptInfoId, scriptCode);
 
-        if (scriptInfo == null) {
-            throw new ServiceLayerException("無法取得腳本資料，請重新操作");
-        }
+		if (scriptInfo == null) {
+			throw new ServiceLayerException("無法取得腳本資料，請重新操作");
+		}
 
-        //Step 2.替換腳本參數值
-        final List<String> varKeyList = dpVO.getVarKey();
-        final List<List<String>> deviceVarValueList = dpVO.getVarValue();
-        final String actionScript = scriptInfo.getActionScript();
+		// Step 2.替換腳本參數值
+		final List<String> varKeyList = dpVO.getVarKey();
+		final List<List<String>> deviceVarValueList = dpVO.getVarValue();
+		final String actionScript = scriptInfo.getActionScript();
 
-        final Map<String, String> deviceInfo = dpVO.getDeviceInfo();
-        final List<String> groupIdList = dpVO.getGroupId();
-        final List<String> deviceIdList = dpVO.getDeviceId();
-        final String reason = dpVO.getReason();
+		final Map<String, String> deviceInfo = dpVO.getDeviceInfo();
+		final List<String> groupIdList = dpVO.getGroupId();
+		final List<String> deviceIdList = dpVO.getDeviceId();
+		final String reason = dpVO.getReason();
 
-        ProvisionServiceVO masterVO = new ProvisionServiceVO();
-        masterVO.setLogMasterId(UUID.randomUUID().toString());
-        masterVO.setBeginTime(new Date());
-        masterVO.setUserName(sysTrigger ? triggerBy : SecurityUtil.getSecurityUser().getUsername());
+		ProvisionServiceVO masterVO = new ProvisionServiceVO();
+		masterVO.setLogMasterId(UUID.randomUUID().toString());
+		masterVO.setBeginTime(new Date());
+		masterVO.setUserName(sysTrigger ? triggerBy : SecurityUtil.getSecurityUser().getUsername());
 
-        StringBuffer errorSb = new StringBuffer();
-        int deviceCount = deviceIdList != null ? deviceIdList.size() : 1;
-        int successCount = 0;
-        int failedCount = 0;
-        for (int idx=0; idx<deviceCount; idx++) {
+		StringBuffer errorSb = new StringBuffer();
+		int deviceCount = deviceIdList != null ? deviceIdList.size() : 1;
+		int successCount = 0;
+		int failedCount = 0;
+		for (int idx = 0; idx < deviceCount; idx++) {
 
-            final String groupId = groupIdList != null ? groupIdList.get(idx) : "N/A";
-            final String deviceId = deviceIdList != null ? deviceIdList.get(idx) : "N/A";
+			final String groupId = groupIdList != null ? groupIdList.get(idx) : "N/A";
+			final String deviceId = deviceIdList != null ? deviceIdList.get(idx) : "N/A";
 
-            try {
-                String groupName;
-                String deviceName;
-                String deviceListId;
+			try {
+				String groupName;
+				String deviceName;
+				String deviceListId;
 
-                if (deviceInfo == null || (deviceInfo != null && deviceInfo.isEmpty())) {
-                    DeviceList deviceList = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, deviceId);
+				if (deviceInfo == null || (deviceInfo != null && deviceInfo.isEmpty())) {
+					DeviceList deviceList = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, deviceId);
 
-                    if (deviceList == null) {
-                        throw new ServiceLayerException("查無設備資料 >> groupId: " + groupId + " , deviceId: " + deviceId);
-                    }
+					if (deviceList == null) {
+						throw new ServiceLayerException("查無設備資料 >> groupId: " + groupId + " , deviceId: " + deviceId);
+					}
 
-                    groupName = deviceList.getGroupName();
-                    deviceName = deviceList.getDeviceName();
-                    deviceListId = deviceList.getDeviceListId();
+					groupName = deviceList.getGroupName();
+					deviceName = deviceList.getDeviceName();
+					deviceListId = deviceList.getDeviceListId();
 
-                } else {
-                    groupName = "N/A";
-                    deviceName = deviceInfo.get(Constants.DEVICE_NAME);
-                    deviceListId = null;
-                }
+				} else {
+					groupName = "N/A";
+					deviceName = deviceInfo.get(Constants.DEVICE_NAME);
+					deviceListId = null;
+				}
 
-                String script = actionScript;
+				String script = actionScript;
 
-                List<Map<String, String>> varMapList = null;
-                if (varKeyList != null && !varKeyList.isEmpty()) {
-                    varMapList = new ArrayList<>();
+				List<Map<String, String>> varMapList = null;
+				if (varKeyList != null && !varKeyList.isEmpty()) {
+					varMapList = new ArrayList<>();
 
-                    /*
-                     * Case 1. deviceCount == 1 但 deviceVarValueList.size > 1
-                     * ==>> 表示同1腳本要做多組設定對同1台設備 (e.g.: 防火牆黑名單設定，一次要設定多筆IP)
-                     *      << 1對多 >>
-                     *
-                     * Case 2. deviceCount > 1
-                     * ==>> 預設為1腳本做1組設定對1台設備 (e.g.: 一次對多台設備做供裝)
-                     *      << 1對1 >>
-                     *
-                     * (目前不支援一次針對多台設備且每1台設備都做多組設定，須調整作法為一次針對1台設備做多組設定)
-                     * << 多對多>>
-                     */
-                    if (deviceCount > 1) {
-                        final List<String> valueList = deviceVarValueList.get(idx);
-                        varMapList.add(composeScriptVarMap(script, varKeyList, valueList));
+					/*
+					 * Case 1. deviceCount == 1 但 deviceVarValueList.size > 1 ==>>
+					 * 表示同1腳本要做多組設定對同1台設備 (e.g.: 防火牆黑名單設定，一次要設定多筆IP) << 1對多 >>
+					 *
+					 * Case 2. deviceCount > 1 ==>> 預設為1腳本做1組設定對1台設備 (e.g.: 一次對多台設備做供裝) << 1對1 >>
+					 *
+					 * (目前不支援一次針對多台設備且每1台設備都做多組設定，須調整作法為一次針對1台設備做多組設定) << 多對多>>
+					 */
+					if (deviceCount > 1) {
+						final List<String> valueList = deviceVarValueList.get(idx);
+						varMapList.add(composeScriptVarMap(script, varKeyList, valueList));
 
-                    } else if (deviceCount == 1) {
-                        for (List<String> valueList : deviceVarValueList) {
-                            varMapList.add(composeScriptVarMap(script, varKeyList, valueList));
-                        }
-                    }
-                }
+					} else if (deviceCount == 1) {
+						for (List<String> valueList : deviceVarValueList) {
+							varMapList.add(composeScriptVarMap(script, varKeyList, valueList));
+						}
+					}
+				}
 
-                //Step 3.呼叫共用執行腳本
-                StepServiceVO processVO = null;
-                try {
-                    processVO = stepService.doScript(connectionMode, deviceListId, deviceInfo, scriptInfo, varMapList, sysTrigger, triggerBy, triggerRemark, reason);
+				// Step 3.呼叫共用執行腳本
+				StepServiceVO processVO = null;
+				try {
+					processVO = stepService.doScript(connectionMode, deviceListId, deviceInfo, scriptInfo, varMapList,
+							sysTrigger, triggerBy, triggerRemark, reason);
 
-                    masterVO.getDetailVO().addAll(processVO.getPsVO().getDetailVO());
+					masterVO.getDetailVO().addAll(processVO.getPsVO().getDetailVO());
 
-                } catch (Exception e) {
-                    log.error(e.toString(), e);
-                }
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+				}
 
-                if (processVO == null || (processVO != null && !processVO.isSuccess())) {
-                    errorSb.append("[" + (idx+1) + "] >> 群組名稱:【" + groupName + "】/設備名稱:【" + deviceName + "】" + Constants.HTML_BREAK_LINE_SYMBOL)
-                           .append("失敗原因:" + Constants.HTML_BREAK_LINE_SYMBOL)
-                           .append(processVO.getMessage())
-                           .append("------------------------------------------------------------------------------------------------");
-                    failedCount++;
-                    continue;
-                }
+				if (processVO == null || (processVO != null && !processVO.isSuccess())) {
+					errorSb.append("[" + (idx + 1) + "] >> 群組名稱:【" + groupName + "】/設備名稱:【" + deviceName + "】"
+							+ Constants.HTML_BREAK_LINE_SYMBOL).append("失敗原因:" + Constants.HTML_BREAK_LINE_SYMBOL)
+							.append(processVO.getMessage())
+							.append("------------------------------------------------------------------------------------------------");
+					failedCount++;
+					continue;
+				}
 
-                if (processVO.getCmdOutputList() != null && !processVO.getCmdOutputList().isEmpty()) {
-                    retVO.setCmdOutputList(processVO.getCmdOutputList());
-                }
+				if (processVO.getCmdProcessLog() != null && !processVO.getCmdProcessLog().isEmpty()) {
+					log.debug("processVO.getCmdProcessLog() ==>" + processVO.getCmdProcessLog());
+					if (retVO.getProvisionLog() == null) {
+						retVO.setProvisionLog(processVO.getCmdProcessLog());
+					}
+				}
+				if (processVO.getCmdOutputList() != null && !processVO.getCmdOutputList().isEmpty()) {
+					retVO.setCmdOutputList(processVO.getCmdOutputList());
+				}
 
-            } catch (ServiceLayerException sle) {
-                log.error(sle.toString(), sle);
-                errorSb.append("[" + (idx+1) + "] >> 群組ID:【" + groupId + "】/設備ID:【" + deviceId + "】" + Constants.HTML_BREAK_LINE_SYMBOL)
-                       .append("失敗原因:" + Constants.HTML_BREAK_LINE_SYMBOL)
-                	   .append(sle.toString() + Constants.HTML_BREAK_LINE_SYMBOL)
-                       .append("------------------------------------------------------------------------------------------------");
-                failedCount++;
-                continue;
+			} catch (ServiceLayerException sle) {
+				log.error(sle.toString(), sle);
+				errorSb.append("[" + (idx + 1) + "] >> 群組ID:【" + groupId + "】/設備ID:【" + deviceId + "】"
+						+ Constants.HTML_BREAK_LINE_SYMBOL).append("失敗原因:" + Constants.HTML_BREAK_LINE_SYMBOL)
+						.append(sle.toString() + Constants.HTML_BREAK_LINE_SYMBOL)
+						.append("------------------------------------------------------------------------------------------------");
+				failedCount++;
+				continue;
 
-            } catch (Exception e) {
-                log.error(e.toString(), e);
-                errorSb.append("[" + (idx+1) + "] >> 群組ID:【" + groupId + "】/設備ID:【" + deviceId + "】供裝失敗" + Constants.HTML_BREAK_LINE_SYMBOL);
-                failedCount++;
-                continue;
-            }
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+				errorSb.append("[" + (idx + 1) + "] >> 群組ID:【" + groupId + "】/設備ID:【" + deviceId + "】供裝失敗"
+						+ Constants.HTML_BREAK_LINE_SYMBOL);
+				failedCount++;
+				continue;
+			}
 
-            successCount++;
-        }
+			successCount++;
+		}
 
-        String msg = "";
-        String[] args = null;
-        if (deviceCount == 1) {
-            if (failedCount == 0) {
-                msg = "供裝成功";
+		String msg = "";
+		String[] args = null;
+		if (deviceCount == 1) {
+			if (failedCount == 0) {
+				msg = "供裝成功";
 
-            } else if (failedCount == 1) {
-                msg = "供裝失敗";
-            }
+			} else if (failedCount == 1) {
+				msg = "供裝失敗";
+			}
 
-        } else {
-            msg = "選定供裝 {0} 筆設備: 成功 {1} 筆；失敗 {2} 筆";
-            args = new String[] {
-                    String.valueOf(deviceCount),
-                    String.valueOf(successCount),
-                    String.valueOf(failedCount)
-            };
-        }
+		} else {
+			msg = "選定供裝 {0} 筆設備: 成功 {1} 筆；失敗 {2} 筆";
+			args = new String[] { String.valueOf(deviceCount), String.valueOf(successCount),
+					String.valueOf(failedCount) };
+		}
 
-        masterVO.setEndTime(new Date());
-        masterVO.setResult(CommonUtils.converMsg(msg, args));
-        masterVO.setReason(reason);
+		masterVO.setEndTime(new Date());
+		masterVO.setResult(CommonUtils.converMsg(msg, args));
+		masterVO.setReason(reason);
 
-        provisionService.insertProvisionLog(masterVO);
+		provisionService.insertProvisionLog(masterVO);
 
-        retMsg += CommonUtils.converMsg(msg, args) + Constants.HTML_BREAK_LINE_SYMBOL + Constants.HTML_SEPARATION_LINE_SYMBOL + errorSb.toString();
-        retVO.setRetMsg(retMsg);
+		retMsg += CommonUtils.converMsg(msg, args) + Constants.HTML_BREAK_LINE_SYMBOL
+				+ Constants.HTML_SEPARATION_LINE_SYMBOL + errorSb.toString();
+		retVO.setRetMsg(retMsg);
 
-        return retVO;
-    }
+		return retVO;
+	}
 
 	@Override
 	public long countDeviceList(DeliveryServiceVO dsVO) throws ServiceLayerException {
@@ -268,7 +290,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 
 	@Override
-	public List<DeliveryServiceVO> findDeviceList(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength) throws ServiceLayerException {
+	public List<DeliveryServiceVO> findDeviceList(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength)
+			throws ServiceLayerException {
 		// TODO 自動產生的方法 Stub
 		return null;
 	}
@@ -291,7 +314,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 
 	@Override
-	public List<DeliveryServiceVO> findScriptList(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength) throws ServiceLayerException {
+	public List<DeliveryServiceVO> findScriptList(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength)
+			throws ServiceLayerException {
 		List<DeliveryServiceVO> retList = new ArrayList<>();
 		try {
 			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
@@ -319,12 +343,17 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 
 	@Override
-	public DeliveryServiceVO getScriptInfoById(String scriptInfoId) throws ServiceLayerException {
+	public DeliveryServiceVO getScriptInfoByIdOrCode(String scriptInfoId, String scriptCode) throws ServiceLayerException {
 		DeliveryServiceVO retVO = new DeliveryServiceVO();
 		try {
 			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
-			siDAOVO.setQueryScriptInfoId(scriptInfoId);
-
+			if (StringUtils.isNotBlank(scriptInfoId)) {
+				siDAOVO.setQueryScriptInfoId(scriptInfoId);
+			}
+			if (StringUtils.isNotBlank(scriptCode)) {
+				siDAOVO.setQueryScriptCode(scriptCode);
+			}
+			
 			List<ScriptInfo> entities = scriptInfoDAO.findScriptInfo(siDAOVO, null, null);
 
 			if (entities != null && !entities.isEmpty()) {
@@ -348,7 +377,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 
 	@Override
-	public DeliveryServiceVO getVariableSetting(List<String> groups, List<String> devices, List<String> variables) throws ServiceLayerException {
+	public DeliveryServiceVO getVariableSetting(List<String> groups, List<String> devices, List<String> variables)
+			throws ServiceLayerException {
 		DeliveryServiceVO retVO = new DeliveryServiceVO();
 
 		try {
@@ -362,10 +392,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 			}
 
 			/*
-			 * deviceVarMap 資料結構:
-			 * 第一層Key: 群組+設備ID
-			 * 第二層Key: 變數名稱
-			 * 第二層Value: 該設備變數值選單
+			 * deviceVarMap 資料結構: 第一層Key: 群組+設備ID 第二層Key: 變數名稱 第二層Value: 該設備變數值選單
 			 */
 			Map<String, Map<String, List<DeviceDetailInfo>>> deviceVarMap = new HashMap<>();
 			/*
@@ -380,7 +407,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				} else {
 					Map<String, List<DeviceDetailInfo>> varMap = null;
 
-					for (int i=0; i<devices.size(); i++) {
+					for (int i = 0; i < devices.size(); i++) {
 						final String groupId = groups.get(i);
 						final String deviceId = devices.get(i);
 						final String mapKey = groupId + Env.COMM_SEPARATE_SYMBOL + deviceId;
@@ -413,10 +440,9 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		return retVO;
 	}
 
-
 	private boolean checkDeliveryParameter(DeliveryParameterVO dpVO) {
 		try {
-			//Step 1.檢核腳本是否存在
+			// Step 1.檢核腳本是否存在
 			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
 			siDAOVO.setQueryScriptInfoId(dpVO.getScriptInfoId());
 			siDAOVO.setQueryScriptCode(dpVO.getScriptCode());
@@ -429,7 +455,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 			ScriptInfo dbEntity = scriptList.get(0);
 
-			//Step 2.檢核JSON內Script_Info_Id與Script_Code是否匹配
+			// Step 2.檢核JSON內Script_Info_Id與Script_Code是否匹配
 			final String dbScriptCode = dbEntity.getScriptCode();
 			final String jsonScriptCode = dpVO.getScriptCode();
 
@@ -437,9 +463,9 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				return false;
 			}
 
-			//Step 3.檢核JSON內VarKey與系統內設定的腳本變數欄位是否相符
+			// Step 3.檢核JSON內VarKey與系統內設定的腳本變數欄位是否相符
 			final String dbVarKeyJSON = dbEntity.getActionScriptVariable();
-			final List<String> dbVarKeyList = (List<String>)transJSON2Object(dbVarKeyJSON, ArrayList.class);
+			final List<String> dbVarKeyList = (List<String>) transJSON2Object(dbVarKeyJSON, ArrayList.class);
 			final List<String> jsonVarKeyList = dpVO.getVarKey();
 
 			if (dbVarKeyList.size() != jsonVarKeyList.size()) {
@@ -451,8 +477,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				}
 			}
 
-			//Step 4.檢核變數值(VarValue)是否有缺
-			//VarValue資料結構: List(設備)<List(VarValue)>
+			// Step 4.檢核變數值(VarValue)是否有缺
+			// VarValue資料結構: List(設備)<List(VarValue)>
 			final List<List<String>> jsonVarValueList = dpVO.getVarValue();
 			final List<String> jsonDeviceIdList = dpVO.getDeviceId();
 
@@ -473,21 +499,22 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				}
 			}
 
-			//Step 5.檢核設備是否皆存在 且 是否與JSON內設備ID相符
+			// Step 5.檢核設備是否皆存在 且 是否與JSON內設備ID相符
 			final List<String> jsonGroupIdList = dpVO.getGroupId();
 
 			if (jsonGroupIdList.size() != jsonDeviceIdList.size()) {
 				return false;
 			}
 
-			int i=0;
+			int i = 0;
 			for (String deviceId : jsonDeviceIdList) {
 				String groupId = jsonGroupIdList.get(i);
 
 				final String jsonDeviceId = jsonDeviceIdList.get(i);
 				DeviceList deviceEntity = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, deviceId);
 
-				if (deviceEntity == null || (deviceEntity != null && !deviceEntity.getDeviceId().equals(jsonDeviceId))) {
+				if (deviceEntity == null
+						|| (deviceEntity != null && !deviceEntity.getDeviceId().equals(jsonDeviceId))) {
 					return false;
 				}
 
@@ -504,7 +531,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 	private Map<String, String> composeScriptVarMap(String script, List<String> varKeyList, List<String> valueList) {
 		Map<String, String> varMap = new HashMap<>();
-		for (int i=0; i<varKeyList.size(); i++) {
+		for (int i = 0; i < varKeyList.size(); i++) {
 			final String vKey = Env.SCRIPT_VAR_KEY_SYMBOL + varKeyList.get(i) + Env.SCRIPT_VAR_KEY_SYMBOL;
 			final String vValue = valueList.get(i);
 
@@ -568,7 +595,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 
 	@Override
-	public List<DeliveryServiceVO> findProvisionLog(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength) throws ServiceLayerException {
+	public List<DeliveryServiceVO> findProvisionLog(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength)
+			throws ServiceLayerException {
 		List<DeliveryServiceVO> retList = new ArrayList<>();
 		try {
 			ProvisionLogDAOVO daovo = new ProvisionLogDAOVO();
@@ -585,7 +613,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 				for (Object[] entity : entities) {
 					final String logStepId = Objects.toString(entity[2]);
-					final Timestamp beginTime = (entity[4] != null) ? (Timestamp)entity[4] : null;
+					final Timestamp beginTime = (entity[4] != null) ? (Timestamp) entity[4] : null;
 					final String userName = Objects.toString(entity[5], "(未知)");
 					final String groupName = Objects.toString(entity[6], "(未知)");
 					final String deviceName = Objects.toString(entity[7], "(未知)");
@@ -597,7 +625,8 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 					vo = new DeliveryServiceVO();
 					vo.setLogStepId(logStepId);
-					vo.setDeliveryBeginTime(beginTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(beginTime) : "");
+					vo.setDeliveryBeginTime(
+							beginTime != null ? Constants.FORMAT_YYYYMMDD_HH24MISS.format(beginTime) : "");
 					vo.setCreateBy(userName);
 					vo.setGroupName(groupName);
 					vo.setDeviceName(deviceName);
@@ -634,20 +663,374 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		return retVO;
 	}
 
-    @Override
-    public List<DeviceList> findGroupDeviceOfSpecifyLayer(String groupId, String deviceLayer)
-            throws ServiceLayerException {
-        List<DeviceList> retList = null;
-        try {
-            DeviceDAOVO dlDAOVO = new DeviceDAOVO();
-            dlDAOVO.setGroupId(groupId);
-            dlDAOVO.setDeviceLayer(deviceLayer);
-            retList = deviceDAO.findDeviceListByDAOVO(dlDAOVO);
+	@Override
+	public List<DeviceList> findGroupDeviceOfSpecifyLayer(String groupId, List<String> deviceLayer)
+			throws ServiceLayerException {
+		List<DeviceList> retList = null;
+		try {
+			DeviceDAOVO dlDAOVO = new DeviceDAOVO();
+			dlDAOVO.setGroupId(groupId);
+			dlDAOVO.setDeviceLayerList(deviceLayer);
+			retList = deviceDAO.findDeviceListByDAOVO(dlDAOVO);
 
-        } catch (Exception e) {
-            log.error(e.toString(), e);
-            throw new ServiceLayerException("查找 " + deviceLayer + " 設備失敗");
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			throw new ServiceLayerException("查找 " + deviceLayer + " 設備失敗");
+		}
+		return retList;
+	}
+
+	@Override
+    public  boolean doSyncDeviceIpBlockedList(boolean isAdmin, String prtgLoginAccount, IpBlockedRecordVO ibrVO,
+			List<IpBlockedRecordVO> dbRecordList) throws ServiceLayerException {
+		
+		List<DeviceList> deviceList = new ArrayList<DeviceList>();
+		List<String> scriptList = new ArrayList<>();
+		List<String> searchLayer = new ArrayList<String>();
+		searchLayer.add(Env.DEVICE_LAYER_L3);
+		
+		if (Env.DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE != null) {
+			scriptList.addAll(Env.DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE);
+		}
+		if (isAdmin) {
+			//deviceList = findGroupDeviceOfSpecifyLayer(null, Env.DEVICE_LAYER_L3);
+
+			// 若使用者為管理者，多查出中心端的IP控制腳本
+			if (Env.DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE_4_ADMIN != null) {
+				scriptList.addAll(Env.DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE_4_ADMIN);
+			}
+			// 若使用者為管理者，多查出LC Layer Device
+			searchLayer.add(Env.DEVICE_LAYER_LC);
+		}
+		
+		if (StringUtils.isNotBlank(ibrVO.getQueryGroupId())) {
+            deviceList.addAll(findGroupDeviceOfSpecifyLayer(ibrVO.getQueryGroupId(),searchLayer));
+        } else if (ibrVO.getQueryGroupIdList() != null && !ibrVO.getQueryGroupIdList().isEmpty()) {
+        	for (String groupId : ibrVO.getQueryGroupIdList()) {
+        		deviceList.addAll(findGroupDeviceOfSpecifyLayer(groupId, searchLayer));
+			}
         }
-        return retList;
-    }
+		
+		Map<String, IpBlockedRecordVO> result = new HashMap<String, IpBlockedRecordVO>();
+		String reason = prtgLoginAccount + "點選同步Switch IP封鎖記錄 按鈕";
+		
+		DeliveryServiceVO dsVO;
+		DeliveryParameterVO dpVO;
+		List<IpBlockedRecordVO> updateList = new ArrayList<>();
+		IpBlockedRecordVO nowibrVO = null;
+		String ipAddress = null;
+		String blockCmd = null;
+		ScriptInfo scriptInfo ;
+		ScriptInfo info ;
+		
+		for (String scriptCode : scriptList) {
+			for (DeviceList device : deviceList) {
+
+				try {
+					dpVO = new DeliveryParameterVO();
+					dpVO.setGroupId(Arrays.asList(device.getGroupId()));
+					dpVO.setDeviceId(Arrays.asList(device.getDeviceId()));
+					dpVO.setScriptCode(scriptCode);
+					dpVO.setVarKey(null);
+					dpVO.setVarValue(null);
+					dpVO.setReason(reason);
+
+					dsVO = doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, dpVO, true, prtgLoginAccount, reason, false);
+					if (dsVO.getProvisionLog() != null) {
+						String provisionLog = dsVO.getProvisionLog();						
+						ipAddress = null;
+						blockCmd = null;
+						
+						scriptInfo = scriptInfoDAO.findScriptInfoByIdOrCode(null, scriptCode);
+						if(provisionLog.contains(scriptInfo.getActionScript())) {
+							provisionLog = provisionLog.substring(provisionLog.indexOf(scriptInfo.getActionScript())+scriptInfo.getActionScript().length());
+						}
+						
+						//判斷acl封鎖
+						while(provisionLog.contains("deny ip host")) {
+							provisionLog = provisionLog.substring(provisionLog.indexOf("deny ip host"));
+							ipAddress = provisionLog.substring(provisionLog.indexOf("deny ip host")+12, provisionLog.indexOf(" any")).trim();
+							blockCmd = provisionLog.substring(provisionLog.indexOf("deny ip host"), provisionLog.indexOf(" any")+4).trim();
+							provisionLog = provisionLog.substring(provisionLog.indexOf(" any")+4).trim();
+							
+							nowibrVO = ipBlockedRecordService.checkIpblockedList(device.getGroupId(), device.getDeviceId(), ipAddress , dbRecordList);
+							
+							
+							//不存在的新增一筆記錄
+							if(StringUtils.isBlank(nowibrVO.getBlockBy())) {
+								nowibrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
+								nowibrVO.setRemark("acl封鎖同步");
+								
+								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ACL", device.getDeviceModel());
+								if(info != null) {
+									nowibrVO.setScriptCode(info.getScriptCode());
+									nowibrVO.setScriptName(info.getScriptName());
+								}
+								
+								result.put(nowibrVO.getDeviceId()+nowibrVO.getIpAddress(), nowibrVO);
+								updateList.add(nowibrVO);							
+								
+							}else {
+								if(StringUtils.isBlank(nowibrVO.getScriptCode())) {
+									info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ACL", device.getDeviceModel());
+									if(info != null) {
+										nowibrVO.setScriptCode(info.getScriptCode());
+										nowibrVO.setScriptName(info.getScriptName());
+										
+										updateList.add(nowibrVO);
+									}
+								}
+								result.put(nowibrVO.getDeviceId()+nowibrVO.getIpAddress(), nowibrVO);
+							}
+						}
+						
+						//判斷arp封鎖
+						while(provisionLog.contains("0000.0000.0001")) {
+							provisionLog = provisionLog.substring(provisionLog.indexOf("Internet"));
+							ipAddress = provisionLog.substring(provisionLog.indexOf("Internet")+8, provisionLog.indexOf(" 0000.0000.0001")).replaceAll("-", "").trim();
+							blockCmd = provisionLog.substring(provisionLog.indexOf("Internet"), provisionLog.indexOf(" ARPA")+5);
+							provisionLog = provisionLog.substring(provisionLog.indexOf(" ARPA")+5).trim();
+
+							nowibrVO = ipBlockedRecordService.checkIpblockedList(device.getGroupId(), device.getDeviceId(), ipAddress,dbRecordList);
+							
+							//不存在的新增一筆記錄
+							if(StringUtils.isBlank(nowibrVO.getBlockBy())) {
+								nowibrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
+								nowibrVO.setRemark("arp封鎖同步");
+								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ARP", device.getDeviceModel());
+								if(info != null) {
+									nowibrVO.setScriptCode(info.getScriptCode());
+									nowibrVO.setScriptName(info.getScriptName());
+								}
+								
+								result.put(nowibrVO.getDeviceId()+nowibrVO.getIpAddress(), nowibrVO);
+								updateList.add(nowibrVO);
+							}else {				
+								if(StringUtils.isBlank(nowibrVO.getScriptCode())) {
+									info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ARP", device.getDeviceModel());
+									if(info != null) {
+										nowibrVO.setScriptCode(info.getScriptCode());
+										nowibrVO.setScriptName(info.getScriptName());
+										
+										updateList.add(nowibrVO);
+									}
+								}
+								
+								result.put(nowibrVO.getDeviceId()+nowibrVO.getIpAddress(), nowibrVO);
+							}
+						}
+					}
+
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+
+					// 設備執行腳本失敗則跳過此設備
+					break;
+				}
+
+			}
+		}
+		
+		updateList.addAll(ipBlockedRecordService.compareIpblockedList(dbRecordList, result));
+		
+		if (updateList != null && !updateList.isEmpty()) {
+			ipBlockedRecordService.saveOrUpdateRecord(updateList);
+			return true;
+        }
+		return false;
+	}
+
+	@Override
+    public  boolean doSyncDevicePortBlockedList(boolean isAdmin, String prtgLoginAccount, PortBlockedRecordVO pbrVO,
+			List<PortBlockedRecordVO> dbRecordList) throws ServiceLayerException {
+		
+		List<DeviceList> deviceList = new ArrayList<DeviceList>();
+		List<String> scriptList = new ArrayList<>();
+		List<String> searchLayer = new ArrayList<String>();
+		searchLayer.add(Env.DEVICE_LAYER_L3);
+		
+		if (Env.DELIVERY_SYNC_SWITCH_PORT_RECORD_SCRIPT_CODE != null) {
+			scriptList.addAll(Env.DELIVERY_SYNC_SWITCH_PORT_RECORD_SCRIPT_CODE);
+			//show interfaces status disabled
+		}
+		if (isAdmin) {
+			// 若使用者為管理者，多查出LC Layer Device
+			searchLayer.add(Env.DEVICE_LAYER_LC);
+		}
+		
+		if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            deviceList.addAll(findGroupDeviceOfSpecifyLayer(pbrVO.getQueryGroupId(),searchLayer));
+        } else if (pbrVO.getQueryGroupIdList() != null && !pbrVO.getQueryGroupIdList().isEmpty()) {
+        	for (String groupId : pbrVO.getQueryGroupIdList()) {
+        		deviceList.addAll(findGroupDeviceOfSpecifyLayer(groupId, searchLayer));
+			}
+        }
+		
+		Map<String, PortBlockedRecordVO> result = new HashMap<String, PortBlockedRecordVO>();
+		String reason = prtgLoginAccount + "點選同步Switch Port封鎖記錄 按鈕";
+		
+		DeliveryServiceVO dsVO;
+		DeliveryParameterVO dpVO;
+		List<PortBlockedRecordVO> updateList = new ArrayList<>();
+		PortBlockedRecordVO nowpbrVO = null;
+		String portId = null;
+		ScriptInfo scriptInfo ;
+				
+		for (String scriptCode : scriptList) {
+			for (DeviceList device : deviceList) {
+
+				try {
+					dpVO = new DeliveryParameterVO();
+					dpVO.setGroupId(Arrays.asList(device.getGroupId()));
+					dpVO.setDeviceId(Arrays.asList(device.getDeviceId()));
+					dpVO.setScriptCode(scriptCode);
+					dpVO.setVarKey(null);
+					dpVO.setVarValue(null);
+					dpVO.setReason(reason);
+
+					dsVO = doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, dpVO, true, prtgLoginAccount, reason, false);
+					if (dsVO.getProvisionLog() != null) {
+						String provisionLog = dsVO.getProvisionLog();						
+						portId = null;
+
+						scriptInfo = scriptInfoDAO.findScriptInfoByIdOrCode(null, scriptCode);
+						if(provisionLog.contains(scriptInfo.getActionScript())) {
+							provisionLog = provisionLog.substring(provisionLog.indexOf(scriptInfo.getActionScript())+scriptInfo.getActionScript().length());
+						}
+						
+						while(provisionLog.contains("disabled")) {
+							portId = provisionLog.substring(0, provisionLog.indexOf(" disabled")).trim();
+							provisionLog = provisionLog.substring(provisionLog.indexOf("1000BaseTX")+10).trim();
+
+							nowpbrVO = portBlockRecordService.checkPortBlockedList(device.getGroupId(), device.getDeviceId(), portId,dbRecordList);
+														
+							//不存在的新增一筆記錄
+							if(StringUtils.isBlank(nowpbrVO.getBlockBy())) {
+								nowpbrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
+								nowpbrVO.setRemark("Port封鎖同步");
+								
+								result.put(nowpbrVO.getDeviceId()+nowpbrVO.getPortId(), nowpbrVO);
+								updateList.add(nowpbrVO);
+							}else {								
+								result.put(nowpbrVO.getDeviceId()+nowpbrVO.getPortId(), nowpbrVO);
+							}
+						}
+					}
+
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+
+					// 設備執行腳本失敗則跳過此設備
+					break;
+				}
+
+			}
+		}
+		
+		updateList.addAll(portBlockRecordService.comparePortBlockedList(dbRecordList, result));
+		
+		if (updateList != null && !updateList.isEmpty()) {
+			portBlockRecordService.saveOrUpdateRecord(updateList);
+			return true;
+        }
+		return false;
+	}
+	
+
+	@Override
+    public  boolean doSyncDeviceMacBlockedList(boolean isAdmin, String prtgLoginAccount, MacBlockedRecordVO pbrVO,
+			List<MacBlockedRecordVO> dbRecordList) throws ServiceLayerException {
+		
+		List<DeviceList> deviceList = new ArrayList<DeviceList>();
+		List<String> scriptList = new ArrayList<>();
+		List<String> searchLayer = new ArrayList<String>();
+		searchLayer.add(Env.DEVICE_LAYER_L3);
+		
+		if (Env.DELIVERY_SYNC_SWITCH_PORT_RECORD_SCRIPT_CODE != null) {
+			scriptList.addAll(Env.DELIVERY_SYNC_SWITCH_PORT_RECORD_SCRIPT_CODE);
+			//show interfaces status disabled
+		}
+		if (isAdmin) {
+			// 若使用者為管理者，多查出LC Layer Device
+			searchLayer.add(Env.DEVICE_LAYER_LC);
+		}
+		
+		if (StringUtils.isNotBlank(pbrVO.getQueryGroupId())) {
+            deviceList.addAll(findGroupDeviceOfSpecifyLayer(pbrVO.getQueryGroupId(),searchLayer));
+        } else if (pbrVO.getQueryGroupIdList() != null && !pbrVO.getQueryGroupIdList().isEmpty()) {
+        	for (String groupId : pbrVO.getQueryGroupIdList()) {
+        		deviceList.addAll(findGroupDeviceOfSpecifyLayer(groupId, searchLayer));
+			}
+        }
+		
+		Map<String, MacBlockedRecordVO> result = new HashMap<String, MacBlockedRecordVO>();
+		String reason = prtgLoginAccount + "點選同步Switch Mac封鎖記錄 按鈕";
+		
+		DeliveryServiceVO dsVO;
+		DeliveryParameterVO dpVO;
+		List<MacBlockedRecordVO> updateList = new ArrayList<>();
+		MacBlockedRecordVO nowmbrVO = null;
+		String macAddress = null;
+		ScriptInfo scriptInfo ;
+		
+		for (String scriptCode : scriptList) {
+			for (DeviceList device : deviceList) {
+
+				try {
+					dpVO = new DeliveryParameterVO();
+					dpVO.setGroupId(Arrays.asList(device.getGroupId()));
+					dpVO.setDeviceId(Arrays.asList(device.getDeviceId()));
+					dpVO.setScriptCode(scriptCode);
+					dpVO.setVarKey(null);
+					dpVO.setVarValue(null);
+					dpVO.setReason(reason);
+
+					dsVO = doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, dpVO, true, prtgLoginAccount, reason, false);
+					if (dsVO.getProvisionLog() != null) {
+						String provisionLog = dsVO.getProvisionLog();						
+						macAddress = null;
+
+						scriptInfo = scriptInfoDAO.findScriptInfoByIdOrCode(null, scriptCode);
+						if(provisionLog.contains(scriptInfo.getActionScript())) {
+							provisionLog = provisionLog.substring(provisionLog.indexOf(scriptInfo.getActionScript())+scriptInfo.getActionScript().length());
+						}
+						
+						while(provisionLog.contains("Drop")) {
+							//2    3415.9ece.d9bb    STATIC      Drop
+							macAddress = provisionLog.substring(provisionLog.indexOf(".")-4, provisionLog.indexOf("STATIC")).trim();
+							provisionLog = provisionLog.substring(provisionLog.indexOf("Drop")+4).trim();
+
+							nowmbrVO = macBlockRecordService.checkMacBlockedList(device.getGroupId(), device.getDeviceId(), macAddress,dbRecordList);
+														
+							//不存在的新增一筆記錄
+							if(StringUtils.isBlank(nowmbrVO.getBlockBy())) {
+								nowmbrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
+								nowmbrVO.setRemark("Mac封鎖同步");
+								
+								result.put(nowmbrVO.getDeviceId()+nowmbrVO.getMacAddress(), nowmbrVO);
+								updateList.add(nowmbrVO);
+							}else {								
+								result.put(nowmbrVO.getDeviceId()+nowmbrVO.getMacAddress(), nowmbrVO);
+							}
+						}
+					}
+
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+
+					// 設備執行腳本失敗則跳過此設備
+					break;
+				}
+
+			}
+		}
+		
+		updateList.addAll(macBlockRecordService.compareMacBlockedList(dbRecordList, result));
+		
+		if (updateList != null && !updateList.isEmpty()) {
+			macBlockRecordService.saveOrUpdateRecord(updateList);
+			return true;
+        }
+		return false;
+	}
 }

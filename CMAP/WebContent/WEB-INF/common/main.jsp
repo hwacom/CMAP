@@ -86,6 +86,8 @@
 	<script src="${pageContext.request.contextPath}/resources/js/cleave/cleave.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/modernizr/modernizr-custom.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/FileSaver/FileSaver.min.js"></script>
+	<!-- D3 -->
+	<script charset="utf-8" type="text/javascript" src="${pageContext.request.contextPath}/resources/D3/d3.min.js"></script>
 	
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/common.min.js"></script>
 	
@@ -215,17 +217,17 @@
 				        </c:if>
 				        <!-- [拓樸圖] END -->
 				        
-				        <!-- [警報總覽] START -->
-				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY eq __SHOW__}">
-				        	<li class="subMenu-item">
-		                    	<a id="mp_alarmSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/alarmSummary')">
-		                    	  <span data-feather="alert-triangle"></span>
-		                    	  	<span><spring:message code="func.prtg.alarm.summary" /></span>
-		                    	</a>
-		                    </li>
-				        </c:if>
-				        <!-- [警報總覽] END -->
-				        
+				        <!-- [拓樸圖] START -->
+			            <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
+	                		<li class="subMenu-item">
+				                <a id="cm_topography" href="${pageContext.request.contextPath}/topography">
+				                  <span data-feather="git-merge"></span>
+	                    	  	<span><spring:message code="func.prtg.topography" /></span>
+				                </a>
+				            </li>
+	                	</c:if>
+		                <!-- [拓樸圖] END -->
+		                
 				        <!-- [流量統計] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -273,7 +275,7 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [各校出口端流量圖] END -->
-	                    
+	                    	                    
 	                    <!-- [各校即時IP流量排行] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_TRAFFIC eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -332,6 +334,39 @@
 		                    </li>
 				        </c:if>
 	                    <!-- [Interface狀態清單] END -->
+	                    
+	                    <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] START -->
+			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
+			            	<li class="subMenu-item">
+		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipMapping/change">
+		                    	  <span data-feather="minimize-2"></span>
+		                    		<span><spring:message code="func.plugin.ip.record" /></span>
+		                    	</a>
+		                    </li>
+			            </c:if>
+			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
+			            
+	                    <!-- [Net flow查詢] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
+		                    	  <span data-feather="shuffle"></span>
+		                    	  	<span><spring:message code="func.plugin.net.flow" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [Net flow查詢] END -->
+	                    
+	                    <!-- [防火牆LOG查詢] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
+		                    	  <span data-feather="shield"></span>
+		                    	  	<span><spring:message code="func.plugin.firewall" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [防火牆LOG查詢] END -->
 	                </ul>
 		          </li>
 	          </c:if>
@@ -425,17 +460,18 @@
 	                  	<span><spring:message code="menu.abnormal.alarm" />&nbsp;<span id="toggleMenu_abnormalAlarm_icon" data-feather="chevron-down"></span></span>
 	                </a>
 	                <ul aria-expanded="false" id="toggleMenu_abnormalAlarm_items" class="collapse">
-			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] START -->
-			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
-			            	<li class="subMenu-item">
-		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipMapping/change">
-		                    	  <span data-feather="minimize-2"></span>
-		                    		<span><spring:message code="func.plugin.ip.record" /></span>
+			            
+				        <!-- [警報總覽] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_ALARM_SUMMARY eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_alarmSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/alarmSummary')">
+		                    	  <span data-feather="alert-triangle"></span>
+		                    	  	<span><spring:message code="func.prtg.alarm.summary" /></span>
 		                    	</a>
 		                    </li>
-			            </c:if>
-			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
-			            
+				        </c:if>
+				        <!-- [警報總覽] END -->
+				        	            
 			            <!-- [未授權DHCP設備(私接分享器)] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_UNAUTHORIZED_DHCP eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -514,17 +550,6 @@
 			            </c:if>
 			            <!-- [Wifi查詢] END -->
 			            
-			            <!-- [Net flow查詢] START -->
-	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
-	                    	<li class="subMenu-item">
-		                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
-		                    	  <span data-feather="shuffle"></span>
-		                    	  	<span><spring:message code="func.plugin.net.flow" /></span>
-		                    	</a>
-		                    </li>
-	                    </c:if>
-	                    <!-- [Net flow查詢] END -->
-	                    
 	                    <!-- [開關PORT] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -549,16 +574,31 @@
 	                    </sec:authorize>
 	                    <!-- [PORT封鎖紀錄查詢] END -->
 	                    
-	                    <!-- [IP開通/封鎖] START -->
-	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
-	                    	<li class="subMenu-item">
-		                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock">
-		                    	  <span data-feather="check-square"></span>
-		                    	  	<span><spring:message code="func.ip.open.block" /></span>
-		                    	</a>
-		                    </li>
-	                    </c:if>
-	                    <!-- [IP開通/封鎖] END -->
+	                    <!-- [IP開通/封鎖] START For Admin-->
+	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+		                    <c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
+		                    	<li class="subMenu-item">
+			                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock4Admin">
+			                    	  <span data-feather="check-square"></span>
+			                    	  	<span><spring:message code="func.ip.open.block" /></span>
+			                    	</a>
+			                    </li>
+		                    </c:if>
+	                    </sec:authorize>
+	                    <!-- [IP開通/封鎖] END For Admin -->
+	                    
+	                    <!-- [IP開通/封鎖] START For User -->
+	                    <sec:authorize access="!hasAnyRole('ROLE_ADMIN')">
+	                    	<c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
+		                    	<li class="subMenu-item">
+			                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock">
+			                    	  <span data-feather="check-square"></span>
+			                    	  	<span><spring:message code="func.ip.open.block" /></span>
+			                    	</a>
+			                    </li>
+		                    </c:if>
+	                    </sec:authorize>
+	                    <!-- [IP開通/封鎖] END For User -->
 	                    
 	                    <!-- [IP封鎖紀錄查詢] START -->
 	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
@@ -597,16 +637,16 @@
 	                    </sec:authorize>
 	                    <!-- [網卡MAC封鎖紀錄查詢] END -->
 	                    
-	                    <!-- [防火牆LOG查詢] START -->
-	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
+	                    <!-- [封鎖清單] START -->
+                    	<c:if test="${Env.SHOW_MENU_ITEM_MAC_BLOCKED_RECORD eq __SHOW__}">
 	                    	<li class="subMenu-item">
-		                    	<a id="cm_firewallLog" href="${pageContext.request.contextPath}/plugin/module/firewall/log">
-		                    	  <span data-feather="shield"></span>
-		                    	  	<span><spring:message code="func.plugin.firewall" /></span>
+		                    	<a id="cm_blockedListRecord" href="${pageContext.request.contextPath}/record/blockedListRecord">
+		                    	  <span data-feather="clipboard"></span>
+		                    	  	<span><spring:message code="func.block.list.record" /></span>
 		                    	</a>
 		                    </li>
 	                    </c:if>
-	                    <!-- [防火牆LOG查詢] END -->
+	                    <!-- [封鎖清單] END -->
 	                </ul>
 		      	</li>
               </c:if>

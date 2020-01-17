@@ -564,8 +564,7 @@ public class PrtgController extends BaseController {
 
         HttpSession session = request.getSession();
         try {
-            //final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
-            final String schoolId = "054649";
+            final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
 
             String emailUpdateMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_EMAIL_UPDATE);
 
