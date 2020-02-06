@@ -229,6 +229,9 @@ public class LoginContoller extends BaseController {
 
 				return "redirect:/loginOIDC_CY";
 
+			}  else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
+				
+				return "redirect:/loginOIDC_NTPC";
 			} else {
 		        return "login";
 			}
@@ -332,24 +335,24 @@ public class LoginContoller extends BaseController {
 
 		} 
 
-		if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
-			URI configurationEndpoint = null;
-			try {
-				configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
-
-			} catch (URISyntaxException e) {
-				log.error(e.toString(), e);
-
-			}
-			request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
-
-			return "login_openid_cy";
-
-		} else {
-			return "redirect:/login";
-		}
+//		if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
+//			URI configurationEndpoint = null;
+//			try {
+//				configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
+//
+//			} catch (URISyntaxException e) {
+//				log.error(e.toString(), e);
+//
+//			}
+//			request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
+//
+//			return "login_openid_cy";
+//
+//		} else {
+//			return "redirect:/login";
+//		}
 		//TODO:先寫死
-//		return "login_openid_cy";
+		return "login_openid_cy";
 	}
 	
 	@RequestMapping(value = "login/authByOIDC", method = {RequestMethod.GET, RequestMethod.POST})

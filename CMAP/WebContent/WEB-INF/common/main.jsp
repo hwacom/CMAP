@@ -145,8 +145,10 @@
   		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
  		 -->
  		 
- 		<span class="font-weight-bold title-font" style="color:#000079"><spring:message code="cmap.title" /></span>	
-      </a>
+ 		<span class="font-weight-bold title-font"
+			style="color: rgb(82, 82, 82); border-bottom: 1px; border-bottom-color: black; border-bottom-style: dashed; font-family: 游ゴシック;"><spring:message
+					code="cmap.title" /></span>
+		</a>
       <ul class="navbar-nav">
         <li class="nav-item text-nowrap">
           <a class="nav-link" href="${pageContext.request.contextPath}/logout"><span data-feather="log-out"></span></a>
@@ -367,6 +369,17 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [防火牆LOG查詢] END -->
+	                    
+	                    <!-- [設備roop查詢] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_LOOP_SEARCH eq __SHOW__}">
+		                    <li class="subMenu-item">
+		                    	<a id="mp_loopSearch" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/loopSearch')">
+		                    	  <span data-feather="rotate-cw"></span>
+		                    	  	<span><spring:message code="func.plugin.loopSearch" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [設備roop查詢] END -->
 	                </ul>
 		          </li>
 	          </c:if>

@@ -2,15 +2,18 @@ package com.cmap.utils.impl;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.bouncycastle.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.smi.VariableBinding;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.CommandExecuteException;
@@ -83,15 +86,21 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 			write(account);
 
 			processLog.append(output);
-
+			
 			output = readUntil(Env.TELNET_LOGIN_PASSWORD_TEXT);
 			write(password);
 
 			processLog.append(output);
+		} catch (SocketTimeoutException ste){//有些狀況不需輸入帳號
+			
+			output = readUntil(Env.TELNET_LOGIN_PASSWORD_TEXT);
+			write(password);
 
+			processLog.append(output);
 		} catch (Exception e) {
 
 		}
+		
 		return false;
 	}
 

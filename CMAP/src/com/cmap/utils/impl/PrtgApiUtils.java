@@ -1,12 +1,15 @@
 package com.cmap.utils.impl;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -18,6 +21,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
@@ -430,9 +434,9 @@ public class PrtgApiUtils implements ApiUtils {
 			    username = StringUtils.trim(username);
 			    password = StringUtils.trim(password);
 
-				API_LOGIN = StringUtils.replace(API_LOGIN, "{username}", username);
-				API_LOGIN = StringUtils.replace(API_LOGIN, "{password}", password);
-
+				API_LOGIN = StringUtils.replace(API_LOGIN, "{username}",URLEncoder.encode(username, "UTF-8") );
+                API_LOGIN = StringUtils.replace(API_LOGIN, "{password}",URLEncoder.encode(password, "UTF-8") );
+                
 				String apiUrl = PRTG_ROOT.concat(API_LOGIN);
 
 				String retVal = null;
@@ -485,8 +489,8 @@ public class PrtgApiUtils implements ApiUtils {
                 username = StringUtils.trim(username);
                 password = StringUtils.trim(password);
 
-                API_LOGIN = StringUtils.replace(API_LOGIN, "{username}", username);
-                API_LOGIN = StringUtils.replace(API_LOGIN, "{password}", password);
+                API_LOGIN = StringUtils.replace(API_LOGIN, "{username}",URLEncoder.encode(username, "UTF-8") );
+                API_LOGIN = StringUtils.replace(API_LOGIN, "{password}",URLEncoder.encode(password, "UTF-8") );
 
                 String apiUrl = PRTG_ROOT.concat(API_LOGIN);
 
@@ -728,9 +732,9 @@ public class PrtgApiUtils implements ApiUtils {
 
 		try {
 			CloseableHttpClient httpclient = CloseableHttpClientUtils.prepare();
-
+			
 			HttpGet httpGet = new HttpGet(apiUrl);
-
+			
 			RequestConfig requestConfig = RequestConfig.custom()
 					.setConnectTimeout(Env.HTTP_CONNECTION_TIME_OUT)				//設置連接逾時時間，單位毫秒。
 					.setConnectionRequestTimeout(Env.HTTP_CONNECTION_TIME_OUT)	//設置從connect Manager獲取Connection 超時時間，單位毫秒。這個屬性是新加的屬性，因為目前版本是可以共用連接池的。

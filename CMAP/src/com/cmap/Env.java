@@ -42,6 +42,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_USER_GUIDE_DOWNLOAD;                    // 間控平台 > 系統操作手冊下載
     public static String SHOW_MENU_ITEM_INTERFACE_STATUS_LIST;                  // 間控平台 > Interface狀態清單
     public static String SHOW_MENU_ITEM_FIREWALL_OUTPUT;                        // 間控平台 > Firewall出口端流量圖
+    public static String SHOW_MENU_ITEM_LOOP_SEARCH;                        	// 監控平台 > 設備LOOP查詢
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
@@ -374,6 +375,7 @@ public class Env {
 	public static String PRTG_DEFAULT_ABNORMAL_TRAFFIC_URI;
 	public static String PRTG_DEFAULT_EMAIL_UPDATE_URI;
 	public static String PRTG_LOGOUT_URI;
+	public static String PRTG_DEFAULT_LOOP_SEARCH_URI;
 
 	public static String DEFAULT_INSERT_DB_FILE_DIR;
 	public static String DEFAULT_FILE_LINE_ENDING_SYMBOL;

@@ -3,15 +3,19 @@ package com.cmap.utils.impl;
 import static net.sf.expectit.filter.Filters.removeColors;
 import static net.sf.expectit.filter.Filters.removeNonPrintable;
 import static net.sf.expectit.matcher.Matchers.contains;
+
+import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.smi.VariableBinding;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.CommandExecuteException;
@@ -21,10 +25,12 @@ import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.service.vo.ScriptServiceVO;
 import com.cmap.service.vo.StepServiceVO;
 import com.cmap.utils.ConnectUtils;
+
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Shell;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
+import net.schmizz.sshj.userauth.keyprovider.KeyPairWrapper;
 import net.sf.expectit.Expect;
 import net.sf.expectit.ExpectBuilder;
 import net.sf.expectit.ExpectIOException;

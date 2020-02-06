@@ -402,7 +402,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     */
 
                     IpMappingServiceVO mtEntryVO = L2MacTableEntry.getValue();
-                    log.info("macAddress : " + macAddress );
+                    log.debug("macAddress : " + macAddress );
 
                     // 跑L3 取得MAC_ADDRESS對應IP_ADDRESS
                     for (Map.Entry<String, Map<String, IpMappingServiceVO>> L3ArpTableEntry : L3ArpTableMap.entrySet()) {
@@ -410,14 +410,14 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 
                         // 若該Group底下L2 switch的MAC table不為空，且存在該MAC address資料才往下取得該MAC連接的PortID
                         if (L3DeviceArpTable != null && !L3DeviceArpTable.isEmpty()) {
-                        	log.info("L3DeviceArpTable have same macAddress: " + L3DeviceArpTable.containsKey(macAddress) + "!!" );
+                        	log.debug("L3DeviceArpTable have same macAddress: " + L3DeviceArpTable.containsKey(macAddress) + "!!" );
 
                             if (L3DeviceArpTable.containsKey(macAddress)) {
                                 IpMappingServiceVO atEntryVO = L3DeviceArpTable.get(macAddress);
                                 String ipAddress = atEntryVO.getIpAddress();
                                 String portId = mtEntryVO.getPortId();
                                 
-                                log.info("L3DeviceArpTable ipAddress: " + ipAddress + ", portId:" +portId );
+                                log.debug("L3DeviceArpTable ipAddress: " + ipAddress + ", portId:" +portId );
 
                                 mappingVO = new IpMappingServiceVO();
                                 mappingVO.setExecuteDate(executeDate);
