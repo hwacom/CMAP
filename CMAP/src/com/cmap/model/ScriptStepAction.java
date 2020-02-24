@@ -63,6 +63,9 @@ public class ScriptStepAction {
 	@Column(name = "command_description", nullable = true)
 	private String commandDescription;
 
+	@Column(name = "SLEEP_TIME", nullable = true)
+	private Integer sleepTime;
+	
 	@Column(name = "delete_flag", nullable = false)
 	private String deleteFlag;
 
@@ -90,7 +93,7 @@ public class ScriptStepAction {
 
 	public ScriptStepAction(String stepId, ScriptInfo scriptInfo, Integer stepOrder, String command,
 			String expectedTerminalSymbol, String outputFlag, Integer headCuttingLines, Integer tailCuttingLines,
-			String errorSymbol, String repeatFlag, String commandRemark, String commandDescription, String deleteFlag,
+			String errorSymbol, String repeatFlag, String commandRemark, String commandDescription, Integer sleepTime, String deleteFlag,
 			Timestamp deleteTime, String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime,
 			String updateBy) {
 		super();
@@ -106,6 +109,7 @@ public class ScriptStepAction {
 		this.repeatFlag = repeatFlag;
 		this.commandRemark = commandRemark;
 		this.commandDescription = commandDescription;
+		this.sleepTime = sleepTime;
 		this.deleteFlag = deleteFlag;
 		this.deleteTime = deleteTime;
 		this.deleteBy = deleteBy;
@@ -209,6 +213,14 @@ public class ScriptStepAction {
 
 	public void setCommandDescription(String commandDescription) {
 		this.commandDescription = commandDescription;
+	}
+
+	public Integer getSleepTime() {
+		return sleepTime;
+	}
+
+	public void setSleepTime(Integer sleepTime) {
+		this.sleepTime = sleepTime;
 	}
 
 	public String getDeleteFlag() {

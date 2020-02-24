@@ -329,11 +329,11 @@ public class PrtgController extends BaseController {
 			final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
 
 			String dashboardMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_DASHBOARD);
-
+			
 			if (StringUtils.isBlank(dashboardMapUrl)) {
 				dashboardMapUrl = Env.PRTG_DEFAULT_DASHBOARD_URI;	//如果沒設定則取得預設MAP
 			}
-
+			
 			dashboardMapUrl = composePrtgUrl(request, dashboardMapUrl);
 
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
@@ -357,7 +357,7 @@ public class PrtgController extends BaseController {
             final String schoolId = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), null);
 
             String topographyMapUrl = prtgService.getMapUrlBySourceIdAndType(schoolId, Constants.MAP_URL_OF_TOPOGRAPHY);
-
+            
             if (StringUtils.isBlank(topographyMapUrl)) {
                 topographyMapUrl = Env.PRTG_DEFAULT_TOPOGRAPHY_URI;   //如果沒設定則取得預設MAP
             }

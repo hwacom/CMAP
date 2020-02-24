@@ -32,6 +32,7 @@ public class ScriptStepDAOImpl extends BaseDaoHibernate {
 			Object scriptContent = null;
 			Object commandRemark = null;
 			Object commandDescription = null;
+			Object sleepTime = null;
 
 			try {
 				scriptInfo = (ScriptInfo)PropertyUtils.getProperty(modelObj, "scriptInfo");
@@ -42,6 +43,7 @@ public class ScriptStepDAOImpl extends BaseDaoHibernate {
 				scriptContent = PropertyUtils.getProperty(modelObj, "command");
 				commandRemark = PropertyUtils.getProperty(modelObj, "commandRemark");
 				commandDescription = PropertyUtils.getProperty(modelObj, "commandDescription");
+				sleepTime = PropertyUtils.getProperty(modelObj, "sleepTime");
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -57,7 +59,8 @@ public class ScriptStepDAOImpl extends BaseDaoHibernate {
 			daovo.setRemark(Objects.toString(commandRemark, null));
 			daovo.setScriptDescription(Objects.toString(commandDescription, null));
 			daovo.setScriptCode(scriptInfo != null ? scriptInfo.getScriptCode() : null);
-
+			daovo.setScriptSleepTime(Objects.toString(sleepTime, null));
+			
 			voList.add(daovo);
 		}
 

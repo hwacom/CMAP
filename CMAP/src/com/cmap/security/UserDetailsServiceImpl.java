@@ -1,10 +1,13 @@
 package com.cmap.security;
 
 import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,15 +18,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
 import com.cmap.Constants;
 import com.cmap.Env;
+import com.cmap.annotation.Log;
+import com.cmap.dao.PrtgDAO;
 import com.cmap.model.User;
 import com.cmap.service.UserService;
+import com.cmap.utils.ApiUtils;
+import com.cmap.utils.impl.PrtgApiUtils;
 
 @Service
 @Transactional
 public class UserDetailsServiceImpl implements UserDetailsService {
-
+	@Log
+	private static Logger log;
 	/*
 	@Autowired
 	LoginService loginService;
@@ -35,6 +44,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private UserService userService;
 
 	@Autowired
+	private PrtgDAO prtgDAO;
+	
+	@Autowired
 	private HttpServletRequest request;
 
 	//登陸驗證時，通過username獲取使用者的所有權限資訊，
@@ -43,6 +55,24 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		HttpSession session = request.getSession();
 
+		if(StringUtils.isBlank((String)session.getAttribute(Constants.USERROLE))) {
+			
+			ApiUtils prtgApiUtils = new PrtgApiUtils();
+			boolean loginSuccess = false;
+			try {
+				loginSuccess = prtgApiUtils.login(request, username, (String)session.getAttribute(Constants.PASSWORD));
+				
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+
+	            session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "PRTG登入失敗，請重新操作或聯絡系統管理員");
+			}
+			
+			if (!loginSuccess) {
+                throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
+            }
+		}
+			
 		final boolean isAdmin = session.getAttribute(Constants.ISADMIN) != null
 									? (boolean)session.getAttribute(Constants.ISADMIN) : false;
 		final String passhash = (String)session.getAttribute(Constants.PASSHASH);
@@ -50,19 +80,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		final String prtgLoginPassword  = (String)session.getAttribute(Constants.PRTG_LOGIN_PASSWORD);
 		final Object error = session.getAttribute(Constants.ERROR);
 
-		if (StringUtils.equals(Env.LOGIN_AUTH_MODE, Constants.LOGIN_AUTH_MODE_PRTG)) {
+		
+//		if (StringUtils.equals(Env.LOGIN_AUTH_MODE, Constants.LOGIN_AUTH_MODE_PRTG)) {
 			if (error != null && error instanceof ConnectTimeoutException) {
 				throw new UsernameNotFoundException("與PRTG連線異常");
-
-			} else if (!isAdmin && StringUtils.isBlank(passhash)) {
-				throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
 			}
-
+			
 			if (!chkCanAccessOrNot(request, prtgLoginAccount)) {
 				throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
 			}
-		}
+			
+			if (!isAdmin && StringUtils.isBlank(passhash)) {
+				throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
+			}
 
+			
+//		}
+		
 		final String userChineseName = (String)session.getAttribute(Constants.OIDC_USER_NAME);
 		final String userUnit = (String)session.getAttribute(Constants.OIDC_SCHOOL_ID);
 		final String email = (String)session.getAttribute(Constants.OIDC_EMAIL);

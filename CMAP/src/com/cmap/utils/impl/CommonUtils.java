@@ -282,7 +282,11 @@ public class CommonUtils {
 		}
 
 		if (StringUtils.contains(expectedTerminalSymbol, Constants.EXPECTED_TERMINAL_SYMBOL_OF_DEVICE_NAME)) {
-			expectedTerminalSymbol = StringUtils.replace(expectedTerminalSymbol, Constants.DIR_PATH_DEVICE_NAME, configInfoVO.getDeviceEngName());
+			String name = configInfoVO.getDeviceEngName();
+			if(name.indexOf(".") > 1) {
+				name = name.substring(0, name.indexOf("."));
+			}
+			expectedTerminalSymbol = StringUtils.replace(expectedTerminalSymbol, Constants.DIR_PATH_DEVICE_NAME, name);
 		}
 		if (StringUtils.contains(expectedTerminalSymbol, Constants.EXPECTED_TERMINAL_SYMBOL_OF_CURRENT_YEAR)) {
 			String currentYear = Constants.FORMAT_YYYY.format(new Date());

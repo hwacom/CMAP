@@ -197,7 +197,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 						}
 					}
 
-					Thread.sleep(sleepTime); // 執行命令間格時間
+					Thread.sleep(StringUtils.isNotBlank(scriptVO.getScriptSleepTime())?Long.parseLong(scriptVO.getScriptSleepTime()):sleepTime); // 執行命令間格時間
 				}
 
 				/*

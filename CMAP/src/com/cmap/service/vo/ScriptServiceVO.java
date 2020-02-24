@@ -25,7 +25,8 @@ public class ScriptServiceVO extends CommonServiceVO {
 	private String systemVersion;
 	private String scriptMode;
 	private String deviceModel;
-
+	private String scriptSleepTime;
+	
 	private String actionScript;
 	private String actionScriptVariable;
 	private String actionScriptRemark;
@@ -153,6 +154,12 @@ public class ScriptServiceVO extends CommonServiceVO {
 	}
 	public void setScriptMode(String scriptMode) {
 		this.scriptMode = scriptMode;
+	}
+	public String getScriptSleepTime() {
+		return scriptSleepTime;
+	}
+	public void setScriptSleepTime(String scriptSleepTime) {
+		this.scriptSleepTime = scriptSleepTime;
 	}
 	public String getActionScript() {
 		return actionScript;

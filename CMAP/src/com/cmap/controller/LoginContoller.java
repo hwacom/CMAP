@@ -49,9 +49,10 @@ public class LoginContoller extends BaseController {
 
         } else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
             String preUrl = ObjectUtils.toString(session.getAttribute(Constants.PREVIOUS_URL), null);
-
+            
             if (StringUtils.isBlank(preUrl) || StringUtils.equals(preUrl, "/") || StringUtils.equals(preUrl, "/login")) {
-                return "redirect:/loginOIDC_NTPC";
+            	
+            	return "redirect:/loginOIDC_NTPC";
 
             } else {
                 return "redirect:" + preUrl;
@@ -134,7 +135,7 @@ public class LoginContoller extends BaseController {
 
 			String redirectUrl = StringUtils.isNotBlank(previousPage) && StringUtils.contains(previousPage, "/plugin/module/vmswitch/power/off")
 			                        ? previousPage : Env.HOME_PAGE;
-
+			
 			return "redirect:" + redirectUrl;
 
 		} catch (Exception e) {
@@ -230,8 +231,10 @@ public class LoginContoller extends BaseController {
 				return "redirect:/loginOIDC_CY";
 
 			}  else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
+
+//				return "redirect:/loginOIDC_NTPC";
+				return "login";
 				
-				return "redirect:/loginOIDC_NTPC";
 			} else {
 		        return "login";
 			}

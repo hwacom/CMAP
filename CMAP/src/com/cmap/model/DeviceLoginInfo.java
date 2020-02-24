@@ -54,6 +54,9 @@ public class DeviceLoginInfo {
 	@Column(name = "remark", nullable = true)
 	private String remark;
 
+	@Column(name = "CONFIG_BACKUP_MODE", nullable = true)
+	private String configBackupMode;
+	
 	@Column(name = "create_time", nullable = true)
 	private Timestamp createTime;
 
@@ -177,6 +180,14 @@ public class DeviceLoginInfo {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public String getConfigBackupMode() {
+		return configBackupMode;
+	}
+
+	public void setConfigBackupMode(String configBackupMode) {
+		this.configBackupMode = configBackupMode;
 	}
 
 	public Timestamp getCreateTime() {

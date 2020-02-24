@@ -149,7 +149,21 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		 */
 		final String userName = jobTrigger ? Env.USER_NAME_JOB : SecurityUtil.getSecurityUser() != null ? SecurityUtil.getSecurityUser().getUsername() : Constants.SYS;
 		final String userIp = jobTrigger ? Env.USER_IP_JOB : SecurityUtil.getSecurityUser() != null ? SecurityUtil.getSecurityUser().getUser().getIp() : Constants.UNKNOWN;
-
+		
+		DeviceList device = null;
+		DeviceLoginInfo loginInfo = null;
+		String deviceConfigBackupMode = Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE;
+		try {
+			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
+			loginInfo = findDeviceLoginInfo(Constants.DATA_STAR_SYMBOL, Constants.DATA_STAR_SYMBOL, device.getDeviceId());
+			if(StringUtils.isNotBlank(loginInfo.getConfigBackupMode())) {
+				deviceConfigBackupMode = loginInfo.getConfigBackupMode();
+			}
+		}catch(NullPointerException e) {
+			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就算了
+		}
+		
+		
 		psDetailVO.setUserName(userName);
 		psDetailVO.setUserIp(userIp);
 		psDetailVO.setBeginTime(new Date());
@@ -179,7 +193,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				 * (1) 於設備內下指令「copy running-config/startup-config tftp:」，直接由設備端將組態檔上傳到TFTP or FTP
 				 * (2) 於設備內下指令「show running-config/startup-config」，再由程式將設備吐出的組態內容copy回來生成file上傳到TFTP or FTP
 				 */
-				switch (Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE) {
+				switch (deviceConfigBackupMode) {
 					case Constants.DEVICE_CONFIG_BACKUP_MODE_TELNET_SSH_FTP:
 						steps = Env.BACKUP_BY_TELNET;
 						deviceMode = ConnectionMode.SSH;
@@ -288,7 +302,32 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
+								if(loginInfo != null) {
+										if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
+											ciVO.setAccount(loginInfo.getLoginAccount());
+										}
+										if (StringUtils.isNotBlank(loginInfo.getLoginPassword())) {
+											ciVO.setPassword(loginInfo.getLoginPassword());
+										}
+										if (StringUtils.isNotBlank(loginInfo.getEnablePassword())) {
+											ciVO.setEnablePassword(loginInfo.getEnablePassword());
+										}
+
+										/**
+							             * 判斷該設備是否有指定連線模式(Connection_Mode)，有的話則替換掉廣域設定
+							             */
+										String deviceConnectionMode = loginInfo.getConnectionMode();
+										if (StringUtils.isNotBlank(deviceConnectionMode)) {
+										    if (StringUtils.equals(deviceConnectionMode, Constants.SSH)) {
+										        ciVO.setConnectionMode(ConnectionMode.SSH);
+
+							                } else if (StringUtils.equals(deviceConnectionMode, Constants.TELNET)) {
+							                    ciVO.setConnectionMode(ConnectionMode.TELNET);
+							                }
+										}
+								}else {
+									findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
+								}								
 								break;
 
 							} catch (Exception e) {
@@ -1163,10 +1202,15 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					 */
 					outputList.remove(output);
 
-					if (_mode == ConnectionMode.FTP) {
-						if (Env.FTP_SERVER_AT_LOCAL) {
-							//TODO:刪除本機已上傳的檔案
-							deleteLocalFile(ciVO);
+					//TODO
+//					if (_mode == ConnectionMode.FTP) {
+//						if (Env.FTP_SERVER_AT_LOCAL) {
+//							deleteLocalFile(Env.FTP_TEMP_DIR_PATH.concat(nowVersionFileName));
+//						}
+//					}
+					if (_mode == ConnectionMode.TFTP) {
+						if (Env.TFTP_SERVER_AT_LOCAL) {
+							deleteLocalFile(Env.TFTP_LOCAL_ROOT_DIR_PATH.concat("\\").concat(nowVersionFileName));
 						}
 					}
 
@@ -1587,6 +1631,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 		ConfigInfoVO vo;
 		for (String output : outputList) {
+			log.debug("log for debug composeOutputVO output==>"+output);
 			if (output.indexOf(Env.COMM_SEPARATE_SYMBOL) != -1) {
 				type = output.split(Env.COMM_SEPARATE_SYMBOL)[0];
 				content = output.split(Env.COMM_SEPARATE_SYMBOL)[1];
@@ -1644,10 +1689,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws FileOperationException
 	 */
-	private boolean deleteLocalFile(ConfigInfoVO ciVO) throws FileOperationException {
+	private boolean deleteLocalFile(String filePath) throws FileOperationException {
 		try {
-			final String filePath = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(ciVO.getFileFullName());
-
 			Path path = Paths.get(filePath);
 			if (Files.isRegularFile(path) & Files.isReadable(path) & Files.isExecutable(path)) {
 				Files.delete(path);
