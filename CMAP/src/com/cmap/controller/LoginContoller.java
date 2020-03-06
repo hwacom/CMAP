@@ -177,7 +177,7 @@ public class LoginContoller extends BaseController {
 	public String loginPage(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@RequestParam(value = "langType", defaultValue = "en_US") String langType,
+			@RequestParam(value = "langType", defaultValue = "zh_TW") String langType,
 			Locale locale,
 			Principal principal,
 			Model model) {
@@ -544,4 +544,5 @@ public class LoginContoller extends BaseController {
 //
 //		return null;
 //	}
+	
 }

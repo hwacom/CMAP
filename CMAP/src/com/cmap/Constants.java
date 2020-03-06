@@ -35,6 +35,7 @@ public class Constants {
 	public static final String LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI = "OIDC_NTPC";
 	public static final String LOGIN_AUTH_MODE_OIDC_CHIAYI = "OIDC_CY";
 	public static final String LOGIN_AUTH_MODE_PRTG = "PRTG";
+	public static final String LOGIN_AUTH_MODE_LDAP = "LDAP";
 	public static final String LOGIN_AUTH_MODE_PRIME = "PRIME";
 	public static final String LOGIN_AUTH_MODE_DB = "DB";
 
@@ -89,6 +90,7 @@ public class Constants {
 
 	public static final String PRTG_RIGHT_SETTING_TYPE_OF_GROUP = "G";
 	public static final String PRTG_RIGHT_SETTING_TYPE_OF_DEVICE = "D";
+	public static final String PRTG_RIGHT_SETTING_TYPE_OF_SENSOR = "S";
 
 	public static final String CONTENT_SETTING_ACTION_ADD = "+";
 	public static final String CONTENT_SETTING_ACTION_SUBSTRACT = "-";

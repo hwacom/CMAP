@@ -170,7 +170,7 @@ public class FtpFileUtils implements FileUtils {
 			ftp.enterLocalPassiveMode();
 			retVal = ftp.listFiles();
 			for (FTPFile ff : retVal) {
-				log.info("[Name]: "+ff.getName()+", [Type]: "+ff.getType()+", [Size]: "+ff.getSize());
+				log.debug("[Name]: "+ff.getName()+", [Type]: "+ff.getType()+", [Size]: "+ff.getSize());
 			}
 
 		} catch (Exception e) {

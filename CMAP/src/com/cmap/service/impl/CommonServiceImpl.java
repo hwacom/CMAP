@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.TreeMap;
+
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -26,6 +27,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
@@ -37,6 +39,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -66,6 +69,8 @@ import com.cmap.service.vo.PrtgUserDeviceDetailVO;
 import com.cmap.service.vo.PrtgUserDeviceMainVO;
 import com.cmap.service.vo.PrtgUserGroupDetailVO;
 import com.cmap.service.vo.PrtgUserGroupMainVO;
+import com.cmap.service.vo.PrtgUserSensorDetailVO;
+import com.cmap.service.vo.PrtgUserSensorMainVO;
 import com.cmap.utils.ApiUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -216,7 +221,7 @@ public class CommonServiceImpl implements CommonService {
 	@Override
     public CommonServiceVO refreshPrtgUserRightSetting(String prtgAccount) throws ServiceLayerException {
 	    CommonServiceVO retVO;
-	    int _accountCount = 0, _groupCount = 0, _deviceCount = 0;
+	    int _accountCount = 0, _groupCount = 0, _deviceCount = 0, _sensorCount = 0;
         try {
             retVO = new CommonServiceVO();
 
@@ -302,6 +307,19 @@ public class CommonServiceImpl implements CommonService {
                         log.info("[getUserDeviceList] Spent: " + (eTime - sTime) + " (ms).");
 
                         sTime = System.currentTimeMillis();
+                        // 取得sensor清單
+                        String deviceId = null;
+                        if(StringUtils.isNotBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
+                        	deviceId = Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW;
+                        }
+                        PrtgUserSensorMainVO sensorVO = prtgApiUtils.getUserSensorList(account, password, passhash, deviceId);
+                        List<PrtgUserSensorDetailVO> sensorVOList = sensorVO.getSensors();
+                        _sensorCount += sensorVOList.size();
+
+                        eTime = System.currentTimeMillis();
+                        log.info("[getUserSensorList] Spent: " + (eTime - sTime) + " (ms).");
+                        
+                        sTime = System.currentTimeMillis();
                         // Step 2-2. 與既有設定判斷寫入 OR 更新資料
                         List<PrtgUserRightSetting> rightSettingList = prtgDAO.findPrtgUserRightSetting(account, null);
 
@@ -378,6 +396,40 @@ public class CommonServiceImpl implements CommonService {
                                             deleteEntities.add(setting);
                                         }
                                     }
+                                } else if (StringUtils.equals(type, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR)) {
+                                    //:::[ sensor ]::://
+                                    if (sensorVOList == null || (sensorVOList != null && sensorVOList.isEmpty())) {
+                                        // 若此次從 PRTG 取得的設備清單為空 => [刪除]設定
+                                        deleteEntities.add(setting);
+
+                                    } else {
+                                        String newSensorId;
+                                        String newDeviceId;
+                                        PrtgUserSensorDetailVO psdVO = null;
+                                        for (Iterator<PrtgUserSensorDetailVO> it = sensorVOList.iterator(); it.hasNext();) {
+                                        	psdVO = it.next();
+                                        	newDeviceId = psdVO.getParentid();
+                                        	newSensorId = psdVO.getObjid();
+
+                                            /*
+                                             * Y191115, Ken
+                                             * 增加判斷設備歸屬的群組ID (若PRTG上有操作將設備移動到不同群組的話)
+                                             * >> oldParentNode = 既有設定下的parent_id (群組ID)
+                                             * >> newGroupId = 此次從PRTG撈回的設備歸屬群組ID
+                                             */
+                                            if (StringUtils.equals(oldParentNode, newDeviceId) && StringUtils.equals(oldValue, newSensorId)) {
+                                                // 既有設定存在於此次從 PRTG 撈回的清單內 => 設定保留，刪除 PRTG 清單資料，中斷迴圈往下一筆設定
+                                                isExist = true;
+                                                it.remove();
+                                                break;
+                                            }
+                                        }
+
+                                        // 既有設定不存在於此次從 PRTG 撈回的清單內 => [刪除]設定
+                                        if (!isExist) {
+                                            deleteEntities.add(setting);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -411,6 +463,18 @@ public class CommonServiceImpl implements CommonService {
                             insertEntities.add(newEntity);
                         }
 
+                        for (PrtgUserSensorDetailVO pusdVO : sensorVOList) {
+                            newEntity = new PrtgUserRightSetting();
+                            newEntity.setPrtgAccount(account);
+                            newEntity.setSettingType(Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
+                            newEntity.setSettingValue(pusdVO.getObjid());
+                            newEntity.setParentNode(pusdVO.getParentid());
+                            newEntity.setRemark(pusdVO.getSensor());
+                            newEntity.setCreateTime(currentTimestamp());
+                            newEntity.setCreateBy(currentUserName());
+                            insertEntities.add(newEntity);
+                        }
+                        
                         eTime = System.currentTimeMillis();
                         log.info("[add insertEntities] Spent: " + (eTime - sTime) + " (ms).");
 
@@ -429,8 +493,8 @@ public class CommonServiceImpl implements CommonService {
             }
 
             retVO.setJobExcuteResult(Result.SUCCESS);
-            retVO.setJobExcuteResultRecords(String.valueOf(_accountCount + _groupCount + _deviceCount));
-            retVO.setJobExcuteRemark("[同步PRTG使用者權限]帳號: " + _accountCount + " ; 群組共: " + _groupCount + " ; 設備共: " + _deviceCount);
+            retVO.setJobExcuteResultRecords(String.valueOf(_accountCount + _groupCount + _deviceCount + _sensorCount));
+            retVO.setJobExcuteRemark("[同步PRTG使用者權限]帳號: " + _accountCount + " ; 群組共: " + _groupCount + " ; 設備共: " + _deviceCount + " ; sensor共: " + _sensorCount);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -1066,6 +1130,36 @@ public class CommonServiceImpl implements CommonService {
                     if (StringUtils.isNotBlank(deviceId) && StringUtils.isNotBlank(deviceName)) {
                         retMap.put(deviceId, deviceName);
                     }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retMap;
+    }
+    
+    @Override
+    public Map<String, String> getUserSensorList(String prtgAccount,String deviceId) {
+        Map<String, String> retMap = null;
+        try {
+            List<PrtgUserRightSetting> list = prtgDAO.findPrtgUserRightSetting(prtgAccount, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
+
+            if (list != null && !list.isEmpty()) {
+                retMap = new HashMap<>();
+
+                String sensorId = null, sensorName = null;
+                for (PrtgUserRightSetting obj : list) {
+                    sensorId = Objects.toString(obj.getSettingValue());
+                    sensorName = Objects.toString(obj.getRemark());
+
+					if (StringUtils.isNotBlank(sensorId) && StringUtils.isNotBlank(sensorName)) {
+						if(StringUtils.isNotBlank(deviceId) && obj.getParentNode().equals(deviceId)) {
+							retMap.put(sensorId, sensorName);
+						}else if (StringUtils.isBlank(deviceId)) {
+							retMap.put(sensorId, sensorName);
+						}
+						
+					}
                 }
             }
         } catch (Exception e) {

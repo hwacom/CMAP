@@ -152,7 +152,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     	ipsVO.setIpAddress(ipAddress);
                     	ipsVO.setInterfaceId(interfaceId);
                     	
-                    	log.info("ipsVO deviceId: " + deviceId + ",ipAddress: " + ipAddress+ ",macAddress: " + macAddress );
+                    	log.debug("ipsVO deviceId: " + deviceId + ",ipAddress: " + ipAddress+ ",macAddress: " + macAddress );
 
                     	macInfoMap.put(macAddress, ipsVO);
                     }
@@ -385,7 +385,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             	String L2DeviceId = L2DeviceEntry.getKey();
                 Map<String, IpMappingServiceVO> L2DeviceMacTable = L2DeviceEntry.getValue();
 
-                log.info("new poller L2 deviceId: " + L2DeviceMacTable.get("deviceId") );
+                log.debug("new poller L2 deviceId: " + L2DeviceMacTable.get("deviceId") );
 
                 // 跑L2 device MacTable 資料
                 for (Map.Entry<String, IpMappingServiceVO> L2MacTableEntry : L2DeviceMacTable.entrySet()) {

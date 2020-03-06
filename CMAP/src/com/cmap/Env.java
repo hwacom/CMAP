@@ -23,6 +23,12 @@ public class Env {
 	public static Boolean ENABLE_PRTG_SSH_CONFIRM_PAGE;
 
 	/**
+	 * 
+	 */
+	public static String LDAP_URL;
+	public static String LDAP_DOMAIN;
+	
+	/**
 	 * 設定MENU TREE功能是否顯示
 	 */
 	public static String SHOW_MENU_TREE_USER_GUIDE_DOWNLOAD;                    // 系統操作手冊下載
@@ -229,6 +235,7 @@ public class Env {
 	public static String PRTG_API_SENSOR_TREE;
 	public static String PRTG_API_USER_GROUP_LIST;
 	public static String PRTG_API_USER_DEVICE_LIST;
+	public static String PRTG_API_USER_SENSOR_LIST;
 
 	public static String BACKUP_FILENAME_FORMAT;
 	public static String BACKUP_FILENAME_SEQ_NO_LENGTH;
@@ -351,6 +358,9 @@ public class Env {
 
 	public static String SETTING_ID_OF_NET_FLOW;
 
+	public static String DEFAULT_DEVICE_ID_FOR_NET_FLOW;
+	public static String NET_FLOW_SEARCH_MODE_WITH_SENSOR;
+	
 	public static String DATA_POLLER_NET_FLOW_TABLE_BASE_NAME;
 	public static String NET_FLOW_OUTPUT_FILE_EXT_NAE;
 
@@ -441,6 +451,9 @@ public class Env {
 	public static List<String> DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN = new ArrayList<>();
 	// 設定資安通報下「MAC封鎖/開通」的MAC開通腳本SCRIPT_INFO_ID for 解鎖按鈕
 	public static String DEFAULT_MAC_OPEN_SCRIPT_INFO_ID;
+	// IP封鎖時需連帶封鎖MAC的DEVICE_MODE
+	public static String DELIVERY_MAC_BLOCK_WITH_IP_DEVICE_MODEL;
+	
 	/*
 	 * OpenID
 	 */

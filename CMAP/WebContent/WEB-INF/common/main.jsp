@@ -145,9 +145,10 @@
   		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
  		 -->
  		 
- 		<span class="font-weight-bold title-font"
+ 		 <span class="font-weight-bold title-font"
 			style="color: rgb(82, 82, 82); border-bottom: 1px; border-bottom-color: black; border-bottom-style: dashed; font-family: 游ゴシック;"><spring:message
-					code="cmap.title" /></span>
+					code="cmap.title" /></span>	
+					
 		</a>
       <ul class="navbar-nav">
         <li class="nav-item text-nowrap">

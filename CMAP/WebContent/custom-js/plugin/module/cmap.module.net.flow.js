@@ -59,7 +59,11 @@ $(document).ready(function() {
 function doDataExport(exportRecordCount) {
 	var dataObj = new Object();
 	if ($('#queryFrom').val() == 'WEB') {
-		dataObj.queryGroup = $("#queryGroup").val(),
+		if($("#queryGroup").val()){
+			dataObj.queryGroup = $("#queryGroup").val();
+		}else if($("#querySensor").val()){
+			dataObj.queryGroup = $("#querySensor").val();
+		}
 		dataObj.querySourceIp = $("#query_SourceIp").val(),
 		dataObj.queryDestinationIp = $("#query_DestinationIp").val(),
 		dataObj.querySenderIp = $("#query_SenderIp").val(),
@@ -213,10 +217,17 @@ function addRow(dataList) {
 function getTotalTraffic() {
 	$("#div_TotalFlow").css("display", "contents");
 	
+	var queryGroup;
+	if($("#queryGroup").val()){
+		queryGroup = $("#queryGroup").val();
+	}else if($("#querySensor").val()){
+		queryGroup = $("#querySensor").val();
+	}
+	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getTotalTraffic.json',
 		data : {
-			"queryGroup" : $("#queryGroup").val(),
+			"queryGroup" : queryGroup,
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -259,10 +270,17 @@ function getTotalTraffic() {
 
 // 取得查詢條件下總筆數
 function getTotalFilteredCount() {
+	var queryGroup;
+	if($("#queryGroup").val()){
+		queryGroup = $("#queryGroup").val();
+	}else if($("#querySensor").val()){
+		queryGroup = $("#querySensor").val();
+	}
+	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getTotalFilteredCount.json',
 		data : {
-			"queryGroup" : $("#queryGroup").val(),
+			"queryGroup" : queryGroup,
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -331,10 +349,17 @@ function findNextData() {
 		sortStr = "asc";
 	}
 	
+	var queryGroup;
+	if($("#queryGroup").val()){
+		queryGroup = $("#queryGroup").val();
+	}else if($("#querySensor").val()){
+		queryGroup = $("#querySensor").val();
+	}
+	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getNetFlowData.json',
 		data : {
-			"queryGroup" : $("#queryGroup").val(),
+			"queryGroup" : queryGroup,
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -472,7 +497,12 @@ function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 function findData(from) {
 	$('#queryFrom').val(from);
 	
-	if ($("#queryGroup").val().trim().length == 0) {
+	if ($("#queryGroup").val() && $("#queryGroup").val().trim().length == 0) {
+		alert(msg_chooseGroup);
+		return;
+	}
+	
+	if ($("#querySensor").val() && $("#querySensor").val().trim().length == 0) {
 		alert(msg_chooseGroup);
 		return;
 	}
@@ -520,7 +550,11 @@ function findData(from) {
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
-						d.queryGroup = $("#queryGroup").val(),
+						if($("#queryGroup").val()){
+							d.queryGroup = $("#queryGroup").val();
+						}else if($("#querySensor").val()){
+							d.queryGroup = $("#querySensor").val();
+						}						
 						d.querySourceIp = $("#query_SourceIp").val(),
 						d.queryDestinationIp = $("#query_DestinationIp").val(),
 						d.querySenderIp = $("#query_SenderIp").val(),
@@ -639,7 +673,8 @@ function findData(from) {
 				{ "data" : "nextHop" , "orderable" : false },
 				{ "data" : "sourceVLAN" , "orderable" : false },
 				{ "data" : "destinationVLAN" , "orderable" : false },
-				{ "data" : "flowID" , "orderable" : false }
+				{ "data" : "flowID" , "orderable" : false },
+				{ "data" : "SensorId" , "orderable" : false }
 			],
 			"columnDefs" : [
 				{
@@ -657,7 +692,12 @@ function findData(from) {
 					"searchable": true,
 					"orderable": true,
 					"render" : function(data, type, row) {
-									var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
+									var html;
+									if(row.sourceIPInGroup == 'Y'){
+										html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
+									}else {
+										html = row.sourceIP;
+									}
 									return html;
 							 }
 				},
@@ -667,7 +707,12 @@ function findData(from) {
 					"searchable": true,
 					"orderable": true,
 					"render" : function(data, type, row) {
-									var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
+									var html;
+									if(row.destinationIPInGroup == 'Y'){
+										html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
+									}else {
+										html = row.destinationIP;
+									}
 									return html;
 							 }
 				}

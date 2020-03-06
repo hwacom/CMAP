@@ -10,20 +10,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.DataPollerDAO;
 import com.cmap.dao.DeviceDAO;
+import com.cmap.dao.PrtgDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DataPollerMapping;
 import com.cmap.model.DataPollerSetting;
 import com.cmap.model.DeviceList;
+import com.cmap.model.PrtgUserRightSetting;
 import com.cmap.service.DataPollerService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.vo.CommonServiceVO;
@@ -46,6 +50,9 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 	@Autowired
 	private DeviceDAO deviceDAO;
 
+	@Autowired
+	private PrtgDAO prtgDAO;
+	
 	private String getTodayTableName() {
 		String tableName = Env.DATA_POLLER_NET_FLOW_TABLE_BASE_NAME;
 		/*
@@ -125,7 +132,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 		long retCount = 0;
 		try {
 			retCount = netFlowDAO.countNetFlowDataFromDB(nfVO, searchLikeField, getQueryTableName(nfVO));
-
+			log.info("countNetFlowRecordFromDB==" + retCount);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			throw new ServiceLayerException("查詢失敗，請重新操作");
@@ -152,29 +159,40 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 			}
 			queryFieldsSQL.append("data_id");
 
+			log.debug("queryFieldsSQL=" + queryFieldsSQL.toString());
 			Map<Integer, CommonServiceVO> protocolMap = getProtoclSpecMap();
 
 			final String queryTable = getQueryTableName(nfVO);
+			log.debug("queryTable == " + queryTable);
 			List<Object[]> dataList = netFlowDAO.findNetFlowDataFromDB(nfVO, startRow, pageLength, searchLikeField, queryTable, queryFieldsSQL.toString());
-
+			
 			if (dataList != null && !dataList.isEmpty()) {
 				List<String> fieldList = dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_SOURCE);
-
+				log.info("fieldList == " + fieldList.toString());
 				if (fieldList == null || (fieldList != null && fieldList.isEmpty())) {
 					throw new ServiceLayerException("查無欄位標題設定 >> Setting_Id: " + Env.SETTING_ID_OF_NET_FLOW);
 
 				} else {
-				    String groupId = nfVO.getQueryGroupId();
-				    String groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
-
+					//sensorSearchMode = true, groupId實際為sensorId, 反之為groupId
+					boolean sensorSearchMode = Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR == null ? false :Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
+					log.debug("sensorSearchMode="+sensorSearchMode);
+					
+					String groupId = nfVO.getQueryGroupId();
+					String groupSubnet = "";
+					if(!sensorSearchMode) {
+					    groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
+					}
+				    
 					// fieldList.add(0, "GroupId");
 				    boolean hasGetDevice = false;
                     DeviceList device = null;
-
+                    List<PrtgUserRightSetting> list = null;
+                    
 					NetFlowVO vo;
+					int debug=1;
 					for (Object[] data : dataList) {
 						vo = new NetFlowVO();
-
+						
 						for (int i=0; i<fieldList.size(); i++) {
 							int fieldIdx = i;
 							int dataIdx = i;
@@ -182,7 +200,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 							final String oriName = fieldList.get(fieldIdx);
 							String fName = oriName.substring(0, 1).toLowerCase() + oriName.substring(1, oriName.length());
 
-							String fValue = "";
+							String fValue = "";							
 							if (oriName.equals("Now") || oriName.equals("FromDateTime") || oriName.equals("ToDateTime")) {
 								if (data[dataIdx] != null) {
 									fValue = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[dataIdx]);
@@ -214,30 +232,42 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 								fValue = convertByteSizeUnit(sizeByte, Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE);
 
 							} else if (oriName.equals("GroupId")) {
-								groupId = Objects.toString(data[dataIdx]);
+								fValue = Objects.toString(data[dataIdx]);
+																
+								if(sensorSearchMode) {
+									if (hasGetDevice == false && list == null) {
+										list = prtgDAO.findPrtgUserRightSettingBySettingValueAndType(fValue, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
 
-								if (hasGetDevice == false && device == null) {
-								    /*
-								     * 查詢條件已限制只能查一所學校，因此不需要每一筆查詢結果都再做一次學校查詢
-								     */
-								    device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+									    if (!hasGetDevice) {
+									        hasGetDevice = true;
+									    }
+									}
+									
+									if (list != null && list.size()>0) {
+										fName = "groupName";
+										fValue = list.get(0).getRemark();
+									}
+								}else{
+									if (hasGetDevice == false && device == null) {
+									    /*
+									     * 查詢條件已限制只能查一所學校，因此不需要每一筆查詢結果都再做一次學校查詢
+									     */
+									    device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
 
-								    if (!hasGetDevice) {
-								        hasGetDevice = true;
-								    }
-								}
-
-								if (device == null) {
-									fValue = groupId;
-
-								} else {
-									fName = "groupName";
-									fValue = device.getGroupName();
-								}
+									    if (!hasGetDevice) {
+									        hasGetDevice = true;
+									    }
+									}
+									
+									if (device != null) {
+										fName = "groupName";
+										fValue = device.getGroupName();
+									}
+								}								
 
 							} else if (oriName.equals("SourceIP") || oriName.equals("DestinationIP")) {
 							    fValue = Objects.toString(data[dataIdx]);
-							    boolean ipInGroup = chkIpInGroupSubnet(groupSubnet, fValue, Constants.IPV4);
+							    boolean ipInGroup = sensorSearchMode ? false : chkIpInGroupSubnet(groupSubnet, fValue, Constants.IPV4);
 
 							    String fNameFlag = fName.concat("InGroup");
 							    BeanUtils.setProperty(vo, fNameFlag, ipInGroup ? Constants.DATA_Y : Constants.DATA_N); // 塞入SourceIPInGroup or DestinationIPInGroup
@@ -253,9 +283,12 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 								fValue = Objects.toString(data[dataIdx]);
 							}
 
+							if (debug == 1) {
+								debug++;
+								log.info("fName = " + fName + ", fValue=" + fValue);
+							}
 							BeanUtils.setProperty(vo, fName, fValue);
 						}
-
 						vo.setDataId(Objects.toString(data[data.length - 1]));
 						vo.setGroupId(nfVO.getQueryGroupId());
 						retList.add(vo);
@@ -387,7 +420,7 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
         try {
             final String queryTable = getQueryTableName(nfVO);
             BigDecimal flowSum = netFlowDAO.getTotalFlowOfQueryConditionsFromDB(nfVO, searchLikeField, queryTable);
-
+            log.info("getTotalTraffic==" + flowSum);
             if (flowSum != null) {
                 totalFlow = convertByteSizeUnit(flowSum, Env.NET_FLOW_SHOW_UNIT_OF_TOTOAL_FLOW);
 

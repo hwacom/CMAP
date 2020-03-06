@@ -1,6 +1,7 @@
 package com.cmap.security;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -23,7 +24,9 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.PrtgDAO;
+import com.cmap.model.PrtgAccountMapping;
 import com.cmap.model.User;
+import com.cmap.service.PrtgService;
 import com.cmap.service.UserService;
 import com.cmap.utils.ApiUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
@@ -54,13 +57,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		HttpSession session = request.getSession();
-
+		
 		if(StringUtils.isBlank((String)session.getAttribute(Constants.USERROLE))) {
 			
 			ApiUtils prtgApiUtils = new PrtgApiUtils();
 			boolean loginSuccess = false;
+			
+			boolean checkLDAP = (boolean)request.getSession().getAttribute("LDAP_AUTH_RESULT");
+			String sourceId = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID), null);
+			String password = (String)session.getAttribute(Constants.PASSWORD);
+			
+			if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_LDAP) && checkLDAP && StringUtils.isNotBlank(sourceId)) {
+				PrtgAccountMapping accountMapping = prtgDAO.findPrtgAccountMappingBySourceId(sourceId);
+				if(accountMapping == null) {
+					 throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
+				}
+			    username = accountMapping.getPrtgAccount();
+			    password = accountMapping.getPrtgPassword();
+			}
+			
 			try {
-				loginSuccess = prtgApiUtils.login(request, username, (String)session.getAttribute(Constants.PASSWORD));
+				loginSuccess = prtgApiUtils.login(request, username, password);				
 				
 			} catch (Exception e) {
 				log.error(e.toString(), e);
@@ -72,7 +89,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
             }
 		}
-			
+
 		final boolean isAdmin = session.getAttribute(Constants.ISADMIN) != null
 									? (boolean)session.getAttribute(Constants.ISADMIN) : false;
 		final String passhash = (String)session.getAttribute(Constants.PASSHASH);
