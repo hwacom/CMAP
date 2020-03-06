@@ -59,11 +59,7 @@ $(document).ready(function() {
 function doDataExport(exportRecordCount) {
 	var dataObj = new Object();
 	if ($('#queryFrom').val() == 'WEB') {
-		if($("#queryGroup").val()){
-			dataObj.queryGroup = $("#queryGroup").val();
-		}else if($("#querySensor").val()){
-			dataObj.queryGroup = $("#querySensor").val();
-		}
+		dataObj.queryGroup = $("#queryGroup").val(),
 		dataObj.querySourceIp = $("#query_SourceIp").val(),
 		dataObj.queryDestinationIp = $("#query_DestinationIp").val(),
 		dataObj.querySenderIp = $("#query_SenderIp").val(),
@@ -217,17 +213,10 @@ function addRow(dataList) {
 function getTotalTraffic() {
 	$("#div_TotalFlow").css("display", "contents");
 	
-	var queryGroup;
-	if($("#queryGroup").val()){
-		queryGroup = $("#queryGroup").val();
-	}else if($("#querySensor").val()){
-		queryGroup = $("#querySensor").val();
-	}
-	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getTotalTraffic.json',
 		data : {
-			"queryGroup" : queryGroup,
+			"queryGroup" : queryGroup = $("#queryGroup").val(),
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -270,17 +259,10 @@ function getTotalTraffic() {
 
 // 取得查詢條件下總筆數
 function getTotalFilteredCount() {
-	var queryGroup;
-	if($("#queryGroup").val()){
-		queryGroup = $("#queryGroup").val();
-	}else if($("#querySensor").val()){
-		queryGroup = $("#querySensor").val();
-	}
-	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getTotalFilteredCount.json',
 		data : {
-			"queryGroup" : queryGroup,
+			"queryGroup" : queryGroup = $("#queryGroup").val(),
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -349,17 +331,10 @@ function findNextData() {
 		sortStr = "asc";
 	}
 	
-	var queryGroup;
-	if($("#queryGroup").val()){
-		queryGroup = $("#queryGroup").val();
-	}else if($("#querySensor").val()){
-		queryGroup = $("#querySensor").val();
-	}
-	
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getNetFlowData.json',
 		data : {
-			"queryGroup" : queryGroup,
+			"queryGroup" : queryGroup = $("#queryGroup").val(),
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -502,11 +477,6 @@ function findData(from) {
 		return;
 	}
 	
-	if ($("#querySensor").val() && $("#querySensor").val().trim().length == 0) {
-		alert(msg_chooseGroup);
-		return;
-	}
-	
 	if ($("#queryDateBegin").val().trim().length == 0) {
 		alert(msg_chooseDate);
 		return;
@@ -550,11 +520,7 @@ function findData(from) {
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
-						if($("#queryGroup").val()){
-							d.queryGroup = $("#queryGroup").val();
-						}else if($("#querySensor").val()){
-							d.queryGroup = $("#querySensor").val();
-						}						
+						d.queryGroup = $("#queryGroup").val(),
 						d.querySourceIp = $("#query_SourceIp").val(),
 						d.queryDestinationIp = $("#query_DestinationIp").val(),
 						d.querySenderIp = $("#query_SenderIp").val(),
@@ -674,7 +640,7 @@ function findData(from) {
 				{ "data" : "sourceVLAN" , "orderable" : false },
 				{ "data" : "destinationVLAN" , "orderable" : false },
 				{ "data" : "flowID" , "orderable" : false },
-				{ "data" : "SensorId" , "orderable" : false }
+				{ "data" : "sensorId" , "orderable" : false }
 			],
 			"columnDefs" : [
 				{

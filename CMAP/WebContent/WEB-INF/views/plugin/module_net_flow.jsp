@@ -13,23 +13,15 @@
       		<div class="container-fluid">
 	      	  <div class="form-group row" style="margin-bottom: -.6rem; margin-top: -.6rem;">
 	    	    <div class="col-lg-3 group-field-other">
-	    	    	<c:if test="${Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR ne __SHOW__}">	    	    	
-		    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-		    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
-		    	    		<!-- 
-	                        <c:if test="${fn:length(groupList) gt 1}">
-	                        	<form:option value="" label="=== ALL ===" />
-	                        </c:if>
-	                         -->
-	                        <form:options items="${groupList}" />
-	                    </form:select>
-                    </c:if>
-                    <c:if test="${Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR eq __SHOW__}">
-	                    <label for="querySensor" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-		    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="querySensor" id="querySensor">		    	    		
-	                        <form:options items="${sensorList}" />
-	                    </form:select>
-                    </c:if>
+	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
+	    	    		<!-- 
+                        <c:if test="${fn:length(groupList) gt 1}">
+                        	<form:option value="" label="=== ALL ===" />
+                        </c:if>
+                         -->
+                        <form:options items="${groupList}" />
+                    </form:select>
 	    	    </div>
 	    	    <div class="col-lg-2 group-field-other">
 	    	    	<label for="queryDateBegin" class="font-weight-bold must" style="width: 20%"><spring:message code="date" /></label>

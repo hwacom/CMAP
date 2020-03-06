@@ -53,6 +53,9 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 	@Autowired
 	private PrtgDAO prtgDAO;
 	
+	//是否查詢條件為sensorId
+	private boolean isSensorSearchMode = StringUtils.isNotBlank(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR) && Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
+			
 	private String getTodayTableName() {
 		String tableName = Env.DATA_POLLER_NET_FLOW_TABLE_BASE_NAME;
 		/*
@@ -132,7 +135,6 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 		long retCount = 0;
 		try {
 			retCount = netFlowDAO.countNetFlowDataFromDB(nfVO, searchLikeField, getQueryTableName(nfVO));
-			log.info("countNetFlowRecordFromDB==" + retCount);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			throw new ServiceLayerException("查詢失敗，請重新操作");
@@ -168,28 +170,24 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 			
 			if (dataList != null && !dataList.isEmpty()) {
 				List<String> fieldList = dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_SOURCE);
-				log.info("fieldList == " + fieldList.toString());
+				log.debug("fieldList == " + fieldList.toString());
 				if (fieldList == null || (fieldList != null && fieldList.isEmpty())) {
 					throw new ServiceLayerException("查無欄位標題設定 >> Setting_Id: " + Env.SETTING_ID_OF_NET_FLOW);
 
 				} else {
-					//sensorSearchMode = true, groupId實際為sensorId, 反之為groupId
-					boolean sensorSearchMode = Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR == null ? false :Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
-					log.debug("sensorSearchMode="+sensorSearchMode);
 					
 					String groupId = nfVO.getQueryGroupId();
 					String groupSubnet = "";
-					if(!sensorSearchMode) {
+					if(!isSensorSearchMode) {
 					    groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
 					}
-				    
-					// fieldList.add(0, "GroupId");
+				    log.debug("isSensorSearchMode="+isSensorSearchMode);
 				    boolean hasGetDevice = false;
+				    boolean hasGetSensor = false;
                     DeviceList device = null;
                     List<PrtgUserRightSetting> list = null;
                     
 					NetFlowVO vo;
-					int debug=1;
 					for (Object[] data : dataList) {
 						vo = new NetFlowVO();
 						
@@ -209,50 +207,17 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 							} else if (oriName.equals("Size")) {
 								BigDecimal sizeByte = new BigDecimal(Objects.toString(data[dataIdx], "0"));
 
-								/*
-								int scale = 1;
-								BigDecimal sizeKb = sizeByte.divide(new BigDecimal("1024"), scale, RoundingMode.HALF_UP);
-								BigDecimal sizeMb = (sizeByte.divide(new BigDecimal("1024"))).divide(new BigDecimal("1024"), scale, RoundingMode.HALF_UP);
-								BigDecimal zeroSize = new BigDecimal("0.0");
-
-								String convertedSize = "";
-								if (sizeMb.compareTo(zeroSize) == 1) {
-									convertedSize = sizeMb.toString() + " MB";
-
-								} else {
-									if (sizeKb.compareTo(zeroSize) == 1) {
-										convertedSize = sizeKb.toString() + " KB";
-
-									} else {
-										convertedSize = sizeByte.toString() + " B";
-									}
-								}
-								*/
-
 								fValue = convertByteSizeUnit(sizeByte, Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE);
 
 							} else if (oriName.equals("GroupId")) {
 								fValue = Objects.toString(data[dataIdx]);
-																
-								if(sensorSearchMode) {
-									if (hasGetDevice == false && list == null) {
-										list = prtgDAO.findPrtgUserRightSettingBySettingValueAndType(fValue, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
-
-									    if (!hasGetDevice) {
-									        hasGetDevice = true;
-									    }
-									}
-									
-									if (list != null && list.size()>0) {
-										fName = "groupName";
-										fValue = list.get(0).getRemark();
-									}
-								}else{
+								
+								if(!isSensorSearchMode) {
 									if (hasGetDevice == false && device == null) {
 									    /*
 									     * 查詢條件已限制只能查一所學校，因此不需要每一筆查詢結果都再做一次學校查詢
 									     */
-									    device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+									    device = deviceDAO.findDeviceListByGroupAndDeviceId(fValue, null);
 
 									    if (!hasGetDevice) {
 									        hasGetDevice = true;
@@ -260,14 +225,12 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 									}
 									
 									if (device != null) {
-										fName = "groupName";
-										fValue = device.getGroupName();
+										BeanUtils.setProperty(vo, "groupName", device.getGroupName());
 									}
-								}								
-
+								}
 							} else if (oriName.equals("SourceIP") || oriName.equals("DestinationIP")) {
 							    fValue = Objects.toString(data[dataIdx]);
-							    boolean ipInGroup = sensorSearchMode ? false : chkIpInGroupSubnet(groupSubnet, fValue, Constants.IPV4);
+							    boolean ipInGroup = isSensorSearchMode ? false : chkIpInGroupSubnet(groupSubnet, fValue, Constants.IPV4);
 
 							    String fNameFlag = fName.concat("InGroup");
 							    BeanUtils.setProperty(vo, fNameFlag, ipInGroup ? Constants.DATA_Y : Constants.DATA_N); // 塞入SourceIPInGroup or DestinationIPInGroup
@@ -279,18 +242,29 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
 
 								fValue = protocolName;
 
-							} else {
+							} else if(oriName.equals("SensorId")){
 								fValue = Objects.toString(data[dataIdx]);
-							}
+								
+								if(isSensorSearchMode) {
+									if (hasGetSensor == false && list == null) {
+										list = prtgDAO.findPrtgUserRightSettingBySettingValueAndType(fValue, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
 
-							if (debug == 1) {
-								debug++;
-								log.info("fName = " + fName + ", fValue=" + fValue);
+									    if (!hasGetSensor) {
+									    	hasGetSensor = true;
+									    }
+									}
+									
+									if (list != null && list.size()>0) {
+										BeanUtils.setProperty(vo, "groupName", list.get(0).getRemark());
+									}
+								}
+							}	else {							
+								fValue = Objects.toString(data[dataIdx]);
 							}
 							BeanUtils.setProperty(vo, fName, fValue);
 						}
+						
 						vo.setDataId(Objects.toString(data[data.length - 1]));
-						vo.setGroupId(nfVO.getQueryGroupId());
 						retList.add(vo);
 					}
 
@@ -420,7 +394,6 @@ public class NetFlowServiceImpl extends CommonServiceImpl implements NetFlowServ
         try {
             final String queryTable = getQueryTableName(nfVO);
             BigDecimal flowSum = netFlowDAO.getTotalFlowOfQueryConditionsFromDB(nfVO, searchLikeField, queryTable);
-            log.info("getTotalTraffic==" + flowSum);
             if (flowSum != null) {
                 totalFlow = convertByteSizeUnit(flowSum, Env.NET_FLOW_SHOW_UNIT_OF_TOTOAL_FLOW);
 
