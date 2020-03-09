@@ -73,7 +73,7 @@
 				  		<img class="img web-only" src="${pageContext.request.contextPath}/resources/images/logo_taiwan_mobile_word.png" width="auto" height="30" style="padding-top: 3px" />
 			  			-->
 			  			
-			  			<span class="h3" style="color:#1C2269"><spring:message code="cmap.title" /></span>	
+			  			<span class="h3" style="color: rgb(82, 82, 82); border-bottom: 1px; border-bottom-color: black; border-bottom-style: dashed; font-family: 游ゴシック;"><spring:message code="cmap.title" /></span>			
 			  		</div>
 			  	</div>
 			  	<div class="row">

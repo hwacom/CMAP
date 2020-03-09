@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.JobFileOperationSettingDAO;
@@ -176,6 +178,8 @@ public class FileOperationServiceImpl implements FileOperationService {
 
 		List<String> matchedFile = new ArrayList<>();
 		FTPFile[] files = ftp.listFiles();
+		log.info("executeFtpFile getfiles size = " + files.length);
+		
 		for (FTPFile file : files) {
 			final String fileName = file.getName();
 			long fileSizeInByte = file.getSize();
@@ -186,7 +190,7 @@ public class FileOperationServiceImpl implements FileOperationService {
 				matchedFile.add(fileName);
 			}
 		}
-
+		log.info("executeFtpFile matchedFiles size = " + matchedFile.size());
 		if (matchedFile != null && !matchedFile.isEmpty()) {
 			final String action = setting.getDoAction();
 
@@ -273,7 +277,7 @@ public class FileOperationServiceImpl implements FileOperationService {
 
 			} else {
 				final String getSourceMethod = setting.getGetSourceMethod();
-
+				log.info("executeFileOperation method=" + getSourceMethod);
 				switch (getSourceMethod) {
 					case Constants.DATA_POLLER_FILE_BY_LOCAL_DIR:
 						retVO = executeLocalFile(retVO, setting);

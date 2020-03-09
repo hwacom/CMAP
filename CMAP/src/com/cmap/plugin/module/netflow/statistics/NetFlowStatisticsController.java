@@ -38,23 +38,38 @@ public class NetFlowStatisticsController extends BaseController {
     private NetFlowStatisticsService netFlowStatisticsService;
 
     private static final String[] UI_TABLE_COLUMNS = new String[] {"","mits1.ip_Address","mids.ip_desc","mits1.group_Id","percent","ttl_traffic","ttl_upload_traffic","ttl_download_traffic"};
-
+    //是否查詢條件為sensorId
+  	private boolean isSensorSearchMode = StringUtils.isNotBlank(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR) && Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
+  	
     /**
      * 初始化選單
      * @param model
      * @param request
      */
     private void initMenu(Model model, HttpServletRequest request) {
-        Map<String, String> groupListMap = null;
+    	Map<String, String> groupListMap = null;
+		Map<String, String> sensorListMap = null;
         try {
-            groupListMap = getGroupList(request);
+        	if(isSensorSearchMode) {
+				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
+					sensorListMap = getSensorList(request, null);
+				}else {
+					sensorListMap = getSensorList(request, Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW);
+				}
+			}else {
+				groupListMap = getGroupList(request);
+			}	
 
         } catch (Exception e) {
             log.error(e.toString(), e);
 
         } finally {
             model.addAttribute("queryGroup", "");
-            model.addAttribute("groupList", groupListMap);
+            if(isSensorSearchMode) {
+				model.addAttribute("groupList", sensorListMap);
+			}else {
+				model.addAttribute("groupList", groupListMap);
+			}	
 
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
             model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);

@@ -30,9 +30,11 @@ import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.DeviceDAO;
+import com.cmap.dao.PrtgDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DataPollerSetting;
 import com.cmap.model.DeviceList;
+import com.cmap.model.PrtgUserRightSetting;
 import com.cmap.plugin.module.netflow.NetFlowDAO;
 import com.cmap.plugin.module.netflow.NetFlowIpStat;
 import com.cmap.plugin.module.netflow.NetFlowVO;
@@ -54,6 +56,9 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
     @Autowired
     private DeviceDAO deviceDAO;
 
+    @Autowired
+	private PrtgDAO prtgDAO;
+	
     @Override
     public NetFlowVO executeNetFlowIpStatistics() throws ServiceLayerException {
         NetFlowVO retVO = new NetFlowVO();
@@ -453,12 +458,21 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                             groupName = groupNameMap.get(groupId);
 
                         } else {
-                            DeviceList device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+                        	if(StringUtils.equals(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y)) {
+                        		List<PrtgUserRightSetting> list = prtgDAO.findPrtgUserRightSettingBySettingValueAndType(groupId, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
 
-                            if (device != null) {
-                                groupName = device.getGroupName();
-                                groupNameMap.put(groupId, groupName);
-                            }
+                                if (list != null) {
+                                    groupName = list.get(0).getRemark();
+                                    groupNameMap.put(groupId, groupName);
+                                }
+                        	} else {
+                        		DeviceList device = deviceDAO.findDeviceListByGroupAndDeviceId(groupId, null);
+
+                                if (device != null) {
+                                    groupName = device.getGroupName();
+                                    groupNameMap.put(groupId, groupName);
+                                }
+                        	}                            
                         }
                         vo.setGroupName(groupName);
                         vo.setPercent(new BigDecimal(percent).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "%");

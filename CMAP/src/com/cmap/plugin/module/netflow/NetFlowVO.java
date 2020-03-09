@@ -27,6 +27,7 @@ public class NetFlowVO extends CommonServiceVO {
 	private String queryDateStr;
 	private String queryTimeBeginStr;
 	private String queryTimeEndStr;
+	private String querySensorId;
 
 	private List<NetFlowVO> matchedList = new ArrayList<>();
 	private int totalCount = 0;
@@ -61,7 +62,8 @@ public class NetFlowVO extends CommonServiceVO {
 	private String flowID;
 	private String sourceIPInGroup;
 	private String destinationIPInGroup;
-
+	private String sensorId;
+	
 	private String totalFlow;
 
 	public String getQueryGroupId() {
@@ -456,6 +458,14 @@ public class NetFlowVO extends CommonServiceVO {
 		this.queryTimeEndStr = queryTimeEndStr;
 	}
 
+	public String getQuerySensorId() {
+		return querySensorId;
+	}
+
+	public void setQuerySensorId(String querySensorId) {
+		this.querySensorId = querySensorId;
+	}
+
 	public String getTotalFlow() {
 		return totalFlow;
 	}
@@ -495,4 +505,12 @@ public class NetFlowVO extends CommonServiceVO {
     public void setDestinationIPInGroup(String destinationIPInGroup) {
         this.destinationIPInGroup = destinationIPInGroup;
     }
+
+	public String getSensorId() {
+		return sensorId;
+	}
+
+	public void setSensorId(String sensorId) {
+		this.sensorId = sensorId;
+	}
 }

@@ -4,14 +4,18 @@ import com.cmap.exception.ServiceLayerException;
 
 public interface VmSwitchService {
 
-    public static final String SETTING_OF_STAND_BY_STATUS = "STAND_BY_STATUS";
+//    public static final String SETTING_OF_STAND_BY_STATUS = "STAND_BY_STATUS";
+	public static final String SETTING_OF_STAND_BY_STATUS_EPDG = "STAND_BY_STATUS_EPDG";
+	public static final String SETTING_OF_STAND_BY_STATUS_HENBGW = "STAND_BY_STATUS_HENBGW";
     public static final String SETTING_OF_EPDG_HOST_IP = "EPDG_HOST_IP";
     public static final String RECONNECT_MAX_TIMES = "RECONNECT_MAX_TIMES";
     public static final String RECONNECT_INTERVAL = "RECONNECT_INTERVAL";
     public static final String RECONNECT_TIMES_TO_SHOW_MSG = "RECONNECT_TIMES_TO_SHOW_MSG";
     public static final String BACKUP_HOST_EPDG_CONFIG_PATH = "BACKUP_HOST_EPDG_CONFIG_PATH";
     public static final String BACKUP_HOST_EPDG_IMAGE_PATH = "BACKUP_HOST_EPDG_IMAGE_PATH";
-    public static final String BACKUP_HOST_IP = "BACKUP_HOST_IP";
+//    public static final String BACKUP_HOST_IP = "BACKUP_HOST_IP";
+    public static final String BACKUP_HOST_IP_EPDG = "BACKUP_HOST_IP_ePDG";
+    public static final String BACKUP_HOST_IP_HENBGW = "BACKUP_HOST_IP_HeNBGW";
 
     public static final String MAIL_LIST_SETTING_CODE = "MAIL_LIST_SETTING_CODE";
 

@@ -29,6 +29,7 @@ import com.cmap.model.User;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.vo.PrtgUserDeviceMainVO;
 import com.cmap.service.vo.PrtgUserGroupMainVO;
+import com.cmap.service.vo.PrtgUserSensorMainVO;
 import com.cmap.utils.ApiUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -40,6 +41,7 @@ public class PrtgApiUtils implements ApiUtils {
 	private String API_SENSOR_TREE = null;
 	private String API_USER_GROUP_LIST = null;
 	private String API_USER_DEVICE_LIST = null;
+	private String API_USER_SENSOR_LIST = null;
 
 	public PrtgApiUtils() {
 		PRTG_ROOT = Env.PRTG_SERVER_IP;
@@ -47,6 +49,7 @@ public class PrtgApiUtils implements ApiUtils {
 		API_SENSOR_TREE = Env.PRTG_API_SENSOR_TREE;
 		API_USER_GROUP_LIST = Env.PRTG_API_USER_GROUP_LIST;
 		API_USER_DEVICE_LIST = Env.PRTG_API_USER_DEVICE_LIST;
+		API_USER_SENSOR_LIST = Env.PRTG_API_USER_SENSOR_LIST;
 	}
 
 	@Override
@@ -56,6 +59,7 @@ public class PrtgApiUtils implements ApiUtils {
         API_SENSOR_TREE = Env.PRTG_API_SENSOR_TREE;
         API_USER_GROUP_LIST = Env.PRTG_API_USER_GROUP_LIST;
         API_USER_DEVICE_LIST = Env.PRTG_API_USER_DEVICE_LIST;
+        API_USER_SENSOR_LIST = Env.PRTG_API_USER_SENSOR_LIST;
 	}
 
 	/**
@@ -340,6 +344,45 @@ public class PrtgApiUtils implements ApiUtils {
         return retVO;
     }
 
+    @Override
+    public PrtgUserSensorMainVO getUserSensorList(String prtgLoginAccount, String prtgLoginPassword,
+            String prtgPashhash, String deviceId) throws Exception {
+        PrtgUserSensorMainVO retVO = null;
+        try {
+            prtgPashhash = checkPasshash(prtgLoginAccount, prtgLoginPassword, prtgPashhash);
+
+            prtgLoginAccount = StringUtils.trim(prtgLoginAccount);
+            prtgPashhash = StringUtils.trim(prtgPashhash);
+
+            API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{username}", prtgLoginAccount);
+            API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{passhash}", prtgPashhash);
+
+            if (StringUtils.isNotBlank(deviceId)) {
+                API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{deviceId}", deviceId);
+            } else {
+                API_USER_SENSOR_LIST = StringUtils.substring(API_USER_SENSOR_LIST, 0, StringUtils.lastIndexOf(API_USER_SENSOR_LIST, "&"));
+            }
+
+            String apiUrl = PRTG_ROOT.concat(API_USER_SENSOR_LIST);
+
+            String retVal = callPrtg(apiUrl);
+            if (StringUtils.isNotBlank(retVal)) {
+                ObjectMapper oMapper = new ObjectMapper();
+                try {
+                    retVO = oMapper.readValue(retVal, PrtgUserSensorMainVO.class);
+
+                } catch (Exception e) {
+                    log.error(e.toString(), e);
+                    return null;
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retVO;
+    }
+    
 	@Override
 	public Map[] getGroupAndDeviceMenu(HttpServletRequest request) throws Exception {
 		Map[] retObj = null;
@@ -442,7 +485,7 @@ public class PrtgApiUtils implements ApiUtils {
 				String retVal = null;
 				try {
 					retVal = callPrtg(apiUrl);
-
+					
 				} catch (ConnectTimeoutException cte) {
 					request.getSession().setAttribute(Constants.ERROR, new ConnectTimeoutException("ERROR.connectionTimeOut"));
 				}
@@ -527,7 +570,7 @@ public class PrtgApiUtils implements ApiUtils {
 		User user = SecurityUtil.getSecurityUser().getUser();
 		String username = user.getPrtgLoginAccount();
 		String password = user.getPrtgLoginPassword();
-
+		
 		if (StringUtils.isBlank(user.getPasshash())) {
 			login(request, username, password);
 		}

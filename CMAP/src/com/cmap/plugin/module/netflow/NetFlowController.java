@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
@@ -44,6 +47,9 @@ public class NetFlowController extends BaseController {
 	@Autowired
 	private DatabaseMessageSourceBase messageSource;
 
+	//是否查詢條件為sensorId
+	private boolean isSensorSearchMode = StringUtils.isNotBlank(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR) && Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
+	
 	/**
 	 * 初始化選單
 	 * @param model
@@ -51,16 +57,30 @@ public class NetFlowController extends BaseController {
 	 */
 	private void initMenu(Model model, HttpServletRequest request) {
 		Map<String, String> groupListMap = null;
+		Map<String, String> sensorListMap = null;
+		
 		try {
-			groupListMap = getGroupList(request);
-
+			if(isSensorSearchMode) {
+				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
+					sensorListMap = getSensorList(request, null);
+				}else {
+					sensorListMap = getSensorList(request, Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW);
+				}
+			}else {
+				groupListMap = getGroupList(request);
+			}			
+			
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 
 		} finally {
 			model.addAttribute("queryGroup", "");
-			model.addAttribute("groupList", groupListMap);
-
+			if(isSensorSearchMode) {
+				model.addAttribute("groupList", sensorListMap);
+			}else {
+				model.addAttribute("groupList", groupListMap);
+			}			
+			
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
 
@@ -98,15 +118,19 @@ public class NetFlowController extends BaseController {
 
 		return "plugin/module_net_flow";
 	}
-
+/*
 	private String getOrderColumnName(Integer orderColIdx) {
 		String retVal = "Group_Id";
 		try {
 			List<String> tableTitleField = new ArrayList<>();
-			tableTitleField.add("");
-//			tableTitleField.add("Group_Id");
-			tableTitleField.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
-
+			List<String> targetFieldList = new ArrayList<>();
+	        if(StringUtils.isNotBlank(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR) && Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y)) {
+	        	targetFieldList.add(0, "Sensor_Id");
+	        }else {
+	        	targetFieldList.add(0, "Group_Id");
+	        }   
+	        targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
+	        
 			List<String> newTableTitleField = new ArrayList<>();
 			for (String columnName : tableTitleField) {
 			    String newName = null;
@@ -135,7 +159,7 @@ public class NetFlowController extends BaseController {
 		}
 
 		return retVal;
-	}
+	}*/
 
 	/**
 	 * 取得查詢條件下總流量
@@ -175,12 +199,21 @@ public class NetFlowController extends BaseController {
 	    String retVal = "N/A";
 	    NetFlowVO nfVO;
 	    try {
-	        List<String> targetFieldList = new ArrayList<>();
-            targetFieldList.add("Group_Id");
-            targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
-
+	    	List<String> targetFieldList = new ArrayList<>();	        
+	        targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
+	        if(isSensorSearchMode) {
+	        	targetFieldList.add(0, "Sensor_Id");
+	        	targetFieldList.remove("SENSOR_ID");
+	        }else {
+	        	targetFieldList.add(0, "Group_Id");
+	        }   
+	        
             nfVO = new NetFlowVO();
-            nfVO.setQueryGroupId(queryGroup);
+            if(isSensorSearchMode) {
+            	nfVO.setQuerySensorId(queryGroup);
+            }else {
+            	nfVO.setQueryGroupId(queryGroup);
+            }            
             nfVO.setQuerySourceIp(querySourceIp);
             nfVO.setQuerySourcePort(querySourcePort);
             nfVO.setQueryDestinationIp(queryDestinationIp);
@@ -260,12 +293,21 @@ public class NetFlowController extends BaseController {
 	    long filteredTotal = 0;
         NetFlowVO nfVO;
         try {
-            List<String> targetFieldList = new ArrayList<>();
-            targetFieldList.add("Group_Id");
-            targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
-
+        	List<String> targetFieldList = new ArrayList<>();	        
+	        targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
+	        if(isSensorSearchMode) {
+	        	targetFieldList.add(0, "Sensor_Id");
+	        	targetFieldList.remove("SENSOR_ID");
+	        }else {
+	        	targetFieldList.add(0, "Group_Id");
+	        }   
+	        
             nfVO = new NetFlowVO();
-            nfVO.setQueryGroupId(queryGroup);
+            if(isSensorSearchMode) {
+            	nfVO.setQuerySensorId(queryGroup);
+            }else {
+            	nfVO.setQueryGroupId(queryGroup);
+            }   
             nfVO.setQuerySourceIp(querySourceIp);
             nfVO.setQuerySourcePort(querySourcePort);
             nfVO.setQueryDestinationIp(queryDestinationIp);
@@ -375,12 +417,21 @@ public class NetFlowController extends BaseController {
 
 	    NetFlowVO retVO = new NetFlowVO();
 	    try {
-	        List<String> targetFieldList = new ArrayList<>();
-	        targetFieldList.add("Group_Id");
+	    	List<String> targetFieldList = new ArrayList<>();	        
 	        targetFieldList.addAll(dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW, DataPollerService.FIELD_TYPE_TARGET));
-
+	        if(isSensorSearchMode) {
+	        	targetFieldList.add(0, "Sensor_Id");
+	        	targetFieldList.remove("SENSOR_ID");
+	        }else {
+	        	targetFieldList.add(0, "Group_Id");
+	        }   
+	        
 	        NetFlowVO nfVO = new NetFlowVO();
-	        nfVO.setQueryGroupId(queryGroup);
+            if(isSensorSearchMode) {
+            	nfVO.setQuerySensorId(queryGroup);
+            }else {
+            	nfVO.setQueryGroupId(queryGroup);
+            }
 	        nfVO.setQuerySourceIp(querySourceIp);
 	        nfVO.setQuerySourcePort(querySourcePort);
 	        nfVO.setQueryDestinationIp(queryDestinationIp);

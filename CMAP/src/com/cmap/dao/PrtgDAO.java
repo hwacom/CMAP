@@ -49,4 +49,12 @@ public interface PrtgDAO extends BaseDAO {
 	 * @return
 	 */
 	public List<Object[]> findPrtgUserRightDeviceList(String prtgAccount, String groupId);
+
+	/**
+	 * 
+	 * @param settingValue
+	 * @param settingType
+	 * @return
+	 */
+	List<PrtgUserRightSetting> findPrtgUserRightSettingBySettingValueAndType(String settingValue, String settingType);
 }

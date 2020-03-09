@@ -4,20 +4,24 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.security.SecurityUtil;
 import com.cmap.utils.ApiUtils;
+import com.cmap.utils.impl.LDAPUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -62,7 +66,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		try {
 			final String ipAddr = SecurityUtil.getIpAddr(request);
 			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
-
+			
 			ApiUtils prtgApiUtils = new PrtgApiUtils();
 			boolean loginSuccess = prtgApiUtils.login(request, username, password);
 
@@ -204,6 +208,10 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 				loginAuthByOIDC(request, response);
 				break;
 				
+			case Constants.LOGIN_AUTH_MODE_LDAP:
+				loginAuthByLDAP(request, username, password);
+				break;
+				
 //			case Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI:
 //				loginAuthByOIDC(request, response);
 //				break;
@@ -215,5 +223,34 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		setDetails(request, token);
 
 		return this.getAuthenticationManager().authenticate(token);
+	}
+	
+	private void loginAuthByLDAP(HttpServletRequest request, String username, String password) {
+		try {
+			final String ipAddr = SecurityUtil.getIpAddr(request);
+			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
+
+			LDAPUtils utils = new LDAPUtils();
+			//String ldap_url, String account, String password, String domain
+			boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
+
+			if (loginSuccess) {
+				request.getSession().setAttribute("LDAP_AUTH_RESULT", true);
+				request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
+			}
+
+		} catch (AuthenticateException ae) {
+			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
+			log.error(ae.toString());
+
+		} catch (Exception e) {
+			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
+			log.error(e.toString(), e);
+		}
+
+		/*
+		BaseAuthentication.authAdminUser(request, username, password);
+		BaseAuthentication.authAdminRole(request, username);
+		*/
 	}
 }

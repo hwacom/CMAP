@@ -4,6 +4,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import com.cmap.service.vo.PrtgUserDeviceMainVO;
 import com.cmap.service.vo.PrtgUserGroupMainVO;
+import com.cmap.service.vo.PrtgUserSensorMainVO;
 
 public interface ApiUtils extends Api {
 
@@ -61,4 +62,15 @@ public interface ApiUtils extends Api {
 	 * @throws Exception
 	 */
 	public PrtgUserDeviceMainVO getUserDeviceList(String prtgLoginAccount, String prtgLoginPassword, String prtgPashhash, String groupId) throws Exception;
+	
+	/**
+	 * 取得 PRTG 中該 USER 所擁有的權限下的Sensor清單
+	 * @param prtgLoginAccount
+	 * @param prtgLoginPassword
+	 * @param prtgPashhash
+	 * @param deviceId
+	 * @return
+	 * @throws Exception
+	 */
+	public PrtgUserSensorMainVO getUserSensorList(String prtgLoginAccount, String prtgLoginPassword, String prtgPashhash, String deviceId) throws Exception;
 }

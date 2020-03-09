@@ -95,17 +95,17 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
             Thread.sleep(500);
 
-            /*
-             * Step 1. 確認備援機目前狀態是否可使用
-             * >> OK: 接續下步驟
-             * >> NO: 流程結束 (e.g.備援機當下非處於備援狀態，可能仍處在別台host的備援服務中)
-             */
-            writeLog(logKey, Step.CHECK_BACKUP_HOST_STATUS, Status.EXECUTING, null);
-            chkBackupHostStatus();
-            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
-
-            /* Step 1. [END] **********************************************************************************/
-            Thread.sleep(500);
+//            /*
+//             * Step 1. 確認備援機目前狀態是否可使用
+//             * >> OK: 接續下步驟
+//             * >> NO: 流程結束 (e.g.備援機當下非處於備援狀態，可能仍處在別台host的備援服務中)
+//             */
+//            writeLog(logKey, Step.CHECK_BACKUP_HOST_STATUS, Status.EXECUTING, null);
+//            chkBackupHostStatus();
+//            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+//
+//            /* Step 1. [END] **********************************************************************************/
+//            Thread.sleep(500);
 
             /*
              * Step 2-1. 查詢VM名稱對照表，取得 API 傳入的名稱對應到 CMAP & ESXi 內實際 VMware 設定的名稱
@@ -140,15 +140,24 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             /* Step 2-2. [END] ********************************************************************************/
             Thread.sleep(500);
 
-            final String groupId = deviceList.getGroupId();
-            final String deviceId = deviceList.getDeviceId();
-            final String deviceModel = deviceList.getDeviceModel();
-            final String deviceEngName = deviceList.getDeviceEngName();
+//            final String groupId = deviceList.getGroupId();
+//            final String deviceId = deviceList.getDeviceId();
+//            final String deviceModel = deviceList.getDeviceModel();
+//            final String deviceEngName = deviceList.getDeviceEngName();
             final String deviceIp = deviceList.getDeviceIp();
 
             // 判斷要切換的設備是否為ePDG
             final boolean _IS_EPDG_ = chkSwitchHostIsEpdgOrNot(deviceIp);
             vmSwitchVO.setEPDG(_IS_EPDG_);
+
+            /*
+             * Step 1. 確認備援機目前狀態是否可使用
+             * >> OK: 接續下步驟
+             * >> NO: 流程結束 (e.g.備援機當下非處於備援狀態，可能仍處在別台host的備援服務中)
+             */
+            writeLog(logKey, Step.CHECK_BACKUP_HOST_STATUS, Status.EXECUTING, null);
+            chkBackupHostStatus(_IS_EPDG_);
+            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
             /*
              * Step 2-3. 取得要切換的設備最新的備份檔資料
@@ -266,7 +275,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             writeLog(logKey, Step.MODIFY_BACKUP_HOST_STATUS, Status.EXECUTING, null);
 
             String remark = "[VM備援切換] " + apiVmName + " → 備援機";
-            modifyBackupHostStatus(Constants.DATA_N, remark);
+            modifyBackupHostStatus(Constants.DATA_N, remark, _IS_EPDG_);
 
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
@@ -301,9 +310,9 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
         return retVal;
     }
 
-	private void modifyBackupHostStatus(String flag, String remark) {
+	private void modifyBackupHostStatus(String flag, String remark, boolean isEPDG) {
 	    try {
-	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(SETTING_OF_STAND_BY_STATUS);
+	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(isEPDG?SETTING_OF_STAND_BY_STATUS_EPDG:SETTING_OF_STAND_BY_STATUS_HENBGW);
 
 	        if (setting != null) {
 	            setting.setSettingValue(flag);
@@ -415,10 +424,10 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	 * 取得目前備援機狀態
 	 * @throws ServiceLayerException
 	 */
-	private void chkBackupHostStatus() throws ServiceLayerException {
+	private void chkBackupHostStatus(boolean isEPDG) throws ServiceLayerException {
 	    String errorMsg = "";
 	    try {
-	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(SETTING_OF_STAND_BY_STATUS);
+	        ModuleVmSetting setting = vmSwitchDAO.getVmSetting(isEPDG ? SETTING_OF_STAND_BY_STATUS_EPDG :  SETTING_OF_STAND_BY_STATUS_HENBGW);
 
 	        if (setting == null) {
 	            errorMsg = "備援機目前狀態不明 (查無設定資料，Code:ModuleVmSetting)";
@@ -998,52 +1007,52 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	private void modifyBackupHostBootAndReloadAndNoShutdown(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
 	    String errorMsg = "";
         try {
-            int _RECONNECT_MAX_TIMES_ = 180;        // 等待reload過程，重試設備連線上限次數 (搭配預設間格時間下，預設最多等待30分鐘)
-            int _RECONNECT_INTERVAL_ = 10000;       // 重試設備連線間格時間 (預設10秒偵測一次)
-            int _RECONNECT_TIMES_TO_SHOW_MSG_ = 6;  // 設定 ePDG 重啟過程，Server reconnect 每多少次數時要回應 UI 一次訊息 (0為不回應直到連上)
+//            int _RECONNECT_MAX_TIMES_ = 180;        // 等待reload過程，重試設備連線上限次數 (搭配預設間格時間下，預設最多等待30分鐘)
+//            int _RECONNECT_INTERVAL_ = 10000;       // 重試設備連線間格時間 (預設10秒偵測一次)
+//            int _RECONNECT_TIMES_TO_SHOW_MSG_ = 6;  // 設定 ePDG 重啟過程，Server reconnect 每多少次數時要回應 UI 一次訊息 (0為不回應直到連上)
             String _BACKUP_HOST_EPDG_CONFIG_PATH_ = null;
-            String _BACKUP_HOST_EPDG_IMAGE_PATH_ = null;
+//            String _BACKUP_HOST_EPDG_IMAGE_PATH_ = null;
             String _BACKUP_HOST_IP_ = null;
 
-            final String deviceIp = deviceList.getDeviceIp();
+//            final String deviceIp = deviceList.getDeviceIp();
 
             try {
-                ModuleVmSetting setting = vmSwitchDAO.getVmSetting(RECONNECT_MAX_TIMES);
+//                ModuleVmSetting setting = vmSwitchDAO.getVmSetting(RECONNECT_MAX_TIMES);
+//
+//                if (setting != null) {
+//                    _RECONNECT_MAX_TIMES_ = StringUtils.isNotBlank(setting.getSettingValue())
+//                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_MAX_TIMES_;
+//                }
+//
+//                setting = vmSwitchDAO.getVmSetting(RECONNECT_INTERVAL);
+//
+//                if (setting != null) {
+//                    _RECONNECT_INTERVAL_ = StringUtils.isNotBlank(setting.getSettingValue())
+//                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_INTERVAL_;
+//                }
+//
+//                setting = vmSwitchDAO.getVmSetting(RECONNECT_TIMES_TO_SHOW_MSG);
+//
+//                if (setting != null) {
+//                    _RECONNECT_TIMES_TO_SHOW_MSG_ = StringUtils.isNotBlank(setting.getSettingValue())
+//                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_TIMES_TO_SHOW_MSG_;
+//                }
 
-                if (setting != null) {
-                    _RECONNECT_MAX_TIMES_ = StringUtils.isNotBlank(setting.getSettingValue())
-                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_MAX_TIMES_;
-                }
-
-                setting = vmSwitchDAO.getVmSetting(RECONNECT_INTERVAL);
-
-                if (setting != null) {
-                    _RECONNECT_INTERVAL_ = StringUtils.isNotBlank(setting.getSettingValue())
-                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_INTERVAL_;
-                }
-
-                setting = vmSwitchDAO.getVmSetting(RECONNECT_TIMES_TO_SHOW_MSG);
-
-                if (setting != null) {
-                    _RECONNECT_TIMES_TO_SHOW_MSG_ = StringUtils.isNotBlank(setting.getSettingValue())
-                            ? Integer.parseInt(setting.getSettingValue()) : _RECONNECT_TIMES_TO_SHOW_MSG_;
-                }
-
-                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_EPDG_CONFIG_PATH);
+                ModuleVmSetting setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_EPDG_CONFIG_PATH);
 
                 if (setting != null) {
                     _BACKUP_HOST_EPDG_CONFIG_PATH_ = StringUtils.isNotBlank(setting.getSettingValue())
                             ? setting.getSettingValue() : _BACKUP_HOST_EPDG_CONFIG_PATH_;
                 }
 
-                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_EPDG_IMAGE_PATH);
+//                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_EPDG_IMAGE_PATH);
+//
+//                if (setting != null) {
+//                    _BACKUP_HOST_EPDG_IMAGE_PATH_ = StringUtils.isNotBlank(setting.getSettingValue())
+//                            ? setting.getSettingValue() : _BACKUP_HOST_EPDG_IMAGE_PATH_;
+//                }
 
-                if (setting != null) {
-                    _BACKUP_HOST_EPDG_IMAGE_PATH_ = StringUtils.isNotBlank(setting.getSettingValue())
-                            ? setting.getSettingValue() : _BACKUP_HOST_EPDG_IMAGE_PATH_;
-                }
-
-                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_IP);
+                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_IP_EPDG);
 
                 if (setting != null) {
                     _BACKUP_HOST_IP_ = StringUtils.isNotBlank(setting.getSettingValue())
@@ -1058,65 +1067,65 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             /*
              * Step 1. 調整 boot 最高優先度為 ePDG config 及 image，並作重啟
              */
-            writeLog(logKey, Step.MODIFY_BOOT_SETTING_AND_RELOAD, Status.EXECUTING, null);
-
-            if (_BACKUP_HOST_IP_ == null) {
-                throw new ServiceLayerException("未設定備援機IP");
-            }
-
-            if (_BACKUP_HOST_EPDG_CONFIG_PATH_ == null || _BACKUP_HOST_EPDG_IMAGE_PATH_ == null) {
-                throw new ServiceLayerException("未設定備援機內 ePDG Config 或 Image 的存放路徑");
-            }
-
+//            writeLog(logKey, Step.MODIFY_BOOT_SETTING_AND_RELOAD, Status.EXECUTING, null);
+//
+//            if (_BACKUP_HOST_IP_ == null) {
+//                throw new ServiceLayerException("未設定備援機IP");
+//            }
+//
+//            if (_BACKUP_HOST_EPDG_CONFIG_PATH_ == null) {// || _BACKUP_HOST_EPDG_IMAGE_PATH_ == null
+//                throw new ServiceLayerException("未設定備援機內 ePDG Config 的存放路徑");//或 Image 
+//            }
+//
             DeviceList backupHost = deviceDAO.findDeviceListByDeviceIp(_BACKUP_HOST_IP_);
-            final String backupDeviceListId = backupHost.getDeviceListId();
-
-            VersionServiceVO vsVO = new VersionServiceVO();
-            vsVO.setDeviceListId(backupDeviceListId);
-            vsVO.setRestoreVersionConfigPath(_BACKUP_HOST_EPDG_CONFIG_PATH_);
-            vsVO.setRestoreVersionImagePath(_BACKUP_HOST_EPDG_IMAGE_PATH_);
-
-            String userName = getUserName();
-            String reason = logKey;
-
-            versionService.restoreConfig(RestoreMethod.LOCAL, Constants.RESTORE_TYPE_BACKUP_RESTORE, vsVO, userName, reason);
-
-            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+//            final String backupDeviceListId = backupHost.getDeviceListId();
+//
+//            VersionServiceVO vsVO = new VersionServiceVO();
+//            vsVO.setDeviceListId(backupDeviceListId);
+//            vsVO.setRestoreVersionConfigPath(_BACKUP_HOST_EPDG_CONFIG_PATH_);
+//            vsVO.setRestoreVersionImagePath(_BACKUP_HOST_EPDG_IMAGE_PATH_);
+//
+//            String userName = getUserName();
+//            String reason = logKey;
+//
+//            versionService.restoreConfig(RestoreMethod.LOCAL, Constants.RESTORE_TYPE_BACKUP_RESTORE, vsVO, userName, reason);
+//
+//            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
             /* Step 1. [END] ********************************************************************************/
 
-            Thread.sleep(10000); //執行reload後先暫停10秒讓設備消化後再繼續
+//            Thread.sleep(10000); //執行reload後先暫停10秒讓設備消化後再繼續
 
             // Step 2. 等待reload完成
-            writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
-
-            boolean enable = false;
-            int times = 0;
-            while (times < _RECONNECT_MAX_TIMES_) {
-                enable = chkSwitchHostSSHStatus(deviceIp, false);
-
-                if (enable) {
-                    break;
-
-                } else {
-                    times++;
-
-                    if (times % _RECONNECT_TIMES_TO_SHOW_MSG_ == 0) {
-                        writeLog(logKey, Step.STEP_RESULT, Status.WAITING, null);
-                        writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
-                    }
-
-                    Thread.sleep(_RECONNECT_INTERVAL_);
-                }
-            }
-
-            if (!enable) {
-                errorMsg = "超過 retry 上限次數仍無法連通，請人工確認設備狀況";
-
-                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
-                throw new ServiceLayerException(errorMsg);
-            }
-
-            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+//            writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
+//
+//            boolean enable = false;
+//            int times = 0;
+//            while (times < _RECONNECT_MAX_TIMES_) {
+//                enable = chkSwitchHostSSHStatus(deviceIp, false);
+//
+//                if (enable) {
+//                    break;
+//
+//                } else {
+//                    times++;
+//
+//                    if (times % _RECONNECT_TIMES_TO_SHOW_MSG_ == 0) {
+//                        writeLog(logKey, Step.STEP_RESULT, Status.WAITING, null);
+//                        writeLog(logKey, Step.WAIT_FOR_RELOADING, Status.EXECUTING, null);
+//                    }
+//
+//                    Thread.sleep(_RECONNECT_INTERVAL_);
+//                }
+//            }
+//
+//            if (!enable) {
+//                errorMsg = "超過 retry 上限次數仍無法連通，請人工確認設備狀況";
+//
+//                writeLog(logKey, Step.STEP_RESULT, Status.ERROR, errorMsg);
+//                throw new ServiceLayerException(errorMsg);
+//            }
+//
+//            writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
             /* Step 2. [END] ********************************************************************************/
 
             /*

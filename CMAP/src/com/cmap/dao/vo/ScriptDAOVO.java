@@ -20,7 +20,8 @@ public class ScriptDAOVO extends CommonDAOVO {
 	private String scriptTypeName;
 	private String systemVersion;
 	private String scriptMode;
-
+	private String scriptSleepTime;
+	
 	private String createTimeStr;
 	private String createBy;
 	private String updateTimeStr;
@@ -127,6 +128,12 @@ public class ScriptDAOVO extends CommonDAOVO {
 	}
 	public void setScriptMode(String scriptMode) {
 		this.scriptMode = scriptMode;
+	}
+	public String getScriptSleepTime() {
+		return scriptSleepTime;
+	}
+	public void setScriptSleepTime(String scriptSleepTime) {
+		this.scriptSleepTime = scriptSleepTime;
 	}
 	public String getCreateTimeStr() {
 		return createTimeStr;

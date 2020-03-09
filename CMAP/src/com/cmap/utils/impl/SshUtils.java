@@ -214,7 +214,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 		List<String> cmdOutputs = new ArrayList<>();
 		try {
 			checkSshStatus();
-
+			
 			if (scriptList == null || (scriptList != null && scriptList.isEmpty())) {
 				throw new IllegalArgumentException("[SSH] >> 傳入腳本資料為空");
 			}
@@ -240,7 +240,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 				for (ScriptServiceVO scriptVO : scriptList) {
 					// 送出命令
 					csVO = sendCommand(csVO, expect, configInfoVO, scriptVO, processLog, cmdOutputs);
-					Thread.sleep(sleepTime); // 執行命令間格時間
+					Thread.sleep(StringUtils.isNotBlank(scriptVO.getScriptSleepTime())?Long.parseLong(scriptVO.getScriptSleepTime()):sleepTime); // 執行命令間格時間
 				}
 
 				/*

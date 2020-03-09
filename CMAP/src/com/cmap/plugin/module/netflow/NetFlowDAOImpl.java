@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -54,7 +56,7 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
           .append(" where 1=1 ");
 
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-            sb.append(" and nfrd.group_id = :groupId ");
+        	sb.append(" and nfrd.group_id = :groupId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
@@ -70,6 +72,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySenderIp())) {
             sb.append(" and nfrd.sender_ip = :querySenderIp ");
+        }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            sb.append(" and nfrd.sensor_id = :sensorId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQueryMac())) {
             sb.append(" and ( nfrd.source_MAC = :queryMac ")
@@ -133,6 +138,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         if (StringUtils.isNotBlank(nfVO.getQuerySenderIp())) {
             q.setParameter("querySenderIp", nfVO.getQuerySenderIp());
         }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            q.setParameter("sensorId", nfVO.getQuerySensorId());
+        }
         if (StringUtils.isNotBlank(nfVO.getQueryMac())) {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
@@ -147,7 +155,7 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             q.setParameter("searchValue", "%".concat(nfVO.getSearchValue()).concat("%"));
         }
-
+        log.debug("queryString==" + q.getQueryString());
         return DataAccessUtils.longResult(q.list());
 	}
 
@@ -169,7 +177,10 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
             sb.append(" and nfrd.data_id = :dataId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-            sb.append(" and nfrd.group_id = :groupId ");
+        	sb.append(" and nfrd.group_id = :groupId ");
+        }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            sb.append(" and nfrd.sensor_id = :sensorId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
@@ -245,6 +256,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             q.setParameter("groupId", nfVO.getQueryGroupId());
         }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            q.setParameter("sensorId", nfVO.getQuerySensorId());
+        }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             q.setParameter("querySourceIp", nfVO.getQuerySourceIp());
         }
@@ -281,6 +295,7 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
             q.setMaxResults(pageLength);
         }
 
+        log.debug("net_flow queryString == " + q.getQueryString());
         return (List<Object[]>)q.list();
 	}
 
@@ -586,6 +601,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             sb.append(" and nfrd.group_id = :groupId ");
         }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            sb.append(" and nfrd.sensor_id = :sensorId ");
+        }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
         }
@@ -648,6 +666,9 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             q.setParameter("groupId", nfVO.getQueryGroupId());
         }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            q.setParameter("sensorId", nfVO.getQuerySensorId());
+        }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             q.setParameter("querySourceIp", nfVO.getQuerySourceIp());
         }
@@ -677,7 +698,8 @@ public class NetFlowDAOImpl extends BaseDaoHibernate implements NetFlowDAO {
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             q.setParameter("searchValue", "%".concat(nfVO.getSearchValue()).concat("%"));
         }
-
+        log.debug("queryString==" + q.getQueryString());
+        
         List<BigDecimal> retList = (List<BigDecimal>)q.list();
         return (retList != null && !retList.isEmpty()) ? retList.get(0) : null;
 	}

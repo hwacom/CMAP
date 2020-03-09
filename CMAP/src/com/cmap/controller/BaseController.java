@@ -19,9 +19,11 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.TreeMap;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -46,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
@@ -100,7 +103,7 @@ public class BaseController {
 	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String sourceId) {
         HttpSession session = request.getSession();
         PrtgServiceVO prtgVO = null;
-
+        
         try {
             prtgVO = commonService.findPrtgLoginInfo(sourceId);
 
@@ -391,6 +394,34 @@ public class BaseController {
         }
     }
 
+    protected Map<String, String> getSensorList(HttpServletRequest request, String deviceId) {
+		Map<String, String> retMap = new LinkedHashMap<>();
+		Map<String, String> sensorMap = null;
+		try {
+		    String prtgLoginAccount =
+                    Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+
+            if (StringUtils.isBlank(prtgLoginAccount)) {
+                throw new ServiceLayerException("使用者權限錯誤!!");
+            }
+
+            sensorMap = commonService.getUserSensorList(prtgLoginAccount, deviceId);
+
+			if (sensorMap == null) {
+				sensorMap = new HashMap<>();
+			}
+
+			for (Map.Entry<String, String> entry : sensorMap.entrySet()) {
+				retMap.put(entry.getKey(), entry.getValue());
+			}
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+
+		return retMap;
+	}
+    
 	public Map<String, String> getGroupDeviceMenu(HttpServletRequest request, String searchTxt, String scriptDeviceModel) throws ServiceLayerException {
 		Map<String, String> menuMap = new LinkedHashMap<>();
 

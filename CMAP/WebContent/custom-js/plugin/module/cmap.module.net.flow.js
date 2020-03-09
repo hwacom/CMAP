@@ -497,7 +497,7 @@ function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 function findData(from) {
 	$('#queryFrom').val(from);
 	/*
-	if ($("#queryGroup").val().trim().length == 0) {
+   if ($("#queryGroup").val() && $("#queryGroup").val().trim().length == 0) {
 		alert(msg_chooseGroup);
 		return;
 	}
@@ -668,7 +668,8 @@ function findData(from) {
 				{ "data" : "nextHop" , "orderable" : false },
 				{ "data" : "sourceVLAN" , "orderable" : false },
 				{ "data" : "destinationVLAN" , "orderable" : false },
-				{ "data" : "flowID" , "orderable" : false }
+				{ "data" : "flowID" , "orderable" : false },
+				{ "data" : "sensorId" , "orderable" : false }
 			],
 			"columnDefs" : [
 				{
@@ -686,7 +687,12 @@ function findData(from) {
 					"searchable": true,
 					"orderable": true,
 					"render" : function(data, type, row) {
-									var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
+									var html;
+									if(row.sourceIPInGroup == 'Y'){
+										html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
+									}else {
+										html = row.sourceIP;
+									}
 									return html;
 							 }
 				},
@@ -696,7 +702,12 @@ function findData(from) {
 					"searchable": true,
 					"orderable": true,
 					"render" : function(data, type, row) {
-									var html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
+									var html;
+									if(row.destinationIPInGroup == 'Y'){
+										html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
+									}else {
+										html = row.destinationIP;
+									}
 									return html;
 							 }
 				}

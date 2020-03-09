@@ -1,11 +1,13 @@
 package com.cmap.dao.impl;
 
 import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.PrtgDAO;
@@ -163,5 +165,29 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
             q.setParameter("groupId", groupId);
         }
         return (List<Object[]>)q.list();
+    }
+    
+    @Override
+    public List<PrtgUserRightSetting> findPrtgUserRightSettingBySettingValueAndType(String settingValue, String settingType) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" from PrtgUserRightSetting purs ")
+          .append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(settingValue)) {
+            sb.append(" and purs.settingValue = :settingValue ");
+        }
+        if (StringUtils.isNotBlank(settingType)) {
+            sb.append(" and purs.settingType = :settingType ");
+        }
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        if (StringUtils.isNotBlank(settingValue)) {
+            q.setParameter("settingValue", settingValue);
+        }
+        if (StringUtils.isNotBlank(settingType)) {
+            q.setParameter("settingType", settingType);
+        }
+        return (List<PrtgUserRightSetting>)q.list();
     }
 }

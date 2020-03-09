@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.time.DateUtils;
@@ -39,6 +40,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -336,6 +338,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 
 	                        Map<String, String> specialSettingMap = composeSpecialFieldMap(setting.getSpecialVarSetting());
 	                        String groupId = specialSettingMap.get(Constants.GROUP_ID);
+	                        String sensorId = specialSettingMap.get(Constants.SENSOR_ID);
 	                        String groupSubnet = getGroupSubnetSetting(groupId, Constants.IPV4);
 
 	                        long beginTime = System.currentTimeMillis();
@@ -351,14 +354,16 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	                            // Source_IP 角度 >>> 上傳流量
 	                            if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
 	                                    && chkIpInGroupSubnet(groupSubnet, sourceIP, Constants.IPV4)
-	                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
+	                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
+	                            	  || StringUtils.equals(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y)) {
 	                                ipTrafficMap = calculateIPTraffic(ipTrafficMap, sourceIP, size, Constants.UPLOAD);
 	                            }
 
 	                            // Destination_IP 角度 >>> 下載流量
 	                            if ((StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
 	                                    && chkIpInGroupSubnet(groupSubnet, destinationIP, Constants.IPV4)
-	                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)) {
+	                                ) || !StringUtils.equals(Env.NET_FLOW_IP_STATISTICS_ONLY_IN_GROUP, Constants.DATA_Y)
+	                            	  || StringUtils.equals(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y)) {
 	                                ipTrafficMap = calculateIPTraffic(ipTrafficMap, destinationIP, size, Constants.DOWNLOAD);
 	                            }
 	                        }
@@ -368,7 +373,12 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	                        beginTime = System.currentTimeMillis();
 	                        if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
 	                            // 寫入TABLE
-	                            netFlowStatisticsService.calculateIpTrafficStatistics(groupId, EXECUTE_DATE, ipTrafficMap);
+	                        	if(StringUtils.equals(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y)) {
+	                        		netFlowStatisticsService.calculateIpTrafficStatistics(sensorId, EXECUTE_DATE, ipTrafficMap);
+	                        	}else {
+	                        		netFlowStatisticsService.calculateIpTrafficStatistics(groupId, EXECUTE_DATE, ipTrafficMap);
+	                        	}
+	                        	
 	                        }
 	                        endTime = System.currentTimeMillis();
 	                        log.info("******************* NET_FLOW_IP_STATISTICS > write-table takes " + (endTime-beginTime) + " ms");

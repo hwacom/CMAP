@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
@@ -59,6 +61,14 @@ public interface CommonService {
 	 */
 	public Map<String, String> getUserDeviceList(String prtgAccount, String groupId);
 
+	/**
+	 *  取得 PRTG 使用者的權限sensor清單
+	 * @param prtgAccount
+	 * @param deviceId
+	 * @return
+	 */
+	public Map<String, String> getUserSensorList(String prtgAccount, String deviceId);
+	
 	/**
 	 * 更新 Device_List 資料
 	 * @param deviceList
