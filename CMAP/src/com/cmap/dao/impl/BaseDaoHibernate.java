@@ -521,10 +521,17 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	        StringBuffer sql = new StringBuffer();
 	        sql.append(" LOAD DATA LOCAL INFILE ")
 	           //.append(" :filePath ")
-	           .append(" '").append(filePath).append("' ")
-	           //.append(" INTO TABLE :tableName ");
-	           .append(" INTO TABLE ").append(tableName).append(" ");
-
+	           .append(" '").append(filePath).append("' ");       
+	           // 2020-02-20 edit by  Alvin for duplicate data updating rows
+	           //.append(" REPLACE INTO TABLE :tableName ");	 
+	        if (tableName.contains("WIFI_TRACE")) {
+	        	//TODO data_poller_setting增加REPLACE欄位
+		        String replace =" REPLACE ";
+	            sql.append(replace).append(" INTO TABLE ").append(tableName).append(" ");
+	        }else {
+	        	// 2020-02-20 edit by  Alvin. The format  of  Netflow insertCSV doesn't support REPLACE syntax
+	        	sql.append(" INTO TABLE ").append(tableName).append(" ");
+	        }
 	        if (StringUtils.isNotBlank(charset)) {
 	            //sql.append(" CHARACTER SET :charset ");
 	            sql.append(" CHARACTER SET ").append(charset).append(" ");
@@ -532,6 +539,13 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	        if (StringUtils.isNotBlank(fieldsTerminatedBy)) {
 	            //sql.append(" FIELDS TERMINATED BY :fieldsTerminatedBy ");
 	            sql.append(" FIELDS TERMINATED BY '").append(fieldsTerminatedBy).append("' ");
+	        }
+	        // 2020-02-18 add by Alvin for WIFI_TRACE data_poller using ENCLOSED BY '"'
+	        if (tableName.contains("WIFI_TRACE")) {
+	        	//TODO data_poller_setting增加ENCLOSED_BY欄位
+	        	String enclosedBy="\"";
+	            //sql.append(" ENCLOSED BY :enclosedBy ");
+	            sql.append(" ENCLOSED BY '").append(enclosedBy).append("' ");
 	        }
 	        if (StringUtils.isNotBlank(linesTerminatedBy)) {
 	            //sql.append(" LINES TERMINATED BY :linesTerminatedBy ");
@@ -555,7 +569,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	                session = secondSessionFactory.openSession();
 	            }
 	        }
-
+	        logger.info("Creating native query to load csv file with SQL : "+sql.toString());
 	        if (session != null) {
 	            tx = session.beginTransaction();
 	            Query<?> q = session.createNativeQuery(sql.toString());

@@ -23,7 +23,12 @@ $(document).ready(function() {
 	});
 	*/
 	
-	var inputPort = new Cleave('.input-port', {
+	var inputPort = new Cleave('.input-port-src', {
+		numericOnly: true,
+		blocks: [5]
+	});
+	
+	var inputPort = new Cleave('.input-port-dest', {
 		numericOnly: true,
 		blocks: [5]
 	});
@@ -41,6 +46,26 @@ $(document).ready(function() {
 			$(".myTableSection").hide();
 			alert(json.msg);
 		}
+	});
+	
+	//Query condition fields binding auto-trim function while onBlur event
+	$('#queryGroup').unbind('blur').bind('blur',function(){
+        $(this).val($(this).val().trim());
+    });
+	$('#query_SourceIp').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_DestinationIp').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_SenderIp').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_SourcePort').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_DestinationPort').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
 	});
 	
 	var today = new Date();
@@ -471,14 +496,18 @@ function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 //查詢按鈕動作
 function findData(from) {
 	$('#queryFrom').val(from);
-	
+	/*
 	if ($("#queryGroup").val().trim().length == 0) {
 		alert(msg_chooseGroup);
 		return;
 	}
-	
+	*/
 	if ($("#queryDateBegin").val().trim().length == 0) {
 		alert(msg_chooseDate);
+		return;
+	}
+	if ( ($("#query_SourceIp").val().trim().length == 0) && ($("#query_DestinationIp").val().trim().length == 0) && ($("#queryGroup").val().trim().length == 0)){
+		alert(msg_chooseIp);
 		return;
 	}
 	
