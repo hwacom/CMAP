@@ -186,7 +186,8 @@ public class Constants {
 	public static final String THREAD_COUNT = "THREAD_COUNT";
 	public static final String TARGET_TABLE = "TARGET_TABLE";
 	public static final String SKIP_HEAD_LINES_COUNT = "SKIP_HEAD_LINES_COUNT";
-
+	public static final String SENSOR_ID = "SENSOR_ID";
+	
 	public static final String DIR_PATH_GROUP_ID = "[gID]";
 	public static final String DIR_PATH_GROUP_NAME = "[gName]";
 	public static final String DIR_PATH_DEVICE_ID = "[dID]";
