@@ -229,6 +229,7 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(24)").html( data.sourceVLAN );
 		$(cTR).find("td:eq(25)").html( data.destinationVLAN );
 		$(cTR).find("td:eq(26)").html( data.flowID );
+		$(cTR).find("td:eq(27)").html( data.sensorId );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
