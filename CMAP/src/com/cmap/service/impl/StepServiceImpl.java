@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,8 @@ import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.ip.mac.bound.record.IpMacBoundRecordService;
+import com.cmap.plugin.module.ip.mac.bound.record.IpMacBoundRecordVO;
 import com.cmap.plugin.module.ip.mapping.IpMappingDAO;
 import com.cmap.plugin.module.ip.mapping.ModuleArpTable;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
@@ -73,13 +76,12 @@ import com.cmap.service.vo.StepServiceVO;
 import com.cmap.service.vo.VersionServiceVO;
 import com.cmap.utils.ConnectUtils;
 import com.cmap.utils.FileUtils;
-import com.cmap.utils.ProvisionUtils;
 import com.cmap.utils.impl.CommonUtils;
 import com.cmap.utils.impl.FtpFileUtils;
-import com.cmap.utils.impl.PingUtils;
 import com.cmap.utils.impl.SshUtils;
 import com.cmap.utils.impl.TFtpFileUtils;
 import com.cmap.utils.impl.TelnetUtils;
+import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
 
 @Service("stepService")
 @Transactional
@@ -128,6 +130,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	
 	@Autowired
 	private ProvisionService provisionService;
+
+	@Autowired
+    private IpMacBoundRecordService ipMacRecordService;
 
 	@Override
 	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
@@ -731,6 +736,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
             List<String> portBlockScriptCodeList = Env.SCRIPT_CODE_OF_PORT_BLOCK;
             List<String> macOpenScriptCodeList = Env.SCRIPT_CODE_OF_MAC_OPEN;
             List<String> macBlockScriptCodeList = Env.SCRIPT_CODE_OF_MAC_BLOCK;
+            List<String> ipMacBindScriptCodeList = Env.SCRIPT_CODE_OF_IP_MAC_BIND;
+            List<String> ipMacUnbindScriptCodeList = Env.SCRIPT_CODE_OF_IP_MAC_UNBIND;
 
             BlockType blockType = null;
             String actionStatusFlag = null;
@@ -757,6 +764,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
             } else if (macBlockScriptCodeList.contains(scriptCode)) {
                 blockType = BlockType.MAC;
                 actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
+                
+            } else if (ipMacBindScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.IP_MAC;
+                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
+
+            } else if (ipMacUnbindScriptCodeList.contains(scriptCode)) {
+                blockType = BlockType.IP_MAC;
+                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
             }
 
             if (blockType != null) {
@@ -771,6 +786,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                     case MAC:
                         writeModuleBlockMacListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
+                        break;
+                        
+                    case IP_MAC:                    	
+                    	writeModuleIpMacBoundListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
                         break;
                 }
             }
@@ -924,6 +943,86 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         }
     }
 
+    /**
+     * 寫入 IP MAC 綁定 紀錄資料
+     * @param ciVO
+     * @param scriptCode
+     * @param varMapList
+     * @param actionStatusFlag
+     * @param remark
+     * @throws ServiceLayerException
+     */
+    private void writeModuleIpMacBoundListRecord(
+            ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String actionStatusFlag, String remark) throws ServiceLayerException {
+        String groupId = ciVO.getGroupId();
+        String deviceId = ciVO.getDeviceId();
+
+        String grobalValue;//TODO
+        if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+        	//查詢同設備封鎖紀錄For更新GlobalValue使用
+            IpMacBoundRecordVO searchIbrVO = new IpMacBoundRecordVO();
+            searchIbrVO.setQueryDeviceId(deviceId);
+            searchIbrVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
+            List<IpMacBoundRecordVO> recordList = ipMacRecordService.findModuleIpMacBoundList(searchIbrVO, null, null);
+            
+            for(IpMacBoundRecordVO vo:recordList) {
+            	
+            }
+        }
+        
+        // 定義IP封鎖腳本中「IP_Address」的變數名稱 for 寫入異動紀錄table使用
+        String ipAddressVarKey = Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;
+        String macAddressVarKey = Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;
+        String interfaceVarKey = Env.KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;
+        
+        List<IpMacBoundRecordVO> ibrVOs = new ArrayList<>();
+        IpMacBoundRecordVO ibrVO = null;
+        for (Map<String, String> varMap : varMapList) {
+            String ipAddress = varMap.get(ipAddressVarKey);
+            String macAddress = varMap.get(macAddressVarKey);
+            if (StringUtils.isBlank(ipAddress)) {
+                throw new ServiceLayerException("系統參數異常無法執行，請重新操作! (ipAddress為空)");
+            }
+            if (StringUtils.isBlank(macAddress)) {
+                throw new ServiceLayerException("系統參數異常無法執行，請重新操作! (macAddress為空)");
+            }
+                        
+            ibrVO = new IpMacBoundRecordVO();
+            ibrVO.setGroupId(groupId);
+            ibrVO.setDeviceId(deviceId);
+            ibrVO.setIpAddress(ipAddress);
+            ibrVO.setMacAddress(macAddress);
+            if(varMap.containsKey(interfaceVarKey)) {
+            	ibrVO.setPort(varMap.get(interfaceVarKey));
+            }
+            ibrVO.setStatusFlag(actionStatusFlag);
+
+            if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                ibrVO.setBlockBy(currentUserName());
+                ibrVO.setBlockReason(remark);
+                
+            } else if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_OPEN)) {
+                ibrVO.setOpenBy(currentUserName());
+                ibrVO.setOpenReason(remark);
+            }
+
+            
+            
+            ibrVO.setScriptCode(scriptCode);
+            ScriptServiceVO vo = scriptService.getScriptInfoByScriptCode(scriptCode);
+            if(vo != null) {
+            	ibrVO.setScriptName(vo.getScriptName());
+            }
+            ibrVO.setRemark(remark);
+
+            ibrVOs.add(ibrVO);
+        }
+
+        if (ibrVOs != null && !ibrVOs.isEmpty()) {
+            ipMacRecordService.saveOrUpdateRecord(ibrVOs);
+        }
+    }
+    
 	/**
 	 * [Step] 查找設備連線資訊
 	 * @param configInfoVO

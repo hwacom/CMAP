@@ -45,7 +45,7 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			sb.append(" and si.systemDefault = :systemDefault ");
 		}
-		if (daovo.isOnlySwitchPort() || daovo.isOnlyIpOpenBlock() || daovo.isOnlyMacOpenBlock()) {
+		if (daovo.isOnlySwitchPort() || daovo.isOnlyIpOpenBlock() || daovo.isOnlyMacOpenBlock() || daovo.isOnlyIpMacBinding()) {
 			sb.append(" and si.scriptCode in (:scriptCode) ");
 		}
 
@@ -113,6 +113,14 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
 			}
 			q.setParameterList("scriptCode", scriptList);
+		} else if (daovo.isOnlyIpMacBinding()) {
+			if (Env.SCRIPT_CODE_OF_IP_MAC_BIND != null) {
+				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_BIND);
+			}
+			if (Env.SCRIPT_CODE_OF_IP_MAC_UNBIND != null) {
+				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_UNBIND);
+			}
+			q.setParameterList("scriptCode", scriptList);
 		}
 		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
@@ -144,7 +152,7 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			sb.append(" and si.systemDefault = :systemDefault ");
 		}
-		if (daovo.isOnlySwitchPort() || daovo.isOnlyIpOpenBlock() || daovo.isOnlyMacOpenBlock()) {
+		if (daovo.isOnlySwitchPort() || daovo.isOnlyIpOpenBlock() || daovo.isOnlyMacOpenBlock() || daovo.isOnlyIpMacBinding()) {
 			sb.append(" and si.scriptCode in (:scriptCode) ");
 		}
 
@@ -218,6 +226,14 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 			// 若使用者為管理者，多查出中心端的MAC控制腳本
 			if (daovo.isAdmin() && Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
 				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+			}
+			q.setParameterList("scriptCode", scriptList);
+		} else if (daovo.isOnlyIpMacBinding()) {
+			if (Env.SCRIPT_CODE_OF_IP_MAC_BIND != null) {
+				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_BIND);
+			}
+			if (Env.SCRIPT_CODE_OF_IP_MAC_UNBIND != null) {
+				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_UNBIND);
 			}
 			q.setParameterList("scriptCode", scriptList);
 		}

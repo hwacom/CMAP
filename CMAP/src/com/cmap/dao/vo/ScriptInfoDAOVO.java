@@ -10,6 +10,7 @@ public class ScriptInfoDAOVO extends CommonDAOVO {
 	private boolean onlySwitchPort = false;
 	private boolean onlyIpOpenBlock = false;
 	private boolean onlyMacOpenBlock = false;
+	private boolean onlyIpMacBinding = false;
 	
 	private boolean isAdmin = false;
 
@@ -60,6 +61,12 @@ public class ScriptInfoDAOVO extends CommonDAOVO {
 	}
 	public void setOnlyMacOpenBlock(boolean onlyMacOpenBlock) {
 		this.onlyMacOpenBlock = onlyMacOpenBlock;
+	}
+	public boolean isOnlyIpMacBinding() {
+		return onlyIpMacBinding;
+	}
+	public void setOnlyIpMacBinding(boolean onlyIpMacBinding) {
+		this.onlyIpMacBinding = onlyIpMacBinding;
 	}
 	public boolean isAdmin() {
 		return isAdmin;

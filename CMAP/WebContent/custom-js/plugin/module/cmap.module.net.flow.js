@@ -23,7 +23,12 @@ $(document).ready(function() {
 	});
 	*/
 	
-	var inputPort = new Cleave('.input-port', {
+	var inputPort = new Cleave('.input-port-src', {
+		numericOnly: true,
+		blocks: [5]
+	});
+	
+	var inputPort = new Cleave('.input-port-dest', {
 		numericOnly: true,
 		blocks: [5]
 	});
@@ -41,6 +46,26 @@ $(document).ready(function() {
 			$(".myTableSection").hide();
 			alert(json.msg);
 		}
+	});
+	
+	//Query condition fields binding auto-trim function while onBlur event
+	$('#queryGroup').unbind('blur').bind('blur',function(){
+        $(this).val($(this).val().trim());
+    });
+	$('#query_SourceIp').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_DestinationIp').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_SenderIp').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_SourcePort').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
+	$('#query_DestinationPort').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
 	});
 	
 	var today = new Date();
@@ -204,6 +229,7 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(24)").html( data.sourceVLAN );
 		$(cTR).find("td:eq(25)").html( data.destinationVLAN );
 		$(cTR).find("td:eq(26)").html( data.flowID );
+		$(cTR).find("td:eq(27)").html( data.sensorId );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -216,7 +242,7 @@ function getTotalTraffic() {
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getTotalTraffic.json',
 		data : {
-			"queryGroup" : queryGroup = $("#queryGroup").val(),
+			"queryGroup" : $("#queryGroup").val(),
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -262,7 +288,7 @@ function getTotalFilteredCount() {
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getTotalFilteredCount.json',
 		data : {
-			"queryGroup" : queryGroup = $("#queryGroup").val(),
+			"queryGroup" : $("#queryGroup").val(),
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -334,7 +360,7 @@ function findNextData() {
 	$.ajax({
 		url : _ctx + '/plugin/module/netFlow/getNetFlowData.json',
 		data : {
-			"queryGroup" : queryGroup = $("#queryGroup").val(),
+			"queryGroup" : $("#queryGroup").val(),
 			"querySourceIp" : $("#query_SourceIp").val(),
 			"queryDestinationIp" : $("#query_DestinationIp").val(),
 			"querySenderIp" : $("#query_SenderIp").val(),
@@ -471,14 +497,18 @@ function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 //查詢按鈕動作
 function findData(from) {
 	$('#queryFrom').val(from);
-	
-	if ($("#queryGroup").val() && $("#queryGroup").val().trim().length == 0) {
+	/*
+   if ($("#queryGroup").val() && $("#queryGroup").val().trim().length == 0) {
 		alert(msg_chooseGroup);
 		return;
 	}
-	
+	*/
 	if ($("#queryDateBegin").val().trim().length == 0) {
 		alert(msg_chooseDate);
+		return;
+	}
+	if ( ($("#query_SourceIp").val().trim().length == 0) && ($("#query_DestinationIp").val().trim().length == 0) && ($("#queryGroup").val().trim().length == 0)){
+		alert(msg_chooseIp);
 		return;
 	}
 	

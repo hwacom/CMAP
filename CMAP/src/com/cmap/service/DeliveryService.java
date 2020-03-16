@@ -108,4 +108,13 @@ public interface DeliveryService {
 	 */
 	public boolean doSyncDeviceMacBlockedList(boolean isAdmin, String prtgLoginAccount, MacBlockedRecordVO pbrVO, List<MacBlockedRecordVO> dbRecordList) throws ServiceLayerException;
 
+	/**
+	 * 供裝前檢核、異動
+	 * @param isAdmin
+	 * @param pVO
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public DeliveryParameterVO checkB4DoBindingDelivery(boolean isAdmin, DeliveryParameterVO pVO) throws ServiceLayerException;
+
 }

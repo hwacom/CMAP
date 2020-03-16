@@ -82,7 +82,7 @@
 				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.address" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.remark" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="ipDesc"><spring:message code="ip.remark" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>

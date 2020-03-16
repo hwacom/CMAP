@@ -20,6 +20,7 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	private boolean onlySwitchPort = false;
 	private boolean onlyIpOpenBlock = false;
 	private boolean onlyMacOpenBlock = false;
+	private boolean onlyIpMacBinding = false;
 	
 	private boolean isAdmin = false;
 
@@ -394,7 +395,13 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	public void setOnlyMacOpenBlock(boolean onlyMacOpenBlock) {
 		this.onlyMacOpenBlock = onlyMacOpenBlock;
 	}
-    public String getDeviceModel() {
+    public boolean isOnlyIpMacBinding() {
+		return onlyIpMacBinding;
+	}
+	public void setOnlyIpMacBinding(boolean onlyIpMacBinding) {
+		this.onlyIpMacBinding = onlyIpMacBinding;
+	}
+	public String getDeviceModel() {
         return deviceModel;
     }
     public void setDeviceModel(String deviceModel) {

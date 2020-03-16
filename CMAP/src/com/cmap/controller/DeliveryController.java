@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,8 @@ import com.cmap.annotation.Log;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.ip.mac.bound.record.IpMacBoundRecordService;
+import com.cmap.plugin.module.ip.mac.bound.record.IpMacBoundRecordVO;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
@@ -39,7 +43,6 @@ import com.cmap.service.vo.DeliveryServiceVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 @Controller
 @RequestMapping("/delivery")
@@ -52,12 +55,16 @@ public class DeliveryController extends BaseController {
 	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbil.ip_Address","mids.ip_Desc","mbil.status_Flag","mbil.block_Time","mbil.block_Reason","mbil.block_By","mbil.open_Time","mbil.open_Reason","mbil.open_By"};
 	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.groupName","dl.deviceName","mbpl.portId","mbpl.statusFlag","mbpl.blockTime","mbpl.blockReason","mbpl.blockBy","mbpl.openTime","mbpl.openReason","mbpl.openBy"};
 	private static final String[] UI_BLOCKED_MAC_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbml.mac_Address","mbml.status_Flag","mbml.block_Time","mbml.block_Reason","mbml.block_By","mbml.open_Time","mbml.open_Reason","mbml.open_By"};
+	private static final String[] UI_IP_MAC_BOUND_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbil.ip_Address","mids.ip_Desc","mids.mac_address","mids.port","mbil.status_Flag","mbil.block_Time","mbil.block_Reason","mbil.block_By","mbil.open_Time","mbil.open_Reason","mbil.open_By"};
 	
 	@Autowired
 	private DeliveryService deliveryService;
 
 	@Autowired
 	private IpBlockedRecordService ipRecordService;
+	
+	@Autowired
+	private IpMacBoundRecordService ipMacRecordService;
 
 	@Autowired
     private PortBlockedRecordService portRecordService;
@@ -237,7 +244,6 @@ public class DeliveryController extends BaseController {
 		return "plugin/module_ip_open_block_4admin";
 	}
 	
-	
 	/**
 	 * 查找被封鎖過的IP紀錄
 	 * @param model
@@ -327,6 +333,97 @@ public class DeliveryController extends BaseController {
         return new DatatableResponse(total, dataList, filterdTotal);
     }
 
+	@RequestMapping(value = "ipMacBinding", method = RequestMethod.GET)
+	public String ipMacBinding(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+		try {
+
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+
+		} finally {
+			initMenu(model, request);
+		}
+
+		return "plugin/module_ip_mac_binding";
+	}
+	/**
+	 * 查找被封鎖過的IP紀錄
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param groupId
+	 * @param ipAddress
+	 * @param startNum
+	 * @param pageLength
+	 * @param searchValue
+	 * @param orderColIdx
+	 * @param orderDirection
+	 * @return
+	 */
+	@RequestMapping(value = "getIpMacBoundData.json", method = RequestMethod.POST)
+    public @ResponseBody DatatableResponse getIpMacBoundData(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryGroupId", required=false, defaultValue="") String queryGroupId,
+            @RequestParam(name="queryDeviceId", required=false, defaultValue="") String queryDeviceId,
+            @RequestParam(name="queryIpAddress", required=false, defaultValue="") String queryIpAddress,
+            @RequestParam(name="queryMacAddress", required=false, defaultValue="") String queryMacAddress,
+            @RequestParam(name="queryStatusFlag", required=false, defaultValue="") String queryStatusFlag,
+            @RequestParam(name="queryBeginDate", required=false, defaultValue="") String queryBeginDate,
+            @RequestParam(name="queryEndDate", required=false, defaultValue="") String queryEndDate,
+            @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
+            @RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
+            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="order[0][column]", required=false, defaultValue="5") Integer orderColIdx,
+            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
+
+        long total = 0;
+        long filterdTotal = 0;
+        List<IpMacBoundRecordVO> dataList = new ArrayList<>();
+        IpMacBoundRecordVO irVO;
+        try {
+        	
+            irVO = new IpMacBoundRecordVO();
+
+            setQueryGroupList(request, irVO, StringUtils.isNotBlank(queryGroupId) ? "queryGroupId" : "queryGroupIdList", queryGroupId);
+            setQueryDeviceList(request, irVO, StringUtils.isNotBlank(queryDeviceId) ? "queryDeviceId" : "queryDeviceIdList", queryGroupId, queryDeviceId);
+
+            irVO.setQueryIpAddress(queryIpAddress);
+            if (StringUtils.isNotBlank(queryMacAddress)) {
+            	irVO.setQueryMacAddress(queryMacAddress);
+	        }
+            if (StringUtils.isNotBlank(queryStatusFlag)) {
+            	irVO.setQueryStatusFlag(Arrays.asList(queryStatusFlag));
+            }
+            irVO.setQueryBeginDate(queryBeginDate);
+            irVO.setQueryEndDate(queryEndDate);
+            irVO.setPageLength(pageLength);
+            irVO.setSearchValue(searchValue);
+            irVO.setOrderColumn(UI_IP_MAC_BOUND_RECORD_COLUMNS[orderColIdx]);
+            irVO.setOrderDirection(orderDirection);
+
+            boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
+			irVO.setAdmin(isAdmin);
+			
+            filterdTotal = ipMacRecordService.countModuleIpMacBoundList(irVO);
+
+            if (filterdTotal != 0) {
+                dataList = ipMacRecordService.findModuleIpMacBoundList(irVO, startNum, pageLength);
+                
+            }
+            
+            total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
+
+        } catch (ServiceLayerException sle) {
+        } catch (Exception e) {
+
+        } finally {
+            //initMenu(model, request);
+        }
+
+        return new DatatableResponse(total, dataList, filterdTotal);
+    }
+	
 	@RequestMapping(value = "macOpenBlock", method = RequestMethod.GET)
 	public String macOpenBlock(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -510,6 +607,10 @@ public class DeliveryController extends BaseController {
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_MAC_OPEN_BLOCK:
 					dsVO.setOnlyMacOpenBlock(true);
 					break;
+					
+				case Constants.DELIVERY_ONLY_SCRIPT_OF_IP_MAC_BINDING:
+					dsVO.setOnlyIpMacBinding(true);
+					break;					
 			}
 
 			filterdTotal = deliveryService.countScriptList(dsVO);
@@ -610,7 +711,11 @@ public class DeliveryController extends BaseController {
 		DeliveryServiceVO retVO;
 		try {
 			DeliveryParameterVO pVO = (DeliveryParameterVO)transJSON2Object(ps, DeliveryParameterVO.class);
-
+			
+			boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
+			
+			pVO = deliveryService.checkB4DoBindingDelivery(isAdmin, pVO);
+			
 			retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, pVO, false, null, null, true);
 			String retVal = retVO.getRetMsg();
 
@@ -885,6 +990,137 @@ public class DeliveryController extends BaseController {
         }
     }
 
+    /**
+	 * 執行IP MAC解鎖 by 「IP MAC綁定」功能中的「解除綁定」按鈕
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param listId
+	 * @return
+	 */
+	@RequestMapping(value = "doIpMacUnbindByBtn.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse doIpMacUnbindByBtn(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="listId[]", required=true) String[] listIdArray,
+            @RequestParam(name="reason", required=false) String reasonInput) {
+
+	    DeliveryServiceVO retVO = null;
+	    DeliveryParameterVO pVO;
+        try {
+            pVO = new DeliveryParameterVO();
+            List<String> groupIds = new ArrayList<>();
+            List<String> deviceIds = new ArrayList<>();
+            List<String> varKeys = new ArrayList<>();
+            List<List<String>> varValues = new ArrayList<>();
+
+            String scriptCode = null;
+            String groupId = null;
+            String deviceId = null;
+            String varKeyJson = null;
+            List<String> varValue = null;
+            String reason = reasonInput;
+            String[] scriptCodeArr;
+            
+            // Step 1. 準備必要參數
+            IpMacBoundRecordVO queryVO, ibrVO;
+            List<IpMacBoundRecordVO> recordList = null;  
+            Map<String, Integer>recordPortMap = null;
+            for (String listId : listIdArray) {
+            	queryVO = new IpMacBoundRecordVO();
+            	queryVO.setQueryListId(listId);
+                
+                recordList = ipMacRecordService.findModuleIpMacBoundList(queryVO, null, null);
+
+                if (recordList != null && !recordList.isEmpty()) {
+                    ibrVO = recordList.get(0);
+                    scriptCodeArr = ibrVO.getScriptCode().split("_");
+                    scriptCode = scriptCodeArr[0]+"_"+ String.format("%03d",Integer.parseInt(scriptCodeArr[1])+1);
+                    		
+                    // Step 2. 查解鎖腳本
+                    retVO = deliveryService.getScriptInfoByIdOrCode(null, scriptCode);
+
+                    varKeyJson = retVO.getActionScriptVariable();
+                    Gson gson = new Gson();
+                    varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
+                    
+                    groupId = ibrVO.getGroupId();
+                    deviceId = ibrVO.getDeviceId();
+
+                    queryVO = new IpMacBoundRecordVO();
+                	queryVO.setQueryDeviceId(deviceId);
+                    queryVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
+                    
+                    recordList = ipMacRecordService.findModuleIpMacBoundList(queryVO, null, null);
+                    recordPortMap = new HashMap<String, Integer>();
+                    for (IpMacBoundRecordVO ipVO : recordList) {
+                    	if(recordPortMap.containsKey(ipVO.getPort())) {
+                    		recordPortMap.put(ipVO.getPort(), recordPortMap.get(ipVO.getPort())+1);
+                    	}else {
+                    		recordPortMap.put(ipVO.getPort(), 1);
+                    	}
+					}
+                    
+                    varValue = new ArrayList<>();
+                    for (String key : varKeys) {
+						if(compareStringNotBlankAndEqualsIgnoreCase(Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK, key)) {
+							varValue.add(ibrVO.getIpAddress()); // IP_ADDRESS
+							
+						} else if(compareStringNotBlankAndEqualsIgnoreCase(Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK, key)) {
+							varValue.add(ibrVO.getMacAddress()); // MAC_ADDRESS
+							
+						} else if(compareStringNotBlankAndEqualsIgnoreCase(Env.KEY_VAL_OF_NO_FLAG_WITH_CMD, key)) {
+							if(ibrVO.getGlobalValue().equalsIgnoreCase(ibrVO.getPort()) && recordPortMap.get(ibrVO.getPort()) == 1) {
+								varValue.add("no");
+							}else {
+								varValue.add("");
+							}
+							
+						} else if(compareStringNotBlankAndEqualsIgnoreCase(Env.KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING, key)) {
+							if(!ibrVO.getGlobalValue().equalsIgnoreCase(ibrVO.getPort()) && recordPortMap.get(ibrVO.getPort()) == 1) {
+								String globalValue = ibrVO.getGlobalValue().replaceAll(ibrVO.getPort()+",", "");
+	                			globalValue = globalValue.replaceAll(","+ibrVO.getPort()+",", "");
+	                			globalValue = globalValue.replaceAll(","+ibrVO.getPort(), "");
+								varValue.add(globalValue);
+							}else {
+								varValue.add(ibrVO.getGlobalValue());
+							}
+						}
+					}
+                    
+                    groupIds.add(groupId);
+                    deviceIds.add(deviceId);
+                    varValues.add(varValue);
+                }else {
+                	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無綁定紀錄無法解除綁定");
+                }
+            }
+
+            // Step 3. 呼叫共用
+            pVO.setScriptInfoId(retVO.getScriptInfoId());
+            pVO.setScriptCode(scriptCode);
+            pVO.setGroupId(groupIds);
+            pVO.setDeviceId(deviceIds);
+            pVO.setVarKey(varKeys);
+            pVO.setVarValue(varValues);
+            pVO.setReason(reason);
+
+            retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, pVO, false, null, null, true);
+            String retVal = retVO.getRetMsg();
+
+            return new AppResponse(HttpServletResponse.SC_OK, retVal);
+
+        } catch (ServiceLayerException sle) {
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, sle.getMessage());
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+    }
+	
+	private boolean compareStringNotBlankAndEqualsIgnoreCase(String str1, String str2) {
+		return StringUtils.isNotBlank(str1) && StringUtils.equalsIgnoreCase(str1, str2);
+	}
+	
 	@RequestMapping(value = "getDeliveryRecordData.json", method = RequestMethod.POST)
 	public @ResponseBody DatatableResponse getDeliveryRecordData(
 			Model model, HttpServletRequest request, HttpServletResponse response,

@@ -38,6 +38,8 @@ import com.cmap.model.ProvisionLogStep;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordService;
 import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
+import com.cmap.plugin.module.ip.mac.bound.record.IpMacBoundRecordService;
+import com.cmap.plugin.module.ip.mac.bound.record.IpMacBoundRecordVO;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordService;
 import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
 import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordService;
@@ -81,6 +83,9 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	
 	@Autowired
 	private MacBlockedRecordService macBlockRecordService;
+	
+	@Autowired
+	private IpMacBoundRecordService ipMacRecordService;
 	
 	@Override
 	public DeliveryServiceVO doDelivery(ConnectionMode connectionMode, DeliveryParameterVO dpVO, boolean sysTrigger,
@@ -1032,5 +1037,143 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 			return true;
         }
 		return false;
+	}
+	
+	@Override
+    public  DeliveryParameterVO checkB4DoBindingDelivery(boolean isAdmin, DeliveryParameterVO pVO) throws ServiceLayerException {
+		//檢核IP MAC 綁定相關，放入Entry參數
+		List<String> scriptListBind = new ArrayList<String>();
+		List<String> scriptListUnbind = new ArrayList<String>();
+		if (Env.SCRIPT_CODE_OF_IP_MAC_BIND != null) {
+			scriptListBind.addAll(Env.SCRIPT_CODE_OF_IP_MAC_BIND);
+		}
+		if (Env.SCRIPT_CODE_OF_IP_MAC_UNBIND != null) {
+			scriptListUnbind.addAll(Env.SCRIPT_CODE_OF_IP_MAC_UNBIND);
+		}
+		
+		if(scriptListBind.contains(pVO.getScriptCode()) || scriptListUnbind.contains(pVO.getScriptCode())) {
+			List<String> varKey = pVO.getVarKey();
+			List<List<String>> varValue = pVO.getVarValue();
+			List<List<String>> newVarValue = new ArrayList<List<String>>();
+			List<String> deviceIdList = pVO.getDeviceId();
+			
+			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
+			siDAOVO.setQueryScriptInfoId(pVO.getScriptInfoId());
+			siDAOVO.setQueryScriptCode(pVO.getScriptCode());
+			List<ScriptInfo> scriptList = scriptInfoDAO.findScriptInfo(siDAOVO, null, null);
+
+			if (scriptList == null || (scriptList != null && scriptList.isEmpty())) {
+				throw new ServiceLayerException("供裝前系統檢核不通過，請重新操作；若仍再次出現此訊息，請與系統維護商聯繫");
+			}
+
+			ScriptInfo dbEntity = scriptList.get(0);
+			
+			// Step 3.檢核JSON內VarKey與系統內設定的腳本變數欄位是否相符
+			final String dbVarKeyJSON = dbEntity.getActionScriptVariable();
+			final List<String> dbVarKeyList = (List<String>) transJSON2Object(dbVarKeyJSON, ArrayList.class);
+			
+			if(varKey.size() != dbVarKeyList.size()) {
+				dbVarKeyList.removeAll(varKey);
+			}
+			
+			if(dbVarKeyList.size() > 0 && 
+					StringUtils.isNotBlank(Env.KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING) 
+					&& StringUtils.isNotBlank(Env.KEY_VAL_OF_NO_FLAG_WITH_CMD)) {
+				
+				if(dbVarKeyList.contains(Env.KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING)) {
+					varKey.add(Env.KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING);
+				}
+				if(dbVarKeyList.contains(Env.KEY_VAL_OF_NO_FLAG_WITH_CMD)) {
+					varKey.add(Env.KEY_VAL_OF_NO_FLAG_WITH_CMD);				
+				}
+				
+				pVO.setVarKey(varKey);
+				
+				IpMacBoundRecordVO ibrVO;
+	            List<IpMacBoundRecordVO> recordList = null;            	              
+            	List<String> valueList = null;
+            	Map<String, String>varMap = null;
+            	Map<String, Integer>recordPortMap = null;
+            	String compareValue = null, currentPort4Unbind = null;
+            	String noFlagValue = "";
+            	
+				int deviceCount = deviceIdList == null ? 0: deviceIdList.size();
+				//逐筆設備替換
+				for (int idx = 0; idx < deviceCount; idx++) {
+	                varMap = new HashMap<String, String>();
+	                valueList = varValue.get(idx);
+	                for(int i=0; i < varKey.size(); i++) {
+	                	varMap.put(varKey.get(i), valueList.get(i));
+                	}
+	                
+	                ibrVO = new IpMacBoundRecordVO();  
+	                ibrVO.setQueryDeviceId(deviceIdList.get(idx));
+					ibrVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));	                
+	                recordList = ipMacRecordService.findModuleIpMacBoundList(ibrVO, null, null);
+
+	                recordPortMap = new HashMap<String, Integer>();
+	                for(IpMacBoundRecordVO bVO : recordList) {
+	                	if(!recordPortMap.containsKey(bVO.getPort())) {
+	                		recordPortMap.put(bVO.getPort(), 1);
+	                	}else {
+	                		recordPortMap.put(bVO.getPort(), recordPortMap.get(bVO.getPort())+1);
+	                	}
+	                	//如果比對IP、MAC與紀錄相同為解鎖作業
+	                	if(StringUtils.equalsIgnoreCase(bVO.getIpAddress(), varMap.get(Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK))
+	                			&& StringUtils.equalsIgnoreCase(bVO.getMacAddress(), varMap.get(Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK))) {
+	                		currentPort4Unbind = bVO.getPort();
+	                	}
+					}
+	                
+	                
+	                if(varKey.contains(Env.KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING)) {
+		                //綁定行為時，如果同設備中沒有其他封鎖紀錄使用相同port，global加入該port
+		                if(scriptListBind.contains(pVO.getScriptCode())) {
+		                		compareValue = varMap.get(Env.KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK);
+			                	if(recordPortMap.containsKey(compareValue)) {
+			                		//有相同時，放進相同值
+			                		valueList.add(recordList.get(0).getGlobalValue());
+			                		
+			                	}else {
+			                		if(recordPortMap.size() > 0) {
+			                			valueList.add(recordList.get(0).getGlobalValue()+","+compareValue); 
+			                		}else {
+			                			valueList.add(compareValue);
+			                		}
+			                	}
+		                	noFlagValue = "";             	
+		                }else {
+		                	//解除綁定，如果同設備中沒有其他封鎖紀錄使用相同port，global取消該port		                	
+	                		if(StringUtils.isEmpty(currentPort4Unbind)) {
+	                			throw new ServiceLayerException("供裝前系統檢核不通過，請重新操作；若仍再次出現此訊息，請與系統維護商聯繫");
+	                		}
+		                	if(!recordList.get(0).getGlobalValue().equalsIgnoreCase(currentPort4Unbind) && recordPortMap.get(currentPort4Unbind) == 1) {
+		                		String globalValue = recordList.get(0).getGlobalValue().replaceAll(currentPort4Unbind+",", "");
+	                			globalValue = globalValue.replaceAll(","+currentPort4Unbind+",", "");
+	                			globalValue = globalValue.replaceAll(","+currentPort4Unbind, "");
+	                			valueList.add(globalValue); 
+	                			noFlagValue = "" ;//no flag 放空值	                			        		
+		                	}else {
+		                		valueList.add(recordList.get(0).getGlobalValue());
+		                		if(recordPortMap.get(currentPort4Unbind) == 1) {
+		                			noFlagValue = "no" ;//no flag 放值
+		                		}else {
+		                			noFlagValue = "" ;//no flag 放空值
+		                		}
+		                	}              	
+		                }   
+	                }	                	
+	                
+	                if(varKey.contains(Env.KEY_VAL_OF_NO_FLAG_WITH_CMD)) {
+	                	valueList.add(noFlagValue);
+	                }
+	                
+	                newVarValue.add(valueList);
+				}
+				pVO.setVarValue(newVarValue);
+			}
+		}
+		
+		return pVO;
 	}
 }

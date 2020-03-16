@@ -15,11 +15,11 @@
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
 	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
-	    	    		<!-- 
+	    	    		
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
-                         -->
+                         
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
@@ -68,11 +68,11 @@
 			  <div class="form-group row" style="margin-bottom: -.2rem;">
 			  	<div class="col-lg-3 group-field-other">
 					<label for="query_SourcePort" class="font-weight-bold" style="width: 35%"><spring:message code="net.flow.source.port" /></label>
-					<input type="text" id="query_SourcePort" class="input-port" style="width: 60%">
+					<input type="text" id="query_SourcePort" class="input-port-src" style="width: 60%">
 				</div>
 				<div class="col-lg-3 group-field-other">
 					<label for="query_DestinationPort" class="font-weight-bold" style="width: 45%"><spring:message code="net.flow.destination.port" /></label>
-					<input type="text" id="query_DestinationPort" class="input-port" style="width: 50%">
+					<input type="text" id="query_DestinationPort" class="input-port-dest" style="width: 50%">
 				</div>
 				<div class="col-lg-3 group-field-other" id="div_TotalFlow" style="display: none">
 					<span id="result_TotalFlow" class="warning bold"></span>
@@ -118,7 +118,7 @@
 		  <div class="card card-body">
 		  	<div class="col-12">
 		  		<form>
-		  		  <!-- 
+		  		  <!-- -->
 		      	  <div class="form-group row">
 		      	  	<label for="queryGroup_mobile" class="col-sm-2 col-form-label"><spring:message code="group.name" /></label>
 		      	  	<form:select path="queryGroup" id="queryGroup_mobile" class="col-sm-10 form-control form-control-sm">
@@ -128,7 +128,7 @@
                         <form:options items="${groupList}" />
                     </form:select>
 		    	  </div>
-		    	   -->
+		    	   
 		    	  <div class="form-group row">
 		    	  	<label for="query_SourceIp_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.source.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_SourceIp_mobile">
@@ -250,5 +250,6 @@
 <script>
 	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
+	var msg_chooseIp = '<spring:message code="please.choose" /><spring:message code="net.flow.source.ip" /> or <spring:message code="net.flow.destination.ip" />';
 </script>
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.net.flow.min.js"></script>

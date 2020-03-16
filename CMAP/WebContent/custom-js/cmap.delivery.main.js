@@ -19,6 +19,10 @@ $(document).ready(function() {
     	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_macOpenBlock");
 		findData('WEB');
     	
+    } else if (onlyOneScript == "IP_MAC_BINDING") {
+    	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_ipMacBinding");
+		findData('WEB');
+    	
     } else {
 		initMenuStatus("toggleMenu_cm", "toggleMenu_cm_items", "cm_delivery");
 	}
@@ -794,6 +798,8 @@ function doDelivery() {
 					findBlockedPortRecordData('B');
 				} else if (typeof findBlockedMacRecordData === 'function') {
 					findBlockedMacRecordData('B');
+				} else if (typeof findIpMacBoundRecordData === 'function') {
+					findIpMacBoundRecordData('B');
 				}
 				
 			} else {
@@ -946,6 +952,9 @@ function findData(from) {
 					bindTrEventOnlyRadio();
 				} else if (typeof findBlockedMacRecordData === 'function') {
 					findBlockedMacRecordData('B');
+					bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
+				} else if (typeof findIpMacBoundRecordData === 'function') {
+					findIpMacBoundRecordData('B');
 					bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
 				} else {
 					bindTrEvent();

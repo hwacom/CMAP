@@ -73,6 +73,7 @@ public class Env {
 	public static String SHOW_MENU_ITEM_PORT_BLOCKED_RECORD;                 // 資安通報 > PORT封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖
 	public static String SHOW_MENU_ITEM_IP_BLOCKED_RECORD;                   // 資安通報 > IP封鎖紀錄查詢
+	public static String SHOW_MENU_ITEM_IP_MAC_BINDING;			             // 資安通報 > IP MAC 綁定
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
 	public static String SHOW_MENU_ITEM_MAC_BLOCKED_RECORD;                  // 資安通報 > MAC封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
@@ -147,11 +148,17 @@ public class Env {
 	public static List<String> SCRIPT_CODE_OF_PORT_BLOCK = new ArrayList<>();  // 設定PORT封鎖的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_MAC_OPEN = new ArrayList<>();    // 設定MAC開通的腳本代碼
 	public static List<String> SCRIPT_CODE_OF_MAC_BLOCK = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
-
+	public static List<String> SCRIPT_CODE_OF_IP_MAC_BIND = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
+	public static List<String> SCRIPT_CODE_OF_IP_MAC_UNBIND = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
+	
+	
+	
 	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
 	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱
 	public static String KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;            // 設定MAC開通/封鎖的MAC_ADDRESS變數名稱
-
+	public static String KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING;        // 設定IP MAC 綁定 global變數名稱
+	public static String KEY_VAL_OF_NO_FLAG_WITH_CMD;						 // 設定CMD指令前是否增加NO指令
+	
 	public static List<String> PORT_STATUS_EXCLUDE_IF_NAME_LIKE = new ArrayList<>();	// 設定Interface狀態查詢功能，查詢結果要排除掉的Interface名稱(前後模糊比對，不看大小寫)
 
 	/**

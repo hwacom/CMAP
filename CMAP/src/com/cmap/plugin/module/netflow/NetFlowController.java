@@ -373,17 +373,23 @@ public class NetFlowController extends BaseController {
 		long filteredTotal = 0;
 		String totalFlow = "";
 		List<NetFlowVO> dataList = new ArrayList<>();
-		try {
-		    if (StringUtils.isBlank(queryGroup)) {
+	    try {	
+	    	/*
+			if (StringUtils.isBlank(queryGroup)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("group.name", Locale.TAIWAN, null);
 	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
-	        }
+	        }*/
 	        if (StringUtils.isBlank(queryDateBegin)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("date", Locale.TAIWAN, null);
 	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
 	        }
 	        if (StringUtils.isBlank(queryTimeBegin) || StringUtils.isBlank(queryTimeEnd)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("time", Locale.TAIWAN, null);
+	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
+	        }
+	        if (StringUtils.isBlank(querySourceIp) && StringUtils.isBlank(queryDestinationIp)&&StringUtils.isBlank(queryGroup)) {
+	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("net.flow.source.ip", Locale.TAIWAN, null)
+	            + "or" + messageSource.getMessage("net.flow.destination.ip", Locale.TAIWAN, null);
 	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
 	        }
 

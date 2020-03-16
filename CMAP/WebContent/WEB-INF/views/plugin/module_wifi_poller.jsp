@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ include file="../../common/taglib.jsp" %>
 <section>
-
+  <input type="hidden" id="pageLength" name="pageLength" value="${pageLength }" />
   <div id="content" class="container-fluid">
     <!-- [START]查詢欄位&操作按鈕 for 大型解析度螢幕 -->
 	<div id="search-bar-large" class="row search-bar-large">
@@ -11,28 +11,58 @@
       	<form>
       		<div class="container-fluid">
 	      	  <div class="form-group row">
+	      	  <!-- 
 	    	    <div class="col-lg-3 group-field-other">
-	    	    	<span class="font-weight-bold" style="width: 25%"><spring:message code="group.name" /></span>
-	    	    	<!-- 
-					// TODO
-                    -->
+	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">    	    		 
+                        <c:if test="${fn:length(groupList) gt 1}">
+                        	<form:option value="" label="=== ALL ===" />
+                        </c:if>              
+                        <form:options items="${groupList}" />
+                    </form:select>
 	    	    </div>
+	    	     -->
+	    	    <!-- 
 	    	    <div class="col-lg-3 group-field-other">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
-					<!-- 
 					// TODO
-                    -->
 				</div>
-	    	    <div class="col-lg-4 group-field-other">
-	    	    	<span class="font-weight-bold" style="width: 20%"><spring:message code="execute.date" /></span>
-	    	    	<input type="date" id="queryExcuteDateBegin" style="width: 35%">
+				 -->
+				<div class="col-lg-3 group-field-other">
+	    	    	<label for="query_Date" class="font-weight-bold must" style="width: 25%"><spring:message code="wifi.poller.date.conn" /></label>
+	    	    	<input type="date" id="query_Date" style="width: 70%">
+	    	    </div>
+	    	     <div class="col-lg-3 group-field-other">
+	    	    	<label for="query_TimeBegin" class="font-weight-bold must" style="width: 14%"><spring:message code="time" /></label>
+	    	    	<input type="time" id="query_TimeBegin" style="width: 38%">
 	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
-	    	    	<input type="date" id="queryExcuteDateEnd" style="width: 35%">
+	    	    	<input type="time" id="query_TimeEnd" style="width: 38%">
 	    	    </div>
 	    	    <div class="col-lg-2" style="padding-top: 5px;">
-	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
+	   	    		<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
+	    	   	</div>
+	    	   	<div class="col-lg-2 offset-lg-1 group-field-other">
+	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
 	    	    </div>
-	      	  </div>
+	    	  </div>
+	    	  <div class="form-group row">
+	    	    <div class="col-lg-3 group-field-other">
+					<label for="query_ClientMac" class="font-weight-bold" style="width: 25%"><spring:message code="wifi.poller.client.mac" /></label>
+					<input type="text" id="query_ClientMac" class="" style="width: 70%">
+				</div>
+				<div class="col-lg-3 group-field-other">
+					<label for="query_ClientIp" class="font-weight-bold" style="width: 20%"><spring:message code="wifi.poller.client.ip" /></label>
+					<input type="text" id="query_ClientIp" class="input-ip" style="width: 70%">
+				</div>
+			  	<div class="col-lg-2 group-field-other">
+					<label for="query_ApName" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.ap.name" /></label>
+					<input type="text" id="query_ApName" class="" style="width: 60%">
+				</div>
+		  		<div class="col-lg-2 group-field-other">
+					<label for="query_Ssid" class="font-weight-bold" style="width: 35%"><spring:message code="wifi.poller.ssid" /></label>
+					<input type="text" id="query_Ssid" class="" style="width: 60%">
+				</div>
+	      	 </div>
 	      	</div>
 		</form>
       </div>
@@ -51,28 +81,37 @@
 		  <div class="card card-body">
 		  	<div class="col-12">
 		  		<form>
+		  		  <!--
 		      	  <div class="form-group row">
-		      	  	<label for="group_1" class="col-sm-2 col-form-label"><spring:message code="group.name" /></label>
-		      	  	<!-- 
-					// TODO
-                    -->
+		      	  	<label for="queryGroup_mobile" class="col-sm-2 col-form-label"><spring:message code="group.name" /></label>
+		      	  	<form:select path="queryGroup" id="queryGroup_mobile" class="col-sm-10 form-control form-control-sm">
+                        <c:if test="${fn:length(groupList) gt 1}">
+                        	<form:option value="" label="=== ALL ===" />
+                        </c:if>
+                        <form:options items="${groupList}" />
+                    </form:select>
 		    	  </div>
+		    	    -->
 		    	  <div class="form-group row">
-		    	  	<label for="device_1" class="col-sm-2 col-form-label"><spring:message code="device.name" /></label>
-		    	  	<!-- 
-					// TODO
-                    -->
+		    	  	<label for="query_Date_mobile" class="col-sm-2 col-form-label"><spring:message code="wifi.poller.date.conn" /></label>
+		    	  	<input type="date" class="form-control form-control-sm" id="query_Date_mobile">
 				  </div>
 				  <div class="form-group row">
-				  	<label for="bkdate_begin_1" class="col-sm-2 col-form-label"><spring:message code="execute.date" /></label>
-				  	<div class="col-sm-4">
-				      <input type="date" class="form-control form-control-sm" id="queryExcuteDateBegin_mobile">
-				    </div>
-				    <div class="col-sm-1">~</div>
-				    <div class="col-sm-4">
-				      <input type="date" class="form-control form-control-sm" id="queryExcuteDateEnd_mobile">
-				    </div>
-		    	  </div>
+		    	  	<label for="query_ClientMac_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.ip" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_ClientMac_mobile">
+				  </div>
+				  <div class="form-group row">
+		    	  	<label for="query_ClientIp_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.port" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_ClientIp_mobile">
+				  </div>
+				  <div class="form-group row">
+		    	  	<label for="query_ApName_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.sender.ip" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_ApName_mobile">
+				  </div>
+				  <div class="form-group row">
+		    	  	<label for="query_Ssid_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.mac" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_Ssid_mobile">
+				  </div>
 				  <div class="form-group row">
 		    	    <div class="col-sm-12">
 				      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_mobile"><spring:message code="inquiry" /></button>
@@ -91,14 +130,16 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="execute.time" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="user" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="device.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="system.version" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="execute.script" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="provision.reason" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="execute.result" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.client.mac" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.start.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.end.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.client.ip" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.ap.name" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.ssid" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="total.traffic" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="upload.traffic" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="download.traffic" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.conn.history" /></th>
 		    </tr>
 		  </thead>
 		</table>
@@ -107,62 +148,8 @@
   </div>
   
 </section>
-
-<!-- Modal [Compare] start -->
-<div class="modal fade" id="viewProvisionLogModal" tabindex="-1" role="dialog" aria-labelledby="viewProvisionLogModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-mid" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="viewProvisionLogModalLabel"><span id="msgModal_title">供裝紀錄執行結果明細</span></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-     	<div class="form-group row">
-        	<label for="viewModal_beginTime" class="col-md-2 col-sm-12 col-form-label">執行時間 :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_beginTime" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_userName" class="col-md-2 col-sm-12 col-form-label">使用者 :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_userName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_groupName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_deviceName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="device.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_deviceName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_systemVersion" class="col-md-2 col-sm-12 col-form-label"><spring:message code="system.version" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_systemVersion" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_scriptName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="script.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_scriptName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_reason" class="col-md-2 col-sm-12 col-form-label">供裝原因 :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_reason" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewModal_result" class="col-md-2 col-sm-12 col-form-label">執行結果 :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewModal_result" readonly>
-        </div>
-        <div>
-        	<hr>
-        </div>
-        <div class="form-group row">
-        	<div class="form-control form-control-sm col-12 script" id="viewModal_provisionLog"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal [Compare] end -->
-	
+<script>
+	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
+	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
+</script>
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.wifi.poller.min.js"></script>
