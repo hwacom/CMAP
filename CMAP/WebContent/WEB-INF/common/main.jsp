@@ -360,6 +360,17 @@
 	                    </c:if>
 	                    <!-- [Net flow查詢] END -->
 	                    
+	                    <!-- [Wifi查詢] START -->
+			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER eq __SHOW__}">
+			            	<li class="subMenu-item">
+		                    	<a id="cm_wifi" href="${pageContext.request.contextPath}/plugin/module/wifiPoller">
+		                    	  <span data-feather="wifi"></span>
+		                    		<span><spring:message code="func.plugin.wifi.manage" /></span>
+		                    	</a>
+		                    </li>
+			            </c:if>
+			            <!-- [Wifi查詢] END -->
+	                    
 	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -552,18 +563,7 @@
 	                  <span data-feather="alert-octagon"></span>
 	                  	<span><spring:message code="menu.security" />&nbsp;<span id="toggleMenu_plugin_icon" data-feather="chevron-down"></span></span>
 	                </a>
-	                <ul aria-expanded="false" id="toggleMenu_plugin_items" class="collapse">
-	                	<!-- [Wifi查詢] START -->
-			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER eq __SHOW__}">
-			            	<li class="subMenu-item">
-		                    	<a id="cm_wifi" href="${pageContext.request.contextPath}/plugin/module/wifiPoller">
-		                    	  <span data-feather="wifi"></span>
-		                    		<span><spring:message code="func.plugin.wifi.manage" /></span>
-		                    	</a>
-		                    </li>
-			            </c:if>
-			            <!-- [Wifi查詢] END -->
-			            
+	                <ul aria-expanded="false" id="toggleMenu_plugin_items" class="collapse">		            
 	                    <!-- [開關PORT] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -626,6 +626,17 @@
 		                    </c:if>
 	                    </sec:authorize>
 	                    <!-- [IP封鎖紀錄查詢] END -->
+	                    
+	                    <!-- [IP MAC 綁定 ] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_MAC_BINDING eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipMacBinding">
+		                    	  <span data-feather="link"></span>
+		                    	  	<span><spring:message code="func.ip.mac.binding" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [IP MAC 綁定 ] END -->
 	                    
 	                    <!-- [網卡MAC開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK eq __SHOW__}">
