@@ -35,7 +35,6 @@ import com.cmap.model.DeviceList;
 import com.cmap.plugin.module.clustermigrate.ModuleClusterMigrateLog;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 import com.cmap.plugin.module.netflow.statistics.ModuleIpTrafficStatistics;
-
 public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	@Log
 	private static Logger log;

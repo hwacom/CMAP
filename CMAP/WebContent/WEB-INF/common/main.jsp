@@ -638,6 +638,17 @@
 	                    </sec:authorize>
 	                    <!-- [IP封鎖紀錄查詢] END -->
 	                    
+	                     <!-- [IP MAC 綁定 ] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_MAC_BINDING eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipMacBinding">
+		                    	  <span data-feather="link"></span>
+		                    	  	<span><spring:message code="func.ip.mac.binding" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [IP MAC 綁定 ] END -->
+	                    
 	                    <!-- [網卡MAC開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK eq __SHOW__}">
 	                    	<li class="subMenu-item">
