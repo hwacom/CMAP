@@ -49,6 +49,12 @@ $(document).ready(function() {
 	});
 	
 	//Query condition fields binding auto-trim function while onBlur event
+<<<<<<< HEAD
+=======
+	$('#queryGroup').unbind('blur').bind('blur',function(){
+        $(this).val($(this).val().trim());
+    });
+>>>>>>> branch 'master' of https://github.com/hwacom/CMAP
 	$('#query_SourceIp').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});

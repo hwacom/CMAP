@@ -24,7 +24,7 @@
     </div>
     <!-- [END]操作按鈕bar -->
     
-  	<input type="hidden" id="onlyOneScript" value="IP_OPEN_BLOCK" />
+  	<input type="hidden" id="onlyOneScript" value="IP_MAC_BINDING" />
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
@@ -55,7 +55,7 @@
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findBlockedIpRecordData('S')">
+		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px" path="group" id="queryGroup" onchange="findIpMacBoundRecordData('B')">
 		               	<form:option value="" label="== ALL ==" />
 		                <form:options items="${groupList}" />
 		            </form:select>
@@ -64,18 +64,15 @@
 	            
 	            <!-- 解鎖Button -->
 				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.ip.open" /></button>
-				<button type="button"  style="width: 200px" class="btn btn-primary btn-sm"  id="btnSync_record">
-    	    		<spring:message code="synchronize.switch.ip" />
-    	    	</button>
 			</div>
 		</div>
 	</div>
-  	<!-- IP封鎖紀錄 -->
-  	<div id="divBlockedIpRecord" class="container-fluid">
+  	<!-- IP MAC綁定紀錄 -->
+  	<div id="divIpMacBoundRecord" class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
 		  	<div class="col-sm-12 myTableSection" style="display:none;">
-				<table id="resultTable_blockedIpRecord" class="dataTable dataTable_2 myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+				<table id="resultTable_ipMacBindingRecord" class="dataTable dataTable_2 myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 			  	<thead class="center">
 			    	<tr>
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
@@ -83,6 +80,8 @@
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.address" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="ipDesc"><spring:message code="ip.remark" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="macAddress"><spring:message code="mac.address" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="port"><spring:message code="port" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
@@ -253,4 +252,4 @@
 <!-- Modal [View] end -->
 
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/cmap.delivery.main.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.open.block.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.mac.binding.min.js"></script>

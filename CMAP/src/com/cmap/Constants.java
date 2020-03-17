@@ -42,6 +42,7 @@ public class Constants {
 	public static final String DELIVERY_ONLY_SCRIPT_OF_SWITCH_PORT = "SWITCH_PORT";
 	public static final String DELIVERY_ONLY_SCRIPT_OF_IP_OPEN_BLOCK = "IP_OPEN_BLOCK";
 	public static final String DELIVERY_ONLY_SCRIPT_OF_MAC_OPEN_BLOCK = "MAC_OPEN_BLOCK";
+	public static final String DELIVERY_ONLY_SCRIPT_OF_IP_MAC_BINDING = "IP_MAC_BINDING";
 
 	public static final char DEFAULT_CSV_SEPARATOR = ',';
 	public static final String DEFAULT_CSV_LINE_BREAK_SYMBOL = "\n";
