@@ -14,12 +14,25 @@
 	      	  <div class="form-group row" style="margin-bottom: -.6rem; margin-top: -.6rem;">
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
+					<!-- Group List為空的例外處理 btn 增加disabled attr -->
+	    	    	<c:if test="${fn:length(groupList) gt 1}">
+	    	    			<script> 
+                        		var is_btnDisabled = "false";
+                        	</script>
+                    </c:if>
+                    <c:if test="${fn:length(groupList) lt 1}">
+	    	    			<script> 
+	    	    				var msg_errorGroupList = '<spring:message code="ERROR.grouplist.access.fail" />';
+                    			alert(msg_errorGroupList);
+                    			var is_btnDisabled = "true";
+                        	</script>
+                    </c:if>
+                    <!-- Group List為空的例外處理 -->
 	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
-	    	    		
+	    	    		<!-- ToDo 根據User身分限制只有super user才可使用ALL查詢 -->
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
-                         
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
@@ -38,12 +51,12 @@
 	    	    	<input type="time" id="queryTimeEnd" style="width: 38%">
 	    	    </div>
 	    	    <div class="col-lg-2" style="padding-top: 10px;">
-	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web">
+	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
 	    	    		<spring:message code="btn.query" />
 	    	    	</button>
 	    	    </div>
 	    	    <div class="col-lg-2" style="padding-top: 10px;">
-	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
 	    	    		<spring:message code="btn.export" />
 	    	    	</button>
 	    	    </div>
@@ -165,7 +178,7 @@
 		    	  </div>
 				  <div class="form-group row">
 		    	    <div class="col-sm-12">
-				      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_mobile"><spring:message code="inquiry" /></button>
+				      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_mobile" ${is_btnDisabled eq 'true' ? 'disabled' : '' }><spring:message code="inquiry" /></button>
 				    </div>
 				  </div>
 				</form>

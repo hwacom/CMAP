@@ -49,7 +49,10 @@ public class Env {
     public static String SHOW_MENU_ITEM_INTERFACE_STATUS_LIST;                  // 間控平台 > Interface狀態清單
     public static String SHOW_MENU_ITEM_FIREWALL_OUTPUT;                        // 間控平台 > Firewall出口端流量圖
     public static String SHOW_MENU_ITEM_LOOP_SEARCH;                        	// 監控平台 > 設備LOOP查詢
-
+	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW;		             // 監控平台 > Net flow查詢
+    public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 監控平台 > Wifi查詢
+    public static String SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER;		             // 監控平台 > IP異動紀錄查詢
+    
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_BACKUP;                   // 組態管理 > 版本備份
@@ -67,8 +70,6 @@ public class Env {
 	public static String SHOW_MENU_ITEM_OTHER_EXCEPTION;		             // 異常告警 > 其他異常
 
 	public static String SHOW_MENU_TREE_PLUGIN;					             // 資安通報
-	public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 資安通報 > Wifi查詢
-	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW;		             // 資安通報 > Net flow查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT;		             // 資安通報 > 開關PORT
 	public static String SHOW_MENU_ITEM_PORT_BLOCKED_RECORD;                 // 資安通報 > PORT封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_IP_OPEN_BLOCK;			             // 資安通報 > IP開通/封鎖

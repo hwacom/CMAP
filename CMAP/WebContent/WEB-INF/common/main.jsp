@@ -370,6 +370,17 @@
 		                    </li>
 			            </c:if>
 			            <!-- [Wifi查詢] END -->
+			            
+			            <!-- [IP異動紀錄查詢] START -->
+			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER eq __SHOW__}">
+			            	<li class="subMenu-item">
+		                    	<a id="cm_iptrace" href="${pageContext.request.contextPath}/plugin/module/ipTracePoller">
+		                    	  <span data-feather="crosshair"></span>
+		                    		<span><spring:message code="func.plugin.ip.trace.manage" /></span>
+		                    	</a>
+		                    </li>
+			            </c:if>
+			            <!-- [IP異動紀錄查詢] END -->
 	                    
 	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
