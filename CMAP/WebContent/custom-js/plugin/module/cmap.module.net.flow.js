@@ -49,9 +49,6 @@ $(document).ready(function() {
 	});
 	
 	//Query condition fields binding auto-trim function while onBlur event
-	$('#queryGroup').unbind('blur').bind('blur',function(){
-        $(this).val($(this).val().trim());
-    });
 	$('#query_SourceIp').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});

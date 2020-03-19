@@ -11,10 +11,15 @@ public interface BaseDAO {
     public static final String TARGET_SECONDARY_DB = "SECONDARY";
 
     public Object insertEntityAndGetReturnIdValue(Object entity);
-
+    //Deprecated this method
 	public Integer loadDataInFile(
 	        String targetDB, String tableName, String filePath, String charset,
 	        String fieldsTerminatedBy, String linesTerminatedBy, String extraSetStr);
+	//2020-03-12 Alvin added for Powershell collecting raw data import-mode.
+	public Integer loadDataInFile(
+	        String targetDB, String tableName, String filePath, String charset,
+	        String fieldsTerminatedBy, String linesTerminatedBy, String enclosedBy,
+	        String replaceInto, String extraSetStr);
 
 	public boolean insertEntity(String targetDB, Object entity);
 

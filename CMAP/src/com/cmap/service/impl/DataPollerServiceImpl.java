@@ -1783,7 +1783,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	}
 
 	/**
-	 * 執行CSV檔寫入DB
+	 * 執行CSV檔寫入DB(支援REPLACE INTO及ENCLOSED BY用法)
 	 * @param setting
 	 * @param targetFilePath
 	 * @param targetTableName
@@ -1795,14 +1795,16 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	        final String fileCharset = setting.getFileCharset();
 	        final String linesTerminatedBy = setting.getLinesTerminatedBy();
 	        final String targetDB = setting.getTargetDb();
-
+	        final String enclosedBy = setting.getEnclosedBy();
+	        final String replaceInto = setting.getReplaceInto();
+	        
             /*
              * Step 3. 呼叫執行 LOAD DATA INFILE 指令
              */
             final String fieldsTerminatedBy = setting.getFieldsTerminatedBy();
 
             String sqlFilePath = targetFilePath.toString().replace("\\", "\\\\");
-            dataPollerDAO.loadDataInFile(targetDB, targetTableName, sqlFilePath, fileCharset, fieldsTerminatedBy, linesTerminatedBy, extraSetStr);
+            dataPollerDAO.loadDataInFile(targetDB, targetTableName, sqlFilePath, fileCharset, fieldsTerminatedBy, linesTerminatedBy, enclosedBy, replaceInto, extraSetStr);
 
 	    } catch (Exception e) {
 	        log.error(e.toString(), e);

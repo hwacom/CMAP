@@ -148,71 +148,78 @@ public class DataPollerSetting {
 
 	@Column(name = "update_by", nullable = false)
 	private String updateBy;
+	
+	@Column(name = "enclosed_by", nullable = true)
+	private String enclosedBy;
+	
+	@Column(name = "replace_into", nullable = false)
+	private String replaceInto;
 
 	public DataPollerSetting() {
 		super();
 	}
 
-    public DataPollerSetting(String settingId, String mappingCode, String targetSettingCode,
-            String targetExceptionPolicy, String dataType, String queryId, String remark,
-            String getSourceMethod, String storeMethod, String specialVarSetting, String filePath,
-            String fileNameRegex, String fileNameFormat, String fileCharset,
-            String fieldsTerminatedBy, String linesTerminatedBy, String sourceIp, String sourcePort,
-            String loginAccount, String loginPassword, String splitSymbol, String targetDb,
-            String insertDbMethod, String insertFileDir, String storeFileDir,
-            String storeFileNameFormat, String recordByDay, String recordByDayInterval,
-            String recordByDayClean, String recordByDayReferField, String recordByMapping,
-            String deleteSourceFile, String backupSourceFile, String backupFilePath,
-            String zipBackupFile, String deleteBackupFile, String deleteFlag, Timestamp deleteTime,
-            String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime,
-            String updateBy) {
-        super();
-        this.settingId = settingId;
-        this.mappingCode = mappingCode;
-        this.targetSettingCode = targetSettingCode;
-        this.targetExceptionPolicy = targetExceptionPolicy;
-        this.dataType = dataType;
-        this.queryId = queryId;
-        this.remark = remark;
-        this.getSourceMethod = getSourceMethod;
-        this.storeMethod = storeMethod;
-        this.specialVarSetting = specialVarSetting;
-        this.filePath = filePath;
-        this.fileNameRegex = fileNameRegex;
-        this.fileNameFormat = fileNameFormat;
-        this.fileCharset = fileCharset;
-        this.fieldsTerminatedBy = fieldsTerminatedBy;
-        this.linesTerminatedBy = linesTerminatedBy;
-        this.sourceIp = sourceIp;
-        this.sourcePort = sourcePort;
-        this.loginAccount = loginAccount;
-        this.loginPassword = loginPassword;
-        this.splitSymbol = splitSymbol;
-        this.targetDb = targetDb;
-        this.insertDbMethod = insertDbMethod;
-        this.insertFileDir = insertFileDir;
-        this.storeFileDir = storeFileDir;
-        this.storeFileNameFormat = storeFileNameFormat;
-        this.recordByDay = recordByDay;
-        this.recordByDayInterval = recordByDayInterval;
-        this.recordByDayClean = recordByDayClean;
-        this.recordByDayReferField = recordByDayReferField;
-        this.recordByMapping = recordByMapping;
-        this.deleteSourceFile = deleteSourceFile;
-        this.backupSourceFile = backupSourceFile;
-        this.backupFilePath = backupFilePath;
-        this.zipBackupFile = zipBackupFile;
-        this.deleteBackupFile = deleteBackupFile;
-        this.deleteFlag = deleteFlag;
-        this.deleteTime = deleteTime;
-        this.deleteBy = deleteBy;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-    }
+ 
 
-    public String getSettingId() {
+    public DataPollerSetting(String settingId, String mappingCode, String targetSettingCode,
+			String targetExceptionPolicy, String dataType, String queryId, String remark, String getSourceMethod,
+			String storeMethod, String specialVarSetting, String filePath, String fileNameRegex, String fileNameFormat,
+			String fileCharset, String fieldsTerminatedBy, String linesTerminatedBy, String sourceIp, String sourcePort,
+			String loginAccount, String loginPassword, String splitSymbol, String targetDb, String insertDbMethod,
+			String insertFileDir, String storeFileDir, String storeFileNameFormat, String recordByDay,
+			String recordByDayInterval, String recordByDayClean, String recordByDayReferField, String recordByMapping,
+			String deleteSourceFile, String backupSourceFile, String backupFilePath, String zipBackupFile,
+			String deleteBackupFile, String deleteFlag, Timestamp deleteTime, String deleteBy, Timestamp createTime,
+			String createBy, Timestamp updateTime, String updateBy, String enclosedBy, String replaceInto) {
+		super();
+		this.settingId = settingId;
+		this.mappingCode = mappingCode;
+		this.targetSettingCode = targetSettingCode;
+		this.targetExceptionPolicy = targetExceptionPolicy;
+		this.dataType = dataType;
+		this.queryId = queryId;
+		this.remark = remark;
+		this.getSourceMethod = getSourceMethod;
+		this.storeMethod = storeMethod;
+		this.specialVarSetting = specialVarSetting;
+		this.filePath = filePath;
+		this.fileNameRegex = fileNameRegex;
+		this.fileNameFormat = fileNameFormat;
+		this.fileCharset = fileCharset;
+		this.fieldsTerminatedBy = fieldsTerminatedBy;
+		this.linesTerminatedBy = linesTerminatedBy;
+		this.sourceIp = sourceIp;
+		this.sourcePort = sourcePort;
+		this.loginAccount = loginAccount;
+		this.loginPassword = loginPassword;
+		this.splitSymbol = splitSymbol;
+		this.targetDb = targetDb;
+		this.insertDbMethod = insertDbMethod;
+		this.insertFileDir = insertFileDir;
+		this.storeFileDir = storeFileDir;
+		this.storeFileNameFormat = storeFileNameFormat;
+		this.recordByDay = recordByDay;
+		this.recordByDayInterval = recordByDayInterval;
+		this.recordByDayClean = recordByDayClean;
+		this.recordByDayReferField = recordByDayReferField;
+		this.recordByMapping = recordByMapping;
+		this.deleteSourceFile = deleteSourceFile;
+		this.backupSourceFile = backupSourceFile;
+		this.backupFilePath = backupFilePath;
+		this.zipBackupFile = zipBackupFile;
+		this.deleteBackupFile = deleteBackupFile;
+		this.deleteFlag = deleteFlag;
+		this.deleteTime = deleteTime;
+		this.deleteBy = deleteBy;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+		this.enclosedBy = enclosedBy;
+		this.replaceInto = replaceInto;
+	}
+
+	public String getSettingId() {
         return settingId;
     }
 
@@ -555,4 +562,21 @@ public class DataPollerSetting {
     public void setUpdateBy(String updateBy) {
         this.updateBy = updateBy;
     }
+
+	public String getEnclosedBy() {
+		return enclosedBy;
+	}
+
+	public void setEnclosedBy(String enclosedBy) {
+		this.enclosedBy = enclosedBy;
+	}
+
+	public String getReplaceInto() {
+		return replaceInto;
+	}
+
+	public void setReplaceInto(String replaceInto) {
+		this.replaceInto = replaceInto;
+	}
+	
 }

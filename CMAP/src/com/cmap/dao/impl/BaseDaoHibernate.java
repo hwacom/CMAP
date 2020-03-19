@@ -9,8 +9,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
 import javax.annotation.Resource;
 import javax.persistence.TransactionRequiredException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -22,6 +24,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -32,7 +35,6 @@ import com.cmap.model.DeviceList;
 import com.cmap.plugin.module.clustermigrate.ModuleClusterMigrateLog;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 import com.cmap.plugin.module.netflow.statistics.ModuleIpTrafficStatistics;
-
 public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	@Log
 	private static Logger log;
@@ -512,6 +514,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	}
 
 	@Override
+	@Deprecated
 	public Integer loadDataInFile(String targetDB, String tableName, String filePath, String charset, String fieldsTerminatedBy,
 			String linesTerminatedBy, String extraSetStr) {
 	    Session session = null;
@@ -524,7 +527,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	           .append(" '").append(filePath).append("' ");       
 	           // 2020-02-20 edit by  Alvin for duplicate data updating rows
 	           //.append(" REPLACE INTO TABLE :tableName ");	 
-	        if (tableName.contains("WIFI_TRACE")) {
+	        if ( ! tableName.contains("NET_FLOW")) {
 	        	//TODO data_poller_setting增加REPLACE欄位
 		        String replace =" REPLACE ";
 	            sql.append(replace).append(" INTO TABLE ").append(tableName).append(" ");
@@ -541,7 +544,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	            sql.append(" FIELDS TERMINATED BY '").append(fieldsTerminatedBy).append("' ");
 	        }
 	        // 2020-02-18 add by Alvin for WIFI_TRACE data_poller using ENCLOSED BY '"'
-	        if (tableName.contains("WIFI_TRACE")) {
+	        if ( ! tableName.contains("NET_FLOW")) {
 	        	//TODO data_poller_setting增加ENCLOSED_BY欄位
 	        	String enclosedBy="\"";
 	            //sql.append(" ENCLOSED BY :enclosedBy ");
@@ -615,6 +618,91 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	    }
 	}
 
+	@Override
+	public Integer loadDataInFile(
+	        String targetDB, String tableName, String filePath, String charset,
+	        String fieldsTerminatedBy, String linesTerminatedBy, String enclosedBy,
+	        String replaceInto, String extraSetStr) {
+	    Session session = null;
+	    Transaction tx = null;
+	    try {
+	     // LOAD DATA LOCAL INFILE 'D:\\Net_Flow_Log\\Streams Sensor_20181220164000_20181220164011.csv' INTO TABLE cmap.net_flow_raw_data_3 CHARACTER SET big5 FIELDS TERMINATED BY ','  LINES TERMINATED BY '\r\n';
+	        StringBuffer sql = new StringBuffer();
+	        sql.append(" LOAD DATA LOCAL INFILE ")
+	           //.append(" :filePath ")
+	           .append(" '").append(filePath).append("' ");       
+	           // 2020-02-20 edit by  Alvin for duplicate data updating rows
+	           //.append(" REPLACE INTO TABLE :tableName ");	 
+	        if (replaceInto.contains("Y")) {
+	            sql.append(" REPLACE ").append(" INTO TABLE ").append(tableName).append(" ");
+	        }else {
+	        	// 2020-02-20 edit by  Alvin. The format  of  Netflow insertCSV doesn't support REPLACE syntax
+	        	sql.append(" INTO TABLE ").append(tableName).append(" ");
+	        }
+	        if (StringUtils.isNotBlank(charset)) {
+	            //sql.append(" CHARACTER SET :charset ");
+	            sql.append(" CHARACTER SET ").append(charset).append(" ");
+	        }
+	        if (StringUtils.isNotBlank(fieldsTerminatedBy)) {
+	            //sql.append(" FIELDS TERMINATED BY :fieldsTerminatedBy ");
+	            sql.append(" FIELDS TERMINATED BY '").append(fieldsTerminatedBy).append("' ");
+	        }
+	        // 2020-02-18 add by Alvin for WIFI_TRACE data_poller using ENCLOSED BY '"'
+	        if (StringUtils.isNotBlank(enclosedBy)) {
+	        	//sql.append(" ENCLOSED BY :enclosedBy ");
+	            sql.append(" ENCLOSED BY '").append(enclosedBy).append("' ");
+	        }
+	        if (StringUtils.isNotBlank(linesTerminatedBy)) {
+	            //sql.append(" LINES TERMINATED BY :linesTerminatedBy ");
+	            sql.append(" LINES TERMINATED BY '").append(linesTerminatedBy).append("' ");
+	        }
+	        if (StringUtils.isNotBlank(extraSetStr)) {
+	            sql.append(extraSetStr);
+	        }
+
+	        if (StringUtils.equals(targetDB, TARGET_PRIMARY_DB)) {
+	            try {
+	                session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	            } catch (HibernateException e) {
+	                session = getHibernateTemplate().getSessionFactory().openSession();
+	            }
+
+	        } else if (StringUtils.equals(targetDB, TARGET_SECONDARY_DB)) {
+	            try {
+	                session = secondSessionFactory.getCurrentSession();
+	            } catch (HibernateException e) {
+	                session = secondSessionFactory.openSession();
+	            }
+	        }
+	        logger.info("Creating native query to load csv file with SQL : "+sql.toString());
+	        if (session != null) {
+	            tx = session.beginTransaction();
+	            Query<?> q = session.createNativeQuery(sql.toString());
+	            
+	            return q.executeUpdate();
+
+	        } else {
+	            return null;
+	        }
+
+	    } catch (Exception e) {
+	        log.error(e.toString(), e);
+
+	        if (tx != null) {
+	            tx.rollback();
+	            session.close();
+	        }
+	        return null;
+
+	    } finally {
+	        if (tx != null) {
+	            tx.commit();
+	        }
+	        if (session != null) {
+	            session.close();
+	        }
+	    }		
+	}
 	@Override
 	public boolean insertEntities2File(Path filePath, List<String> recordList, boolean appendFile) {
 		long begin = System.currentTimeMillis();
