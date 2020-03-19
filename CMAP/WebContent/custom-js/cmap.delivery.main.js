@@ -5,25 +5,10 @@ var scriptShowLength = 20;	//設定欄位顯示內容最大長度
 var STEP_NUM = 1;
 
 $(document).ready(function() {
-	var onlyOneScript = $("#onlyOneScript").val();
-	
-	if (onlyOneScript == "SWITCH_PORT") {
-		initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_switchPort");
-		findData('WEB');
-		
-	} else if (onlyOneScript == "IP_OPEN_BLOCK") {
-		initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_ipOpenBlock");
-		findData('WEB');
-		
-    } else if (onlyOneScript == "MAC_OPEN_BLOCK") {
-    	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_macOpenBlock");
-		findData('WEB');
-    	
-    } else if (onlyOneScript == "IP_MAC_BINDING") {
-    	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_ipMacBinding");
-		findData('WEB');
-    	
-    } else {
+	if (typeof findBlockedIpRecordData === 'function' || typeof findBlockedPortRecordData === 'function' 
+		|| typeof findBlockedMacRecordData === 'function' || typeof findIpMacBoundRecordData === 'function') {
+		//為封鎖相關功能
+	} else{
 		initMenuStatus("toggleMenu_cm", "toggleMenu_cm_items", "cm_delivery");
 	}
 	
@@ -863,7 +848,8 @@ function showFullScript(jObj) {
 	$('#viewScriptModal').modal('show');
 }
 
-//查詢按鈕動作
+
+//查詢供裝腳本
 function findData(from) {
 	$('#queryFrom').val(from);
 	
@@ -914,9 +900,155 @@ function findData(from) {
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryScriptTypeCode = $("#queryScriptTypeCode_mobile").val();
 					}
+					return d;
+				},
+				"error" : function(xhr, ajaxOptions, thrownError) {
+					ajaxErrorHandler();
+				}
+			},
+			"order" : [[2 , 'asc' ]],
+			"pageLength" : 100,
+			/*
+			"initComplete": function(settings, json){
+          },
+          */
+			"drawCallback" : function(settings) {
+				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
+				$("div.dataTables_length").parent().removeClass('col-sm-12');
+				$("div.dataTables_length").parent().addClass('col-sm-6');
+				$("div.dataTables_filter").parent().removeClass('col-sm-12');
+				$("div.dataTables_filter").parent().addClass('col-sm-6');
+				
+				$("div.dataTables_info").parent().removeClass('col-sm-12');
+				$("div.dataTables_info").parent().addClass('col-sm-6');
+				$("div.dataTables_paginate").parent().removeClass('col-sm-12');
+				$("div.dataTables_paginate").parent().addClass('col-sm-6');
+				
+				initCheckedItems();
+				bindTrEvent();
+			},
+			"columns" : [
+				{},{},
+				{ "data" : "scriptName" },
+				{ "data" : "scriptTypeName" },
+				{ "data" : "deviceModel" , "className" : "center"},
+				{},
+				{ "data" : "actionScriptRemark" , "orderable" : false },
+				{},
+				{ "data" : "checkScriptRemark" , "orderable" : false }
+			],
+			"columnDefs" : [ 
+				{
+					"targets" : [0],
+					"className" : "center",
+					"searchable": false,
+					"orderable": false,
+					"render" : function(data, type, row) {
+								 var html = '<input type="radio" id="radioBox_1" name="radioBox" onclick="changeTrBgColor(this)" value='+row.scriptInfoId+'>';
+								 return html;
+							 }
+				},
+				{
+					"targets" : [1],
+					"className" : "center",
+					"searchable": false,
+					"orderable": false,
+					"render": function (data, type, row, meta) {
+						       	return meta.row + meta.settings._iDisplayStart + 1;
+						   	}
+				},
+				{
+					"targets" : [5],
+					"className" : "left",
+					"searchable": true,
+					"orderable": false,
+					"render": function (data, type, row, meta) {
+						if (row.actionScript != null && row.actionScript.length > scriptShowLength) {
+							 return getPartialContentHtml(row.actionScript, scriptShowLength); 	//內容長度超出設定，僅顯示部分內容
+						} else {
+							return row.actionScript; 							//未超出設定則全部顯示
+						}
+					}
+				},
+				{
+					"targets" : [7],
+					"className" : "left",
+					"searchable": true,
+					"orderable": false,
+					"render" : function(data, type, row) {
+						if (row.checkScript != null && row.checkScript.length > scriptShowLength) {
+							 return getPartialContentHtml(row.checkScript, scriptShowLength); 	//內容長度超出設定，僅顯示部分內容
+						} else {
+							return row.checkScript; 							//未超出設定則全部顯示
+						}
+					}
+				}
+			],
+		});
+	}
+}
+
+//查詢封鎖功能供裝腳本動作
+function findScriptListData(from) {
+	$('#queryFrom').val(from);
+	
+	if (typeof resultTable !== "undefined") {
+		//resultTable.clear().draw(); server-side is enabled.
+		resultTable.ajax.reload();
+		
+	} else {
+		$(".myTableSection").show();
+		
+		resultTable = $('#resultTable').DataTable(
+		{
+			"autoWidth" 	: true,
+			"paging" 		: true,
+			"bFilter" 		: true,
+			"ordering" 		: true,
+			"info" 			: true,
+			"serverSide" 	: true,
+			"bLengthChange" : true,
+			"pagingType" 	: "full",
+			"processing" 	: true,
+			"scrollX"		: true,
+			"scrollY"		: dataTableHeight,
+			"scrollCollapse": true,
+			"language" : {
+	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
+	        },
+	        "createdRow": function( row, data, dataIndex ) {
+	        	   if(data.actionScript != null && data.actionScript.length > scriptShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
+	        	      $(row).children('td').eq(5).attr('onclick','javascript:showFullScript($(this));');
+	        	      $(row).children('td').eq(5).addClass('cursor_zoom_in');
+	        	   }
+	        	   $(row).children('td').eq(5).attr('content', data.actionScript);
+	        	   
+	        	   if(data.checkScript != null && data.checkScript.length > scriptShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
+	        	      $(row).children('td').eq(7).attr('onclick','javascript:showFullScript($(this));');
+	        	      $(row).children('td').eq(7).addClass('cursor_zoom_in');
+	        	   }
+	        	   $(row).children('td').eq(7).attr('content', data.checkScript);
+	        	},
+			"ajax" : {
+				"url" : _ctx + '/plugin/module/blockedRecord/getScriptListData.json',
+				"type" : 'POST',
+				"data" : function ( d ) {
+					if ($('#queryFrom').val() == 'WEB') {
+						d.queryScriptTypeCode = $("#queryScriptTypeCode").val();
 					
-					d.onlyOneScript = $("#onlyOneScript").val();
+					} else if ($('#queryFrom').val() == 'MOBILE') {
+						d.queryScriptTypeCode = $("#queryScriptTypeCode_mobile").val();
+					}
 					
+					if (typeof findBlockedIpRecordData === 'function') {
+						d.onlyOneScript = 'IP_OPEN_BLOCK';
+					} else if (typeof findBlockedPortRecordData === 'function') {
+						d.onlyOneScript = 'SWITCH_PORT';
+					} else if (typeof findBlockedMacRecordData === 'function') {
+						d.onlyOneScript = 'MAC_OPEN_BLOCK';
+					} else if (typeof findIpMacBoundRecordData === 'function') {
+						d.onlyOneScript = 'IP_MAC_BINDING';
+					} 
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {
@@ -946,8 +1078,7 @@ function findData(from) {
 				if (typeof findBlockedIpRecordData === 'function') {
 					findBlockedIpRecordData('B');
 					bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
-				} else 
-					if (typeof findBlockedPortRecordData === 'function') {
+				} else if (typeof findBlockedPortRecordData === 'function') {
 					findBlockedPortRecordData('B');
 					bindTrEventOnlyRadio();
 				} else if (typeof findBlockedMacRecordData === 'function') {

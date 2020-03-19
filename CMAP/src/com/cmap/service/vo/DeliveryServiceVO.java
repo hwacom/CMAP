@@ -50,6 +50,7 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	private String actionScriptVariable;
 	private String actionScriptRemark;
 	private String checkScript;
+	private String checkScriptVariable;
 	private String checkScriptRemark;
 	private String checkKeyWord;
 	private String scriptDescription;
@@ -214,6 +215,12 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	}
 	public void setCheckScript(String checkScript) {
 		this.checkScript = checkScript;
+	}
+	public String getCheckScriptVariable() {
+		return checkScriptVariable;
+	}
+	public void setCheckScriptVariable(String checkScriptVariable) {
+		this.checkScriptVariable = checkScriptVariable;
 	}
 	public String getCheckScriptRemark() {
 		return checkScriptRemark;

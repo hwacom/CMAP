@@ -1,15 +1,19 @@
 package com.cmap.plugin.module.ip.maintain;
 
 import java.util.List;
+
 import javax.annotation.Resource;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -58,10 +62,11 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = primarySessionFactory.openSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+        Transaction transaction = session.beginTransaction();
+        
+//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+//            session.beginTransaction();
+//        }
         //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         try {
@@ -79,16 +84,20 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
                 q.setParameter("searchValue", "%".concat(imsVO.getSearchValue()).concat("%"));
             }
-            return DataAccessUtils.longResult(q.list());
+            long result = DataAccessUtils.longResult(q.list());
+            transaction.commit();
+            session.close();
+            return result;
 
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
         }
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 
     @Override
@@ -128,10 +137,11 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = primarySessionFactory.openSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+        Transaction transaction = session.beginTransaction();
+        
+//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+//            session.beginTransaction();
+//        }
         //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         try {
@@ -153,16 +163,20 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
                 q.setFirstResult(startRow);
                 q.setMaxResults(pageLength);
             }
-            return (List<Object[]>)q.list();
+            List<Object[]> result = (List<Object[]>)q.list();
+            transaction.commit();
+            session.close();
+            return result;
 
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
         }
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 
     @Override
@@ -202,10 +216,11 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = secondSessionFactory.getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+        Transaction transaction = session.beginTransaction();
+        
+//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+//            session.beginTransaction();
+//        }
 
         try {
             Query<?> q = session.createQuery(sb.toString());
@@ -226,16 +241,20 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
                 q.setFirstResult(startRow);
                 q.setMaxResults(pageLength);
             }
-            return (List<Object[]>)q.list();
+            List<Object[]> result = (List<Object[]>)q.list();
+            transaction.commit();
+            session.close();
+            return result;
 
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
-        }
+        } 
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 
     @Override
@@ -249,10 +268,12 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = primarySessionFactory.openSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+        Transaction transaction = session.beginTransaction();
+        
+//
+//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+//            session.beginTransaction();
+//        }
         //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         try {
@@ -261,16 +282,19 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             if (StringUtils.isNotBlank(settingId)) {
                 q.setParameter("settingId", settingId);
             }
-            return (ModuleIpDataSetting)q.uniqueResult();
-
+            ModuleIpDataSetting result = (ModuleIpDataSetting)q.uniqueResult();
+            transaction.commit();
+            session.close();
+            return result;
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
-        }
+        } 
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 
     @Override
@@ -284,10 +308,11 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = secondSessionFactory.openSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+        Transaction transaction = session.beginTransaction();
+        
+//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+//            session.beginTransaction();
+//        }
         //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         try {
@@ -296,16 +321,20 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             if (StringUtils.isNotBlank(settingId)) {
                 q.setParameter("settingId", settingId);
             }
-            return (ModuleIpDataSetting)q.uniqueResult();
+            ModuleIpDataSetting result = (ModuleIpDataSetting)q.uniqueResult();
+            transaction.commit();
+            session.close();
+            return result;
 
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
-        }
+        } 
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 
     @Override
@@ -322,10 +351,12 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = primarySessionFactory.openSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+        Transaction transaction = session.beginTransaction();
+        
+        
+//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+//            session.beginTransaction();
+//        }
         //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         try {
@@ -337,16 +368,21 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             if (StringUtils.isNotBlank(ipAddr)) {
                 q.setParameter("ipAddr", ipAddr);
             }
-            return (ModuleIpDataSetting)q.uniqueResult();
+            
+            ModuleIpDataSetting result = (ModuleIpDataSetting)q.uniqueResult();
+            transaction.commit();
+            session.close();
+            return result;
 
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
         }
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 
     @Override
@@ -363,10 +399,12 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         }
 
         Session session = secondSessionFactory.openSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+		Transaction transaction = session.beginTransaction();
+		        
+		        
+		//        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+		//            session.beginTransaction();
+		//        }
         //Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         try {
@@ -378,15 +416,20 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             if (StringUtils.isNotBlank(ipAddr)) {
                 q.setParameter("ipAddr", ipAddr);
             }
-            return (ModuleIpDataSetting)q.uniqueResult();
+            
+            ModuleIpDataSetting result = (ModuleIpDataSetting)q.uniqueResult();
+            transaction.commit();
+            session.close();
+            return result;
 
         } catch (Exception e) {
             throw e;
 
-        } finally {
-            if (session != null) {
-                session.getTransaction().commit();
-            }
         }
+//        finally {
+//            if (session != null) {
+//                session.getTransaction().commit();
+//            }
+//        }
     }
 }

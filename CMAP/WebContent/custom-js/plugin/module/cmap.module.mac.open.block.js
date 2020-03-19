@@ -9,6 +9,11 @@ var _deductHeight = 0;
 var blockedMacTableHeight;
 
 $(document).ready(function() {
+	if (typeof findScriptListData === 'function') {
+		initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_macOpenBlock");
+		findScriptListData('WEB');
+	}	
+	
 	$("#btnSync_record").click(function(e) {
 		findBlockedMacRecordData('S');
 		//bindTrEventForSpecifyTableRadio('dataTable_1', 'radioBox_1');
@@ -64,7 +69,7 @@ function doOpenByBtn() {
 	var reason = $("#openReasonModal_reason").val();
 	
 	$.ajax({
-		url : _ctx + '/delivery/doMacOpenByBtn.json',
+		url : _ctx + '/plugin/module/blockedRecord/doMacOpenByBtn.json',
 		data : {
 			"listId" : listId,
 			"reason" : reason
@@ -139,7 +144,7 @@ function findBlockedMacRecordData(statusFlag) {
 	        	   $(row).children('td').eq(8).attr('content', data.openReason);
 	        	},
 			"ajax" : {
-				"url" : _ctx + '/delivery/getBlockedMacData.json',
+				"url" : _ctx + '/plugin/module/blockedRecord/getBlockedData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
@@ -148,9 +153,10 @@ function findBlockedMacRecordData(statusFlag) {
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroupId = $("#queryGroup_mobile").val()
 					}
-					if (statusFlag == 'B' || statusFlag == 'S') {
+					if (typeof statusFlag !== "undefined" && (statusFlag == 'B' || statusFlag == 'S')) {
 						d.queryStatusFlag = statusFlag;
-					}
+					}					
+					d.onlyOneScript = 'MAC_OPEN_BLOCK';
 					
 					return d;
 				},

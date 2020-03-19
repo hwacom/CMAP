@@ -24,7 +24,6 @@
     </div>
     <!-- [END]操作按鈕bar -->
     
-  	<input type="hidden" id="onlyOneScript" value="IP_MAC_BINDING" />
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
@@ -72,7 +71,7 @@
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
 		  	<div class="col-sm-12 myTableSection" style="display:none;">
-				<table id="resultTable_ipMacBindingRecord" class="dataTable dataTable_2 myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+				<table id="resultTable_ipMacBoundRecord" class="dataTable dataTable_2 myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 			  	<thead class="center">
 			    	<tr>
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>

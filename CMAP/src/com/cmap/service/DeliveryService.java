@@ -5,9 +5,7 @@ import java.util.List;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
-import com.cmap.plugin.module.ip.blocked.record.IpBlockedRecordVO;
-import com.cmap.plugin.module.mac.blocked.record.MacBlockedRecordVO;
-import com.cmap.plugin.module.port.blocked.record.PortBlockedRecordVO;
+import com.cmap.plugin.module.blocked.record.BlockedRecordVO;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 
@@ -19,7 +17,7 @@ public interface DeliveryService {
 
 	public long countScriptList(DeliveryServiceVO dsVO) throws ServiceLayerException;
 
-	public List<DeliveryServiceVO> findScriptList(DeliveryServiceVO dsVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
+	public List<DeliveryServiceVO> findScriptList(DeliveryServiceVO dsVO, List<String> groupIds, Integer startRow, Integer pageLength) throws ServiceLayerException;
 
 	public DeliveryServiceVO getScriptInfoByIdOrCode(String scriptInfoId, String scriptCode) throws ServiceLayerException;
 
@@ -76,45 +74,51 @@ public interface DeliveryService {
 	public List<DeviceList> findGroupDeviceOfSpecifyLayer(String groupId, List<String> deviceLayer) throws ServiceLayerException;
 
 	/**
-	 * 同步設備上封鎖清單(IP)
+	 * 同步設備上封鎖清單(IP)[Cisco]
 	 * @param isAdmin
 	 * @param prtgLoginAccount
-	 * @param ibVO
+	 * @param brVO
 	 * @param dbRecordList
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public boolean doSyncDeviceIpBlockedList(boolean isAdmin, String prtgLoginAccount, IpBlockedRecordVO ibVO, List<IpBlockedRecordVO> dbRecordList) throws ServiceLayerException;
+	public boolean doSyncDeviceIpBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
 
 	/**
-	 * 同步設備上封鎖清單(Port)
+	 * 同步設備上封鎖清單(Port)[Cisco]
 	 * @param isAdmin
 	 * @param prtgLoginAccount
-	 * @param pbrVO
+	 * @param brVO
 	 * @param dbRecordList
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public boolean doSyncDevicePortBlockedList(boolean isAdmin, String prtgLoginAccount, PortBlockedRecordVO pbrVO, List<PortBlockedRecordVO> dbRecordList) throws ServiceLayerException;
+	public boolean doSyncDevicePortBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
 
 	/**
-	 * 同步設備上封鎖清單(Mac)
+	 * 同步設備上封鎖清單(Mac)[Cisco]
 	 * @param isAdmin
 	 * @param prtgLoginAccount
-	 * @param pbrVO
+	 * @param brVO
 	 * @param dbRecordList
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public boolean doSyncDeviceMacBlockedList(boolean isAdmin, String prtgLoginAccount, MacBlockedRecordVO pbrVO, List<MacBlockedRecordVO> dbRecordList) throws ServiceLayerException;
+	public boolean doSyncDeviceMacBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
 
 	/**
-	 * 供裝前檢核、異動
-	 * @param isAdmin
+	 * IP MAC 綁定/解除供裝前檢核、異動
 	 * @param pVO
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public DeliveryParameterVO checkB4DoBindingDelivery(boolean isAdmin, DeliveryParameterVO pVO) throws ServiceLayerException;
+	public DeliveryParameterVO checkB4DoBindingDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
 
+	/**
+	 * MAC 封鎖/解除供裝前檢核、異動
+	 * @param pVO
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public DeliveryParameterVO checkB4DoMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
 }
