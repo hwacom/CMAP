@@ -24,6 +24,9 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
         StringBuffer sb = new StringBuffer();
         sb.append(" select count(mbl.list_Id) ")
           .append(" from module_blocked_list mbl ")
+          .append(" left join Module_Ip_Data_Setting mids ")
+          .append(" on ( mbl.group_id = mids.group_id ")
+          .append("      and mbl.ip_address = mids.ip_addr ) ")
           .append("     ,Device_List dl ")
           .append(" where 1=1 ")
           .append(" and mbl.device_Id = dl.device_Id ");

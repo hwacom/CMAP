@@ -557,7 +557,7 @@ public class BlockedRecordController extends BaseController {
 							varValue.add(brVO.getPort()); // PORT_ID
 							
 						} else if(StringUtils.equalsIgnoreCase(Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK.replaceAll(Env.SCRIPT_VAR_KEY_SYMBOL, ""), key)) {
-							varValue.add(brVO.getMacAddress()); // IP_ADDRESS
+							varValue.add(brVO.getIpAddress()); // IP_ADDRESS
 							
 						} else if(StringUtils.equalsIgnoreCase(Env.KEY_VAL_OF_GLOBAL_VALUE_WITH_IP_MAC_BINDING.replaceAll(Env.SCRIPT_VAR_KEY_SYMBOL, ""), key)) {
 							varValue.add(brVO.getGlobalValue()); // GLOBAL_VALUE
