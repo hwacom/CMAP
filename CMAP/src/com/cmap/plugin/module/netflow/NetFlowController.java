@@ -48,7 +48,7 @@ public class NetFlowController extends BaseController {
 	private DatabaseMessageSourceBase messageSource;
 
 	//是否查詢條件為sensorId
-	private boolean isSensorSearchMode = StringUtils.isNotBlank(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR) && Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
+	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
 	
 	/**
 	 * 初始化選單

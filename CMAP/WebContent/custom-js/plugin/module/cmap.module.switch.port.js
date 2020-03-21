@@ -9,6 +9,11 @@ var _deductHeight = 0;
 var blockedPortTableHeight;
 
 $(document).ready(function() {
+	if (typeof findScriptListData === 'function') {
+		initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_switchPort");
+		findScriptListData('WEB');
+	}
+	
 	$("#btnSync_record").click(function(e) {
 		findBlockedPortRecordData('S');
 	});
@@ -63,7 +68,7 @@ function doOpenByBtn() {
 	var reason = $("#openReasonModal_reason").val();
 	
 	$.ajax({
-		url : _ctx + '/delivery/doPortOpenByBtn.json',
+		url : _ctx + '/plugin/module/blockedRecord/doPortOpenByBtn.json',
 		data : {
 			"listId" : listId,
 			"reason" : reason
@@ -138,7 +143,7 @@ function findBlockedPortRecordData(statusFlag) {
 	        	   $(row).children('td').eq(9).attr('content', data.openReason);
 	        	},
 			"ajax" : {
-				"url" : _ctx + '/delivery/getBlockedPortData.json',
+				"url" : _ctx + '/plugin/module/blockedRecord/getBlockedData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
@@ -151,6 +156,7 @@ function findBlockedPortRecordData(statusFlag) {
 					if (statusFlag == 'B' || statusFlag == 'S') {
 						d.queryStatusFlag = statusFlag;
 					}
+					d.onlyOneScript = 'SWITCH_PORT';
 					
 					return d;
 				},
@@ -199,7 +205,7 @@ function findBlockedPortRecordData(statusFlag) {
 				$('td:eq(1)', row).attr('data-field', 'seq');
 				$('td:eq(2)', row).attr('data-field', 'groupName');
 				$('td:eq(3)', row).attr('data-field', 'deviceName');
-				$('td:eq(4)', row).attr('data-field', 'portName');
+				$('td:eq(4)', row).attr('data-field', 'port');
 				$('td:eq(5)', row).attr('data-field', 'status');
 				$('td:eq(6)', row).attr('data-field', 'blockTime');
 				$('td:eq(7)', row).attr('data-field', 'openTime');
@@ -212,7 +218,7 @@ function findBlockedPortRecordData(statusFlag) {
 				{},{},
 				{ "data" : "groupName" , "className" : "left" },
 				{ "data" : "deviceName" , "className" : "left" },
-				{ "data" : "portName" , "className" : "center" },
+				{ "data" : "port" , "className" : "center" },
 				{ "data" : "statusFlag" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
 				{ "data" : "openTimeStr" , "className" : "center" },

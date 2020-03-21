@@ -298,4 +298,66 @@ public class IpMaintainServiceImpl extends CommonServiceImpl implements IpMainta
         }
         return retVO;
     }
+    
+//    @Override
+//    public IpMaintainServiceVO deleteIpDataSetting(List<IpMaintainServiceVO> deleteList)
+//            throws ServiceLayerException {
+//        IpMaintainServiceVO retVO = new IpMaintainServiceVO();
+//        try {
+//            List<ModuleIpDataSetting> delete1Entities = new ArrayList<>();
+//            List<ModuleIpDataSetting> delete2Entities = new ArrayList<>();
+//
+//            ModuleIpDataSetting entity1;
+//            ModuleIpDataSetting entity2;
+//            String groupId;
+//            String ipAddr;
+//            
+//            Map<String, List<String>> deleteMap = new HashMap<>();
+//            List<String> ipList = new ArrayList<>();
+//            
+//            for (IpMaintainServiceVO imsVO : deleteList) {
+//                groupId = imsVO.getGroupId();
+//                ipAddr = imsVO.getIpAddr();
+//
+//                if(deleteMap.containsKey(groupId)) {
+//                	
+//                }
+//                // Step 1. 查找 Primary DB 資料
+//                entity1 = ipMaintainDAO.findModuleIpDataSettingByUk(groupId, ipAddr);
+//
+//                if (entity1 == null) {
+//                    continue;
+//
+//                } else {
+//                    delete1Entities.add(entity1);
+//                }
+//
+//                if (Constants.DATA_Y.equalsIgnoreCase(Env.ENABLE_SECONDARY_DB)) {
+//                	// Step 2. 查找 Secondary DB 資料
+//                    entity2 = ipMaintainDAO.findModuleIpDataSettingByUkFromSecondaryDB(groupId, ipAddr);
+//
+//                    if (entity2 == null) {
+//                        continue;
+//
+//                    } else {
+//                        delete2Entities.add(entity2);
+//                    }
+//                }
+//            }
+//
+//            if (delete1Entities != null && !delete1Entities.isEmpty()) {
+//                ipMaintainDAO.deleteEntities(BaseDAO.TARGET_PRIMARY_DB, delete1Entities);
+//            }
+//            if (Constants.DATA_Y.equalsIgnoreCase(Env.ENABLE_SECONDARY_DB)) {
+//            	if (delete2Entities != null && !delete2Entities.isEmpty()) {
+//                    ipMaintainDAO.deleteEntities(BaseDAO.TARGET_SECONDARY_DB, delete2Entities);
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            log.error(e.toString(), e);
+//            throw new ServiceLayerException("刪除失敗");
+//        }
+//        return retVO;
+//    }
 }

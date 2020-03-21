@@ -9,9 +9,10 @@ var _deductHeight = 0;
 var ipMacBindingTableHeight;
 
 $(document).ready(function() {
-	$("#btnSync_record").click(function(e) {
-		findIpMacBoundRecordData('B');
-	});
+	if (typeof findScriptListData === 'function') {
+		findScriptListData('WEB');
+		initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_ipMacBinding");
+	}	
 });
 
 /**********************************************************************************************************
@@ -63,7 +64,7 @@ function doOpenByBtn() {
 	var reason = $("#openReasonModal_reason").val();
 	
 	$.ajax({
-		url : _ctx + '/delivery/doIpMacUnbindByBtn.json',
+		url : _ctx + '/plugin/module/blockedRecord/doIpMacUnbindByBtn.json',
 		data : {
 			"listId" : listId,
 			"reason" : reason
@@ -138,7 +139,7 @@ function findIpMacBoundRecordData(statusFlag) {
 	        	   $(row).children('td').eq(11).attr('content', data.openReason);
 	        	},
 			"ajax" : {
-				"url" : _ctx + '/delivery/getIpMacBoundData.json',
+				"url" : _ctx + '/plugin/module/blockedRecord/getBlockedData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
@@ -150,7 +151,8 @@ function findIpMacBoundRecordData(statusFlag) {
 
 					if (typeof statusFlag !== "undefined" && (statusFlag == 'B' || statusFlag == 'S')) {
 						d.queryStatusFlag = statusFlag;
-					}
+					}					
+					d.onlyOneScript = 'IP_MAC_BINDING';
 					
 					return d;
 				},

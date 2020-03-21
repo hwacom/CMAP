@@ -413,6 +413,7 @@ public class Env {
 	public static String NET_FLOW_LIMIT_BLOCK_DEVICE_MODEL;			//自動鎖定流量篩選device model
 
 	public static String DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME;		//同步設備記錄者名稱
+	public static String SHOW_SYNC_SWITCH_RECORD_ACTION;				//是否開啟同步設備記錄功能
 	public static List<String> DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE = new ArrayList<>();
 	//同步設備上ip封鎖清單
 	public static List<String>  DELIVERY_SYNC_IP_BLOCK_RECORD_SCRIPT_CODE_4_ADMIN = new ArrayList<>();

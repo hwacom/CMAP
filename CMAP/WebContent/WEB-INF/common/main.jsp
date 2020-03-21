@@ -606,7 +606,7 @@
 	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 		                    <c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
 		                    	<li class="subMenu-item">
-			                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock4Admin">
+			                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/plugin/module/blockedRecord/ipOpenBlock4Admin">
 			                    	  <span data-feather="check-square"></span>
 			                    	  	<span><spring:message code="func.ip.open.block" /></span>
 			                    	</a>
@@ -619,7 +619,7 @@
 	                    <sec:authorize access="!hasAnyRole('ROLE_ADMIN')">
 	                    	<c:if test="${Env.SHOW_MENU_ITEM_IP_OPEN_BLOCK eq __SHOW__}">
 		                    	<li class="subMenu-item">
-			                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipOpenBlock">
+			                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/plugin/module/blockedRecord/ipOpenBlock">
 			                    	  <span data-feather="check-square"></span>
 			                    	  	<span><spring:message code="func.ip.open.block" /></span>
 			                    	</a>
@@ -644,7 +644,7 @@
 	                     <!-- [IP MAC 綁定 ] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_IP_MAC_BINDING eq __SHOW__}">
 	                    	<li class="subMenu-item">
-		                    	<a id="cm_ipOpenBlock" href="${pageContext.request.contextPath}/delivery/ipMacBinding">
+		                    	<a id="cm_ipMacBinding" href="${pageContext.request.contextPath}/plugin/module/blockedRecord/ipMacBinding">
 		                    	  <span data-feather="link"></span>
 		                    	  	<span><spring:message code="func.ip.mac.binding" /></span>
 		                    	</a>
@@ -655,7 +655,7 @@
 	                    <!-- [網卡MAC開通/封鎖] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_MAC_OPEN_BLOCK eq __SHOW__}">
 	                    	<li class="subMenu-item">
-		                    	<a id="cm_macOpenBlock" href="${pageContext.request.contextPath}/delivery/macOpenBlock">
+		                    	<a id="cm_macOpenBlock" href="${pageContext.request.contextPath}/plugin/module/blockedRecord/macOpenBlock">
 		                    	  <span data-feather="at-sign"></span>
 		                    	  	<span><spring:message code="func.mac.open.block" /></span>
 		                    	</a>

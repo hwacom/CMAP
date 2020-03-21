@@ -24,7 +24,6 @@
     </div>
     <!-- [END]操作按鈕bar -->
     
-  	<input type="hidden" id="onlyOneScript" value="IP_OPEN_BLOCK" />
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
@@ -64,9 +63,11 @@
 	            
 	            <!-- 解鎖Button -->
 				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.ip.open" /></button>
-				<button type="button"  style="width: 200px" class="btn btn-primary btn-sm"  id="btnSync_record">
-    	    		<spring:message code="synchronize.switch.ip" />
-    	    	</button>
+				<c:if test="${showSyncAction}">
+					<button type="button"  style="width: 200px" class="btn btn-primary btn-sm"  id="btnSync_record">
+	    	    		<spring:message code="synchronize.switch.ip" />
+	    	    	</button>
+				</c:if>
 			</div>
 		</div>
 	</div>

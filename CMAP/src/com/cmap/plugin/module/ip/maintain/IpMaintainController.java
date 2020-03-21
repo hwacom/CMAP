@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
@@ -36,7 +37,9 @@ public class IpMaintainController extends BaseController {
     private IpMaintainService ipMaintainService;
 
     private static final String[] UI_COLUMNS = new String[] {"","","dl.groupName","mids.ipAddr","mids.ipDesc"};
-
+    //是否查詢條件為sensorId
+  	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
+  	    
     /**
      * 初始化選單
      * @param model
@@ -44,15 +47,29 @@ public class IpMaintainController extends BaseController {
      */
     private void initMenu(Model model, HttpServletRequest request) {
         Map<String, String> groupListMap = null;
+        Map<String, String> sensorListMap = null;
+        
         try {
-            groupListMap = getGroupList(request);
-
+            if(isSensorSearchMode) {
+				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
+					sensorListMap = getSensorList(request, null);
+				}else {
+					sensorListMap = getSensorList(request, Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW);
+				}
+			}else {
+				groupListMap = getGroupList(request);
+			}			
+			
         } catch (Exception e) {
             log.error(e.toString(), e);
 
         } finally {
             model.addAttribute("queryGroup", "");
-            model.addAttribute("groupList", groupListMap);
+            if(isSensorSearchMode) {
+				model.addAttribute("groupList", sensorListMap);
+			}else {
+				model.addAttribute("groupList", groupListMap);
+			}	
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
         }
     }

@@ -9,6 +9,11 @@ var _deductHeight = 0;
 var blockedIpTableHeight;
 
 $(document).ready(function() {
+	if (typeof findScriptListData === 'function') {
+		initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_ipOpenBlock");
+		findScriptListData('WEB');
+	}
+	
 	$("#btnSync_record").click(function(e) {
 		findBlockedIpRecordData('S');
 	});
@@ -63,7 +68,7 @@ function doOpenByBtn() {
 	var reason = $("#openReasonModal_reason").val();
 	
 	$.ajax({
-		url : _ctx + '/delivery/doIpOpenByBtn.json',
+		url : _ctx + '/plugin/module/blockedRecord/doIpOpenByBtn.json',
 		data : {
 			"listId" : listId,
 			"reason" : reason
@@ -138,7 +143,7 @@ function findBlockedIpRecordData(statusFlag) {
 	        	   $(row).children('td').eq(9).attr('content', data.openReason);
 	        	},
 			"ajax" : {
-				"url" : _ctx + '/delivery/getBlockedIpData.json',
+				"url" : _ctx + '/plugin/module/blockedRecord/getBlockedData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
@@ -150,8 +155,8 @@ function findBlockedIpRecordData(statusFlag) {
 
 					if (typeof statusFlag !== "undefined" && (statusFlag == 'B' || statusFlag == 'S')) {
 						d.queryStatusFlag = statusFlag;
-					}
-					
+					}					
+					d.onlyOneScript = 'IP_OPEN_BLOCK';
 					return d;
 				},
 				"error" : function(xhr, ajaxOptions, thrownError) {

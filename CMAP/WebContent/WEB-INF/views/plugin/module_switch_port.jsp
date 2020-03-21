@@ -16,7 +16,6 @@
     </div>
     <!-- [END]操作按鈕bar -->
     
-  	<input type="hidden" id="onlyOneScript" value="SWITCH_PORT" />
   	<div class="container-fluid">
 		<!-- 查詢結果TABLE區塊 -->
 		<div class="row">
@@ -45,20 +44,33 @@
 			<div id="divBlockedTitle" style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">
 				<spring:message code="blocked.port.list.sub.title" />:&nbsp;&nbsp;&nbsp;
 				
-				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
+				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->				
 				<c:if test="${fn:length(groupList) gt 1}">
-		   	    	<form:select class="selectpicker" data-live-search="true" data-width="200px;" path="group" id="queryGroup" onchange="findBlockedPortRecordData('S')">
-		               	<form:option value="" label="== ALL ==" />
-		                <form:options items="${groupList}" />
-		            </form:select>
-		            &nbsp;&nbsp;&nbsp;
+		   	    	<c:choose>
+					   <c:when test="${showSyncAction}">
+						   <form:select class="selectpicker" data-live-search="true" data-width="200px;" path="group" id="queryGroup" onchange="findBlockedPortRecordData('S')">
+				               	<form:option value="" label="== ALL ==" />
+				                <form:options items="${groupList}" />
+				            </form:select>
+				            &nbsp;&nbsp;&nbsp;
+					   </c:when>
+					   <c:otherwise>
+					   		<form:select class="selectpicker" data-live-search="true" data-width="200px;" path="group" id="queryGroup" onchange="findBlockedPortRecordData('B')">
+				               	<form:option value="" label="== ALL ==" />
+				                <form:options items="${groupList}" />
+				            </form:select>
+				            &nbsp;&nbsp;&nbsp;
+					   </c:otherwise>
+					</c:choose>
 	            </c:if>
 	            
 	            <!-- 解鎖Button -->
 				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.port.open" /></button>
-				<button type="button"  style="width: 220px" class="btn btn-primary btn-sm"  id="btnSync_record">
-    	    		<spring:message code="synchronize.switch.port" />
-    	    	</button>
+				<c:if test="${showSyncAction}">
+					<button type="button"  style="width: 220px" class="btn btn-primary btn-sm"  id="btnSync_record">
+	    	    		<spring:message code="synchronize.switch.port" />
+	    	    	</button>
+				</c:if>
 			</div>
 		</div>
 	</div>
@@ -74,7 +86,7 @@
 				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="deviceName"><spring:message code="device.name" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="portName"><spring:message code="port.name" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="port"><spring:message code="port.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>

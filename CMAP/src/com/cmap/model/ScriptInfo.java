@@ -54,6 +54,9 @@ public class ScriptInfo {
 	@Column(name = "action_script_remark", nullable = true)
 	private String actionScriptRemark;
 
+	@Column(name = "check_script_variable", nullable = true)
+	private String checkScriptVariable;
+	
 	@Column(name = "check_script", nullable = true)
 	private String checkScript;
 
@@ -201,7 +204,15 @@ public class ScriptInfo {
         this.actionScriptRemark = actionScriptRemark;
     }
 
-    public String getCheckScript() {
+    public String getCheckScriptVariable() {
+		return checkScriptVariable;
+	}
+
+	public void setCheckScriptVariable(String checkScriptVariable) {
+		this.checkScriptVariable = checkScriptVariable;
+	}
+
+	public String getCheckScript() {
         return checkScript;
     }
 
