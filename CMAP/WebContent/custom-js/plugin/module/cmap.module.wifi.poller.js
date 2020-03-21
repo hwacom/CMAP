@@ -8,7 +8,7 @@ var startNum, pageLength;
 var lastScrollYPos = 0;
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_wifi");
+	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "cm_wifi");
 	
 	startNum = 0;
 	pageLength = Number($("#pageLength").val());

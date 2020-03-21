@@ -10,7 +10,8 @@ public class IpTracePollerVO extends CommonServiceVO {
     private String queryClientMac;
     private String queryClientIp;
 	private String queryGroupId;
-    private String queryDate;
+    private String queryDateBegin;
+    private String queryDateEnd;
     private String queryTimeBegin;
     private String queryTimeEnd;
 
@@ -44,11 +45,17 @@ public class IpTracePollerVO extends CommonServiceVO {
 	public void setQueryGroupId(String queryGroupId) {
 		this.queryGroupId = queryGroupId;
 	}
-	public String getQueryDate() {
-		return queryDate;
+	public String getQueryDateBegin() {
+		return queryDateBegin;
 	}
-	public void setQueryDate(String queryDate) {
-		this.queryDate = queryDate;
+	public void setQueryDateBegin(String queryDateBegin) {
+		this.queryDateBegin = queryDateBegin;
+	}
+	public String getQueryDateEnd() {
+		return queryDateEnd;
+	}
+	public void setQueryDateEnd(String queryDateEnd) {
+		this.queryDateEnd = queryDateEnd;
 	}
 	public String getQueryTimeBegin() {
 		return queryTimeBegin;

@@ -15,7 +15,7 @@
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
 					<!-- Group List為空的例外處理 btn 增加disabled attr -->
-	    	    	<c:if test="${fn:length(groupList) gt 1}">
+	    	    	<c:if test="${fn:length(groupList) ge 1}">
 	    	    			<script> 
                         		var is_btnDisabled = "false";
                         	</script>
@@ -30,7 +30,7 @@
                     <!-- Group List為空的例外處理 -->
 	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
 	    	    		<!-- ToDo 根據User身分限制只有super user才可使用ALL查詢 -->
-                        <c:if test="${fn:length(groupList) gt 1}">
+                        <c:if test="${fn:length(groupList) ge 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
                         <form:options items="${groupList}" />
@@ -135,7 +135,7 @@
 		      	  <div class="form-group row">
 		      	  	<label for="queryGroup_mobile" class="col-sm-2 col-form-label"><spring:message code="group.name" /></label>
 		      	  	<form:select path="queryGroup" id="queryGroup_mobile" class="col-sm-10 form-control form-control-sm">
-                        <c:if test="${fn:length(groupList) gt 1}">
+                        <c:if test="${fn:length(groupList) ge 1}">
                         	<form:option value="" label="=== ALL ===" />
                         </c:if>
                         <form:options items="${groupList}" />
