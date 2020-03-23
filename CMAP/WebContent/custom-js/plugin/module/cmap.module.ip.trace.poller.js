@@ -8,7 +8,7 @@ var startNum, pageLength;
 var lastScrollYPos = 0;
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_iptrace");
+	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "cm_iptrace");
 	
 	startNum = 0;
 	pageLength = Number($("#pageLength").val());
@@ -40,9 +40,10 @@ $(document).ready(function() {
 	var date = today.getDate();
 	date = (date < 10) ? ("0".concat(date)) : date;
 	
-	$("#query_Date").val(year+"-"+month+"-"+date);
+	$("#query_DateBegin").val(year+"-"+month+"-"+date);
+	$("#query_DateEnd").val(year+"-"+month+"-"+date);
 	$("#query_TimeBegin").val("00:00");
-	$("#query_TimeEnd").val("23:59");
+	//$("#query_TimeEnd").val("23:59");
 });
 
 function bindScrollEvent() {
@@ -119,7 +120,8 @@ function getTotalFilteredCount() {
 		url : _ctx + '/plugin/module/ipTracePoller/getTotalFilteredCount.json',
 		data : {
 			"queryGroupId" : $("#queryGroup").val(),
-			"queryDate" : $("#query_Date").val(),
+			"queryDateBegin" : $("#query_DateBegin").val(),
+			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
 			"queryClientMac" : $("#query_ClientMac").val(),
@@ -187,7 +189,8 @@ function findNextData() {
 		url : _ctx + '/plugin/module/ipTracePoller/getIpTraceData.json',
 		data : {
 			"queryGroupId" : $("#queryGroup").val(),
-			"queryDate" : $("#query_Date").val(),
+			"queryDateBegin" : $("#query_DateBegin").val(),
+			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
 			"queryClientMac" : $("#query_ClientMac").val(),
@@ -242,23 +245,60 @@ function findNextData() {
 
 //查詢按鈕動作
 function findData(from) {
-	$('#queryFrom').val(from);
+	var chkQueryGroup;
+	var chkQueryDateTimeBegin;
+	var chkQueryDateTimeEnd;
+	var chkQueryDateTime;
+	var chkQueryClientIp;
+	var chkQueryClientMac;
 	
-	//if ($("#queryGroup").val().trim().length == 0) {
-	//alert(msg_chooseGroup);
-	//	return;
-	//}
-
-	if ($("#query_Date").val().trim().length == 0) {
+	$('#queryFrom').val(from);
+	//確認Group篩選條件輸入狀態
+	if ($("#queryGroup").val().trim().length != 0) {
+		chkQueryGroup = 'Y';
+		//alert(msg_chooseGroup);
+		//	return;
+	}else{
+		chkQueryGroup = 'N';
+	}
+	//確認ClientIP篩選條件輸入狀態
+	if ($("#query_ClientIp").val().trim().length != 0) {
+		chkQueryClientIp = 'Y';
+	}else{
+		chkQueryClientIp = 'N';
+	}
+	//確認ClientMac篩選條件輸入狀態
+	if ($("#query_ClientMac").val().trim().length != 0) {
+		chkQueryClientMac = 'Y';
+	}else{
+		chkQueryClientMac = 'N';
+	}
+	
+	if ($("#query_DateBegin").val().trim().length != 0 && $("#query_TimeBegin").val().trim().length != 0){
+		chkQueryDateTimeBegin = 'Y';
+	}else if ($("#query_DateBegin").val().trim().length == 0 && $("#query_TimeBegin").val().trim().length == 0){
+		chkQueryDateTimeBegin = 'N';
+	}else{
 		alert(msg_chooseDate);
 		return;
 	}
-	if ($("#query_TimeBegin").val().trim().length == 0) {
+	if ($("#query_DateEnd").val().trim().length != 0 && $("#query_TimeEnd").val().trim().length != 0){
+		chkQueryDateTimeEnd = 'Y';
+	}else if ($("#query_DateEnd").val().trim().length == 0 && $("#query_TimeEnd").val().trim().length == 0){
+		chkQueryDateTimeEnd = 'N';
+	}else{
 		alert(msg_chooseDate);
 		return;
+	}	
+	//確認日期條件輸入狀態	開始跟結束都沒輸入時才是時間篩選條件為空
+	if( chkQueryDateTimeBegin=='N' && chkQueryDateTimeEnd=='N') {
+		chkQueryDateTime='N';
+	}else{
+		chkQueryDateTime='Y'
 	}
-	if ($("#query_TimeEnd").val().trim().length == 0) {
-		alert(msg_chooseDate);
+	//至少要輸入一種條件篩選
+	if(chkQueryGroup=='N' && chkQueryClientIp=='N' && chkQueryClientMac=='N' && chkQueryDateTime=='N'){
+		alert(msg_chooseOne);
 		return;
 	}
 	
@@ -300,7 +340,8 @@ function findData(from) {
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
 						d.queryGroupId = $("#queryGroup").val(),
-						d.queryDate = $("#query_Date").val(),
+						d.queryDateBegin = $("#query_DateBegin").val(),
+						d.queryDateEnd = $("#query_DateEnd").val(),
 						d.queryTimeBegin = $("#query_TimeBegin").val(),
 						d.queryTimeEnd = $("#query_TimeEnd").val(),
 						d.queryClientMac = $("#query_ClientMac").val(),

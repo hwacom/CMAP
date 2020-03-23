@@ -384,7 +384,7 @@
 		                    </li>
 			            </c:if>
 			            <!-- [IP異動紀錄查詢] END -->
-			            
+	                    
 	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
 	                    	<li class="subMenu-item">

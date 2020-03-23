@@ -5,7 +5,7 @@
 $(document).ready(function() {
 	var onlyOneScript = $("#onlyOneScript").val();
 	
-	initMenuStatus("toggleMenu_cm", "toggleMenu_cm_items", "cm_topography");
+	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "cm_topography");
 	
 });
 

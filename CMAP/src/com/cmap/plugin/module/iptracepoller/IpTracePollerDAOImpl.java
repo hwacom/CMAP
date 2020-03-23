@@ -65,8 +65,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             sb.append(" and mit.group_id = :groupId ");
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            sb.append(" and (mit.start_time >= :queryDateTimeBeginStr and mit.start_time < :queryDateTimeEndStr) ");
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            sb.append(" and mit.start_time >= :queryDateTimeBeginStr ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            sb.append(" and mit.start_time <= :queryDateTimeEndStr ");
         }
 
        if (StringUtils.isNotBlank(searchVO.getOrderColumn())) {
@@ -93,9 +96,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             q.setParameter("groupId", searchVO.getQueryGroupId());
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeBegin()));
-            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeEnd()));
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&& StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDateEnd().concat(" ").concat(searchVO.getQueryTimeEnd()));
         }
         if (startRow != null && pageLength != null) {
             q.setFirstResult(startRow);
@@ -148,8 +153,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             sb.append(" and mit.group_id = :groupId ");
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            sb.append(" and (mit.start_time >= :queryDateTimeBeginStr and mit.start_time < :queryDateTimeEndStr) ");
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            sb.append(" and mit.start_time >= :queryDateTimeBeginStr ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            sb.append(" and mit.start_time <= :queryDateTimeEndStr) ");
         }
 
         Session session = secondSessionFactory.getCurrentSession();
@@ -169,9 +177,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             q.setParameter("groupId", searchVO.getQueryGroupId());
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeBegin()));
-            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeEnd()));
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&& StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDateEnd().concat(" ").concat(searchVO.getQueryTimeEnd()));
         }
 
         return DataAccessUtils.longResult(q.list());
