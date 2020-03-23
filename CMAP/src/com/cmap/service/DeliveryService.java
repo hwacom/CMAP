@@ -115,10 +115,10 @@ public interface DeliveryService {
 	public DeliveryParameterVO checkB4DoBindingDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
 
 	/**
-	 * MAC 封鎖/解除供裝前檢核、異動
+	 * IP MAC 封鎖/解除供裝前檢核、異動
 	 * @param pVO
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public DeliveryParameterVO checkB4DoMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
+	public DeliveryParameterVO checkB4DoIpMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
 }

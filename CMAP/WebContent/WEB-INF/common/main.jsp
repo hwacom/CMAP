@@ -179,7 +179,7 @@
 	          </c:if>
 	          <!-- [系統操作手冊下載] END -->
 	          
-              <!-- [間控平台] START -->
+              <!-- [監控平台] START -->
               <c:if test="${Env.SHOW_MENU_TREE_CONTROL_PLATFORM eq __SHOW__}">
 	              <li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_prtg" href="#">
@@ -208,9 +208,10 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [DASHBOARD] END -->
-	                    
+ 
 	                    <!-- [拓樸圖] START -->
-				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
+<!--				        
+	                     <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
 				        	<li class="subMenu-item">
 		                    	<a id="mp_topography" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/topography')">
 		                    	  <span data-feather="git-merge"></span>
@@ -218,8 +219,8 @@
 		                    	</a>
 		                    </li>
 				        </c:if>
+-->
 				        <!-- [拓樸圖] END -->
-				        
 				        <!-- [拓樸圖] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
 	                		<li class="subMenu-item">
@@ -339,6 +340,7 @@
 	                    <!-- [Interface狀態清單] END -->
 	                    
 	                    <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] START -->
+<!--
 			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
 			            	<li class="subMenu-item">
 		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipMapping/change">
@@ -347,7 +349,8 @@
 		                    	</a>
 		                    </li>
 			            </c:if>
-			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
+ -->
+ 			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
 			            
 	                    <!-- [Net flow查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
@@ -369,9 +372,8 @@
 		                    	</a>
 		                    </li>
 			            </c:if>
-			            <!-- [Wifi查詢] END -->
-<<<<<<< HEAD
-
+			            <!-- [Wifi查詢] END -->			
+			                        
 			            <!-- [IP異動紀錄查詢] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER eq __SHOW__}">
 			            	<li class="subMenu-item">
@@ -382,23 +384,7 @@
 		                    </li>
 			            </c:if>
 			            <!-- [IP異動紀錄查詢] END -->
-=======
-<<<<<<< HEAD
 			            
-			            <!-- [IP異動紀錄查詢] START -->
-			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER eq __SHOW__}">
-			            	<li class="subMenu-item">
-		                    	<a id="cm_iptrace" href="${pageContext.request.contextPath}/plugin/module/ipTracePoller">
-		                    	  <span data-feather="crosshair"></span>
-		                    		<span><spring:message code="func.plugin.ip.trace.manage" /></span>
-		                    	</a>
-		                    </li>
-			            </c:if>
-			            <!-- [IP異動紀錄查詢] END -->
-=======
->>>>>>> branch 'master' of https://github.com/hwacom/CMAP
->>>>>>> branch 'master' of https://github.com/hwacom/CMAP
-	                    
 	                    <!-- [防火牆LOG查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_FIREWALL eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -423,7 +409,7 @@
 	                </ul>
 		          </li>
 	          </c:if>
-	          <!-- [間控平台] END -->
+	          <!-- [監控平台] END -->
 	          
 	          <!-- [組態管理] START -->
 	          <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
