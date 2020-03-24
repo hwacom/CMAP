@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
@@ -725,7 +726,11 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 				IpMaintainServiceVO imsVO = new IpMaintainServiceVO();
 				imsVO.setQueryGroup(groupId);
 				imsVO.setQueryIp(ipAddress);
-				List<Object[]> ipMaintainObj = ipMaintainDAO.findModuleIpDataSetting(imsVO, null, null);
+				//是否查詢條件為sensorId
+			  	boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
+			  	imsVO.setIsSensorSearchMode(isSensorSearchMode);
+				
+			  	List<Object[]> ipMaintainObj = ipMaintainDAO.findModuleIpDataSetting(imsVO, null, null);
 
 				if (ipMaintainObj != null && !ipMaintainObj.isEmpty()) {
 				    ModuleIpDataSetting mids = (ModuleIpDataSetting)ipMaintainObj.get(0)[0];

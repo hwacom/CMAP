@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.ip.maintain;
 
 import java.util.List;
+
 import com.cmap.dao.BaseDAO;
 
 public interface IpMaintainDAO extends BaseDAO {
