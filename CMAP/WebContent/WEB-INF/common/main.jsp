@@ -581,7 +581,7 @@
 	                    <!-- [開關PORT] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_SWITCH_PORT eq __SHOW__}">
 	                    	<li class="subMenu-item">
-		                    	<a id="cm_switchPort" href="${pageContext.request.contextPath}/delivery/switchPort">
+		                    	<a id="cm_switchPort" href="${pageContext.request.contextPath}/plugin/module/blockedRecord/switchPort">
 		                    	  <span data-feather="shield-off"></span>
 		                    	  	<span><spring:message code="func.plugin.switch.port" /></span>
 		                    	</a>

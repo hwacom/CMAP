@@ -261,7 +261,7 @@ public class DeliveryController extends BaseController {
 			//IP MAC 綁定特殊判斷
 			pVO = deliveryService.checkB4DoBindingDelivery(pVO);
 			//MAC 綁定/解鎖特殊判斷
-			pVO = deliveryService.checkB4DoMacOpenBlockDelivery(pVO);
+			pVO = deliveryService.checkB4DoIpMacOpenBlockDelivery(pVO);
 			
 			retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, pVO, false, null, null, true);
 			String retVal = retVO.getRetMsg();

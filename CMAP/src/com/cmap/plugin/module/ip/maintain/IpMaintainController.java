@@ -294,6 +294,7 @@ public class IpMaintainController extends BaseController {
             ipmVO.setSearchValue(searchValue);
             ipmVO.setOrderColumn(UI_COLUMNS[orderColIdx]);
             ipmVO.setOrderDirection(orderDirection);
+            ipmVO.setIsSensorSearchMode(isSensorSearchMode);
 
             filterdTotal = ipMaintainService.countIpDataSetting(ipmVO);
 

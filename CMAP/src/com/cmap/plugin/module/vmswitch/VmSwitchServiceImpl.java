@@ -96,7 +96,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             Thread.sleep(500);
 
 //            /*
-//             * Step 1. 確認備援機目前狀態是否可使用
+//             * Step 1. 確認備援機目前狀態是否可使用 //改至2-2之後
 //             * >> OK: 接續下步驟
 //             * >> NO: 流程結束 (e.g.備援機當下非處於備援狀態，可能仍處在別台host的備援服務中)
 //             */

@@ -22,6 +22,8 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     private String modifyMacAddr;
     private String modifyIpDesc;
 
+    private boolean isSensorSearchMode;
+    
     public String getQueryGroup() {
         return queryGroup;
     }
@@ -113,7 +115,13 @@ public class IpMaintainServiceVO extends CommonServiceVO {
     public String getModifyIpDesc() {
         return modifyIpDesc;
     }
-    public void setModifyIpDesc(String modifyIpDesc) {
+    public boolean isSensorSearchMode() {
+		return isSensorSearchMode;
+	}
+	public void setIsSensorSearchMode(boolean isSensorSearchMode) {
+		this.isSensorSearchMode = isSensorSearchMode;
+	}
+	public void setModifyIpDesc(String modifyIpDesc) {
         this.modifyIpDesc = modifyIpDesc;
     }
 }

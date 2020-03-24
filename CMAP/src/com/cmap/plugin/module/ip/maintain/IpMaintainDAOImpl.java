@@ -8,7 +8,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -35,10 +34,18 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
         StringBuffer sb = new StringBuffer();
         sb.append(" SELECT ")
           .append("   count(distinct mids.settingId) ")
-          .append(" FROM ModuleIpDataSetting mids ")
-          .append("     ,DeviceList dl ")
-          .append(" WHERE 1=1 ")
-          .append(" AND mids.groupId = dl.groupId ");
+          .append(" FROM ModuleIpDataSetting mids ");
+        if(imsVO.isSensorSearchMode()) {
+        	sb.append("     ,PrtgUserRightSetting purs ");
+        }else {
+        	sb.append("     ,DeviceList dl ");
+        }
+        sb.append(" WHERE 1=1 ");
+        if(imsVO.isSensorSearchMode()) {
+        	sb.append(" AND mids.groupId = purs.settingValue ");
+        }else {
+        	sb.append(" AND mids.groupId = dl.groupId ");
+        }
 
         if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
             sb.append(" AND mids.groupId = :groupId ");
@@ -50,10 +57,15 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             sb.append(" AND mids.macAddr = :macAddr ");
         }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
-            sb.append(" and ( ")
-              .append("       dl.groupName like :searchValue ")
-              .append("       or ")
-              .append("       mids.ipAddr like :searchValue ")
+            sb.append(" and ( ");
+            if(imsVO.isSensorSearchMode()) {
+            	sb.append("       purs.remark like :searchValue ")
+                	.append("       or ");
+            }else {
+            	sb.append("       dl.groupName like :searchValue ")
+                	.append("       or ");
+            }
+            sb.append("       mids.ipAddr like :searchValue ")
               .append("       or ")
               .append("       mids.macAddr like :searchValue ")
               .append("       or ")
@@ -104,11 +116,24 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     public List<Object[]> findModuleIpDataSetting(
             IpMaintainServiceVO imsVO, Integer startRow, Integer pageLength) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" SELECT distinct mids, dl.groupName ")
-          .append(" FROM ModuleIpDataSetting mids ")
-          .append("     ,DeviceList dl ")
-          .append(" WHERE 1=1 ")
-          .append(" AND mids.groupId = dl.groupId ");
+        sb.append(" SELECT distinct mids");
+        if (imsVO.isSensorSearchMode()) {
+			sb.append("     , purs.remark ");
+		} else {
+			sb.append("     , dl.groupName ");
+		}
+        sb.append(" FROM ModuleIpDataSetting mids ");
+		if (imsVO.isSensorSearchMode()) {
+			sb.append("     ,PrtgUserRightSetting purs ");
+		} else {
+			sb.append("     ,DeviceList dl ");
+		}
+		sb.append(" WHERE 1=1 ");
+		if (imsVO.isSensorSearchMode()) {
+			sb.append(" AND mids.groupId = purs.settingValue ");
+		} else {
+			sb.append(" AND mids.groupId = dl.groupId ");
+		}
 
         if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
             sb.append(" AND mids.groupId = :groupId ");
@@ -120,10 +145,15 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             sb.append(" AND mids.macAddr = :macAddr ");
         }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
-            sb.append(" and ( ")
-              .append("       dl.groupName like :searchValue ")
-              .append("       or ")
-              .append("       mids.ipAddr like :searchValue ")
+        	sb.append(" and ( ");
+            if(imsVO.isSensorSearchMode()) {
+            	sb.append("       purs.remark like :searchValue ")
+                	.append("       or ");
+            }else {
+            	sb.append("       dl.groupName like :searchValue ")
+                	.append("       or ");
+            }
+            sb.append("       mids.ipAddr like :searchValue ")
               .append("       or ")
               .append("       mids.macAddr like :searchValue ")
               .append("       or ")
@@ -183,11 +213,24 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
     public List<Object[]> findModuleIpDataSettingFromSecondaryDB(IpMaintainServiceVO imsVO,
             Integer startRow, Integer pageLength) {
         StringBuffer sb = new StringBuffer();
-        sb.append(" SELECT distinct mids, dl.groupName ")
-          .append(" FROM ModuleIpDataSetting mids ")
-          .append("     ,DeviceList dl ")
-          .append(" WHERE 1=1 ")
-          .append(" AND mids.groupId = dl.groupId ");
+        sb.append(" SELECT distinct mids");
+        if (imsVO.isSensorSearchMode()) {
+			sb.append("     , purs.remark ");
+		} else {
+			sb.append("     , dl.groupName ");
+		}
+        sb.append(" FROM ModuleIpDataSetting mids ");
+		if (imsVO.isSensorSearchMode()) {
+			sb.append("     ,PrtgUserRightSetting purs ");
+		} else {
+			sb.append("     ,DeviceList dl ");
+		}
+		sb.append(" WHERE 1=1 ");
+		if (imsVO.isSensorSearchMode()) {
+			sb.append(" AND mids.groupId = purs.settingValue ");
+		} else {
+			sb.append(" AND mids.groupId = dl.groupId ");
+		}
 
         if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
             sb.append(" AND mids.groupId = :groupId ");
@@ -199,10 +242,15 @@ public class IpMaintainDAOImpl extends BaseDaoHibernate implements IpMaintainDAO
             sb.append(" AND mids.macAddr = :macAddr ");
         }
         if (StringUtils.isNotBlank(imsVO.getSearchValue())) {
-            sb.append(" and ( ")
-              .append("       dl.groupName like :searchValue ")
-              .append("       or ")
-              .append("       mids.ipAddr like :searchValue ")
+        	sb.append(" and ( ");
+            if(imsVO.isSensorSearchMode()) {
+            	sb.append("       purs.remark like :searchValue ")
+                	.append("       or ");
+            }else {
+            	sb.append("       dl.groupName like :searchValue ")
+                	.append("       or ");
+            }
+            sb.append("       mids.ipAddr like :searchValue ")
               .append("       or ")
               .append("       mids.macAddr like :searchValue ")
               .append("       or ")
