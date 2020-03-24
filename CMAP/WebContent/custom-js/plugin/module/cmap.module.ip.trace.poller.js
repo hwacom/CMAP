@@ -43,7 +43,7 @@ $(document).ready(function() {
 	$("#query_DateBegin").val(year+"-"+month+"-"+date);
 	$("#query_DateEnd").val(year+"-"+month+"-"+date);
 	$("#query_TimeBegin").val("00:00");
-	//$("#query_TimeEnd").val("23:59");
+	$("#query_TimeEnd").val("23:59");
 });
 
 function bindScrollEvent() {
