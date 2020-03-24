@@ -1140,18 +1140,18 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	                if(varKey.contains(keyGlobal)) {
 		                //綁定行為時，如果同設備中沒有其他封鎖紀錄使用相同port，global加入該port
 		                if(scriptListBind.contains(pVO.getScriptCode())) {
-		                		compareValue = varMap.get(Env.KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK.replaceAll(Env.SCRIPT_VAR_KEY_SYMBOL, ""));
-			                	if(recordList.get(0).getGlobalValue().contains(compareValue)) {
-			                		//有相同時，放進相同值
-			                		valueList.add(recordList.get(0).getGlobalValue());
-			                		
-			                	}else {
-			                		if(recordPortMap.size() > 0) {
-			                			valueList.add(recordList.get(0).getGlobalValue()+","+compareValue); 
-			                		}else {
-			                			valueList.add(compareValue);
-			                		}
-			                	}
+		                	compareValue = varMap.get(Env.KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK.replaceAll(Env.SCRIPT_VAR_KEY_SYMBOL, ""));
+		                	if(recordPortMap.size() == 0) {
+		                		valueList.add(compareValue);
+		                		
+		                	}else {		                		
+		                		if(recordList.get(0).getGlobalValue().contains(compareValue)) {
+		                			//有相同時，放進相同值
+		                			valueList.add(recordList.get(0).getGlobalValue());
+		                		}else {
+		                			valueList.add(recordList.get(0).getGlobalValue()+","+compareValue); 
+		                		}
+		                	}
 		                	noFlagValue = "";             	
 		                }else {
 		                	//解除綁定，如果同設備中沒有其他封鎖紀錄使用相同port，global取消該port		                	
@@ -1189,12 +1189,33 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 	}
 	
 	@Override
-    public  DeliveryParameterVO checkB4DoMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException {
+    public  DeliveryParameterVO checkB4DoIpMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException {
 		//檢核IP MAC 綁定相關，放入global參數
 		List<String> macOpenScriptCodeList = Env.SCRIPT_CODE_OF_MAC_OPEN;
         List<String> macBlockScriptCodeList = Env.SCRIPT_CODE_OF_MAC_BLOCK;
 		
-		if(macOpenScriptCodeList.contains(pVO.getScriptCode()) || macBlockScriptCodeList.contains(pVO.getScriptCode())) {
+        List<String> ipOpenScriptCodeList = Env.SCRIPT_CODE_OF_IP_OPEN;
+        List<String> ipBlockScriptCodeList = Env.SCRIPT_CODE_OF_IP_BLOCK;
+        
+        String blockType = null;
+        boolean blockFlag = false;
+        if(macOpenScriptCodeList.contains(pVO.getScriptCode())) {
+        	blockType = BlockType.MAC.toString();    
+        	
+        }else if (macBlockScriptCodeList.contains(pVO.getScriptCode())) {
+        	blockType = BlockType.MAC.toString();
+        	blockFlag = true;
+        	
+        }else if (ipOpenScriptCodeList.contains(pVO.getScriptCode())) {
+        	blockType = BlockType.IP.toString();
+        	
+        }else if(ipBlockScriptCodeList.contains(pVO.getScriptCode())) {
+        	blockType = BlockType.IP.toString();
+        	blockFlag = true;
+        	
+        }
+        
+		if(StringUtils.isNoneBlank(blockType)) {
 			List<String> varKey = pVO.getVarKey();
 			List<List<String>> varValue = pVO.getVarValue();
 			List<List<String>> newVarValue = new ArrayList<List<String>>();
@@ -1239,12 +1260,12 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 	                brVO = new BlockedRecordVO();  
 	                brVO.setQueryDeviceId(deviceIdList.get(idx));
-	                brVO.setQueryBlockType(BlockType.MAC.toString());
+	                brVO.setQueryBlockType(blockType);
 					brVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
 					
 	                if(varKey.contains(keyGlobal)) {
 		                //綁定行為時，計算同設備資料筆數放入Entry Num
-		                if(macBlockScriptCodeList.contains(pVO.getScriptCode())) {                
+		                if(blockFlag) {                
 								long count = blockedRecordService.countModuleBlockedList(brVO);
 
 								//從255往回設定
