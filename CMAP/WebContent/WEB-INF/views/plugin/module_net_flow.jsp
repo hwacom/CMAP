@@ -29,10 +29,11 @@
                     </c:if>
                     <!-- Group List為空的例外處理 -->
 	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
-	    	    		<!-- ToDo 根據User身分限制只有super user才可使用ALL查詢 -->
-                        <c:if test="${fn:length(groupList) ge 1}">
-                        	<form:option value="" label="=== ALL ===" />
-                        </c:if>
+	    	    		<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+                        	<c:if test="${fn:length(groupList) ge 1}">
+                        		<form:option value="" label="=== ALL ===" />
+                        	</c:if>
+                        </sec:authorize>
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
@@ -135,9 +136,11 @@
 		      	  <div class="form-group row">
 		      	  	<label for="queryGroup_mobile" class="col-sm-2 col-form-label"><spring:message code="group.name" /></label>
 		      	  	<form:select path="queryGroup" id="queryGroup_mobile" class="col-sm-10 form-control form-control-sm">
-                        <c:if test="${fn:length(groupList) ge 1}">
-                        	<form:option value="" label="=== ALL ===" />
-                        </c:if>
+		      	  		<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+                        	<c:if test="${fn:length(groupList) ge 1}">
+                        		<form:option value="" label="=== ALL ===" />
+                        	</c:if>
+                        </sec:authorize>
                         <form:options items="${groupList}" />
                     </form:select>
 		    	  </div>

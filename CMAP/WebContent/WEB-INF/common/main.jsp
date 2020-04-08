@@ -692,6 +692,7 @@
               <!-- [資安通報] END -->
               
               <!-- [設定維護] START -->
+              <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
               <c:if test="${Env.SHOW_MENU_TREE_SETTING_MANAGEMENT eq __SHOW__}">
 	              <li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_setting" href="#">
@@ -723,6 +724,7 @@
 	                </ul>
 		          </li>
 	          </c:if>
+	          </sec:authorize >
 	          <!-- [設定維護] END -->
               
               <!-- [後台管理] START -->
