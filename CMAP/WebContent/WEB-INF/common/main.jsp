@@ -363,6 +363,19 @@
 	                    </c:if>
 	                    <!-- [Net flow查詢] END -->
 	                    
+	                    <!-- [Net flow trace查詢] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW_TRACE eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_netflowtrace" href="${pageContext.request.contextPath}/plugin/module/netFlowTrace">
+		                    	  <span data-feather="shuffle"></span>
+		                    	  	<span>
+		                    	  		<spring:message code="func.plugin.net.flow" />
+		                    	  		<span class="badge badge-info">New</span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [Net flow trace查詢] END -->
+	                    
 	                    <!-- [Wifi查詢] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER eq __SHOW__}">
 			            	<li class="subMenu-item">
