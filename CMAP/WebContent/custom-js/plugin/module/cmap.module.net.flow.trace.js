@@ -202,10 +202,12 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(0)").html( ++rowCount );
 		$(cTR).find("td:eq(1)").html( data.groupName );
 		$(cTR).find("td:eq(2)").html( data.now );
-		$(cTR).find("td:eq(3)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.sourceIPInGroup+'\',\'S\')">'+data.sourceIP+'</a>' );
+		//$(cTR).find("td:eq(3)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.sourceIPInGroup+'\',\'S\')">'+data.sourceIP+'</a>' );
+		$(cTR).find("td:eq(3)").html( data.sourceIP);
 		$(cTR).find("td:eq(4)").html( data.sourcePort );
 		$(cTR).find("td:eq(5)").html( data.sourceMAC );
-		$(cTR).find("td:eq(6)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.destinationIPInGroup+'\',\'D\')">'+data.destinationIP+'</a>' );
+		//$(cTR).find("td:eq(6)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.destinationIPInGroup+'\',\'D\')">'+data.destinationIP+'</a>' );
+		$(cTR).find("td:eq(6)").html( data.destinationIP );
 		$(cTR).find("td:eq(7)").html( data.destinationPort );
 		$(cTR).find("td:eq(8)").html( data.destinationMAC );
 		$(cTR).find("td:eq(9)").html( data.size );
@@ -689,7 +691,8 @@ function findData(from) {
 					"render" : function(data, type, row) {
 									var html;
 									if(row.sourceIPInGroup == 'Y'){
-										html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
+										html = row.sourceIP;
+										//html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
 									}else {
 										html = row.sourceIP;
 									}
@@ -704,7 +707,8 @@ function findData(from) {
 					"render" : function(data, type, row) {
 									var html;
 									if(row.destinationIPInGroup == 'Y'){
-										html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
+										html = row.destinationIP;
+										//html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
 									}else {
 										html = row.destinationIP;
 									}
