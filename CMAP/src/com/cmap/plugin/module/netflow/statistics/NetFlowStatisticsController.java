@@ -273,7 +273,7 @@ public class NetFlowStatisticsController extends BaseController {
             if (dataList != null && !dataList.isEmpty()) {
                 String fileName = getFileName(Env.EXPORT_DATA_CSV_FILE_NAME_OF_TRAFFIC_RANK, var1);
                 String[] fieldNames = new String[] {
-                        "ipAddress", "groupName", "percent", "totalTraffic", "uploadTraffic", "downloadTraffic"
+                        "ipAddress", "ipDesc", "groupName", "percent", "totalTraffic", "uploadTraffic", "downloadTraffic"
                 };
                 String[] columnsTitles = Env.EXPORT_DATA_CSV_COLUMNS_TITLES_OF_TRAFFIC_RANK.split(",");
 
