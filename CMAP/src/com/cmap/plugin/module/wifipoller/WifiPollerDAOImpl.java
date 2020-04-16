@@ -29,10 +29,6 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
     @Log
     private static Logger log;
 
-    @Autowired
-    @Qualifier("secondSessionFactory")
-    private SessionFactory secondSessionFactory;
-
     @Override
     public List<ModuleWifiTraceMst> findModuleWifiTraceMst(String clientMac, String startTime, String endTime, String clientIp, String apName, String ssid){
         StringBuffer sb = new StringBuffer();
@@ -59,7 +55,7 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
             sb.append(" and mwtm.ssid = :ssid ");
         }
 
-        Session session = secondSessionFactory.getCurrentSession();
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
@@ -139,7 +135,7 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
     	   sb.append(" order by mst.start_time, mst.client_ip desc ");
        }
 
-        Session session = secondSessionFactory.getCurrentSession();
+       Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
@@ -228,7 +224,7 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
 
        sb.append(" order by mst.start_time, mst.client_ip desc ");
 
-        Session session = secondSessionFactory.getCurrentSession();
+       Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();

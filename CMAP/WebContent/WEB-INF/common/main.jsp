@@ -363,6 +363,19 @@
 	                    </c:if>
 	                    <!-- [Net flow查詢] END -->
 	                    
+	                    <!-- [Net flow trace查詢] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW_TRACE eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_netflowtrace" href="${pageContext.request.contextPath}/plugin/module/netFlowTrace">
+		                    	  <span data-feather="shuffle"></span>
+		                    	  	<span>
+		                    	  		<spring:message code="func.plugin.net.flow" />
+		                    	  		<span class="badge badge-info">New</span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [Net flow trace查詢] END -->
+	                    
 	                    <!-- [Wifi查詢] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER eq __SHOW__}">
 			            	<li class="subMenu-item">
@@ -692,6 +705,7 @@
               <!-- [資安通報] END -->
               
               <!-- [設定維護] START -->
+              <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
               <c:if test="${Env.SHOW_MENU_TREE_SETTING_MANAGEMENT eq __SHOW__}">
 	              <li class="nav-item">
 	                <a class="nav-link toggleMenuLink" id="toggleMenu_setting" href="#">
@@ -723,6 +737,7 @@
 	                </ul>
 		          </li>
 	          </c:if>
+	          </sec:authorize >
 	          <!-- [設定維護] END -->
               
               <!-- [後台管理] START -->

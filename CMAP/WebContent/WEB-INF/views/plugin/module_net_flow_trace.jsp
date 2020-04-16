@@ -268,4 +268,4 @@
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
 	var msg_chooseIp = '<spring:message code="please.choose" /><spring:message code="net.flow.source.ip" /> or <spring:message code="net.flow.destination.ip" />';
 </script>
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.net.flow.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.net.flow.trace.min.js"></script>

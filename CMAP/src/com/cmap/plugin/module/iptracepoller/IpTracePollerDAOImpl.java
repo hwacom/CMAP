@@ -25,10 +25,6 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
     @Log
     private static Logger log;
 
-    @Autowired
-    @Qualifier("secondSessionFactory")
-    private SessionFactory secondSessionFactory;
-
     @Override
     public ModuleIpTrace findModuleIpTraceByUK(String clientIp, String startTime) {
         StringBuffer sb = new StringBuffer();
@@ -79,7 +75,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
     	   sb.append(" order by mit.start_time, mit.client_ip desc ");
        }
 
-        Session session = secondSessionFactory.getCurrentSession();
+       Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
@@ -144,6 +140,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         sb.append(" select count(data_id) ")
         	.append(" from module_ip_trace mit ")
         	.append(" where 1=1 ");
+
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
             sb.append(" and mit.client_mac = :clientMac ");
         }
@@ -157,10 +154,10 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
             sb.append(" and mit.start_time >= :queryDateTimeBeginStr ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
-            sb.append(" and mit.start_time <= :queryDateTimeEndStr) ");
+            sb.append(" and mit.start_time <= :queryDateTimeEndStr ");
         }
-
-        Session session = secondSessionFactory.getCurrentSession();
+        
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
