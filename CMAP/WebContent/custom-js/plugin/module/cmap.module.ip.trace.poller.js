@@ -120,6 +120,7 @@ function getTotalFilteredCount() {
 		url : _ctx + '/plugin/module/ipTracePoller/getTotalFilteredCount.json',
 		data : {
 			"queryGroupId" : $("#queryGroup").val(),
+			"queryDevice" : $("#queryDevice").val(),
 			"queryDateBegin" : $("#query_DateBegin").val(),
 			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
@@ -189,6 +190,7 @@ function findNextData() {
 		url : _ctx + '/plugin/module/ipTracePoller/getIpTraceData.json',
 		data : {
 			"queryGroupId" : $("#queryGroup").val(),
+			"queryDevice" : $("#queryDevice").val(),
 			"queryDateBegin" : $("#query_DateBegin").val(),
 			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
@@ -246,6 +248,7 @@ function findNextData() {
 //查詢按鈕動作
 function findData(from) {
 	var chkQueryGroup;
+	var chkQueryDevice;
 	var chkQueryDateTimeBegin;
 	var chkQueryDateTimeEnd;
 	var chkQueryDateTime;
@@ -260,6 +263,14 @@ function findData(from) {
 		//	return;
 	}else{
 		chkQueryGroup = 'N';
+	}
+	//確認Device篩選條件輸入狀態
+	if ($("#queryDevice").val().trim().length != 0) {
+		chkQueryDevice = 'Y';
+		//alert(msg_chooseDevice);
+		//	return;
+	}else{
+		chkQueryDevice = 'N';
 	}
 	//確認ClientIP篩選條件輸入狀態
 	if ($("#query_ClientIp").val().trim().length != 0) {
@@ -340,6 +351,7 @@ function findData(from) {
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
 						d.queryGroupId = $("#queryGroup").val(),
+						d.queryDevice = $("#queryDevice").val(),
 						d.queryDateBegin = $("#query_DateBegin").val(),
 						d.queryDateEnd = $("#query_DateEnd").val(),
 						d.queryTimeBegin = $("#query_TimeBegin").val(),

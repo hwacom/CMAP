@@ -10,6 +10,7 @@ public class IpTracePollerVO extends CommonServiceVO {
     private String queryClientMac;
     private String queryClientIp;
 	private String queryGroupId;
+	private String queryDevice;
     private String queryDateBegin;
     private String queryDateEnd;
     private String queryTimeBegin;
@@ -128,6 +129,12 @@ public class IpTracePollerVO extends CommonServiceVO {
 	}
 	public void setPortName(String portName) {
 		this.portName = portName;
+	}
+	public String getQueryDevice() {
+		return queryDevice;
+	}
+	public void setQueryDevice(String queryDevice) {
+		this.queryDevice = queryDevice;
 	}
     
 }

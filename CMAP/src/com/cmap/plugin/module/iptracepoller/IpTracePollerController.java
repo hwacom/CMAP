@@ -58,6 +58,9 @@ public class IpTracePollerController extends BaseController {
 		} finally {
 			model.addAttribute("queryGroup", "");
 			model.addAttribute("groupList", groupListMap);
+			
+			model.addAttribute("device", "");
+			model.addAttribute("deviceList", deviceListMap);
 
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
@@ -83,6 +86,7 @@ public class IpTracePollerController extends BaseController {
     public @ResponseBody AppResponse getTotalFilteredCount(
             Model model, HttpServletRequest request, HttpServletResponse response,
     		@RequestParam(name="queryGroupId", required=true, defaultValue="") String queryGroupId,
+    		@RequestParam(name="queryDevice", required=false, defaultValue="") String queryDevice,
 			@RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
 			@RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
 			@RequestParam(name="queryTimeBegin", required=false, defaultValue="") String queryTimeBegin,
@@ -96,6 +100,7 @@ public class IpTracePollerController extends BaseController {
         try {
         	searchVO = new IpTracePollerVO();
         	searchVO.setQueryGroupId(queryGroupId);
+        	searchVO.setQueryDevice(queryDevice);
         	searchVO.setQueryDateBegin(queryDateBegin);
         	searchVO.setQueryDateEnd(queryDateEnd);
         	searchVO.setQueryTimeBegin(queryTimeBegin);
@@ -123,6 +128,7 @@ public class IpTracePollerController extends BaseController {
 	public @ResponseBody DatatableResponse getIpTraceData(
 			Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name="queryGroupId", required=true, defaultValue="") String queryGroupId,
+			@RequestParam(name="queryDevice", required=false, defaultValue="") String queryDevice,
 			@RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
 			@RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
 			@RequestParam(name="queryTimeBegin", required=false, defaultValue="") String queryTimeBegin,
@@ -154,7 +160,7 @@ public class IpTracePollerController extends BaseController {
 	        }
 	        */
 
-	        IpTracePollerVO resultVO = doDataQuery( queryGroupId, queryDateBegin, queryDateEnd, queryTimeBegin, queryTimeEnd, queryClientMac,
+	        IpTracePollerVO resultVO = doDataQuery( queryGroupId, queryDevice, queryDateBegin, queryDateEnd, queryTimeBegin, queryTimeEnd, queryClientMac,
 	        		queryClientIp, startNum, pageLength,  orderColIdx, orderDirection );
 	        
 	        filteredTotal = resultVO.getMatchedList().size();
@@ -170,7 +176,7 @@ public class IpTracePollerController extends BaseController {
 	}
 	
 	
-	private IpTracePollerVO doDataQuery( String queryGroupId, String queryDateBegin, String queryDateEnd, String queryTimeBegin, String queryTimeEnd, String queryClientMac,
+	private IpTracePollerVO doDataQuery( String queryGroupId, String queryDevice, String queryDateBegin, String queryDateEnd, String queryTimeBegin, String queryTimeEnd, String queryClientMac,
 			String queryClientIp, Integer startNum, Integer pageLength,
 			Integer orderColIdx, String orderDirection) throws ServiceLayerException {
 
@@ -178,6 +184,7 @@ public class IpTracePollerController extends BaseController {
 		    try {
 		        	IpTracePollerVO searchVO = new IpTracePollerVO();
 		        	searchVO.setQueryGroupId(queryGroupId);
+		        	searchVO.setQueryDevice(queryDevice);
 		        	searchVO.setQueryDateBegin(queryDateBegin);
 		        	searchVO.setQueryDateEnd(queryDateEnd);
 		        	searchVO.setQueryTimeBegin(queryTimeBegin);

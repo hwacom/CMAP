@@ -212,10 +212,10 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(8)").html( data.destinationMAC );
 		$(cTR).find("td:eq(9)").html( data.size );
 		$(cTR).find("td:eq(10)").html( data.session );
-		$(cTR).find("td:eq(11)").html( data.fromDateTime );
-		$(cTR).find("td:eq(12)").html( data.toDateTime );
-		$(cTR).find("td:eq(13)").html( data.ethernetType );
-		$(cTR).find("td:eq(14)").html( data.protocol);
+		$(cTR).find("td:eq(11)").html( data.ethernetType );
+		$(cTR).find("td:eq(12)").html( data.protocol);
+		$(cTR).find("td:eq(13)").html( data.fromDateTime );
+		$(cTR).find("td:eq(14)").html( data.toDateTime );
 		$(cTR).find("td:eq(15)").html( data.channelID );
 		$(cTR).find("td:eq(16)").html( data.toS );
 		$(cTR).find("td:eq(17)").html( data.senderIP );
@@ -654,10 +654,10 @@ function findData(from) {
 				{ "data" : "destinationMAC" , "orderable" : false },
 				{ "data" : "size" , "orderable" : false },
 				{ "data" : "session" , "orderable" : false },
-				{ "data" : "fromDateTime" },
-				{ "data" : "toDateTime" , "orderable" : false },
 				{ "data" : "ethernetType" , "orderable" : false },
 				{ "data" : "protocol" , "orderable" : false },
+				{ "data" : "fromDateTime" },
+				{ "data" : "toDateTime" , "orderable" : false },
 				{ "data" : "channelID" , "orderable" : false },
 				{ "data" : "toS" , "orderable" : false },
 				{ "data" : "senderIP" , "orderable" : false },

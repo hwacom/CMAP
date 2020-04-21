@@ -27,7 +27,7 @@
                         	</script>
                     </c:if>
                     <!-- Group List為空的例外處理 -->
-	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">    	    		 
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup" onchange="changeDeviceMenu('queryDevice', this.value)">    	    		 
                         <!-- ToDo 根據User身分限制只有super user才可使用ALL查詢 -->
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
@@ -35,12 +35,15 @@
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
-	    	    <!-- 
 	    	    <div class="col-lg-3 group-field-other">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
-					// TODO
+					<form:select class="selectpicker" data-live-search="true" data-width="70%" path="device" id="queryDevice">
+                        <form:option value="" label="== ALL ==" />
+                        <form:options items="${deviceList}" />
+                    </form:select>
 				</div>
-				 -->
+	    	  </div>
+	    	  <div class="form-group row">				
 				<div class="col-lg-3 group-field-other">
 					<label for="query_ClientMac" class="font-weight-bold" style="width: 25%"><spring:message code="ip.trace.poller.client.mac" /></label>
 					<input type="text" id="query_ClientMac" class="" style="width: 70%">
