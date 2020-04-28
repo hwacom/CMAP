@@ -39,7 +39,9 @@ public class IpTracePollerController extends BaseController {
 	
 	@Autowired
 	private IpTracePollerService ipTracePollerService;
-	
+	//是否查詢條件為sensorId
+  	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
+  	
 	/**
 	 * 初始化選單
 	 * @param model
@@ -47,16 +49,28 @@ public class IpTracePollerController extends BaseController {
 	 */
 	private void initMenu(Model model, HttpServletRequest request) {
 		Map<String, String> groupListMap = null;
+		Map<String, String> sensorListMap = null;
 		Map<String, String> deviceListMap = null;
 		try {
-			groupListMap = getGroupList(request);
-
+			if(isSensorSearchMode) {
+				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
+					sensorListMap = getSensorList(request, null);
+				}else {
+					sensorListMap = getSensorList(request, Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW);
+				}
+			}else {
+				groupListMap = getGroupList(request);
+			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 
 		} finally {
 			model.addAttribute("queryGroup", "");
-			model.addAttribute("groupList", groupListMap);
+			if(isSensorSearchMode) {
+				model.addAttribute("groupList", sensorListMap);
+			}else {
+				model.addAttribute("groupList", groupListMap);
+			}	
 			
 			model.addAttribute("device", "");
 			model.addAttribute("deviceList", deviceListMap);
@@ -91,7 +105,8 @@ public class IpTracePollerController extends BaseController {
 			@RequestParam(name="queryTimeBegin", required=false, defaultValue="") String queryTimeBegin,
 			@RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
 			@RequestParam(name="queryClientMac", required=false, defaultValue="") String queryClientMac,
-			@RequestParam(name="queryClientIp", required=false, defaultValue="") String queryClientIp){
+			@RequestParam(name="queryClientIp", required=false, defaultValue="") String queryClientIp,
+			@RequestParam(name="queryOnLineOnly", required=false, defaultValue="false") boolean queryOnLineOnly){
 
 	    String retVal = "N/A";
 	    long filteredTotal = 0;
@@ -134,6 +149,7 @@ public class IpTracePollerController extends BaseController {
 			@RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
 			@RequestParam(name="queryClientMac", required=false, defaultValue="") String queryClientMac,
 			@RequestParam(name="queryClientIp", required=false, defaultValue="") String queryClientIp,
+			@RequestParam(name="queryOnLineOnly", required=false, defaultValue="false") boolean queryOnLineOnly,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
 			@RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
@@ -160,7 +176,7 @@ public class IpTracePollerController extends BaseController {
 	        */
 
 	        IpTracePollerVO resultVO = doDataQuery( queryGroupId, queryDevice, queryDateBegin, queryDateEnd, queryTimeBegin, queryTimeEnd, queryClientMac,
-	        		queryClientIp, startNum, pageLength,  orderColIdx, orderDirection );
+	        		queryClientIp, queryOnLineOnly, startNum, pageLength,  orderColIdx, orderDirection );
 	        
 	        filteredTotal = resultVO.getMatchedList().size();
             dataList = resultVO.getMatchedList();
@@ -176,7 +192,7 @@ public class IpTracePollerController extends BaseController {
 	
 	
 	private IpTracePollerVO doDataQuery( String queryGroupId, String queryDevice, String queryDateBegin, String queryDateEnd, String queryTimeBegin, String queryTimeEnd, String queryClientMac,
-			String queryClientIp, Integer startNum, Integer pageLength,
+			String queryClientIp, boolean queryOnLineOnly, Integer startNum, Integer pageLength,
 			Integer orderColIdx, String orderDirection) throws ServiceLayerException {
 
 			IpTracePollerVO retVO = new IpTracePollerVO();
@@ -190,6 +206,7 @@ public class IpTracePollerController extends BaseController {
 		        	searchVO.setQueryTimeEnd(queryTimeEnd);
 		        	searchVO.setQueryClientMac(queryClientMac);
 		        	searchVO.setQueryClientIp(queryClientIp);
+		        	searchVO.setQueryOnLineOnly(queryOnLineOnly);
 		        	searchVO.setStartNum(startNum);
 		        	searchVO.setPageLength(pageLength);
 		        	searchVO.setOrderColumn(orderColIdx.toString()); // DAO SQL用別名同orderColIdx即可
