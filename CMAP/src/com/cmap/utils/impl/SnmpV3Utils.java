@@ -2,9 +2,11 @@ package com.cmap.utils.impl;
 
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.smi.VariableBinding;
+
 import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.service.vo.ScriptServiceVO;
 import com.cmap.service.vo.StepServiceVO;
@@ -20,7 +22,7 @@ public class SnmpV3Utils implements ConnectUtils {
 	}
 
 	@Override
-	public boolean login(String account, String password) throws Exception {
+	public boolean login(String account, String password, String enable, ConfigInfoVO ciVO) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
 	}

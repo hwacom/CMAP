@@ -199,6 +199,7 @@ public class Env {
 
 	public static Boolean PRTG_HA;
 	public static List<String> PRTG_EXCLUDE_PROBENODE_ID = new ArrayList();
+	public static List<String> PRTG_EXCLUDE_SENSOR_ID = new ArrayList();
 
 	/**
 	 * 設定要排除掉的PRTG群組名稱(不呈顯於CMAP內)
@@ -280,7 +281,7 @@ public class Env {
 	public static Integer TELNET_CONNECT_TIME_OUT;
 	public static Integer TELNET_DEFAULT_PORT;
 
-	public static String TELNET_LOGIN_USERNAME_TEXT;
+	public static List<String> TELNET_LOGIN_USERNAME_TEXT  = new ArrayList<>();
 	public static String TELNET_LOGIN_PASSWORD_TEXT;
 	public static Integer TELNET_READ_UNTIL_MAX_RUNTIME;
 

@@ -1,5 +1,10 @@
 package com.cmap.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -44,6 +51,7 @@ import com.cmap.utils.FileUtils;
 import com.cmap.utils.impl.CommonUtils;
 import com.cmap.utils.impl.FtpFileUtils;
 import com.cmap.utils.impl.TFtpFileUtils;
+
 import difflib.Chunk;
 import difflib.Delta;
 import difflib.DiffUtils;
@@ -533,6 +541,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		List<VersionServiceVO> retRevList = null;
 
 		try {
+			
+			
 			for (VersionServiceVO vsVO : voList) {
 
 				String _hostIp = null;
@@ -542,49 +552,76 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 				if (StringUtils.isNotBlank(vsVO.getConfigFileDirPath())) {
 
-					// Step1. 建立FileServer傳輸物件
-					switch (Env.FILE_TRANSFER_MODE) {
-					case FTP:
-						fileUtils = new FtpFileUtils();
-						_hostIp = Env.FTP_HOST_IP;
-						_hostPort = Env.FTP_HOST_PORT;
-						_loginAccount = Env.FTP_LOGIN_ACCOUNT;
-						_loginPassword = Env.FTP_LOGIN_PASSWORD;
-						break;
-
-					case TFTP:
-						fileUtils = new TFtpFileUtils();
-						_hostIp = Env.TFTP_HOST_IP;
-						_hostPort = Env.TFTP_HOST_PORT;
-						break;
-					}
-
-					// Step2. FTP連線
-					fileUtils.connect(_hostIp, _hostPort);
-
-					// Step3. FTP登入
-					fileUtils.login(_loginAccount, _loginPassword);
-
-					// Step3. 移動作業目錄至指定的裝置
-					String fileDir = vsVO.getConfigFileDirPath();
-
-					if (vsVO.isCheckEnableCurrentDateSetting()) {
-						if (Env.FILE_TRANSFER_MODE == ConnectionMode.FTP && Env.ENABLE_REMOTE_BACKUP_USE_TODAY_ROOT_DIR) {
-							SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
-
-							// 依照要查看的組態檔Create_date決定要到哪個日期目錄下取得檔案
-							String date_yyyyMMdd = vsVO.getCreateDate() != null ? sdf.format(vsVO.getCreateDate()) : sdf.format(new Date());
-							fileDir = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileDir);
-						}
-					}
-
-					fileUtils.changeDir(fileDir, false);
-
-					// Step4. 下載指定的Config落地檔
+					List<String> cList = null;
 					ConfigInfoVO ciVO = new ConfigInfoVO();
-					BeanUtils.copyProperties(vsVO, ciVO);
-					List<String> cList = fileUtils.downloadFiles(ciVO);
+					log.debug("for bedug Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP) = " + Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP));
+					log.debug("for bedug Env.TFTP_SERVER_AT_LOCAL = " + Env.TFTP_SERVER_AT_LOCAL);
+					if(Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP) && Env.TFTP_SERVER_AT_LOCAL) {
+						
+						// Step4. 下載指定的Config落地檔
+						BeanUtils.copyProperties(vsVO, ciVO);
+						
+						String targetFileName = null;
+						if(StringUtils.equals(ciVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(ciVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(ciVO.getFileFullName());
+						}else {
+							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(File.separator).concat(ciVO.getFileFullName());
+						}
+						
+						//read file into stream, try-with-resources
+						try {
+							cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
 
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+					}else {
+						log.debug("for bedug Step1. 建立FileServer傳輸物件");
+						// Step1. 建立FileServer傳輸物件
+						switch (Env.FILE_TRANSFER_MODE) {
+						case FTP:
+							fileUtils = new FtpFileUtils();
+							_hostIp = Env.FTP_HOST_IP;
+							_hostPort = Env.FTP_HOST_PORT;
+							_loginAccount = Env.FTP_LOGIN_ACCOUNT;
+							_loginPassword = Env.FTP_LOGIN_PASSWORD;
+							break;
+
+						case TFTP:
+							fileUtils = new TFtpFileUtils();
+							_hostIp = Env.TFTP_HOST_IP;
+							_hostPort = Env.TFTP_HOST_PORT;
+							break;
+						}
+
+						// Step2. FTP連線
+						fileUtils.connect(_hostIp, _hostPort);
+
+						// Step3. FTP登入
+						fileUtils.login(_loginAccount, _loginPassword);
+
+						// Step3. 移動作業目錄至指定的裝置
+						String fileDir = vsVO.getConfigFileDirPath();
+
+						if (vsVO.isCheckEnableCurrentDateSetting()) {
+							if (Env.FILE_TRANSFER_MODE == ConnectionMode.FTP && Env.ENABLE_REMOTE_BACKUP_USE_TODAY_ROOT_DIR) {
+								SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
+
+								// 依照要查看的組態檔Create_date決定要到哪個日期目錄下取得檔案
+								String date_yyyyMMdd = vsVO.getCreateDate() != null ? sdf.format(vsVO.getCreateDate()) : sdf.format(new Date());
+								fileDir = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileDir);
+							}
+						}
+						log.info("for bedug fileDir = " + fileDir);
+						fileUtils.changeDir(fileDir, false);
+
+						// Step4. 下載指定的Config落地檔
+						BeanUtils.copyProperties(vsVO, ciVO);
+						cList = fileUtils.downloadFiles(ciVO);
+
+					}
+					
 					/*
 		             * TODO: 組態備份版本比對，依設定開關是否參照比對模板
 		             * 若[On]  >> 參照模板設定區塊進行比對，區塊內有差異才做備份

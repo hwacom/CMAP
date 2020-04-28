@@ -17,7 +17,7 @@ public class WmiUtils implements ConnectUtils {
 	}
 
 	@Override
-	public boolean login(final String account, final String password) throws Exception {
+	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
 	}

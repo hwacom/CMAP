@@ -674,7 +674,7 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 	                session = secondSessionFactory.openSession();
 	            }
 	        }
-	        logger.info("Creating native query to load csv file with SQL : "+sql.toString());
+	        logger.debug("Creating native query to load csv file with SQL : "+sql.toString());
 	        if (session != null) {
 	            tx = session.beginTransaction();
 	            Query<?> q = session.createNativeQuery(sql.toString());

@@ -24,11 +24,14 @@ import com.cmap.AppResponse;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.vo.ScriptDAOVO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ScriptService;
 import com.cmap.service.vo.ScriptServiceVO;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 @Controller
 @RequestMapping("/script")
@@ -152,6 +155,27 @@ public class ScriptController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+		}
+	}
+	
+
+	@RequestMapping(value = "getScriptType.json", method = RequestMethod.POST, produces="application/json;odata=verbose")
+	public @ResponseBody AppResponse getScriptInfo(Model model, HttpServletRequest request, HttpServletResponse response) {
+
+		ScriptDAOVO vo = new ScriptDAOVO();
+		try {
+			Map<String, String> scriptTypeMap = null;
+			scriptTypeMap = getScriptTypeList(null);
+			
+			ObjectMapper oMapper = new ObjectMapper();
+			vo.setScriptTypeName(new Gson().toJson(scriptTypeMap));
+			Map<String, Object> retMap = oMapper.convertValue(vo, Map.class);
+			
+			return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
 		}
 	}
 }

@@ -15,11 +15,13 @@ public class IpTracePollerVO extends CommonServiceVO {
     private String queryDateEnd;
     private String queryTimeBegin;
     private String queryTimeEnd;
+    private boolean queryOnLineOnly;
 
 	private List<IpTracePollerVO> matchedList = new ArrayList<>();
 	private int totalCount = 0;
 	
     private String clientIp;
+    private String ipDesc;
     private String startTime;
     private String endTime;
     private String clientMac;
@@ -70,6 +72,12 @@ public class IpTracePollerVO extends CommonServiceVO {
 	public void setQueryTimeEnd(String queryTimeEnd) {
 		this.queryTimeEnd = queryTimeEnd;
 	}
+	public boolean isQueryOnLineOnly() {
+		return queryOnLineOnly;
+	}
+	public void setQueryOnLineOnly(boolean queryOnLineOnly) {
+		this.queryOnLineOnly = queryOnLineOnly;
+	}
 	public List<IpTracePollerVO> getMatchedList() {
 		return matchedList;
 	}
@@ -87,6 +95,12 @@ public class IpTracePollerVO extends CommonServiceVO {
 	}
 	public void setClientIp(String clientIp) {
 		this.clientIp = clientIp;
+	}
+	public String getIpDesc() {
+		return ipDesc;
+	}
+	public void setIpDesc(String ipDesc) {
+		this.ipDesc = ipDesc;
 	}
 	public String getStartTime() {
 		return startTime;

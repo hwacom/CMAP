@@ -168,7 +168,7 @@ public class CommonServiceImpl implements CommonService {
         }
 
         dirPath = dirPath.concat(StringUtils.isNotBlank(groupDirName) ? groupDirName : "")
-                .concat(StringUtils.isNotBlank(groupDirName) ? Env.FTP_DIR_SEPARATE_SYMBOL : "")
+                .concat(StringUtils.isNotBlank(groupDirName) ? File.separator : "")
                 .concat(StringUtils.isNotBlank(deviceDirName) ? deviceDirName : "");
 
         return dirPath;
@@ -1148,12 +1148,13 @@ public class CommonServiceImpl implements CommonService {
                 retMap = new HashMap<>();
 
                 String sensorId = null, sensorName = null;
+                List<String> excludeList = Env.PRTG_EXCLUDE_SENSOR_ID == null ? new ArrayList<>() : Env.PRTG_EXCLUDE_SENSOR_ID;
                 for (PrtgUserRightSetting obj : list) {
                     sensorId = Objects.toString(obj.getSettingValue());
                     sensorName = Objects.toString(obj.getRemark());
 
-					if (StringUtils.isNotBlank(sensorId) && StringUtils.isNotBlank(sensorName)) {
-						if(StringUtils.isNotBlank(deviceId) && obj.getParentNode().equals(deviceId)) {
+					if (StringUtils.isNotBlank(sensorId) && StringUtils.isNotBlank(sensorName) && !excludeList.contains(sensorId)) {
+						if(StringUtils.equals(obj.getParentNode(), deviceId)) {
 							retMap.put(sensorId, sensorName);
 						}else if (StringUtils.isBlank(deviceId)) {
 							retMap.put(sensorId, sensorName);

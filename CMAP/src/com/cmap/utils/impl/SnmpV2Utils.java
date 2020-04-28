@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.snmp4j.util.DefaultPDUFactory;
 import org.snmp4j.util.PDUFactory;
 import org.snmp4j.util.TableEvent;
 import org.snmp4j.util.TableUtils;
+
 import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.vo.ConfigInfoVO;
@@ -70,7 +72,7 @@ public class SnmpV2Utils implements ConnectUtils {
 	}
 
 	@Override
-	public boolean login(String account, String password) throws Exception {
+	public boolean login(String account, String password, String enable, ConfigInfoVO ciVO) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -477,7 +479,7 @@ public class SnmpV2Utils implements ConnectUtils {
                 log.error("Failure while closing UDP snmp", ex1);
             }
         }
-		log.info("Success closing UDP snmp >>> " + target.getAddress());
+		log.debug("Success closing UDP snmp >>> " + target.getAddress());
 		return true;
 	}
 

@@ -932,7 +932,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	private void login2Device(ConnectUtils connectUtils, ConfigInfoVO ciVO) throws Exception {
 		connectUtils.login(
 				StringUtils.isBlank(ciVO.getAccount()) ? Env.DEFAULT_DEVICE_LOGIN_ACCOUNT : ciVO.getAccount(),
-						StringUtils.isBlank(ciVO.getPassword()) ? Env.DEFAULT_DEVICE_LOGIN_PASSWORD : ciVO.getPassword()
+						StringUtils.isBlank(ciVO.getPassword()) ? Env.DEFAULT_DEVICE_LOGIN_PASSWORD : ciVO.getPassword(),
+								StringUtils.isBlank(ciVO.getEnablePassword()) ? Env.DEFAULT_DEVICE_ENABLE_PASSWORD : ciVO.getEnablePassword(),
+										ciVO
 				);
 
 		/*
@@ -975,6 +977,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		boolean haveDiffVersion = false;
 		List<String> tmpList = outputList.stream().collect(Collectors.toList());
 		ConfigVersionInfoDAOVO daovo;
+
 		for (final String output : tmpList) {
 
 			if (output.indexOf(Env.COMM_SEPARATE_SYMBOL) != -1) {
@@ -990,7 +993,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			// 當前備份版本正確檔名
 			final String nowVersionFileName = StringUtils.replace(ciVO.getConfigFileName(), Env.COMM_SEPARATE_SYMBOL, type);
-
 			// 當前備份版本上傳於temp資料夾內檔名 (若TFTP Server與CMAP系統不是架設在同一台主機時)
 			String tempFileName = nowVersionFileName;
 			if (Env.ENABLE_TEMP_FILE_RANDOM_CODE) {
@@ -1489,10 +1491,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 		ConfigInfoVO vo;
 		for (String output : outputList) {
-			log.debug("log for debug composeOutputVO output==>"+output);
 			if (output.indexOf(Env.COMM_SEPARATE_SYMBOL) != -1) {
 				type = output.split(Env.COMM_SEPARATE_SYMBOL)[0];
-				content = output.split(Env.COMM_SEPARATE_SYMBOL)[1];
+				content = output.split(Env.COMM_SEPARATE_SYMBOL).length > 1 ?output.split(Env.COMM_SEPARATE_SYMBOL)[1]: "";
 			} else {
 				content = output;
 			}

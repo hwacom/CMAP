@@ -2,20 +2,19 @@ package com.cmap.plugin.module.iptracepoller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 
@@ -48,8 +47,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
     	List<IpTracePollerVO> retList = new ArrayList<>();
     	
         StringBuffer sb = new StringBuffer();
-        sb.append(" select client_ip '1',start_time '2',end_time '3',client_mac '4',group_name '5',device_name '6',port_name '7' ")
+        sb.append(" select mit.client_ip '1',mit.start_time '2',mit.end_time '3',mit.client_mac '4',mit.group_name '5',mit.device_name '6',mit.port_name '7', mids.ip_desc '8' ")
         	.append(" from module_ip_trace mit")
+        	.append("      left join Module_Ip_Data_Setting mids ")
+            .append("      on ( mit.group_id = mids.group_id ")
+            .append("           and mit.client_ip = mids.ip_addr ) ")
         	.append(" where 1=1 ");
 
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
@@ -70,7 +72,10 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
             sb.append(" and mit.start_time <= :queryDateTimeEndStr ");
         }
-
+        if(searchVO.isQueryOnLineOnly()) {
+        	sb.append(" and mit.end_time is null ");
+        }
+        
        if (StringUtils.isNotBlank(searchVO.getOrderColumn())) {
            sb.append(" order by ").append(searchVO.getOrderColumn()).append(" ").append(searchVO.getOrderDirection());
 
@@ -125,6 +130,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         		String groupName = data[4].toString();
         		String deviceName = data[5].toString();
         		String portName = data[6].toString();
+        		String ipDesc = Objects.toString(data[7], Env.IP_DESC_NULL_SHOW_WHAT);
         		
                 retVO.setClientIp(clientIp);
                 retVO.setStartTime(startTime);
@@ -133,6 +139,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
                 retVO.setGroupName(groupName);
                 retVO.setDeviceName(deviceName);
                 retVO.setPortName(portName);
+                retVO.setIpDesc(ipDesc);
                 
         		retList.add(retVO);
         	}
@@ -164,6 +171,9 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
             sb.append(" and mit.start_time <= :queryDateTimeEndStr ");
+        }
+        if(searchVO.isQueryOnLineOnly()) {
+        	sb.append(" and mit.end_time is null ");
         }
         
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();

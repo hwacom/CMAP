@@ -2,10 +2,27 @@
  * 
  */
 var scriptShowMaxLine = 2;
+var _SCRIPT_TYPE_ = "SCRIPT_TYPE";
 
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_cm", "toggleMenu_cm_items", "cm_script");
-			
+	
+	$("#btnAdd").click(function(e) {
+		showPanel();
+	});
+	
+	$("#btnStepGoPrev").click(function(e) {
+		goStep(-1);
+	});
+	
+	$("#btnStepGoNext").click(function(e) {
+		e.preventDefault();
+		goStep(1);
+	});
+	
+	$("#btnStepGoFire").click(function(e) {
+//		doDelivery();
+	});
 });
 
 //查看腳本內容
@@ -208,5 +225,168 @@ function findData(from) {
 				}
 			],
 		});
+	}
+}
+
+
+function showPanel() {
+	var scriptType = $("#queryScriptType").val();
+	
+	if (scriptType == "") {
+		alert(msg_chooseType);
+		return;
+	}
+	
+	window.sessionStorage.clear();
+	
+	STEP_NUM = 1;
+	initStepBtn();
+	initStepImg();
+	$('#stepModal').modal({
+		backdrop : 'static'
+	});
+	
+}
+
+function initStepBtn() {
+	switch (STEP_NUM) {
+		case 1:
+			$("#btnStepGoPrev").hide();
+			$("#btnStepGoNext").show();
+			$("#btnStepGoFire").hide();
+			break;
+			
+		case 2:
+			$("#btnStepGoPrev").show();
+			$("#btnStepGoNext").show();
+			$("#btnStepGoFire").hide();
+			break;
+			
+		case 3:
+			$("#btnStepGoPrev").show();
+			$("#btnStepGoNext").hide();
+			$("#btnStepGoFire").show();
+			break;
+	}
+}
+
+function initStepImg() {
+	var idx = parseInt(STEP_NUM) - 1;
+	$(".step-img").removeClass('step-current');
+	$(".step-img").eq(idx).addClass('step-current');
+}
+
+function goStep(num) {
+	var nextStep = parseInt(STEP_NUM) + parseInt(num);
+	var nowStep = parseInt(STEP_NUM);
+	
+	var pass = false;
+	if (parseInt(nextStep) > parseInt(nowStep)) {
+		$(".required").removeClass("required");
+		if(!checkB4Next(nowStep)){
+			return ;
+		}
+		
+	}
+	
+	$("#step" + nextStep + "_section").show();
+	$("#step" + nowStep + "_section").hide();
+	
+	STEP_NUM = parseInt(STEP_NUM) + parseInt(num);
+	initStepBtn();
+	initStepImg();
+	
+	/*
+	console.log("_DELIVERY_SCRIPT_INFO_ID_ : " + window.sessionStorage.getItem(_DELIVERY_SCRIPT_INFO_ID_));
+	console.log("_DELIVERY_SCRIPT_CODE_ : " + window.sessionStorage.getItem(_DELIVERY_SCRIPT_CODE_));
+	console.log("_DELIVERY_SCRIPT_NAME_ : " + window.sessionStorage.getItem(_DELIVERY_SCRIPT_NAME_));
+	console.log("_DELIVERY_DEVICE_MENU_JSON_STR_ : " + window.sessionStorage.getItem(_DELIVERY_DEVICE_MENU_JSON_STR_));
+	console.log("_DELIVERY_DEVICE_ID_ : " + window.sessionStorage.getItem(_DELIVERY_DEVICE_ID_));
+	console.log("_DELIVERY_DEVICE_GROUP_NAME_ : " + window.sessionStorage.getItem(_DELIVERY_DEVICE_GROUP_NAME_));
+	console.log("_DELIVERY_DEVICE_NAME_ : " + window.sessionStorage.getItem(_DELIVERY_DEVICE_NAME_));
+	console.log("_DELIVERY_REASON_ : " + window.sessionStorage.getItem(_DELIVERY_REASON_));
+	console.log("_DELIVERY_VAR_KEY_ : " + window.sessionStorage.getItem(_DELIVERY_VAR_KEY_));
+	console.log("_DELIVERY_VAR_VALUE_ : " + window.sessionStorage.getItem(_DELIVERY_VAR_VALUE_));
+	console.log("_DELIVERY_GROUP_ID_ : " + window.sessionStorage.getItem(_DELIVERY_GROUP_ID_));
+	*/
+}
+
+function checkB4Next(num) {
+	var validateErrorObj = [];
+	var inputVar = [];
+	
+	switch (num) {
+		case 1:
+			var varInput = $("input[name=input_var]");
+			var varText = $("textarea[name=input_var]");
+			var success = true;
+			if (varInput.length > 0) {
+				$.each(varInput, function(key, input) {
+					if (input.value.trim().length == 0) {
+						success = false
+						validateErrorObj.push(input);
+						
+					} else {
+						var varIdx = $(input).data("idx");
+						
+						if (inputVar[varIdx] === undefined) {
+							inputVar[varIdx] = [];
+						}
+						
+						inputVar[varIdx].push(input.value.trim());
+					}
+				});
+			}
+			if (varText.length > 0) {
+				$.each(varText, function(key, input) {
+					if (input.value.trim().length == 0) {
+						success = false
+						validateErrorObj.push(input);
+						
+					} else {
+						var varIdx = $(input).data("idx");
+						
+						if (inputVar[varIdx] === undefined) {
+							inputVar[varIdx] = [];
+						}
+						
+						inputVar[varIdx].push(input.value.trim());
+						
+						var textValue = input.value.trim().split(/\r?\n|\r/g);
+						$.each(textValue, function(key, value) {
+							console.log("TEXTAREA word : " + value);
+						});
+					}
+					console.log("TEXTAREA word : " + input.value.trim().length);
+					console.log("TEXTAREA line : " + input.value.trim().match(/\r?\n|\r/g).length + 1);	
+				});
+				
+				
+			}
+			if (!success) {
+				$.each(validateErrorObj, function(key, input) {
+					$(input).addClass("required");
+				});
+				
+				alert("請輸入變數值");
+				return false;
+			}			
+					
+			window.sessionStorage.setItem(_DELIVERY_VAR_VALUE_, JSON.stringify(inputVar));
+			
+			return success;
+			break;
+			
+		case 2:
+			$("#btnStepGoPrev").show();
+			$("#btnStepGoNext").show();
+			$("#btnStepGoFire").hide();
+			break;
+			
+		case 3:
+			$("#btnStepGoPrev").show();
+			$("#btnStepGoNext").hide();
+			$("#btnStepGoFire").show();
+			break;
 	}
 }
