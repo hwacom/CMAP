@@ -54,13 +54,16 @@
 	    	    </div>
 	    	  </div>
 	    	  <div class="form-group row">
-	    	    <div class="col-lg-8 group-field-other">
+	    	    <div class="col-lg-9 group-field-other">
 	    	    	<label for="query_DateBegin" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.start.time" /></label>
-	    	    	<input type="date" id="query_DateBegin" style="width: 20%"/>
-	    	    	<input type="time" id="query_TimeBegin" style="width: 20%"/>
-					<span class="font-weight-bold center" style="width: 5%">~</span>
-	    	    	<input type="date" id="query_DateEnd" style="width: 20%"/>
-	    	    	<input type="time" id="query_TimeEnd" style="width: 20%"/>
+	    	    	<input type="date" id="query_DateBegin" style="width: 18%"/>
+	    	    	<input type="time" id="query_TimeBegin" style="width: 15%"/>
+					<span class="font-weight-bold center" style="width: 2%">~</span>
+	    	    	<input type="date" id="query_DateEnd" style="width: 18%"/>
+	    	    	<input type="time" id="query_TimeEnd" style="width: 15%"/>
+	    	    	<span class="font-weight-bold center" style="width: 2%"></span>
+	    	    	<input type="checkbox" id="query_OnlineOnly" name="query_OnlineOnly" />
+	    	    	<label for="query_OnlineOnly" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.query.online.only" /></label>   	    	
 	    	    </div>
 	    	    
 				<div class="col-lg-2" style="padding-top: 5px;">
@@ -126,6 +129,7 @@
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.client.ip" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="ip.remark" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.start.time" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.end.time" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.client.mac" /></th>

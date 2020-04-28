@@ -29,4 +29,6 @@ public interface VmSwitchDAO extends BaseDAO {
 	public ModuleVmSetting getVmSetting(String settingName);
 
 	public void updateVmSetting(ModuleVmSetting entity);
+
+	List<ModuleVmNameMappingDetail> findModuleVmNameMappingDetailById(Integer mappingId);
 }

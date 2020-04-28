@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -79,28 +80,42 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	}
 
 	@Override
-	public boolean login(final String account, final String password) throws Exception {
+	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception {
 		String output = "";
-		try {
+		
+		try {			
 			output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
-			write(account);
-
-			processLog.append(output);
+			if(StringUtils.isNotBlank(output)) {
+				write(account);
+				processLog.append(output);
+				if (StringUtils.equals(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
+					log.info("cmd: username success!!" );
+				}
+			}
 			
-			output = readUntil(Env.TELNET_LOGIN_PASSWORD_TEXT);
-			write(password);
-
-			processLog.append(output);
+			output = readUntil(Arrays.asList(Env.TELNET_LOGIN_PASSWORD_TEXT));
+			if(StringUtils.isNotBlank(output)) {
+				write(password);
+				processLog.append(output);
+				if (StringUtils.equals(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
+					log.info("cmd: password success!!" );
+				}
+			}			
+			
+			Thread.sleep(1000); // 執行命令間格時間
+			write("enable");
+			output = readUntil(Arrays.asList(Env.TELNET_LOGIN_PASSWORD_TEXT));
+			if(StringUtils.isNotBlank(output)) {
+				write(enable);
+				processLog.append(output);
+				if (StringUtils.equals(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
+					log.info("cmd: enable success!!");
+				}
+			}
+			
 		} catch (SocketTimeoutException ste){//有些狀況不需輸入帳號
 			
-			output = readUntil(Env.TELNET_LOGIN_PASSWORD_TEXT);
-			write(password);
-
-			processLog.append(output);
-		} catch (Exception e) {
-
 		}
-		
 		return false;
 	}
 
@@ -108,42 +123,52 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 		try {
 			out.println(cmd);
 			out.flush();
-			log.info("cmd: "+cmd);
+			log.debug("cmd: "+cmd);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
 	}
 
-	private String readUntil(String pattern) throws Exception {
+	private String readUntil(List<String> pattern) throws Exception {
 		StringBuffer sb = new StringBuffer();
+		List<String> lastChars = new ArrayList<>();
 		try {
-			char lastChar = pattern.charAt(pattern.length()-1);
+			
+			for(String text:pattern) {
+				if(!lastChars.contains(text.substring(text.length()-1))) {
+					lastChars.add(text.substring(text.length()-1));
+				}
+			}
 			char ch = (char)in.read();
 
 			int runTime = 0;
 			while (true) {
 				sb.append(ch);
-
-				if (ch == lastChar) {
-					if (Strings.toUpperCase(sb.toString()).endsWith(Strings.toUpperCase(pattern))) {
-						return sb.toString();
-					}
+				
+				if (lastChars.contains(String.valueOf(ch))) {
+					for(String text:pattern) {
+						if (Strings.toUpperCase(sb.toString().trim()).endsWith(Strings.toUpperCase(text))) {
+							return sb.toString();
+						}
+					}					
 				}
+				
 				/*
 				if (ch >= Character.MAX_LOW_SURROGATE || ch <= Character.MIN_LOW_SURROGATE) {
 					return sb.toString();
 				}
 				*/
-
 				if (runTime > Env.TELNET_READ_UNTIL_MAX_RUNTIME) {
 					return sb.toString();
 				}
 
 				ch = (char)in.read();
+				
 				runTime++;
 			}
-
+		} catch (SocketTimeoutException ste) {
+			return sb.toString();
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			throw e;
@@ -168,15 +193,26 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 					 * 預期命令送出後結束符號，針對VM設備的config檔因為內含有「#」符號，判斷會有問題
 					 * e.g. 「#」 > 「NK-HeNBGW-04#」
 					 */
-					String expectedTerminalSymbol = replaceExpectedTerminalSymbol(scriptVO.getExpectedTerminalSymbol(), configInfoVO);
+					List<String> expectedTerminalSymbols = new ArrayList<>();
+					
+					for(String word: scriptVO.getExpectedTerminalSymbol().split("\\^")) {
+						expectedTerminalSymbols.add(replaceExpectedTerminalSymbol(word, configInfoVO));
+					}
 
 					String[] errorSymbols = StringUtils.isNotBlank(scriptVO.getErrorSymbol()) ? scriptVO.getErrorSymbol().split(Env.COMM_SEPARATE_SYMBOL) : null;
 
 					// 送出命令
 					cmd = replaceContentSign(csVO, scriptVO, configInfoVO, null);
 					write(cmd);
-					output = readUntil(expectedTerminalSymbol);
+					
+					Thread.sleep(StringUtils.isNotBlank(scriptVO.getScriptSleepTime())?Long.parseLong(scriptVO.getScriptSleepTime()):sleepTime); // 執行命令間格時間
+					
+					output = readUntil(expectedTerminalSymbols);
 
+					if(StringUtils.isBlank(output)) {
+						throw new SocketTimeoutException("readUntil return is blank then no expectedTerminalSymbols!!");
+					}
+					
 					processLog.append(output);
 
 					boolean success = true;
@@ -196,8 +232,6 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 							csVO = processOutput(csVO, scriptVO, output, cmdOutputs);
 						}
 					}
-
-					Thread.sleep(StringUtils.isNotBlank(scriptVO.getScriptSleepTime())?Long.parseLong(scriptVO.getScriptSleepTime()):sleepTime); // 執行命令間格時間
 				}
 
 				/*

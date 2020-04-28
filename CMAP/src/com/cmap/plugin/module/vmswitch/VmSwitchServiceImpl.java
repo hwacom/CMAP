@@ -187,7 +187,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 newConfigList = stepService.processConfigContentSetting(null, Constants.CONFIG_CONTENT_SETTING_TYPE_VM_SWITCH, configInfoVO);
 
                 if (newConfigList == null || (newConfigList != null && newConfigList.isEmpty())) {
-                    throw new ServiceLayerException("要供裝的組態內容為空");
+                    throw new ServiceLayerException("要供裝的組態內容為空,"+_IS_EPDG_+","+deviceListId);
                 }
 
                 vmSwitchVO.setNewConfigList(newConfigList);
@@ -214,7 +214,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              */
             writeLog(logKey, Step.CHECK_SSH_STATUS, Status.EXECUTING, null);
             final boolean _SSH_IS_FINE_ = chkSwitchHostSSHStatus(deviceIp, true);
-            String sshMsg = _SSH_IS_FINE_ ? "SSH 可通" : "SSH 不通";
+            String sshMsg = "IP:"+deviceIp+ (_SSH_IS_FINE_ ? " SSH 可通" : " SSH 不通");
             writeLog(logKey, Step.STEP_RESULT, Status.MSG, sshMsg);
 
             /* Step 3. [END] ********************************************************************************/
@@ -245,27 +245,28 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             /*
              * Step 5. 登入備援機，依照要切換的設備類型決定還原作法
              */
-            if (_IS_EPDG_) {
-                /*
-                 * ePDG 備援機操作有三步驟:
-                 * (1) 寫入 boot 設定 & reload
-                 * (2) 等待 reload 完成
-                 * (3) reload 完成後，登入設備供裝開啟 port
-                 */
-                modifyBackupHostBootAndReloadAndNoShutdown(vmSwitchVO, deviceList);
+//            if (_IS_EPDG_) {
+//                /*
+//                 * ePDG 備援機操作有三步驟:
+//                 * (1) 寫入 boot 設定 & reload
+//                 * (2) 等待 reload 完成
+//                 * (3) reload 完成後，登入設備供裝開啟 port
+//                 */
+//                modifyBackupHostBootAndReloadAndNoShutdown(vmSwitchVO, deviceList);
+//
+//            } else {
+//                /*
+//                 * HeNBGW 備援機操作僅有一步驟:
+//                 * (1) 登入設備供裝
+//                 */
+//                writeLog(logKey, Step.PROVISION_CONFIG_TO_BACKUP_HOST, Status.EXECUTING, null);
+//
+//                insertConfig2BackupHost(vmSwitchVO, deviceList);
+//                modifyBackupHostBootAndReloadAndNoShutdown(vmSwitchVO, deviceList);
+//                writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+//            }
 
-            } else {
-                /*
-                 * HeNBGW 備援機操作僅有一步驟:
-                 * (1) 登入設備供裝
-                 */
-                writeLog(logKey, Step.PROVISION_CONFIG_TO_BACKUP_HOST, Status.EXECUTING, null);
-
-                insertConfig2BackupHost(vmSwitchVO, deviceList);
-
-                writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
-            }
-
+            modifyBackupHostBootAndReloadAndNoShutdown(vmSwitchVO, deviceList);
             /* Step 5. [END] ********************************************************************************/
             Thread.sleep(500);
 
@@ -666,6 +667,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              * Step 2-2. 查詢指定的 VM name 系統組態備份紀錄，確認有無備份紀錄，有的話才有辦法執行後續動作
              */
             ConfigVersionInfoDAOVO cviDAOVO = new ConfigVersionInfoDAOVO();
+            log.info("groupId:"+groupId+",deviceId:"+deviceId);
             cviDAOVO.setQueryGroup1(groupId);
             cviDAOVO.setQueryDevice1(deviceId);
             List<Object[]> versionList = configVersionInfoDAO.findConfigVersionInfoByDAOVO4New(cviDAOVO, null, null);
@@ -687,7 +689,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             List<String> versionIDs = new ArrayList<>();
             versionIDs.add(restoreVersionId);
-
+            log.info("restoreVersionId:"+restoreVersionId);
             List<VersionServiceVO> vsVOList = versionService.findConfigFilesInfo(versionIDs);
 
             if (chkListIsEmpty(vsVOList)) {
@@ -700,6 +702,10 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             } else {
                 VersionServiceVO retVO = vsVOList.get(0);
 
+                errorMsg = "此設備查組態備份紀錄 (設備名稱: " + deviceEngName + ", 最新版本號: " + restoreVersionId + ")";
+
+                writeLog(logKey, Step.STEP_RESULT, Status.EXECUTING, errorMsg);
+                
                 String filePath = retVO.getConfigFileDirPath();
                 String fileName = retVO.getFileFullName();
                 try {
@@ -737,6 +743,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                     vmSwitchVO.setRestoreVersionId(restoreVersionId);
                     vmSwitchVO.setOriConfigList(configContent);
 
+                    log.info("OriConfigList=>"+configContent);
                     writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
 
                     return vmSwitchVO;
@@ -1052,7 +1059,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 //                            ? setting.getSettingValue() : _BACKUP_HOST_EPDG_IMAGE_PATH_;
 //                }
 
-                setting = vmSwitchDAO.getVmSetting(BACKUP_HOST_IP_EPDG);
+                setting = vmSwitchDAO.getVmSetting(vmSwitchVO.isEPDG()?BACKUP_HOST_IP_EPDG:BACKUP_HOST_IP_HENBGW);
 
                 if (setting != null) {
                     _BACKUP_HOST_IP_ = StringUtils.isNotBlank(setting.getSettingValue())
@@ -1131,11 +1138,12 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             /*
              * Step 3. 將 ePDG 中 port 及 vlan 改為 no shutdown
              */
-            writeLog(logKey, Step.PROVISION_PORT_AND_VLAN_FOR_NO_SHUTDOWN, Status.EXECUTING, null);
+            writeLog(logKey, Step.PROVISION_CONFIG_TO_BACKUP_HOST, Status.EXECUTING , " IP:"+ backupHost.getDeviceIp());
 
             insertConfig2BackupHost(vmSwitchVO, backupHost);
 
             writeLog(logKey, Step.STEP_RESULT, Status.FINISH, null);
+            
             /* Step 3. [END] ********************************************************************************/
 
         } catch (ServiceLayerException sle) {

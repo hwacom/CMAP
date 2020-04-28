@@ -13,6 +13,7 @@ import java.util.Objects;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -244,8 +245,11 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     if (loginInfo != null) {
                     	communityString = loginInfo.getCommunityString();
                     	udpPort = loginInfo.getUdpPort();
-                    } else {
+                    }
+                    if(StringUtil.isEmpty(communityString)) {
                     	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
+                    }
+                    if(udpPort == null) {
                     	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
                     }
 
@@ -338,8 +342,8 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         List<IpMappingServiceVO> ipMacPortMappingList = new ArrayList<>();
 
         try {
-        	log.info("[IpMapping] jobId: " + jobId + " <START> ================================================================================");
-        	log.info("[IpMapping] jobId: " + jobId + " , executeDate: " + executeDate + " , groupId: " + groupId);
+        	log.debug("[IpMapping] jobId: " + jobId + " <START> ================================================================================");
+        	log.debug("[IpMapping] jobId: " + jobId + " , executeDate: " + executeDate + " , groupId: " + groupId);
         	long beginTime = System.currentTimeMillis();
         	long startTime = System.currentTimeMillis();
 
@@ -356,7 +360,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             	throw new ServiceLayerException("查無L3設備!! (Group_ID: " + groupId + ")");
             }
             long endTime = System.currentTimeMillis();
-            log.info("[IpMapping] jobId: " + jobId + " >> Step 1. Polling L3 ARP_TABLE (Device*" + (deviceL3.size()) + ") >> Cost: " + (endTime - startTime) + " ms");
+            log.debug("[IpMapping] jobId: " + jobId + " >> Step 1. Polling L3 ARP_TABLE (Device*" + (deviceL3.size()) + ") >> Cost: " + (endTime - startTime) + " ms");
 
             startTime = System.currentTimeMillis();
             // Step 2. 撈取MacTable資料 (僅針對L2 switch撈取)
@@ -369,7 +373,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 throw new ServiceLayerException("查無L2設備!! (Group_ID: " + groupId + ")");
             }
             endTime = System.currentTimeMillis();
-            log.info("[IpMapping] jobId: " + jobId + " >> Step 2. Polling L2 MAC_TABLE (Device*" + (deviceL2.size()) + ") >> Cost: " + (endTime - startTime) + " ms");
+            log.debug("[IpMapping] jobId: " + jobId + " >> Step 2. Polling L2 MAC_TABLE (Device*" + (deviceL2.size()) + ") >> Cost: " + (endTime - startTime) + " ms");
 
             if ((L2MacTableMap == null || (L2MacTableMap != null && L2MacTableMap.isEmpty()))
             		|| (L3ArpTableMap == null || (L3ArpTableMap != null && L3ArpTableMap.isEmpty()))) {
@@ -438,7 +442,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                 }
             }
             endTime = System.currentTimeMillis();
-            log.info("[IpMapping] jobId: " + jobId + " >> Step 3. ArpTable & MacTable mapping處理 >> Cost: " + (endTime - startTime) + " ms");
+            log.debug("[IpMapping] jobId: " + jobId + " >> Step 3. ArpTable & MacTable mapping處理 >> Cost: " + (endTime - startTime) + " ms");
 
             startTime = System.currentTimeMillis();
             // Step 4. 寫入Module_Arp_Table / Module_Mac_Table / Module_Ip_Mac_Port_Mapping資料
@@ -467,9 +471,9 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	if (!artTableList.isEmpty()) {
         		ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, artTableList);
         	}
-        	log.info("jobId: " + jobId + " >> artTableList size: " + artTableList.size());
+        	log.debug("jobId: " + jobId + " >> artTableList size: " + artTableList.size());
         	endTime = System.currentTimeMillis();
-        	log.info("[IpMapping] jobId: " + jobId + " >> Step 4-1.寫入Module_Arp_Table >> Cost: " + (endTime - startTime) + " ms");
+        	log.debug("[IpMapping] jobId: " + jobId + " >> Step 4-1.寫入Module_Arp_Table >> Cost: " + (endTime - startTime) + " ms");
 
         	startTime = System.currentTimeMillis();
         	// 寫入Module_Mac_Table
@@ -496,9 +500,9 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	if (!macTableList.isEmpty()) {
         		ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, macTableList);
         	}
-        	log.info("jobId: " + jobId + " >> macTableList size: " + macTableList.size());
+        	log.debug("jobId: " + jobId + " >> macTableList size: " + macTableList.size());
         	endTime = System.currentTimeMillis();
-        	log.info("[IpMapping] jobId: " + jobId + " >> Step 4-2.寫入Module_Mac_Table >> Cost: " + (endTime - startTime) + " ms");
+        	log.debug("[IpMapping] jobId: " + jobId + " >> Step 4-2.寫入Module_Mac_Table >> Cost: " + (endTime - startTime) + " ms");
 
         	startTime = System.currentTimeMillis();
         	// 寫入Module_Ip_Mac_Port_Mapping
@@ -524,9 +528,9 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
         	if (!mappingList.isEmpty()) {
         		ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, mappingList);
         	}
-        	log.info("jobId: " + jobId + " >> ipMacPortMappingList size: " + mappingList.size());
+        	log.debug("jobId: " + jobId + " >> ipMacPortMappingList size: " + mappingList.size());
         	endTime = System.currentTimeMillis();
-        	log.info("[IpMapping] jobId: " + jobId + " >> Step 4-3.寫入Module_Ip_Mac_Port_Mapping >> Cost: " + (endTime - startTime) + " ms");
+        	log.debug("[IpMapping] jobId: " + jobId + " >> Step 4-3.寫入Module_Ip_Mac_Port_Mapping >> Cost: " + (endTime - startTime) + " ms");
 
         	startTime = System.currentTimeMillis();
             // Step 5. 比對IP前一次Mapping紀錄，判斷是否有異動 & 寫入Module_Ip_Mac_Port_Mapping_Change資料
@@ -588,13 +592,13 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             if (!mappingChangeList.isEmpty()) {
             	ipMappingDAO.insertEntities(BaseDAO.TARGET_SECONDARY_DB, mappingChangeList);
             }
-            log.info("jobId: " + jobId + " >> ipMacPortMappingChangeList size: " + mappingChangeList.size());
+            log.debug("jobId: " + jobId + " >> ipMacPortMappingChangeList size: " + mappingChangeList.size());
 
             endTime = System.currentTimeMillis();
             long finishTime = System.currentTimeMillis();
-        	log.info("[IpMapping] jobId: " + jobId + " >> Step 5.比對IP前一次Mapping紀錄，判斷是否有異動 & 寫入Module_Ip_Mac_Port_Mapping_Change資料 >> Cost: " + (endTime - startTime) + " ms");
-        	log.info("[IpMapping] jobId: " + jobId + " , groupId: " + groupId + " , COST: " + (finishTime - beginTime) + " ms");
-        	log.info("[IpMapping] jobId: " + jobId + " <END> ================================================================================");
+        	log.debug("[IpMapping] jobId: " + jobId + " >> Step 5.比對IP前一次Mapping紀錄，判斷是否有異動 & 寫入Module_Ip_Mac_Port_Mapping_Change資料 >> Cost: " + (endTime - startTime) + " ms");
+        	log.debug("[IpMapping] jobId: " + jobId + " , groupId: " + groupId + " , COST: " + (finishTime - beginTime) + " ms");
+        	log.debug("[IpMapping] jobId: " + jobId + " <END> ================================================================================");
 
         } catch (Exception e) {
             log.error(e.toString(), e);

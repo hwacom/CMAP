@@ -368,7 +368,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	                            }
 	                        }
 	                        long endTime = System.currentTimeMillis();
-	                        log.info("******************* NET_FLOW_IP_STATISTICS > for-loop takes " + (endTime-beginTime) + " ms");
+	                        log.debug("******************* NET_FLOW_IP_STATISTICS > for-loop takes " + (endTime-beginTime) + " ms");
 
 	                        beginTime = System.currentTimeMillis();
 	                        if (ipTrafficMap != null && !ipTrafficMap.isEmpty()) {
@@ -381,7 +381,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
 	                        	
 	                        }
 	                        endTime = System.currentTimeMillis();
-	                        log.info("******************* NET_FLOW_IP_STATISTICS > write-table takes " + (endTime-beginTime) + " ms");
+	                        log.debug("******************* NET_FLOW_IP_STATISTICS > write-table takes " + (endTime-beginTime) + " ms");
 	                    }
 	                }
 				}

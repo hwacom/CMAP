@@ -14,10 +14,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
@@ -286,7 +289,7 @@ public class CommonUtils {
 			if(name.indexOf(".") > 1) {
 				name = name.substring(0, name.indexOf("."));
 			}
-			expectedTerminalSymbol = StringUtils.replace(expectedTerminalSymbol, Constants.DIR_PATH_DEVICE_NAME, name);
+			expectedTerminalSymbol = StringUtils.replace(expectedTerminalSymbol, Constants.DIR_PATH_DEVICE_NAME, StringUtils.upperCase(name));
 		}
 		if (StringUtils.contains(expectedTerminalSymbol, Constants.EXPECTED_TERMINAL_SYMBOL_OF_CURRENT_YEAR)) {
 			String currentYear = Constants.FORMAT_YYYY.format(new Date());

@@ -1,9 +1,9 @@
 package com.cmap.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,11 +53,9 @@ import org.springframework.web.context.ServletConfigAware;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.comm.oidc.User;
 import com.cmap.comm.oidc.X509HostnameVerifier;
 import com.cmap.comm.oidc.X509TrustManager;
 import com.cmap.exception.ServiceLayerException;
-import com.google.gson.Gson;
 
 /**
  * OpenID 登入驗證流程
@@ -73,7 +71,8 @@ public class ConsumerCYController extends BaseController implements ServletConfi
 
     private ServletConfig servletConfig;
     private ConsumerManager manager;
-
+    private Discovery discovery = new Discovery();
+    
     public void init() throws ServiceLayerException {
         try {
             // --- Forward proxy setup (only if needed) ---
@@ -92,8 +91,7 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             log.info("CYController SSL");
             sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, new TrustManager[]{x509TrustManager}, new SecureRandom());
-
-            Discovery discovery = new Discovery();
+            
             discovery.setYadisResolver(new YadisResolver(new HttpFetcherFactory(sslContext, x509HostnameVerifier)));
 
             this.manager = new ConsumerManager(new RealmVerifierFactory(new YadisResolver(new HttpFetcherFactory(sslContext, x509HostnameVerifier))), discovery, new HttpFetcherFactory(sslContext, x509HostnameVerifier));
@@ -130,8 +128,7 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Identifier identifier = this.verifyResponse(request);
-        log.debug("identifier: " + identifier);
-
+        
         log.info("CYController processReturn = identifier:" + identifier);
         
         if (identifier == null) {
@@ -139,32 +136,19 @@ public class ConsumerCYController extends BaseController implements ServletConfi
 
         } else {
             String[] identifierArray = identifier.getIdentifier().split("/");
-            Gson gson = new Gson();
-            User[] users = gson.fromJson(request.getAttribute("timezone").toString(), User[].class);
-
             String account = identifierArray[identifierArray.length - 1];
-            String schoolId = users[0].getId();
-            String username = request.getAttribute("fullname").toString();
-            String email = request.getAttribute("email").toString();
-
-            Map<String, String> roleMap = new HashMap<>();
-            for (int i=0; i<users.length; i++) {
-                roleMap.put(users[i].getRole(), users[i].getRole());
-            }
-            String[] roles = new String[roleMap.size()];
-            roles = roleMap.values().toArray(roles);
-
+            String username = new String(request.getParameter("openid.sreg.fullname").getBytes("ISO-8859-1"),"UTF-8");
+            
             session.setAttribute(Constants.OIDC_SUB, account);
-            session.setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
+            session.setAttribute(Constants.OIDC_SCHOOL_ID, account);
             session.setAttribute(Constants.OIDC_USER_NAME, username);
-            session.setAttribute(Constants.OIDC_EMAIL, email);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-            boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles, account);
+            boolean canAccess = checkUserCanOrNotAccess(request, account, null, account);
             log.info("CYController processReturn = canAccess:" + canAccess);
             
             if (canAccess) {
-                return loginAuthByPRTG(model, principal, request, schoolId);
+                return loginAuthByPRTG(model, principal, request, account);
 
             } else {
                 session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "無網路管理系統存取權限，請與系統管理員聯繫");
@@ -303,6 +287,7 @@ public class ConsumerCYController extends BaseController implements ServletConfi
 
             // extract the receiving URL from the HTTP request
             StringBuffer receivingURL = httpReq.getRequestURL();
+            
 //          String queryString = httpReq.getQueryString();
 //          if (queryString != null && queryString.length() > 0)
 //              receivingURL.append("?").append(httpReq.getQueryString());
@@ -312,6 +297,13 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             }
             
             receivingURL.setCharAt(receivingURL.indexOf("&"), '?');
+            
+            try {
+	            receivingURL = new StringBuffer(new String(receivingURL.toString().getBytes("ISO-8859-1"),"UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+            	//DO nothing
+			}
+            
             log.info("CYController receivingURL == " + receivingURL.toString());
             
             // verify the response; ConsumerManager needs to be the same
@@ -322,6 +314,7 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             // examine the verification result and extract the verified
             // identifier
             Identifier verified = verification.getVerifiedId();
+            
             if (verified != null) {
                 AuthSuccess authSuccess = (AuthSuccess) verification
                         .getAuthResponse();
@@ -331,6 +324,21 @@ public class ConsumerCYController extends BaseController implements ServletConfi
                 receiveAttributeExchange(httpReq, authSuccess);
 
                 return verified; // success
+            }else if (verified == null  && "Local signature verification failed".equals(verification.getStatusMsg())) {
+            	log.debug("CYController second part ");
+
+				AuthSuccess authResp = AuthSuccess.createAuthSuccess(response);
+				Identifier claimedId = discovered.isVersion2() ? 
+						discovery.parseIdentifier(authResp.getClaimed()) : // may  have  frag
+						discovered.getClaimedIdentifier(); // assert id may be delegate in v1
+
+				AuthSuccess authSuccess = (AuthSuccess) verification.getAuthResponse();
+
+				receiveSimpleRegistration(httpReq, authSuccess);
+
+				receiveAttributeExchange(httpReq, authSuccess);
+
+				return claimedId; // success
             }
         } catch (OpenIDException e) {
             // present error to the user

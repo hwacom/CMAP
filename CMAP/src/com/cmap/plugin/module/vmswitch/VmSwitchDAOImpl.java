@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.vmswitch;
 
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -53,6 +54,42 @@ public class VmSwitchDAOImpl extends BaseDaoHibernate implements VmSwitchDAO {
 	    }
 	}
 
+	@Override
+	public List<ModuleVmNameMappingDetail> findModuleVmNameMappingDetailById(Integer mappingId) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" select mvnmd ")
+		  .append(" from ModuleVmNameMappingDetail mvnmd ")
+		  /*
+		  .append("     ,ModuleVmNameMappingDetail mvnmd ")
+		  .append("     ,ModuleVmEsxiSetting mves ")
+		  */
+		  .append(" where 1=1 ");
+		  /*
+		  .append(" and mvnm.mappingId = mvnmd.mappingId ")
+		  .append(" and mvnmd.esxiSettingId = mves.settingId ");
+		  */
+
+		if (mappingId != null) {
+			sb.append(" and mvnm.mappingDetailId = :mappingId ");
+		}
+
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+
+	    if (mappingId != null) {
+	    	q.setParameter("mappingId", mappingId);
+		}
+
+	    List<ModuleVmNameMappingDetail> reList = (List<ModuleVmNameMappingDetail>)q.list();
+
+	    if (reList == null || (reList != null && reList.isEmpty())) {
+	    	return null;
+
+	    } else {
+	    	return reList;
+	    }
+	}
+	
 	@Override
 	public List<ModuleVmEsxiSetting> findAllVmEsxiSetting() {
 		StringBuffer sb = new StringBuffer();

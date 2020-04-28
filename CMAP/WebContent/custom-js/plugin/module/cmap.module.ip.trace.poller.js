@@ -103,12 +103,13 @@ function addRow(dataList) {
 		var cTR = $("#resultTable > tbody > tr:eq(0)").clone();
 		$(cTR).find("td:eq(0)").html( ++rowCount );
 		$(cTR).find("td:eq(1)").html( data.clientIp );
-		$(cTR).find("td:eq(2)").html( data.startTime );
-		$(cTR).find("td:eq(3)").html( data.endTime );
-		$(cTR).find("td:eq(4)").html( data.clientMac );
-		$(cTR).find("td:eq(5)").html( data.groupName );
-		$(cTR).find("td:eq(6)").html( data.deviceName );
-		$(cTR).find("td:eq(7)").html( data.portName );
+		$(cTR).find("td:eq(2)").html( data.ipDesc );
+		$(cTR).find("td:eq(3)").html( data.startTime );
+		$(cTR).find("td:eq(4)").html( data.endTime );
+		$(cTR).find("td:eq(5)").html( data.clientMac );
+		$(cTR).find("td:eq(6)").html( data.groupName );
+		$(cTR).find("td:eq(7)").html( data.deviceName );
+		$(cTR).find("td:eq(8)").html( data.portName );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -125,7 +126,8 @@ function getTotalFilteredCount() {
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
 			"queryClientMac" : $("#query_ClientMac").val(),
-			"queryClientIp" : $("#query_ClientIp").val()
+			"queryClientIp" : $("#query_ClientIp").val(),
+			"queryOnLineOnly" : document.getElementById("query_OnlineOnly").checked
 		},
 		type : "POST",
 		dataType : 'json',
@@ -195,6 +197,7 @@ function findNextData() {
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
 			"queryClientMac" : $("#query_ClientMac").val(),
 			"queryClientIp" : $("#query_ClientIp").val(),
+			"queryOnLineOnly" : document.getElementById("query_OnlineOnly").checked,
 			"start" : startNum,
 			"length" : pageLength,
 			"order[0][column]" : sortIdx,
@@ -345,14 +348,16 @@ function findData(from) {
 						d.queryTimeBegin = $("#query_TimeBegin").val(),
 						d.queryTimeEnd = $("#query_TimeEnd").val(),
 						d.queryClientMac = $("#query_ClientMac").val(),
-						d.queryClientIp = $("#query_ClientIp").val()
+						d.queryClientIp = $("#query_ClientIp").val(),
+						d.queryOnLineOnly = document.getElementById("query_OnlineOnly").checked
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroupId = $("#queryGroup_mobile").val(),
 						d.queryDate = $("#query_Date_mobile").val(),
 						d.queryTimeBegin = $("#query_TimeBegin_mobile").val(),
 						d.queryTimeEnd = $("#query_TimeEnd_mobile").val(),
 						d.queryClientMac = $("#query_ClientMac_mobile").val(),
-						d.queryClientIp = $("#query_ClientIp_mobile").val()
+						d.queryClientIp = $("#query_ClientIp_mobile").val(),
+						d.queryOnLineOnly = document.getElementById("query_OnlineOnly").checked
 					}
 					d.start = 0; //初始查詢一律從第0筆開始
 					d.length = pageLength;
@@ -384,7 +389,7 @@ function findData(from) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[ 2, 'desc' ]], //用startTime排序
+			"order": [[ 3, 'desc' ]], //用startTime排序
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -425,6 +430,7 @@ function findData(from) {
 			"columns" : [
 				{},
 				{ "data" : "clientIp" , "orderable" : true },
+				{ "data" : "ipDesc" },
 				{ "data" : "startTime", "orderable" : true },
 				{ "data" : "endTime" , "orderable" : true},
 				{ "data" : "clientMac" , "orderable" : true },

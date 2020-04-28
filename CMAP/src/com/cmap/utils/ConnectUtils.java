@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.snmp4j.smi.VariableBinding;
 
-import com.cmap.model.MibOidMapping;
 import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.service.vo.ScriptServiceVO;
 import com.cmap.service.vo.StepServiceVO;
@@ -40,10 +39,12 @@ public interface ConnectUtils {
 	 * 登入設備
 	 * @param account
 	 * @param password
+	 * @param enable
+	 * @param ciVO
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean login(final String account, final String password) throws Exception;
+	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception;
 
 	/**
 	 * 發送指令

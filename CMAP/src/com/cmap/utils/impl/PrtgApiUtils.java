@@ -327,6 +327,7 @@ public class PrtgApiUtils implements ApiUtils {
             String apiUrl = PRTG_ROOT.concat(API_USER_DEVICE_LIST);
 
             String retVal = callPrtg(apiUrl);
+            log.info("for debug retVal = " + retVal);
             if (StringUtils.isNotBlank(retVal)) {
                 ObjectMapper oMapper = new ObjectMapper();
                 try {

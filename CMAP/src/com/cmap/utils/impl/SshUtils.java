@@ -4,7 +4,6 @@ import static net.sf.expectit.filter.Filters.removeColors;
 import static net.sf.expectit.filter.Filters.removeNonPrintable;
 import static net.sf.expectit.matcher.Matchers.contains;
 
-import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Shell;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
-import net.schmizz.sshj.userauth.keyprovider.KeyPairWrapper;
 import net.sf.expectit.Expect;
 import net.sf.expectit.ExpectBuilder;
 import net.sf.expectit.ExpectIOException;
@@ -93,17 +91,29 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 	}
 
 	@Override
-	public boolean login(final String account, final String password) throws Exception {
+	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception {
 		try {
 			checkSshStatus();
 
 //			ssh.authPublickey(account); //TODO
-			ssh.authPassword(account, password);
+			ssh.authPassword(account, password);			
 			log.info("SSH login success!! >>> [ account: " + account + " , password: " + password + " ]");
 
 		} catch (Exception e) {
 			throw new Exception("[SSH login failed] >> [ account: " + account + " , password: " + password + " ] " + e.getMessage());
 		}
+		
+		List<ScriptServiceVO> scriptList = new ArrayList<>();
+		ScriptServiceVO vo = new ScriptServiceVO();
+		vo.setScriptStepOrder("1");
+		vo.setScriptContent("enable");
+		ScriptServiceVO vo2 = new ScriptServiceVO();
+		vo2.setScriptStepOrder("2");
+		vo2.setScriptContent(Env.CLI_VAR_ENABLE_PWD);
+		scriptList.add(vo);
+		scriptList.add(vo2);
+		sendCommands(scriptList, ciVO, new StepServiceVO());
+		
 		return true;
 	}
 
