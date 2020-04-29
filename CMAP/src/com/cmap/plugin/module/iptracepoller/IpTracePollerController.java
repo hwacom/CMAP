@@ -121,6 +121,7 @@ public class IpTracePollerController extends BaseController {
         	searchVO.setQueryTimeEnd(queryTimeEnd);
         	searchVO.setQueryClientMac(queryClientMac);
         	searchVO.setQueryClientIp(queryClientIp);
+        	searchVO.setQueryOnLineOnly(queryOnLineOnly);
         	
 	        filteredTotal = this.ipTracePollerService.countIpTraceDataFromDB(searchVO);
             retVal = Constants.NUMBER_FORMAT_THOUSAND_SIGN.format(filteredTotal);
