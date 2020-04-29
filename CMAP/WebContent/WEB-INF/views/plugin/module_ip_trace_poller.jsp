@@ -36,11 +36,13 @@
                     </form:select>
 	    	    </div>
 	    	    <div class="col-lg-3 group-field-other">
+	    	    <c:if test="${not isSensorSearchMode}">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
 					<form:select class="selectpicker" data-live-search="true" data-width="70%" path="device" id="queryDevice">
                         <form:option value="" label="== ALL ==" />
                         <form:options items="${deviceList}" />
                     </form:select>
+                </c:if>
 				</div>
 	    	  </div>
 	    	  <div class="form-group row">				

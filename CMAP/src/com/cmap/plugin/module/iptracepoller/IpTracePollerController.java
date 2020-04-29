@@ -71,7 +71,7 @@ public class IpTracePollerController extends BaseController {
 			}else {
 				model.addAttribute("groupList", groupListMap);
 			}	
-			
+			model.addAttribute("isSensorSearchMode", isSensorSearchMode);
 			model.addAttribute("device", "");
 			model.addAttribute("deviceList", deviceListMap);
 

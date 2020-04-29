@@ -26,10 +26,6 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
     @Log
     private static Logger log;
 
-    @Autowired
-    @Qualifier("secondSessionFactory")
-    private SessionFactory secondSessionFactory;
-
     @Override
     public List<ModuleIpTrafficStatistics> findModuleIpStatistics(String groupId, String statDate, String ipAddress) {
         StringBuffer sb = new StringBuffer();
@@ -47,7 +43,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
             sb.append(" and mits.ipAddress = :ipAddress ");
         }
 
-        Session session = secondSessionFactory.getCurrentSession();
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
             session.beginTransaction();
@@ -159,7 +155,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
             sb.append("   group by mits.group_id, mits.ip_address ")
               .append(" ) subQuery ");
 
-            Session session = secondSessionFactory.getCurrentSession();
+            Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
             if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
                 session.beginTransaction();
@@ -249,7 +245,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
                 sb.append(" order by mits1.total_traffic desc ");
             }
 
-            Session session = secondSessionFactory.getCurrentSession();
+            Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
             if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
                 session.beginTransaction();
@@ -329,7 +325,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
 				break;
 			}
             
-            Session session = secondSessionFactory.getCurrentSession();
+			 Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
             if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
                 session.beginTransaction();
