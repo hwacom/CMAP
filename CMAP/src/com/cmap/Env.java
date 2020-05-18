@@ -131,6 +131,7 @@ public class Env {
 	public static String MAIL_SERVER_PASSWORD;
 
 	public static Integer SEND_COMMAND_SLEEP_TIME;                           // 設定發送多條命令的間格時間(毫秒)
+	public static String ENABLE_GET_IP_FROM_INFO;                      // 設定啟用或停用查詢未納管IP來源資訊驗證(Y/N)
 	public static String GET_IP_FROM_INFO_API_URL;                           // 設定查詢IP來源資訊的網站API URL (http://ip-api.com/docs/)
 	public static String GET_IP_FROM_INFO_WEB_SITE_URL;                      // 設定查詢IP來源資訊的網站URL (https://dnslytics.com/，由苗栗教網老師提供)
 

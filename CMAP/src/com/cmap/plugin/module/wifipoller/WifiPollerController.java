@@ -2,6 +2,7 @@ package com.cmap.plugin.module.wifipoller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,9 +29,12 @@ import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
+import com.cmap.plugin.module.iptracepoller.IpTracePollerVO;
 import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.DataPollerService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/plugin/module/wifiPoller")
@@ -202,4 +207,65 @@ public class WifiPollerController extends BaseController {
 	        }
 	        return retVO;
 		}
+	
+	  /**
+     * 從 NET_FLOW 查詢功能點擊 SOURCE_IP or DESTINATION_IP 連結時，查找該筆 NET_FLOW 當下 IP 對應的 PORT 資料
+     * @param model
+     * @param request
+     * @param response
+     * @param jsonData
+     * @return
+     */
+	@RequestMapping(value = "getWifiDetailData.json", method = {RequestMethod.POST, RequestMethod.GET})
+    public @ResponseBody AppResponse getWifiDetailData(
+    		Model model, HttpServletRequest request, HttpServletResponse response,
+    		@RequestBody JsonNode jsonData) {
+    		//查詢條件
+    		String queryClientMac = jsonData.findValues("clientMac").get(0).asText();
+    		String queryStartTime = jsonData.findValues("startTime").get(0).asText();
+    		String queryEndTime = jsonData.findValues("endTime").get(0).asText();
+    		//顯示資訊
+		 	String clientIp = jsonData.findValues("clientIp").get(0).asText();
+    		String groupName = jsonData.findValues("groupName").get(0).asText();
+
+    		Map<String, List<Map<String, String>>> detailDataMap = new HashMap<>();
+    		try {
+    			WifiPollerVO searchVO = new WifiPollerVO();
+    			
+    			searchVO.setQueryClientMac(queryClientMac);
+    			searchVO.setQueryStartTime(queryStartTime);
+    			searchVO.setQueryEndTime(queryEndTime);
+
+    			detailDataMap = this.wifiPollerService.findModuleWifiTraceDetail(searchVO);
+
+    			Map<String, Object> retMap = new HashMap<>();
+    			retMap.put("groupName", groupName);
+    			retMap.put("clientIp", clientIp);
+    			retMap.put("clientMac", queryClientMac);
+    			retMap.put("startTime", queryStartTime);
+    			if (StringUtils.isNotBlank(queryEndTime) ) {
+    				 retMap.put("endTime", queryEndTime);
+    			 }else {
+    				 retMap.put("endTime", "now");
+    			 }
+    			// 有查回detailData時進行JSON格式轉換
+    			if(detailDataMap != null && !detailDataMap.isEmpty()) {
+    				ObjectMapper objectMapper = new ObjectMapper();
+    				retMap.put("uploadTrafficDataList", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(detailDataMap.get("uploadTrafficDataList")));
+    				retMap.put("downloadTrafficDataList", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(detailDataMap.get("downloadTrafficDataList")));
+    				retMap.put("totalTrafficDataList", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(detailDataMap.get("totalTrafficDataList")));
+    				retMap.put("rssiDataList", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(detailDataMap.get("rssiDataList")));
+    				retMap.put("noiseDataList", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(detailDataMap.get("noiseDataList")));
+    				retMap.put("snrDataList", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(detailDataMap.get("snrDataList")));
+    			}
+    			return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
+
+    		} catch (ServiceLayerException sle) {
+    			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+    		} catch (Exception e) {
+    			log.error(e.toString(), e);
+    			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+    		}
+    }
+	
 }

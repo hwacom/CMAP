@@ -324,7 +324,7 @@ public class NetFlowTraceController extends BaseController {
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
 			@RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
-			@RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
+			@RequestParam(name="order[0][column]", required=false, defaultValue="") Integer orderColIdx,
 			@RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
 
 		long total = 0;

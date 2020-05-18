@@ -3,7 +3,6 @@ package com.cmap.plugin.module.wifipoller;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.service.vo.CommonServiceVO;
 
 public class WifiPollerVO extends CommonServiceVO {
@@ -15,10 +14,14 @@ public class WifiPollerVO extends CommonServiceVO {
     private String queryDate;
     private String queryTimeBegin;
     private String queryTimeEnd;
+    // for getWifiDetailData
+    private String queryStartTime; //as Datetime
+    private String queryEndTime; //as Datetime
 
 	private List<WifiPollerVO> matchedList = new ArrayList<>();
 	private int totalCount = 0;
 	
+	private String groupName;
     private String clientMac;
     private String startTime;
     private String endTime;
@@ -70,6 +73,24 @@ public class WifiPollerVO extends CommonServiceVO {
 	}
 	public void setQueryTimeEnd(String queryTimeEnd) {
 		this.queryTimeEnd = queryTimeEnd;
+	}
+	public String getQueryStartTime() {
+		return queryStartTime;
+	}
+	public void setQueryStartTime(String queryStartTime) {
+		this.queryStartTime = queryStartTime;
+	}
+	public String getQueryEndTime() {
+		return queryEndTime;
+	}
+	public void setQueryEndTime(String queryEndTime) {
+		this.queryEndTime = queryEndTime;
+	}
+	public String getGroupName() {
+		return groupName;
+	}
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 	public String getClientMac() {
 		return clientMac;

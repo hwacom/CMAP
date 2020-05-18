@@ -1,27 +1,20 @@
 package com.cmap.plugin.module.wifipoller;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
-import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
-import com.cmap.exception.ServiceLayerException;
-import com.cmap.plugin.module.netflow.NetFlowVO;
 
 @Repository("wifiPollerDAO")
 @Transactional
@@ -108,7 +101,7 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
     	List<WifiPollerVO> retList = new ArrayList<>();
     	
         StringBuffer sb = new StringBuffer();
-        sb.append(" select client_mac '1', start_time '2', end_time '3', client_ip '4', ap_name '5', ssid '6', total_traffic '7', upload_traffic '8', download_traffic '9' ")
+        sb.append(" select group_name '1', client_mac '2', start_time '3', end_time '4', client_ip '5', ap_name '6', ssid '7', total_traffic '8', upload_traffic '9', download_traffic '10' ")
         	.append(" from module_wifi_trace_mst mst")
         	.append(" where 1=1 ");
 
@@ -170,20 +163,22 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         	for (Object[] data : dataList) {
         		retVO = new WifiPollerVO();
         		
-        		String clientMac = data[0].toString();
+        		String groupName = data[0].toString();
+        		String clientMac = data[1].toString();
         		
-        		String startTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[1]);
+        		String startTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[2]);
         		// endTime is nullable 預設null顯示空字串
         		String endTime = "";
-        		if(data[2]!=null)
-        			endTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[2]);
-        		String clientIp = data[3].toString();
-        		String apName = data[4].toString();
-        		String ssid = data[5].toString();
-        		String totalTraffic = data[6].toString();
-                String uploadTraffic = data[7].toString();
-                String downloadTraffic = data[8].toString();
+        		if(data[3]!=null)
+        			endTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[3]);
+        		String clientIp = data[4].toString();
+        		String apName = data[5].toString();
+        		String ssid = data[6].toString();
+        		String totalTraffic = data[7].toString();
+                String uploadTraffic = data[8].toString();
+                String downloadTraffic = data[9].toString();
         		
+                retVO.setGroupName(groupName);
                 retVO.setClientMac(clientMac);
                 retVO.setStartTime(startTime);
                 retVO.setEndTime(endTime);
@@ -250,5 +245,74 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         }
 
         return DataAccessUtils.longResult(q.list());
+	}
+	
+	@Override
+	public List<WifiPollerDetailVO> findModuleWifiTraceDetail(WifiPollerVO searchVO) {
+    	// 回傳資料的VO容器
+    	List<WifiPollerDetailVO> retList = new ArrayList<WifiPollerDetailVO>();
+    	
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select detail.client_mac, detail.polling_time, detail.upload_traffic, detail.download_traffic, detail.total_traffic, detail.rssi, detail.noise, detail.snr ")
+        	.append(" from module_wifi_trace_detail detail")
+        	.append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(searchVO.getQueryClientMac()) ) {
+        	sb.append(" and detail.client_mac = :queryClientMac ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryStartTime()) ) {
+        	sb.append(" and detail.polling_time >= :queryStartTime ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryEndTime()) ) {
+        	sb.append(" and detail.polling_time <= :queryEndTime ");
+        }
+        sb.append(" order by detail.polling_time");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+        	session.beginTransaction();
+        }
+
+		Query<?> q = session.createNativeQuery(sb.toString());
+
+		 if (StringUtils.isNotBlank(searchVO.getQueryClientMac()) ) {
+			q.setParameter("queryClientMac", searchVO.getQueryClientMac());
+		}
+		 if (StringUtils.isNotBlank(searchVO.getQueryStartTime()) ) {
+			q.setParameter("queryStartTime", searchVO.getQueryStartTime());
+		}
+		 if (StringUtils.isNotBlank(searchVO.getQueryEndTime()) ) {
+			q.setParameter("queryEndTime", searchVO.getQueryEndTime());
+		}
+
+		// createNative查回時是Object[]格式需要轉型hibernate會對應DB field type
+        List<Object[]> dataList = (List<Object[]>)q.list();
+        if (dataList != null && !dataList.isEmpty()) {
+        	for (Object[] data : dataList) {
+        		WifiPollerDetailVO retVO = new WifiPollerDetailVO();
+				
+        		String clientMac = data[0].toString();
+        		String pollingTime = data[1].toString(); //前端moment.js有限定dateString格式要符合,不要亂改啊!!!!
+        		String uploadTraffic = data[2].toString();
+				String downloadTraffic = data[3].toString();
+				String totalTraffic = data[4].toString();
+				String rssi = data[5].toString();
+				String noise = data[6].toString();
+				String snr = data[7].toString();
+				
+				retVO.setClientMac(clientMac);
+				retVO.setPollingTime(pollingTime);
+				retVO.setUploadTraffic(uploadTraffic);
+				retVO.setDownloadTraffic(downloadTraffic);
+				retVO.setTotalTraffic(totalTraffic);
+				retVO.setRssi(rssi);
+				retVO.setNoise(noise);
+				retVO.setSnr(snr);
+				
+				retList.add(retVO);
+        	}
+		}
+		return retList;
 	}
 }
