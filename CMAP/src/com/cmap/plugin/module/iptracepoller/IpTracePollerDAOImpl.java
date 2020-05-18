@@ -47,7 +47,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
     	List<IpTracePollerVO> retList = new ArrayList<>();
     	
         StringBuffer sb = new StringBuffer();
-        sb.append(" select mit.client_ip '1',mit.start_time '2',mit.end_time '3',mit.client_mac '4',mit.group_name '5',mit.device_name '6',mit.port_name '7', mids.ip_desc '8' ")
+        sb.append(" select mit.client_ip '1', mids.ip_desc '2',mit.start_time '3',mit.end_time '4',mit.client_mac '5',mit.group_name '6',mit.device_name '7',mit.port_name '8' ")
         	.append(" from module_ip_trace mit")
         	.append("      left join Module_Ip_Data_Setting mids ")
             .append("      on ( mit.group_id = mids.group_id ")
@@ -121,16 +121,17 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         		retVO = new IpTracePollerVO();
         		
         		String clientIp = data[0].toString();
-        		String startTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[1]);
+        		String ipDesc = Objects.toString(data[1], Env.IP_DESC_NULL_SHOW_WHAT);
+        		String startTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[2]);
         		// endTime is nullable 預設null顯示空字串
         		String endTime = "";
-        		if(data[2]!=null)
-        			endTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[2]);
-        		String clientMac = data[3].toString();
-        		String groupName = data[4].toString();
-        		String deviceName = data[5].toString();
-        		String portName = data[6].toString();
-        		String ipDesc = Objects.toString(data[7], Env.IP_DESC_NULL_SHOW_WHAT);
+        		if(data[3]!=null)
+        			endTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[3]);
+        		String clientMac = data[4].toString();
+        		String groupName = data[5].toString();
+        		String deviceName = data[6].toString();
+        		String portName = data[7].toString();
+        		
         		
                 retVO.setClientIp(clientIp);
                 retVO.setStartTime(startTime);
@@ -204,5 +205,75 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         }
 
         return DataAccessUtils.longResult(q.list());
+	}
+	
+	@Override
+	public List<IpTracePollerVO> findModuleIpTraceFromNetFlow(IpTracePollerVO searchVO) {
+    	// 回傳資料的VO容器
+    	List<IpTracePollerVO> retList = new ArrayList<>();
+    	
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select mit.group_name, mit.device_name, mit.device_model, mit.client_ip, mids.ip_desc, mit.port_name ")
+        	.append(" from module_ip_trace mit")
+        	.append("      left join Module_Ip_Data_Setting mids ")
+            .append("      on ( mit.group_id = mids.group_id ")
+            .append("           and mit.client_ip = mids.ip_addr ) ")
+        	.append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+        	sb.append(" and mit.client_ip = :queryClientIp ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
+        	sb.append(" and mit.group_id = :queryGroupId ");
+        }
+        // 2020-05-06 Alvin 增加5min延遲時間容錯
+        if (StringUtils.isNotBlank(searchVO.getQueryFromDateTime()) ) {
+        	sb.append(" and mit.start_time <= ( :queryFromDateTimeStr  + INTERVAL 5 MINUTE )");
+        	sb.append(" and (mit.end_time >= :queryFromDateTimeStr or mit.end_time is null)");
+        }
+        sb.append(" order by mit.start_time desc");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+        	session.beginTransaction();
+        }
+
+		Query<?> q = session.createNativeQuery(sb.toString());
+
+		if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+			q.setParameter("queryClientIp", searchVO.getQueryClientIp());
+		}
+		if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
+			q.setParameter("queryGroupId", searchVO.getQueryGroupId());
+		}
+		if (StringUtils.isNotBlank(searchVO.getQueryFromDateTime()) ) {
+			q.setParameter("queryFromDateTimeStr", searchVO.getQueryFromDateTime());
+		}
+
+		// createNative查回時是Object[]格式需要轉型hibernate會對應DB field type
+        List<Object[]> dataList = (List<Object[]>)q.list();
+        if (dataList != null && !dataList.isEmpty()) {
+        	for (Object[] data : dataList) {
+        		IpTracePollerVO retVO = new IpTracePollerVO();
+				
+        		String groupName = data[0].toString();
+        		String deviceName = data[1].toString();
+        		String deviceModel = data[2].toString();
+				String clientIp = data[3].toString();
+				String ipDesc = Objects.toString(data[4], Env.IP_DESC_NULL_SHOW_WHAT);
+				String portName = data[5].toString();
+				
+				retVO.setGroupName(groupName);
+				retVO.setDeviceName(deviceName);
+				retVO.setClientIp(clientIp);
+				retVO.setDeviceModel(deviceModel);
+				retVO.setIpDesc(ipDesc);
+				retVO.setPortName(portName);
+				
+				retList.add(retVO);
+        	}
+		}
+		return retList;
 	}
 }
