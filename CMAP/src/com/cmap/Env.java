@@ -96,6 +96,7 @@ public class Env {
 
 	public static String SHOW_MENU_TREE_BACKEND;                             // 後台管理
     public static String SHOW_MENU_ITEM_BK_SYS_ENV;                          // 後台管理 > 系統參數維護
+    public static String SHOW_MENU_ITEM_BK_SYS_USERRIGHT;                    // 後台管理 > 使用者授權維護
     public static String SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT;                   // 後台管理 > 預設腳本維護
     public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
     public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
@@ -131,6 +132,7 @@ public class Env {
 	public static String MAIL_SERVER_PASSWORD;
 
 	public static Integer SEND_COMMAND_SLEEP_TIME;                           // 設定發送多條命令的間格時間(毫秒)
+	public static String ENABLE_GET_IP_FROM_INFO;                      // 設定啟用或停用查詢未納管IP來源資訊驗證(Y/N)
 	public static String GET_IP_FROM_INFO_API_URL;                           // 設定查詢IP來源資訊的網站API URL (http://ip-api.com/docs/)
 	public static String GET_IP_FROM_INFO_WEB_SITE_URL;                      // 設定查詢IP來源資訊的網站URL (https://dnslytics.com/，由苗栗教網老師提供)
 
@@ -174,6 +176,14 @@ public class Env {
 	public static List<String> DECODE_FIELDS = new ArrayList<>();
 	public static ConnectionMode FILE_TRANSFER_MODE;
 	public static String LOGIN_AUTH_MODE;
+	/**
+	 * 登入驗證模式 (EX: OIDC_MAC / OIDC_NTPC / LDAP / CM)
+	 */
+	public static List<String> LOGIN_MODE = new ArrayList<>();
+	/**
+	 * OIDC驗證時ADMIN對應TITLE名稱
+	 */
+	public static List<String> OIDC_ADMIN_TITLE = new ArrayList<>();
 	public static String ADMIN_USERNAME;
 	public static String ADMIN_PASSWORD;
 	public static List<String> ADMIN_ROLE_USERNAME = new ArrayList<>();

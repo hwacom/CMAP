@@ -88,7 +88,10 @@
 	<script src="${pageContext.request.contextPath}/resources/js/FileSaver/FileSaver.min.js"></script>
 	<!-- D3 -->
 	<script charset="utf-8" type="text/javascript" src="${pageContext.request.contextPath}/resources/D3/d3.min.js"></script>
-	
+	<!-- ChartJS -->
+	<script src="${pageContext.request.contextPath}/resources/js/chart/Chart.bundle.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/chart/utils.js"></script>
+
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/common.min.js"></script>
 	
 	<script>
@@ -741,7 +744,7 @@
 	          <!-- [設定維護] END -->
               
               <!-- [後台管理] START -->
-              <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+              
               	<c:if test="${Env.SHOW_MENU_TREE_BACKEND eq __SHOW__}">
               		<li class="nav-item">
 		                <a class="nav-link toggleMenuLink" id="toggleMenu_admin" href="#">
@@ -750,6 +753,7 @@
 		                </a>
 		                <ul aria-expanded="false" id="toggleMenu_admin_items" class="collapse">
 		                	<!-- [系統參數維護] START -->
+		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 		                	<c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_ENV eq __SHOW__}">
 		                		<li class="subMenu-item">
 			                    	<a id="bk_env" href="${pageContext.request.contextPath}/admin/env/main">
@@ -758,9 +762,21 @@
 			                    	</a>
 			                    </li>
 		                	</c:if>
+		                	</sec:authorize>
 		                	<!-- [系統參數維護] END -->
 		                	
-		                	<!-- [預設腳本維護] START -->
+		                	<!-- [使用者授權維護] START -->
+		                	<c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_USERRIGHT eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_usr" href="${pageContext.request.contextPath}/userRight/main">
+			                    	  <span data-feather="users"></span> 
+			                    		<span><spring:message code="func.sys.user.right.manage" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	<!-- [使用者授權維護] END -->
+		                	
+		                	<!-- [預設腳本維護] START --><!-- 沒有功能
 		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT eq __SHOW__}">
 		                		<li class="subMenu-item">
 			                    	<a id="bk_script" href="${pageContext.request.contextPath}/admin/script/main">
@@ -768,10 +784,11 @@
 			                    	  	<span><spring:message code="func.default.script.manage" /></span>
 			                    	</a>
 			                    </li>
-		                	</c:if>
+		                	</c:if> -->
 		                	<!-- [預設腳本維護] END -->
 		                	
 		                	<!-- [排程設定維護] START -->
+		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_JOB eq __SHOW__}">
 		                		<li class="subMenu-item">
 			                    	<a id="bk_job" href="${pageContext.request.contextPath}/admin/job/main">
@@ -780,9 +797,11 @@
 			                    	</a>
 			                    </li>
 		                	</c:if>
+		                	</sec:authorize>
 		                	<!-- [排程設定維護] END -->
 		                	
 		                	<!-- [系統紀錄查詢] END -->
+		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_SYS_LOG eq __SHOW__}">
 		                		<li class="subMenu-item">
 			                    	<a id="bk_log" href="${pageContext.request.contextPath}/admin/log/main">
@@ -791,11 +810,12 @@
 			                    	</a>
 			                    </li>
 		                	</c:if>
+		                	</sec:authorize>
 		                	<!-- [系統紀錄查詢] END -->
 		                </ul>
 		            </li>
               	</c:if>
-              </sec:authorize>
+              
               <!-- [後台管理] END -->
             </ul>
           </div>
