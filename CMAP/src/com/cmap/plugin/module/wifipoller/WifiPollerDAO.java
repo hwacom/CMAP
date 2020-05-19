@@ -41,4 +41,11 @@ public interface WifiPollerDAO extends BaseDAO {
      * @return 資料筆數
      */
     public long countWifiMstDataFromDB(WifiPollerVO searchVO);
+    
+    /**
+     * 查找WIFI_DETAIL連線資料
+     * @param searchVO
+     * @return  Wifi明細資料List(VO格式)
+     */
+    public List<WifiPollerDetailVO> findModuleWifiTraceDetail(WifiPollerVO searchVO) ;
 }

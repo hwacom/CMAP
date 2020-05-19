@@ -15,6 +15,7 @@ public class IpTracePollerVO extends CommonServiceVO {
     private String queryDateEnd;
     private String queryTimeBegin;
     private String queryTimeEnd;
+    private String queryFromDateTime;
     private boolean queryOnLineOnly;
 
 	private List<IpTracePollerVO> matchedList = new ArrayList<>();
@@ -29,6 +30,7 @@ public class IpTracePollerVO extends CommonServiceVO {
 	private String deviceName;
 	private String deviceModel; //目前前端不顯示此欄位
 	private String portName;
+    private String showMsg;//NetFlow關連查詢IP資料顯示infoMessage
 	
 	public String getQueryClientMac() {
 		return queryClientMac;
@@ -149,6 +151,18 @@ public class IpTracePollerVO extends CommonServiceVO {
 	}
 	public void setQueryDevice(String queryDevice) {
 		this.queryDevice = queryDevice;
+	}
+	public String getQueryFromDateTime() {
+		return queryFromDateTime;
+	}
+	public void setQueryFromDateTime(String queryFromDateTime) {
+		this.queryFromDateTime = queryFromDateTime;
+	}
+	public String getShowMsg() {
+		return showMsg;
+	}
+	public void setShowMsg(String showMsg) {
+		this.showMsg = showMsg;
 	}
     
 }

@@ -2,6 +2,7 @@ package com.cmap.plugin.module.iptracepoller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +28,10 @@ import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
+import com.cmap.plugin.module.ip.mapping.IpMappingServiceVO;
 import com.cmap.security.SecurityUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/plugin/module/ipTracePoller")
@@ -223,4 +228,77 @@ public class IpTracePollerController extends BaseController {
 	        }
 	        return retVO;
 		}
+	
+	  /**
+     * 從 NET_FLOW 查詢功能點擊 SOURCE_IP or DESTINATION_IP 連結時，查找該筆 NET_FLOW 當下 IP 對應的 PORT 資料
+     * @param model
+     * @param request
+     * @param response
+     * @param jsonData
+     * @return
+     */
+    @RequestMapping(value = "getIpTraceDataFromNetFlow.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getIpTraceDataFromNetFlow(
+    		Model model, HttpServletRequest request, HttpServletResponse response,
+    		@RequestBody JsonNode jsonData) {
+    		//查詢條件
+    		String queryGroupId = jsonData.findValues("groupId").get(0).asText();
+    		String queryFromDateTime = jsonData.findValues("fromDateTime").get(0).asText();
+    		//顯示資訊
+    		String groupName = jsonData.findValues("groupName").get(0).asText();
+    		String ipAddress = jsonData.findValues("ipAddress").get(0).asText();
+
+    		IpTracePollerVO retVO = new IpTracePollerVO();
+    		try {
+    			IpTracePollerVO searchVO = new IpTracePollerVO();
+    			searchVO.setQueryGroupId(queryGroupId);
+    			searchVO.setQueryFromDateTime(queryFromDateTime);
+    			searchVO.setQueryClientIp(ipAddress);
+
+    			retVO = this.ipTracePollerService.findModuleIpTraceFromNetFlow(searchVO);
+
+    			Map<String, Object> retMap = new HashMap<>();
+    			retMap.put("groupName", groupName);
+    			retMap.put("ipAddress", ipAddress);
+    			retMap.put("deviceName", retVO.getDeviceName());
+    			retMap.put("deviceModel", retVO.getDeviceModel());
+    			retMap.put("ipDesc", retVO.getIpDesc());
+    			retMap.put("portName", retVO.getPortName());
+    			retMap.put("showMsg", retVO.getShowMsg());
+    			//是否驗證未納管IP來源國家
+			  	boolean isEnableGetIpFromInfo = StringUtils.equalsIgnoreCase(Env.ENABLE_GET_IP_FROM_INFO, Constants.DATA_Y);
+			  	retMap.put("isEnableGetIpFromInfo", isEnableGetIpFromInfo);
+    			if(isEnableGetIpFromInfo) {
+    				String ipFromInfo = getIpFromInfo(ipAddress);
+    				//有查到就將來源資料存入retMap
+    				if (StringUtils.isNotBlank(ipFromInfo)) {
+    					ObjectMapper mapper = new ObjectMapper();
+    					JsonNode ipJsonObj = mapper.readTree(ipFromInfo);
+    					if( ipJsonObj.findValue("status").asText().equals("success")) {
+    						String country = ipJsonObj.findValue("country").asText();
+    						String countryCode = ipJsonObj.findValue("countryCode").asText();
+    						String city = ipJsonObj.findValue("city").asText();
+    						String region = ipJsonObj.findValue("regionName").asText();
+
+    						retMap.put("location", city + ", " + region + ", " + country + " (" + countryCode + ")");
+    						retMap.put("countryCode", StringUtils.lowerCase(countryCode));
+    					} else {
+    						// 當API查詢IP status fail時，改提供備用網站連結
+    						retMap.put("countryQueryURL", Env.GET_IP_FROM_INFO_WEB_SITE_URL + ipAddress);
+    					}
+    				} else {
+    					// 當API網站發生問題時，改提供備用網站連結
+    					retMap.put("countryQueryURL", Env.GET_IP_FROM_INFO_WEB_SITE_URL + ipAddress);
+    				}
+    			}
+    			
+    			return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
+
+    		} catch (ServiceLayerException sle) {
+    			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+    		} catch (Exception e) {
+    			log.error(e.toString(), e);
+    			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+    		}
+    }
 }

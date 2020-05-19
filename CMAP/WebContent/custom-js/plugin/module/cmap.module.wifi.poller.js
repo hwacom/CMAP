@@ -110,16 +110,17 @@ function addRow(dataList) {
 		var rowCount = $("#resultTable > tBody > tr").length;
 		var cTR = $("#resultTable > tbody > tr:eq(0)").clone();
 		$(cTR).find("td:eq(0)").html( ++rowCount );
-		$(cTR).find("td:eq(1)").html( data.clientMac );
-		$(cTR).find("td:eq(2)").html( data.startTime );
-		$(cTR).find("td:eq(3)").html( data.endTime );
-		$(cTR).find("td:eq(4)").html( data.clientIp );
-		$(cTR).find("td:eq(5)").html( data.apName );
-		$(cTR).find("td:eq(6)").html( data.ssid );
-		$(cTR).find("td:eq(7)").html( data.totalTraffic );
-		$(cTR).find("td:eq(8)").html( data.uploadTraffic );
-		$(cTR).find("td:eq(9)").html( data.downloadTraffic );
-		$(cTR).find("td:eq(10)").html( '<i class="fas fa-clipboard-list fa-2x"></i>' );
+		$(cTR).find("td:eq(1)").html( data.groupName );
+		$(cTR).find("td:eq(2)").html( data.clientMac );
+		$(cTR).find("td:eq(3)").html( data.startTime );
+		$(cTR).find("td:eq(4)").html( data.endTime );
+		$(cTR).find("td:eq(5)").html( data.clientIp );
+		$(cTR).find("td:eq(6)").html( data.apName );
+		$(cTR).find("td:eq(7)").html( data.ssid );
+		$(cTR).find("td:eq(8)").html( data.totalTraffic );
+		$(cTR).find("td:eq(9)").html( data.uploadTraffic );
+		$(cTR).find("td:eq(10)").html( data.downloadTraffic );
+		$(cTR).find("td:eq(11)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+row.groupName+'\',' +'\''+row.clientMac+'\',' +'\''+row.clientIp+'\',' +'\''+row.startTime+'\',' +'\''+row.endTime+'\'' + '" )></i>' );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -175,6 +176,177 @@ function getTotalFilteredCount() {
 		error : function(xhr, ajaxOptions, thrownError) {
 			//ajaxErrorHandler();
 			$("#total_count").html('&nbsp;N/A&nbsp;');
+		}
+	});
+}
+
+// 跳窗顯示WifiDetail資料
+function viewWifiDetail(groupName, clientMac, clientIp, startTime, endTime) {
+
+	var obj = new Object();
+	obj.groupName = groupName;
+	obj.clientMac = clientMac;
+	obj.clientIp = clientIp;
+	obj.startTime = startTime;
+	obj.endTime = endTime
+	
+	$.ajax({
+		url : _ctx + '/plugin/module/wifiPoller/getWifiDetailData.json',
+		data : JSON.stringify(obj),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {
+				$('#viewWifiDetailModal_groupName').parent().show();
+				$('#viewWifiDetailModal_clientMac').parent().show();
+				$('#viewWifiDetailModal_clientIp').parent().show();
+				$('#viewWifiDetailModal_pollingTime').parent().show();
+				//填入對應欄位值
+				$('#viewWifiDetailModal_groupName').html(resp.data.groupName);
+				$('#viewWifiDetailModal_clientMac').html(resp.data.clientMac);
+				$('#viewWifiDetailModal_clientIp').html(resp.data.clientIp);
+				$('#viewWifiDetailModal_pollingTime').html(resp.data.startTime +" ~ "+resp.data.endTime);
+				var trafficChartHtml = 
+				"<canvas id=\"canvasTraffic\" width=\"300\" height=\"100\"></canvas> \
+				<script> \
+				var ctxTraffic = document.getElementById(\'canvasTraffic\').getContext(\'2d\'); \
+				var colorTraffic = Chart.helpers.color; \
+				var configTraffic = { \
+					type: \'line\', \
+					data: { \
+						datasets: [ \
+						    { \
+								label: \'Upload Traffic\', \
+								borderColor: window.chartColors.red, \
+								fill: false, \
+								data: "+ resp.data.uploadTrafficDataList  +
+							"}, { \
+								label: \'Download Traffic\', \
+								borderColor: window.chartColors.blue, \
+								fill: false, \
+								data: "+ resp.data.downloadTrafficDataList  +							
+							"}, { \
+								label: \'Total Traffic\', \
+								borderColor: window.chartColors.green, \
+								fill: false, \
+								data: "+ resp.data.totalTrafficDataList  +							
+							"} \
+						] \
+					}, \
+					options: { \
+						responsive: true, \
+						title: { \
+							display: true, \
+							text: \"Wifi Traffic Throughput Chart\" \
+						}, \
+						scales: { \
+							xAxes: [{ \
+								type: \'time\', \
+								display: true, \
+								scaleLabel: { \
+									display: true, \
+									labelString: \'Polling時間\' \
+								}, \
+								ticks: { \
+									major: { \
+										fontStyle: \'bold\', \
+										fontColor: \'#FF0000\' \
+									} \
+								} \
+							}], \
+							yAxes: [{ \
+								display: true, \
+								scaleLabel: { \
+									display: true, \
+									labelString: \'流量(Octets)\' \
+								} \
+							}] \
+						} \
+					} \
+				}; \
+				var chartTraffic = new Chart(ctxTraffic, configTraffic); \
+				</script> \
+				";
+				$('#viewWifiDetailModal_trafficData').html(trafficChartHtml);
+				var qualityChartHtml = 
+					"<canvas id=\"canvasQuality\" width=\"300\" height=\"100\"></canvas> \
+					<script> \
+					var ctxQuality = document.getElementById(\'canvasQuality\').getContext(\'2d\'); \
+					var colorQuality = Chart.helpers.color; \
+					var configQuality = { \
+						type: \'line\', \
+						data: { \
+							datasets: [ \
+							    { \
+									label: \'SNR\', \
+									borderColor: window.chartColors.red, \
+									fill: false, \
+									data: "+ resp.data.snrDataList  +
+								"}, { \
+									label: \'Noise\', \
+									borderColor: window.chartColors.blue, \
+									fill: false, \
+									data: "+ resp.data.noiseDataList  +							
+								"}, { \
+									label: \'RSSI\', \
+									borderColor: window.chartColors.green, \
+									fill: false, \
+									data: "+ resp.data.rssiDataList  +							
+								"} \
+							] \
+						}, \
+						options: { \
+							responsive: true, \
+							title: { \
+								display: true, \
+								text: \"Wifi Signal Quality Chart\" \
+							}, \
+							scales: { \
+								xAxes: [{ \
+									type: \'time\', \
+									display: true, \
+									scaleLabel: { \
+										display: true, \
+										labelString: \'Polling時間\' \
+									}, \
+									ticks: { \
+										major: { \
+											fontStyle: \'bold\', \
+											fontColor: \'#FF0000\' \
+										} \
+									} \
+								}], \
+								yAxes: [{ \
+									display: true, \
+									scaleLabel: { \
+										display: true, \
+										labelString: \'分貝毫瓦(dBm)\' \
+									} \
+								}] \
+							} \
+						} \
+					}; \
+					var chartQuality = new Chart(ctxQuality, configQuality); \
+					</script> \
+					";				
+				$('#viewWifiDetailModal_qualityData').html(qualityChartHtml);
+				$('#viewWifiDetailModal').modal('show');			
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
 		}
 	});
 }
@@ -402,6 +574,7 @@ function findData(from) {
 			},
 			"columns" : [
 				{},
+				{ "data" : "groupName" , "orderable" : true },
 				{ "data" : "clientMac" , "orderable" : true },
 				{ "data" : "startTime", "orderable" : true },
 				{ "data" : "endTime" , "orderable" : true},
@@ -424,12 +597,12 @@ function findData(from) {
 						   	}
 				},
 				{
-					"targets" : [10],
+					"targets" : [11],
 					"className" : "center",
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-									var html = '<i class="fas fa-clipboard-list fa-2x"></i>';
+									var html = '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail('+'\''+row.groupName+'\',' +'\''+row.clientMac+'\',' +'\''+row.clientIp+'\','+'\''+row.startTime+'\',' +'\''+row.endTime+'\'' + ')" ></i>';
 									return html;
 							 }
 				}

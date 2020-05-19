@@ -24,4 +24,10 @@ public interface IpTracePollerService {
      */
 	public long countIpTraceDataFromDB(IpTracePollerVO searchVO) throws ServiceLayerException;
 
+    /**
+     * NetFlow資料關聯查找IP資料(Netflow.fromDateTime與IpTrace.startTime相符合)
+     * @param searchVO
+     * @return IP_TRACE資料(VO格式)
+     */
+	public IpTracePollerVO findModuleIpTraceFromNetFlow(IpTracePollerVO searchVO) throws ServiceLayerException;
 }

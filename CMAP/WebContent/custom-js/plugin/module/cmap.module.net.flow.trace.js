@@ -202,12 +202,12 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(0)").html( ++rowCount );
 		$(cTR).find("td:eq(1)").html( data.groupName );
 		$(cTR).find("td:eq(2)").html( data.now );
-		//$(cTR).find("td:eq(3)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.sourceIPInGroup+'\',\'S\')">'+data.sourceIP+'</a>' );
-		$(cTR).find("td:eq(3)").html( data.sourceIP);
+		$(cTR).find("td:eq(3)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.fromDateTime+'\',\''+data.sourceIPInGroup+'\',\''+data.groupName+'\',\''+data.sourceIP+'\')">'+data.sourceIP+'</a>' );
+		//$(cTR).find("td:eq(3)").html( data.sourceIP);
 		$(cTR).find("td:eq(4)").html( data.sourcePort );
 		$(cTR).find("td:eq(5)").html( data.sourceMAC );
-		//$(cTR).find("td:eq(6)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.dataId+'\',\''+data.fromDateTime+'\',\''+data.destinationIPInGroup+'\',\'D\')">'+data.destinationIP+'</a>' );
-		$(cTR).find("td:eq(6)").html( data.destinationIP );
+		$(cTR).find("td:eq(6)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.fromDateTime+'\',\''+data.destinationIPInGroup+'\',\''+data.groupName+'\',\''+data.destinationIP+'\')">'+data.destinationIP+'</a>' );
+		//$(cTR).find("td:eq(6)").html( data.destinationIP );
 		$(cTR).find("td:eq(7)").html( data.destinationPort );
 		$(cTR).find("td:eq(8)").html( data.destinationMAC );
 		$(cTR).find("td:eq(9)").html( data.size );
@@ -419,15 +419,15 @@ function findNextData() {
 	});
 }
 
-function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
+function viewIpPort(groupId, fromDateTime, ipInGroup, groupName, ipAddress) {
 	var obj = new Object();
 	obj.groupId = groupId;
-	obj.dataId = dataId;
-	obj.fromDateTime = fromDateTime;
-	obj.type = type;
+	obj.fromDateTime = fromDateTime
+	obj.groupName = groupName;
+	obj.ipAddress = ipAddress;
 	
 	$.ajax({
-		url : _ctx + '/plugin/module/ipMapping/getMappingRecordFromNetFlow.json',
+		url : _ctx + '/plugin/module/ipTracePoller/getIpTraceDataFromNetFlow.json',
 		data : JSON.stringify(obj),
 		headers: {
 		    'Accept': 'application/json',
@@ -443,45 +443,49 @@ function viewIpPort(groupId, dataId, fromDateTime, ipInGroup, type) {
 		},
 		success : function(resp) {
 			if (resp.code == '200') {
+				var ipInGroupMsg = "";
 				$('#viewIpMappingPortModal_groupName').parent().show();
-				
+				//根據內外網切換顯示項目
 				if (ipInGroup == "Y") {
 					$('#viewIpMappingPortModal_deviceName').parent().show();
 					$('#viewIpMappingPortModal_deviceModel').parent().show();
 					$('#viewIpMappingPortModal_portName').parent().show();
-					$('#viewIpMappingPortModal_showMsg').parent().show();
 					$('#viewIpMappingPortModal_country').parent().hide();
-					
+					ipInGroupMsg = "IP is in the group subnet";
 				} else {
 					$('#viewIpMappingPortModal_deviceName').parent().hide();
 					$('#viewIpMappingPortModal_deviceModel').parent().hide();
 					$('#viewIpMappingPortModal_portName').parent().hide();
-					$('#viewIpMappingPortModal_showMsg').parent().hide();
 					$('#viewIpMappingPortModal_country').parent().show();
+					ipInGroupMsg = "IP is not in the group subnet";
 				}
 				$('#viewIpMappingPortModal_ipAddress').parent().show();
 				$('#viewIpMappingPortModal_ipDesc').parent().show();
-				
+				$('#viewIpMappingPortModal_showMsg').parent().show();
+				//填入對應欄位值
 				$('#viewIpMappingPortModal_groupName').html(resp.data.groupName);
 				$('#viewIpMappingPortModal_deviceName').html(resp.data.deviceName);
 				$('#viewIpMappingPortModal_deviceModel').html(resp.data.deviceModel);
 				$('#viewIpMappingPortModal_ipAddress').html(resp.data.ipAddress);
 				$('#viewIpMappingPortModal_ipDesc').html(resp.data.ipDesc);
 				$('#viewIpMappingPortModal_portName').html(resp.data.portName);
-				$('#viewIpMappingPortModal_showMsg').html(resp.data.showMsg);
-				
+				$('#viewIpMappingPortModal_showMsg').html(resp.data.showMsg +"<br/>"+ ipInGroupMsg);
+				var isEnableGetIpFromInfo =  resp.data.isEnableGetIpFromInfo;
 				var locationHtml = "N/A";
 				var location = resp.data.location;
 				var countryCode = resp.data.countryCode;
 				var countryQueryURL = resp.data.countryQueryURL;
-				
-				if (location != "" && location != undefined && location != "undefined") {
-					locationHtml = "<span class=\"flag-icon flag-icon-" + countryCode + "\"></span>&nbsp;" + location
-				} else {
-					locationHtml = "<a href=\"" + countryQueryURL + "\" target=\"_blank\">查詢IP來源國家</a>";
+				// Intranet用戶可設置環境變數Env.ENABLE_GET_IP_FROM_INFO = "N"停用IP來源國家查詢
+				if( isEnableGetIpFromInfo ){
+					if (location != "" && location != undefined && location != "undefined") {
+						locationHtml = "<span class=\"flag-icon flag-icon-" + countryCode + "\"></span>&nbsp;" + location
+					} else {
+						locationHtml = "<a href=\"" + countryQueryURL + "\" target=\"_blank\">查詢IP來源國家</a>";
+					}
+					$('#viewIpMappingPortModal_country').html(locationHtml);
+				}else{
+					$('#viewIpMappingPortModal_country').parent().hide();
 				}
-				$('#viewIpMappingPortModal_country').html(locationHtml);
-				
 				$('#viewIpMappingPortModal').modal('show');
 				
 			} else {
@@ -690,12 +694,7 @@ function findData(from) {
 					"orderable": true,
 					"render" : function(data, type, row) {
 									var html;
-									if(row.sourceIPInGroup == 'Y'){
-										html = row.sourceIP;
-										//html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\'S\')">'+row.sourceIP+'</a>';
-									}else {
-										html = row.sourceIP;
-									}
+									html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\''+row.groupName+'\',\''+row.sourceIP+'\')">'+row.sourceIP+'</a>';
 									return html;
 							 }
 				},
@@ -706,12 +705,7 @@ function findData(from) {
 					"orderable": true,
 					"render" : function(data, type, row) {
 									var html;
-									if(row.destinationIPInGroup == 'Y'){
-										html = row.destinationIP;
-										//html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.dataId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\'D\')">'+row.destinationIP+'</a>';
-									}else {
-										html = row.destinationIP;
-									}
+									html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\''+row.groupName+'\',\''+row.destinationIP+'\')">'+row.destinationIP+'</a>';
 									return html;
 							 }
 				}

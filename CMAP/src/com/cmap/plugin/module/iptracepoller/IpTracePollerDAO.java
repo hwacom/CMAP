@@ -19,7 +19,7 @@ public interface IpTracePollerDAO extends BaseDAO {
      * @param searchVO
      * @param startRow 分頁起始列
      * @param pageLength 分頁長度
-     * @return VO格式
+     * @return IP_TRACE資料List(VO格式)
      */
     public List<IpTracePollerVO> findModuleIpTrace(IpTracePollerVO searchVO, Integer startRow, Integer pageLength) ;
     
@@ -29,4 +29,11 @@ public interface IpTracePollerDAO extends BaseDAO {
      * @return 資料筆數
      */
     public long countIpTraceDataFromDB(IpTracePollerVO searchVO);
+    
+    /**
+     * NetFlow資料關聯查找IP資料(預期只有1筆資料,多筆例外由Service做處理)
+     * @param searchVO
+     * @return IP_TRACE資料List(VO格式)
+     */
+    public List<IpTracePollerVO> findModuleIpTraceFromNetFlow(IpTracePollerVO searchVO) ;
 }

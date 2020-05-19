@@ -130,6 +130,7 @@
 		  <thead class="center">
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.client.mac" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.start.time" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.end.time" /></th>
@@ -148,8 +149,57 @@
   </div>
   
 </section>
+<!-- Modal [ViewWifiDetail] start -->
+<div class="modal fade" id="viewWifiDetailModal" tabindex="-1" role="dialog" aria-labelledby="viewWifiDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-mid" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewWifiDetailLabel"><span id="msgModal_title">Wifi連線明細資料</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+     	<div class="form-group row">
+        	<label for="viewWifiDetailModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_groupName"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewWifiDetailModal_clientMac" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.mac" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_clientMac"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewWifiDetailModal_clientIp" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.ip" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_clientIp"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewWifiDetailModal_pollingTime" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.polling.time" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_pollingTime"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewWifiDetailModal_trafficData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_trafficData"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewWifiDetailModal_qualityData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.quality.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_qualityData"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [ViewWifiDetail] end -->
 <script>
 	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
 </script>
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.wifi.poller.min.js"></script>
+<style>
+	canvas {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+	}
+</style>
