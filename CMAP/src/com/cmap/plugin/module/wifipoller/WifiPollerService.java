@@ -1,9 +1,10 @@
 package com.cmap.plugin.module.wifipoller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.cmap.exception.ServiceLayerException;
-import com.cmap.plugin.module.netflow.NetFlowVO;
 
 public interface WifiPollerService {
 
@@ -24,4 +25,12 @@ public interface WifiPollerService {
      */
 	public long countWifiMstRecordFromDB(WifiPollerVO searchVO) throws ServiceLayerException;
 
+    /**
+     * 查找WIFI_DETAIL連線資料
+     * 分兩組 trafficDataList, qualityDataList 
+     * 資料均為JSON格式 (x放時間, y放觀測值)
+     * @param searchVO
+     * @return List
+     */
+    public Map<String, List<Map<String, String>>> findModuleWifiTraceDetail(WifiPollerVO searchVO) throws ServiceLayerException;
 }

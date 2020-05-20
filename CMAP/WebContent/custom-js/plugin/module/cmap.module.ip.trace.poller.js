@@ -32,7 +32,20 @@ $(document).ready(function() {
 	$('#query_ClientIp').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});
-	
+	//Checkbox reset query_DateTime
+	$("#query_OnlineOnly").click(function() {
+		if($("#query_OnlineOnly").prop("checked")){
+			$("#query_DateBegin").val("");
+			$("#query_DateEnd").val("");
+			$("#query_TimeBegin").val("");
+			$("#query_TimeEnd").val("");
+		}else{
+			$("#query_DateBegin").val(year+"-"+month+"-"+date);
+			$("#query_DateEnd").val(year+"-"+month+"-"+date);
+			$("#query_TimeBegin").val("00:00");
+			$("#query_TimeEnd").val("23:59");
+		}
+    });
 	var today = new Date();
 	var year = today.getFullYear();
 	var month = parseInt(today.getMonth()) + 1;
@@ -332,7 +345,7 @@ function findData(from) {
 		{
 			"autoWidth" 	: true,
 			"paging" 		: false,
-			"bFilter" 		: true,
+			"bFilter" 		: false,
 			"ordering" 		: true,
 			"info" 			: true,
 			"serverSide" 	: true, //false關閉server端排序

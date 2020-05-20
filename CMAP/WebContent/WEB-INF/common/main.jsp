@@ -88,7 +88,10 @@
 	<script src="${pageContext.request.contextPath}/resources/js/FileSaver/FileSaver.min.js"></script>
 	<!-- D3 -->
 	<script charset="utf-8" type="text/javascript" src="${pageContext.request.contextPath}/resources/D3/d3.min.js"></script>
-	
+	<!-- ChartJS -->
+	<script src="${pageContext.request.contextPath}/resources/js/chart/Chart.bundle.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/chart/utils.js"></script>
+
 	<script src="${pageContext.request.contextPath}/resources/js/custom/min/common.min.js"></script>
 	
 	<script>
