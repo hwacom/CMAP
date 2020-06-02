@@ -36,7 +36,7 @@ import com.cmap.service.vo.DataPollerServiceVO;
 
 @Repository("netFlowTraceDAO")
 @Transactional
-public class NetFlowDAOTraceImpl extends BaseDaoHibernate implements NetFlowTraceDAO {
+public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTraceDAO {
 	@Log
 	private static Logger log;
 

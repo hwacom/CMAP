@@ -120,7 +120,7 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(8)").html( data.totalTraffic );
 		$(cTR).find("td:eq(9)").html( data.uploadTraffic );
 		$(cTR).find("td:eq(10)").html( data.downloadTraffic );
-		$(cTR).find("td:eq(11)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+row.groupName+'\',' +'\''+row.clientMac+'\',' +'\''+row.clientIp+'\',' +'\''+row.startTime+'\',' +'\''+row.endTime+'\'' + '" )></i>' );
+		$(cTR).find("td:eq(11)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+data.groupName+'\',' +'\''+data.clientMac+'\',' +'\''+data.clientIp+'\',' +'\''+data.startTime+'\',' +'\''+data.endTime+'\'' + ')" ></i>' );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
