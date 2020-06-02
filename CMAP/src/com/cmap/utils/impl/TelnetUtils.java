@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -85,31 +84,47 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 		
 		try {			
 			output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
-			if(StringUtils.isNotBlank(output)) {
-				write(account);
-				processLog.append(output);
-				if (StringUtils.equals(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
-					log.info("cmd: username success!!" );
-				}
-			}
 			
-			output = readUntil(Arrays.asList(Env.TELNET_LOGIN_PASSWORD_TEXT));
 			if(StringUtils.isNotBlank(output)) {
-				write(password);
+				if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//直接輸入密碼
+					write(password);
+				}else {
+					write(account);
+					Thread.sleep(1000); // 執行命令間格時間
+					write(password);
+				}				
 				processLog.append(output);
-				if (StringUtils.equals(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
-					log.info("cmd: password success!!" );
-				}
-			}			
-			
-			Thread.sleep(1000); // 執行命令間格時間
-			write("enable");
-			output = readUntil(Arrays.asList(Env.TELNET_LOGIN_PASSWORD_TEXT));
-			if(StringUtils.isNotBlank(output)) {
-				write(enable);
-				processLog.append(output);
-				if (StringUtils.equals(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
-					log.info("cmd: enable success!!");
+				
+				Thread.sleep(1000); // 執行命令間格時間
+				output = readUntil(Env.TELNET_LOGIN_ENABLE_TEXT);
+
+				if(StringUtils.isNotBlank(output)) { 
+					
+					boolean enableFlag = false;
+					for(String text : Env.TELNET_LOGIN_ENABLE_TEXT) { //判斷是否包含需要enable字元
+						if(output.toLowerCase().endsWith(text)) {
+							enableFlag = true;
+							break;
+						}
+					}
+					
+					if(enableFlag) {
+						write("enable");
+						
+						output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
+						
+						if(StringUtils.isNotBlank(output)) {
+							if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//enable 直接輸入密碼
+								write(enable);
+							}else { //enable需要輸入帳號
+								write(account);
+								Thread.sleep(1000); // 執行命令間格時間
+								write(enable);
+							}
+							
+							processLog.append(output);
+						}
+					}
 				}
 			}
 			
