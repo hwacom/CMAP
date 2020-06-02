@@ -705,7 +705,6 @@ public class CommonServiceImpl implements CommonService {
 			if (mapping != null) {
 				retVO = new PrtgServiceVO();
 				retVO.setAccount(mapping.getPrtgAccount());
-				retVO.setPassword(mapping.getPrtgPassword());
 			}
 
 		} catch (Exception e) {
