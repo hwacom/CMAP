@@ -50,6 +50,7 @@ import com.cmap.dao.MenuItemDAO;
 import com.cmap.dao.ProtocolDAO;
 import com.cmap.dao.PrtgDAO;
 import com.cmap.dao.ScriptTypeDAO;
+import com.cmap.dao.UserDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
@@ -60,6 +61,7 @@ import com.cmap.model.ProtocolSpec;
 import com.cmap.model.PrtgAccountMapping;
 import com.cmap.model.PrtgUserRightSetting;
 import com.cmap.model.ScriptType;
+import com.cmap.model.UserRightSetting;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
 import com.cmap.service.impl.jobs.BaseJobImpl.Result;
@@ -102,6 +104,9 @@ public class CommonServiceImpl implements CommonService {
 	@Autowired
 	private GroupSubnetDAO groupSubnetDAO;
 
+	@Autowired
+	private UserDAO userDAO;
+	
 	@Override
     public String convertByteSizeUnit(BigDecimal sizeByte, Integer targetUnit) {
         int scale = Env.NET_FLOW_SIZE_SCALE;
@@ -226,29 +231,9 @@ public class CommonServiceImpl implements CommonService {
             retVO = new CommonServiceVO();
 
             // Step 1. 取得 PRTG_ACCOUNT_MAPPING 設定
-            List<PrtgAccountMapping> accountList = prtgDAO.findPrtgAccountMappingByAccount(prtgAccount);
+            PrtgAccountMapping accountMapping = prtgDAO.findPrtgAccountMappingByAccount(prtgAccount);
 
-            if (accountList != null && !accountList.isEmpty()) {
-                // 過濾掉相同帳號但因不同學校所設定的多組資料，權限只依帳號設定，相同帳號的資料只保留一筆
-                String preVal = null, nowVal = null;
-                boolean firstRound = true;
-                for (Iterator<PrtgAccountMapping> it = accountList.iterator(); it.hasNext();) {
-                    if (firstRound) {
-                        preVal = it.next().getPrtgAccount();
-                        firstRound = false;
-                        continue;
-                    }
-
-                    nowVal = it.next().getPrtgAccount();
-
-                    if (StringUtils.equals(preVal, nowVal)) {
-                        it.remove();
-                    }
-
-                    preVal = nowVal;
-                }
-                _accountCount = accountList.size();
-
+            if (accountMapping != null) {
                 ApiUtils prtgApiUtils = new PrtgApiUtils();
                 String account = null, password = null, passhash = null;
 
@@ -259,7 +244,7 @@ public class CommonServiceImpl implements CommonService {
 
                 // Step 2. 迴圈跑所有 ACCOUNT
                 int round = 1;
-                for (PrtgAccountMapping pam : accountList) {
+
                     String percent = new BigDecimal(round)
                                           .divide(new BigDecimal(_accountCount), new MathContext(5, RoundingMode.HALF_UP))
                                           .multiply(new BigDecimal(100))
@@ -271,8 +256,8 @@ public class CommonServiceImpl implements CommonService {
                         prtgApiUtils.init();
 
                         // Step 2-1. 呼叫 PRTG API 取得每個 ACCOUNT 的群組&設備權限列表
-                        account = pam.getPrtgAccount();
-                        password = pam.getPrtgPassword();
+                        account = accountMapping.getPrtgAccount();
+                        password = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
 
                         // 先取得此組帳密所對應的Passhash，後續撈群組&設備選單就不必再各別撈一次
                         sTime = System.currentTimeMillis();
@@ -481,12 +466,10 @@ public class CommonServiceImpl implements CommonService {
                     } catch (Exception e) {
                         // 其中發生錯誤則跳過
                         log.error(e.toString(), e);
-                        continue;
 
                     } finally {
                         round++;
                     }
-                }
 
                 prtgDAO.deleteEntities(BaseDAO.TARGET_PRIMARY_DB, deleteEntities);
                 prtgDAO.insertEntities(BaseDAO.TARGET_PRIMARY_DB, insertEntities);
@@ -708,10 +691,16 @@ public class CommonServiceImpl implements CommonService {
 	}
 
 	@Override
-	public PrtgServiceVO findPrtgLoginInfo(String sourceId) {
+	public PrtgServiceVO findPrtgLoginInfo(String username) {
 		PrtgServiceVO retVO = null;
 		try {
-			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingBySourceId(sourceId);
+			UserRightSetting userRight = userDAO.findUserRightSetting(username);
+			
+			if(userRight == null) {
+				throw new ServiceLayerException("使用者權限錯誤!!");
+			}
+			
+			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingByAccount(userRight.getUserGroup());
 
 			if (mapping != null) {
 				retVO = new PrtgServiceVO();
@@ -1161,6 +1150,56 @@ public class CommonServiceImpl implements CommonService {
 						}
 						
 					}
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return retMap;
+    }
+    
+    @Override
+	public Map<String, String> findPrtgAccountMappingList(String account) {
+    	List<PrtgAccountMapping> result = new ArrayList<>();
+    	Map<String, String> retMap = new LinkedHashMap<>();
+    	
+		try {	
+			if(StringUtils.isNotBlank(account)) {
+				UserRightSetting userRight = userDAO.findUserRightSetting(account);
+				PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingByAccount(userRight.getUserGroup());
+
+				if(mapping != null) {
+					result.add(mapping);
+				}
+			}else {
+				result = prtgDAO.findPrtgAccountMappingList();
+			}
+			
+			for(PrtgAccountMapping mapping:result) {
+				retMap.put(mapping.getPrtgAccount(), mapping.getPrtgUsername());
+			}
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+		return retMap;
+	}
+    
+    @Override
+    public Map<String, String> getDeviceModelMap(String prtgAccount) {
+        Map<String, String> retMap = null;
+        try {
+        	List<DeviceList> groupList = prtgDAO.findPrtgUserRightGroupAndDeviceFullInfo(prtgAccount);
+
+            if (groupList != null && !groupList.isEmpty()) {
+                retMap = new HashMap<>();
+
+                String deviceModel = null;
+                for (DeviceList device : groupList) {
+                    deviceModel = device.getDeviceModel();
+
+                    if (StringUtils.isNotBlank(deviceModel) && !StringUtils.equals(Constants.DATA_STAR_SYMBOL, deviceModel)) {
+                        retMap.put(deviceModel, deviceModel);
+                    }
                 }
             }
         } catch (Exception e) {

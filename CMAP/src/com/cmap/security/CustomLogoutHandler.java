@@ -11,17 +11,22 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
 
 public class CustomLogoutHandler implements LogoutHandler {
 	@Log
 	private static Logger log;
 
+	@Autowired
+	private SysLoginInfoDAO sysLoginInfoDAO;
+	
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		/*
@@ -41,6 +46,9 @@ public class CustomLogoutHandler implements LogoutHandler {
 		HttpClientContext context = HttpClientContext.create();
 
 		try {
+			String sessionId = request.getSession().getId();
+			sysLoginInfoDAO.updateLogoutTime(sessionId);
+			
 			CloseableHttpResponse closeableResponse = httpclient.execute(httpPost, context);
 
 			int statusCode = closeableResponse.getStatusLine().getStatusCode();

@@ -11,6 +11,7 @@ import javax.naming.ldap.LdapContext;
 import javax.servlet.http.HttpServletRequest;
 
 import com.cmap.Env;
+import com.cmap.annotation.Log;
 
 public class LDAPUtils {
 
@@ -51,8 +52,10 @@ public class LDAPUtils {
 	 * @throws Exception
 	 ******************************/
 	public boolean LDAP_AUTH_AD(HttpServletRequest request, String account, String password) throws Exception {
-		if (account.isEmpty() || password.isEmpty())
+		if (account.isEmpty() || password.isEmpty()) {
 			throw new Exception("認證失敗!");
+		}
+		boolean returnFlag = false;
 
 		Hashtable env = new Hashtable();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -64,6 +67,7 @@ public class LDAPUtils {
 		LdapContext ctx = null;
 		try {
 			ctx = new InitialLdapContext(env, null);
+			returnFlag = true;
 		} catch (javax.naming.AuthenticationException e) {
 			throw new javax.naming.AuthenticationException("認證失敗!");
 		} catch (javax.naming.CommunicationException e) {
@@ -79,6 +83,6 @@ public class LDAPUtils {
 			}
 			
 		}
-		return true;
+		return returnFlag;
 	}
 }

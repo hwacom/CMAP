@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
+import com.cmap.model.PrtgAccountMapping;
 import com.cmap.service.vo.CommonServiceVO;
 import com.cmap.service.vo.PrtgServiceVO;
 
@@ -92,10 +93,10 @@ public interface CommonService {
 
 	/**
 	 * 取得 PRTG 登入帳密資訊 (Prtg_Account_Mapping)
-	 * @param sourceId
+	 * @param prtgUsername
 	 * @return
 	 */
-	public PrtgServiceVO findPrtgLoginInfo(String sourceId);
+	public PrtgServiceVO findPrtgLoginInfo(String prtgUsername);
 
 	/**
 	 * 取得 IP protocol 規格表
@@ -146,4 +147,13 @@ public interface CommonService {
 	 * @return
 	 */
 	public DeviceLoginInfo findDeviceLoginInfo(String deviceListId, String groupId, String deviceId);
+
+	/**
+	 * 查詢prtgAccountMapping列表
+	 * @param prtgAccount
+	 * @return
+	 */
+	public Map<String, String> findPrtgAccountMappingList(String prtgAccount);
+
+	public Map<String, String> getDeviceModelMap(String prtgAccount);
 }

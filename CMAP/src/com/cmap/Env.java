@@ -180,6 +180,7 @@ public class Env {
 	 * 登入驗證模式 (EX: OIDC_MAC / OIDC_NTPC / LDAP / CM)
 	 */
 	public static List<String> LOGIN_MODE = new ArrayList<>();
+	public static String LDAP_DEFAULT_PRTG_ACCOUNT;
 	/**
 	 * OIDC驗證時ADMIN對應TITLE名稱
 	 */

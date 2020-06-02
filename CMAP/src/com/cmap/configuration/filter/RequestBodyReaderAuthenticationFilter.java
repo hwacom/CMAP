@@ -1,15 +1,16 @@
 package com.cmap.configuration.filter;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.sql.Timestamp;
+import java.util.Base64;
+import java.util.Date;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,60 +19,72 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.exception.AuthenticateException;
+import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.PrtgAccountMapping;
+import com.cmap.model.SysLoginInfo;
+import com.cmap.model.UserRightSetting;
 import com.cmap.security.SecurityUtil;
+import com.cmap.service.PrtgService;
+import com.cmap.service.UserService;
 import com.cmap.utils.ApiUtils;
+import com.cmap.utils.impl.EncryptUtils;
 import com.cmap.utils.impl.LDAPUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
-import com.nimbusds.oauth2.sdk.ResponseType;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.auth.Secret;
-import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.util.StringUtils;
-import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import com.nimbusds.openid.connect.sdk.Nonce;
 
 public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	@Log
 	private static Logger log;
 
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private PrtgService prtgService;
+	
+	@Autowired
+	private SysLoginInfoDAO sysLoginInfoDAO;
+	
 	public RequestBodyReaderAuthenticationFilter() {
 	}
 
-	/**
-	 * 解析request form資訊取得使用者輸入的帳號&密碼
-	 * @param requestBody
-	 * @return
-	 */
-	/*
-    private Map<String, String> composeUserNamePasswordMap(String requestBody) {
-    	Map<String, String> retMap = new HashMap<String, String>();
-
-    	//username=prtgadmin&password=prtgadmin
-    	if (requestBody != null && requestBody.indexOf("&") != -1) {
-    		String[] temp = requestBody.split("&");
-        	for (String t : temp) {
-        		String key = t.split("=")[0];
-        		String value = t.split("=")[1];
-        		retMap.put(key, value);
-        	}
-    	}
-
-    	return retMap;
-    }
-	 */
-
-	private void loginAuthByPRTG(HttpServletRequest request, String username, String password) {
+	private void loginAuthByCM(HttpServletRequest request, String username, String password) {
 		try {
 			final String ipAddr = SecurityUtil.getIpAddr(request);
 			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
 			
+			UserRightSetting userRight = userService.getUserRightSetting(username);
+			
+			if(userRight == null) {
+				throw new ServiceLayerException("使用者登入資訊錯誤!!");
+			}else if(!StringUtils.equals(StringUtils.upperCase(EncryptUtils.getSha256(password)), userRight.getPassword())){
+				throw new ServiceLayerException("使用者登入資訊錯誤!!");
+			}
+			
+			PrtgAccountMapping mapping = prtgService.getMappingByAccount(userRight.getUserGroup());
+			
+			if(mapping == null) {
+				throw new ServiceLayerException("使用者登入資訊錯誤!!");
+			}
+			
+			String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
+			
 			ApiUtils prtgApiUtils = new PrtgApiUtils();
-			boolean loginSuccess = prtgApiUtils.login(request, username, password);
+			boolean loginSuccess = prtgApiUtils.login(request, mapping.getPrtgAccount(), adminPass);
 
 			if (loginSuccess) {
-				request.getSession().setAttribute(Constants.USERROLE, Constants.USERROLE_USER);
+				request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
+				request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
+				request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight.getUserName());
+				
+	            SysLoginInfo info = new SysLoginInfo();
+	            info.setSessionId(request.getSession().getId());
+	            info.setIpAddr(ipAddr);
+	            info.setAccount(username);
+	            info.setUserName(userRight.getUserName());
+	            info.setLoginTime(new Timestamp((new Date()).getTime()));
+	            sysLoginInfoDAO.saveSysLoginInfo(info);
 			}
 
 		} catch (AuthenticateException ae) {
@@ -80,97 +93,6 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
-
-		/*
-		BaseAuthentication.authAdminUser(request, username, password);
-		BaseAuthentication.authAdminRole(request, username);
-		*/
-	}
-
-	private void loginAuthByOIDC(HttpServletRequest request, HttpServletResponse response) {
-		ClientID clientID;
-	    Secret clientSecret;
-	    URI tokenEndpoint;
-	    URI authEndpoint;
-	    String jwksURI;
-
-		HttpSession session = request.getSession();
-        String login = request.getParameter("login");
-        if (login == null) {
-            login = "mlc";  //預設教育部帳號服務登入
-        }
-        URI userinfoEndpointURL;
-        String redirectURI;
-//        logger.info(login);
-        try {
-
-            if (login.equals("google")) {
-//                google clientid
-                clientID = new ClientID("432402061677-ivsu1a14dtah90f4on0p5tsirfktfj8j.apps.googleusercontent.com");
-                clientSecret = new Secret("I9Jgk7y9RdxdfptniK51mQxg");
-                authEndpoint = new URI("https://accounts.google.com/o/oauth2/auth");
-                tokenEndpoint = new URI("https://www.googleapis.com/oauth2/v4/token");
-                userinfoEndpointURL = new URI("https://www.googleapis.com/oauth2/v3/userinfo");
-                jwksURI = "https://www.googleapis.com/oauth2/v3/certs";
-//                redirectURI = "http://localhost:8080/demoApp/callback";
-                redirectURI = "https://coding.teliclab.info/demoApp/callback";
-
-            } else {
-                //moe clientid
-                clientID = new ClientID("3c884188c8a654ecebf78e560468e1cb");
-                clientSecret = new Secret("0380462b62942f35e21714ff0f321c6a6a88b89c66166a73303ddd1105a46d1a");
-                authEndpoint = new URI("https://mlc.sso.edu.tw/oidc/v1/azp");
-                tokenEndpoint = new URI("https://mlc.sso.edu.tw/oidc/v1/token");
-                userinfoEndpointURL = new URI("https://mlc.sso.edu.tw/oidc/v1/userinfo");
-                jwksURI = "https://mlc.sso.edu.tw/oidc/v1/jwksets";
-                redirectURI = "https://163.19.163.170:443/login/code";
-
-            }
-
-            session.setAttribute("clientID", clientID.getValue());
-//            logger.info("clientID:" + clientID.getValue());
-            session.setAttribute("clientSecret", clientSecret.getValue());
-//            logger.info("client Secret:" + clientSecret.getValue());
-            session.setAttribute("tokenEndpoint", tokenEndpoint.toString());
-//            logger.info("token endpoint"+ tokenEndpoint.toString());
-            session.setAttribute("userinfoEndpointURL", userinfoEndpointURL.toString());
-            session.setAttribute("jwksURI", jwksURI);
-            // The client callback URI, typically pre-registered with the server
-//            URI callback = new URI("https://coding.teliclab.info/demoApp/callback");
-
-            URI callback = new URI(redirectURI);
-            session.setAttribute("redirectURI", redirectURI);
-
-            // Generate random state string for pairing the response to the request
-            State state = new State();
-            session.setAttribute("state", state.toString());
-
-            // Generate nonce
-            Nonce nonce = new Nonce();
-
-            // Compose the request (in code flow)
-            AuthenticationRequest authzReq = new AuthenticationRequest(
-                    authEndpoint,
-                    new ResponseType("code"),
-                    Scope.parse("openid profile eduinfo openid2 email"),
-                    clientID,
-                    callback,
-                    state,
-                    nonce);
-
-            log.info("1.User authorization request");
-
-            log.info(authzReq.getEndpointURI().toString() + "?" + authzReq.toQueryString());
-            try {
-				response.sendRedirect(authzReq.getEndpointURI().toString() + "?" + authzReq.toQueryString());
-
-			} catch (IOException ioe) {
-				log.error(ioe.toString(), ioe);
-			}
-
-        } catch (URISyntaxException ex) {
-        	log.error(ex.toString(), ex);
-        }
 	}
 
 	/**
@@ -178,9 +100,6 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 	 */
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-		//        String requestBody;
-		//            requestBody = IOUtils.toString(request.getReader());
-
 	    String previousPage = Objects.toString(request.getSession().getAttribute(Constants.PREVIOUS_URL));
 
 		//每次登入動作首先清空Session所有值
@@ -188,6 +107,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 
 		if (StringUtils.isNotBlank(previousPage)) {
 		    request.getSession().setAttribute(Constants.PREVIOUS_URL, previousPage);
+		    log.info("for debug previousPage ==== "+previousPage);
 		}
 
 		String username = obtainUsername(request);
@@ -197,26 +117,15 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		request.getSession().setAttribute(Constants.PASSWORD, password);
 		request.getSession().setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-		//            Map<String, String> authMap = composeUserNamePasswordMap(requestBody);
-		
-		switch (Env.LOGIN_AUTH_MODE) {
-			case Constants.LOGIN_AUTH_MODE_PRTG:
-				loginAuthByPRTG(request, username, password);
-				break;
-
-			case Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI:
-				loginAuthByOIDC(request, response);
-				break;
-				
-			case Constants.LOGIN_AUTH_MODE_LDAP:
-				loginAuthByLDAP(request, username, password);
-				break;
-				
-//			case Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI:
-//				loginAuthByOIDC(request, response);
-//				break;
+		if(Env.LOGIN_MODE.contains(Constants.LOGIN_AUTH_MODE_LDAP) && Env.LDAP_URL != null && Env.LDAP_DOMAIN != null) {
+			loginAuthByLDAP(request, username, password);
 		}
-
+		
+		boolean checkLDAP = Boolean.TRUE == request.getSession().getAttribute("LDAP_AUTH_RESULT");
+		if(!checkLDAP) {
+			loginAuthByCM(request, username, password);
+		}		
+		
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
 
 		// Allow subclasses to set the "details" property
@@ -227,30 +136,58 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 	
 	private void loginAuthByLDAP(HttpServletRequest request, String username, String password) {
 		try {
+			
 			final String ipAddr = SecurityUtil.getIpAddr(request);
 			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
-
+			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
+			
 			LDAPUtils utils = new LDAPUtils();
-			//String ldap_url, String account, String password, String domain
 			boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
 
 			if (loginSuccess) {
-				request.getSession().setAttribute("LDAP_AUTH_RESULT", true);
-				request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
+				UserRightSetting userRight = userService.getUserRightSetting(username);
+				
+				String userGroup = null;
+				if(userRight == null) {
+					userGroup = new String(Base64.getDecoder().decode(Env.LDAP_DEFAULT_PRTG_ACCOUNT),Constants.CHARSET_UTF8);
+				}else {
+					userGroup = userRight.getUserGroup();
+				}
+				
+				PrtgAccountMapping mapping = prtgService.getMappingByAccount(userGroup);
+				
+				if(mapping == null) {
+					throw new ServiceLayerException("使用者登入資訊錯誤!!");
+				}
+				
+				String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
+				
+				ApiUtils prtgApiUtils = new PrtgApiUtils();
+				loginSuccess = prtgApiUtils.login(request, mapping.getPrtgAccount(), adminPass);
+
+				if (loginSuccess) {
+					request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
+					request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
+					request.getSession().setAttribute(Constants.OIDC_USER_NAME, username);
+					request.getSession().setAttribute("LDAP_AUTH_RESULT", true);
+					
+		            SysLoginInfo info = new SysLoginInfo();
+		            info.setSessionId(request.getSession().getId());
+		            info.setIpAddr(ipAddr);
+		            info.setAccount(username);
+		            info.setUserName(username);
+		            info.setLoginTime(new Timestamp((new Date()).getTime()));
+		            sysLoginInfoDAO.saveSysLoginInfo(info);
+				}
 			}
 
 		} catch (AuthenticateException ae) {
-			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
 			log.error(ae.toString());
 
 		} catch (Exception e) {
-			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
 			log.error(e.toString(), e);
 		}
 
-		/*
-		BaseAuthentication.authAdminUser(request, username, password);
-		BaseAuthentication.authAdminRole(request, username);
-		*/
+		
 	}
 }

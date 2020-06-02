@@ -6,19 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
 import com.cmap.dao.vo.CommonDAOVO;
 import com.cmap.exception.ServiceLayerException;
-import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.service.DataPollerService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.vo.CommonServiceVO;
@@ -35,8 +36,6 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
     @Autowired
     private FirewallDAO firewallDAO;
 
-    @Autowired
-    private DatabaseMessageSourceBase messageSource;
 
     @Override
     public List<String> getFieldNameList(String queryType, String fieldType) {
@@ -219,11 +218,6 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
             String fieldName = fieldsList.get(i);
             queryFieldsSQL.append("`").append(fieldName).append("`");
 
-            /*
-            if (i < fieldsList.size() - 1) {
-                queryFieldsSQL.append(", ");
-            }
-            */
             queryFieldsSQL.append(", ");
         }
 
@@ -358,8 +352,6 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
         long retVal = 0;
         try {
             String queryType = fVO.getQueryType();
-            int beginMonth = fVO.getQueryMonths()[0];
-            int endMonth = fVO.getQueryMonths()[1];
 
             String[] tableNames = null;
             if (StringUtils.equals(queryType, Constants.FIREWALL_LOG_TYPE_ALL)) {
@@ -375,17 +367,12 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
                 tableNames[0] = getQueryTableName(fVO);
             }
 
-            String tName = null;
             CommonDAOVO cVO = null;
             for (String tableName : tableNames) {
-                for (int month = beginMonth; month <= endMonth; month++) {
-                    tName = tableName.concat("_").concat(StringUtils.leftPad(String.valueOf(month), 3, "0"));
-                    cVO = firewallDAO.getTableInformation(BaseDAO.TARGET_PRIMARY_DB, tName);
-
-                    if (cVO != null) {
-                        long tableRows = cVO.getTableInfoOfRows();
-                        retVal += tableRows;
-                    }
+            	cVO = firewallDAO.getTableInformation(BaseDAO.TARGET_PRIMARY_DB, tableName);
+            	if (cVO != null) {
+            		long tableRows = cVO.getTableInfoOfRows();
+                    retVal += tableRows;
                 }
             }
 

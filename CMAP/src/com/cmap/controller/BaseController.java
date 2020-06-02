@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.security.Principal;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,10 +55,14 @@ import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.comm.BaseAuthentication;
+import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.SysLoginInfo;
 import com.cmap.model.User;
+import com.cmap.model.UserRightSetting;
 import com.cmap.security.SecurityUser;
+import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
 import com.cmap.service.UserService;
 import com.cmap.service.vo.PrtgServiceVO;
@@ -83,6 +89,9 @@ public class BaseController {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private SysLoginInfoDAO sysLoginInfoDAO;
+	
 	public BaseController() {
 		super();
 		sdfYearMonth.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -100,25 +109,43 @@ public class BaseController {
 		}
 	}
 
-	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String sourceId) {
+	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String userName) {
         HttpSession session = request.getSession();
         PrtgServiceVO prtgVO = null;
         
         try {
-            prtgVO = commonService.findPrtgLoginInfo(sourceId);
+        	UserRightSetting userRight = userService.getUserRightSetting(userName);
+        	
+        	if(userRight == null) {
+				throw new AuthenticateException("PRTG登入失敗 >> 取不到 使用者登入資訊 userName: " + userName + " )");
+			}
+			
+            prtgVO = commonService.findPrtgLoginInfo(userRight.getUserGroup());
 
             if (prtgVO == null ||
                     (prtgVO != null && StringUtils.isBlank(prtgVO.getAccount()) && StringUtils.isBlank(prtgVO.getPassword()))) {
-                throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (sourceId: " + sourceId + " )");
+                throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (username: " + userRight.getUserGroup() + " )");
             }
 
+            String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
+            
             ApiUtils prtgApiUtils = new PrtgApiUtils();
-            boolean loginSuccess = prtgApiUtils.login(request, prtgVO.getAccount(), prtgVO.getPassword());
+            boolean loginSuccess = prtgApiUtils.login(request, prtgVO.getAccount(), adminPass);
 
             if (!loginSuccess) {
                 throw new AuthenticateException("PRTG登入失敗 >> prtgApiUtils.login return false");
             }
 
+            final String ipAddr = SecurityUtil.getIpAddr(request);
+            
+            SysLoginInfo info = new SysLoginInfo();
+            info.setSessionId(request.getSession().getId());
+            info.setIpAddr(ipAddr);
+            info.setAccount((String) request.getSession().getAttribute(Constants.USERNAME));
+            info.setUserName((String) request.getSession().getAttribute(Constants.OIDC_USER_NAME));
+            info.setLoginTime(new Timestamp((new Date()).getTime()));
+            sysLoginInfoDAO.saveSysLoginInfo(info);
+            
             String role = Objects.toString(session.getAttribute(Constants.USERROLE), null);
 
             if (StringUtils.isBlank(role)) {
@@ -165,7 +192,7 @@ public class BaseController {
 			final String PRTG_PASSHASH = Objects.toString(session.getAttribute(Constants.PASSHASH), "");
 			final String OIDC_SUB = Objects.toString(session.getAttribute(Constants.OIDC_SUB), "");
 			final String OIDC_PASSWORD = Objects.toString(session.getAttribute(Constants.OIDC_SUB), "");
-			final String OIDC_SCHOOL_ID = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), "");
+//			final String OIDC_SCHOOL_ID = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), "");
 
 			List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
@@ -184,7 +211,7 @@ public class BaseController {
 								OIDC_PASSWORD,
 								PRTG_PASSHASH,
 								USER_IP,
-								OIDC_SCHOOL_ID,
+//								OIDC_SCHOOL_ID,
 								USER_ROLES);
 			SecurityUser securityUser = new SecurityUser(user, USER_NAME, OIDC_PASSWORD, true, true, true, true, authorities);
 
@@ -213,8 +240,8 @@ public class BaseController {
 		}
 	}
 
-	protected boolean checkUserCanOrNotAccess(HttpServletRequest request, String belongGroup, String[] roles, String account) {
-		return userService.checkUserCanAccess(request, true, belongGroup, roles, account);
+	protected boolean checkUserCanOrNotAccess(HttpServletRequest request, String account, String[] roles) {
+		return userService.checkUserCanAccess(request, account, roles);
 	}
 
 	protected void setQueryGroupList(HttpServletRequest request, Object obj, String fieldName, String queryGroup) throws Exception {
@@ -287,6 +314,18 @@ public class BaseController {
 		return itemMap;
 	}
 
+	protected Map<String, String> getUserRightGroup(String account) {
+		Map<String, String> itemMap = null;
+		try {
+			itemMap = commonService.findPrtgAccountMappingList(account);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+
+		return itemMap;
+	}
+	
 	protected Map<String, String> getScriptTypeList(String defaultFlag) {
 		Map<String, String> typeMap = null;
 		try {
@@ -303,8 +342,7 @@ public class BaseController {
 		Map<String, String> retMap = new LinkedHashMap<>();
 		Map<String, String> groupMap = null;
 		try {
-		    String prtgLoginAccount =
-                    Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+		    String prtgLoginAccount = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
 
             if (StringUtils.isBlank(prtgLoginAccount)) {
                 throw new ServiceLayerException("使用者權限錯誤!!");
@@ -475,19 +513,6 @@ public class BaseController {
 			}
 		}
 
-		/*
-		if (menuMap != null && !menuMap.isEmpty()) {
-
-			ListIterator<Entry<String, String>> it = new ArrayList<>(menuMap.entrySet()).listIterator(menuMap.entrySet().size());
-
-		    while (it.hasPrevious())
-		    {
-		    	Entry<String, String> el = it.previous();
-		    	reverseMenuMap.put(el.getKey(), el.getValue());
-		    }
-		}
-		*/
-
 		return menuMap;
 	}
 
@@ -508,21 +533,6 @@ public class BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 		}
-	}
-
-	private Map<String, String> composeDeviceMap4Menu(Map<String, Map<String, String>> deviceMap) {
-		Map<String, String> deviceMenuMap = new HashMap<>();
-
-		if (deviceMap != null) {
-		    for (String deviceId : deviceMap.keySet()) {
-	            deviceMenuMap.put(
-	                    deviceId                                            //DEVICE_ID
-	                    ,deviceMap.get(deviceId).get(Constants.DEVICE_NAME) //DEVICE_NAME
-	                    );
-	        }
-		}
-
-		return deviceMenuMap;
 	}
 
 	protected Date validateDate(String date) {

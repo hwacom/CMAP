@@ -103,16 +103,25 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			throw new Exception("[SSH login failed] >> [ account: " + account + " , password: " + password + " ] " + e.getMessage());
 		}
 		
-		List<ScriptServiceVO> scriptList = new ArrayList<>();
-		ScriptServiceVO vo = new ScriptServiceVO();
-		vo.setScriptStepOrder("1");
-		vo.setScriptContent("enable");
-		ScriptServiceVO vo2 = new ScriptServiceVO();
-		vo2.setScriptStepOrder("2");
-		vo2.setScriptContent(Env.CLI_VAR_ENABLE_PWD);
-		scriptList.add(vo);
-		scriptList.add(vo2);
-		sendCommands(scriptList, ciVO, new StepServiceVO());
+		//TODO 待修改
+//		try {
+//			List<ScriptServiceVO> scriptList = new ArrayList<>();
+//			ScriptServiceVO vo = new ScriptServiceVO();
+//			vo.setScriptStepOrder("1");
+//			vo.setScriptContent("enable");
+//			vo.setExpectedTerminalSymbol(Env.TELNET_LOGIN_PASSWORD_TEXT);
+//			vo.setRemark(Constants.SCRIPT_REMARK_OF_NO_EXPECT);
+//			ScriptServiceVO vo2 = new ScriptServiceVO();
+//			vo2.setScriptStepOrder("2");
+//			vo2.setScriptContent(Env.CLI_VAR_ENABLE_PWD);
+//			vo2.setRemark(Constants.SCRIPT_REMARK_OF_NO_EXPECT);
+//			scriptList.add(vo);
+//			scriptList.add(vo2);
+//			sendCommands(scriptList, ciVO, new StepServiceVO());
+//		} catch (Exception e) {
+//			//失敗跳過處理
+//			log.error("for debug set enable exception!!");
+//		}
 		
 		return true;
 	}
@@ -244,6 +253,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 
 			CommonServiceVO csVO = new CommonServiceVO();
 			StringBuilder processLog = new StringBuilder();
+			
 			try {
 			    long sleepTime = Env.SEND_COMMAND_SLEEP_TIME != null ? Env.SEND_COMMAND_SLEEP_TIME : 1000;
 
@@ -271,12 +281,11 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 				ssVO.setCmdProcessLog(processLog.toString());
 
 				try {
-				    expect.close();
-
-	                if (csVO.isNeedCloseSession()) {
+					expect.close();
+					
+					if (csVO.isNeedCloseSession()) {
 	                    session.close();
 	                }
-
 				} catch (Exception e) {
 				    // 關閉失敗僅做log，不處理
 				    log.error(e.toString(), e);

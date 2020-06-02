@@ -144,6 +144,17 @@ public class Constants {
 	public static final String JSON_FIELD_GROUP_IDS = "groupIds";
 	public static final String JSON_FIELD_IP_ADDRS = "ipAddrs";
 
+	/*
+	 * user right setting
+	 */
+	public static final String JSON_FIELD_IDS = "ids";
+	public static final String JSON_FIELD_MODIFY_ACCOUNT = "modeifyAccount";
+	public static final String JSON_FIELD_MODIFY_USER_NAME = "modifyUserName";
+	public static final String JSON_FIELD_MODIFY_PASSWORD = "modifyPassword";
+	public static final String JSON_FIELD_MODIFY_USERGROUP = "modifyUserGroup";
+	public static final String JSON_FIELD_MODIFY_LOGIN_MODE = "modifyLoginMode";
+	public static final String JSON_FIELD_ADD_IS_ADMIN = "addIsAdmin";
+	
 	public static final String DATA_MARK_DELETE = "Y";
 	public static final String DATA_MARK_NOT_DELETE = "N";
 	public static final String DATA_Y = "Y";

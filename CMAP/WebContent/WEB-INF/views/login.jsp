@@ -84,11 +84,6 @@
 						        	<spring:message code="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
 						      </span>
 						  </c:if>
-				  		  <div class="form-group row">
-				  		  	<div class="col-md-12 col-sm-12">
-				  		  		<!-- <span class="h6 mb-3 font-weight-bold" style="color: #FFFF99">本系統採用教育局開放式認證服務</span> -->
-				  		  	</div>
-				  		  </div>
 				  		  <div class="form-group row" style="vertical-align: middle;">
 				  		  	<div class="col-3">
 				  		  		<span class="h5" style="color: black"><spring:message code="login.account" />:</span>
@@ -107,17 +102,6 @@
 				  		  		<input type="password" name="password" id="inputPassword" class="form-control" placeholder="<spring:message code="login.password" />" required>
 				  		  	</div>
 				  		  </div>
-				  		  <!-- 
-					      <div class="row">
-				  		  	<div class="col-md-12 col-sm-12">
-				  		  		<div class="checkbox mb-3">
-							        <label>
-							          <input type="checkbox" value="remember-me"> <spring:message code="login.rememberMe"/>
-							        </label>
-							    </div>
-				  		  	</div>
-				  		  </div>
-				  		   -->
 				  		   <input type="hidden" name="previousPage" value="<%=request.getSession().getAttribute("PREVIOUS_URL") %>">
 					      <div class="row">
 				  		  	<div class="col-sm-12">

@@ -281,7 +281,7 @@ function findData(from) {
 		chkQueryGroup = 'N';
 	}
 	//確認Device篩選條件輸入狀態
-	if ($("#queryDevice").val().trim().length != 0) {
+	if ($("#queryDevice").val() != undefined && $("#queryDevice").val().trim().length != 0) {
 		chkQueryDevice = 'Y';
 		//alert(msg_chooseDevice);
 		//	return;

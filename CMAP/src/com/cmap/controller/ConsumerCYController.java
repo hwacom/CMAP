@@ -144,7 +144,7 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             session.setAttribute(Constants.OIDC_USER_NAME, username);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-            boolean canAccess = checkUserCanOrNotAccess(request, account, null, account);
+            boolean canAccess = checkUserCanOrNotAccess(request, account, null);
             log.info("CYController processReturn = canAccess:" + canAccess);
             
             if (canAccess) {
@@ -288,10 +288,6 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             // extract the receiving URL from the HTTP request
             StringBuffer receivingURL = httpReq.getRequestURL();
             
-//          String queryString = httpReq.getQueryString();
-//          if (queryString != null && queryString.length() > 0)
-//              receivingURL.append("?").append(httpReq.getQueryString());
-
             for(String key : httpReq.getParameterMap().keySet()) {
                 receivingURL.append("&" + key + "=" + response.getParameterValue(key));
             }

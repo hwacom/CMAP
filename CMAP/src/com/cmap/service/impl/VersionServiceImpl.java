@@ -79,9 +79,6 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	@Autowired
 	private ProvisionService provisionService;
 
-	@Autowired
-	private ConfigService configService;
-
 	/**
 	 * 查找使用者有權限之群組+設備的資料筆數 for UI分頁區塊中的total使用
 	 */

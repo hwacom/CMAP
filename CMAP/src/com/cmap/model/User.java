@@ -26,7 +26,7 @@ public class User implements Serializable {
 
 	private String ip;
 
-	private String schoolId;
+//	private String schoolId;
 
 	private String[] roles;
 
@@ -35,7 +35,7 @@ public class User implements Serializable {
 	}
 
 	public User(String userName, String userChineseName, String userUnit, String email, String prtgLoginAccount,
-			String prtgLoginPassword, String oidcSub, String password, String passhash, String ip, String schoolId,
+			String prtgLoginPassword, String oidcSub, String password, String passhash, String ip, //String schoolId,
 			String[] roles) {
 		super();
 		this.userName = userName;
@@ -48,7 +48,7 @@ public class User implements Serializable {
 		this.password = password;
 		this.passhash = passhash;
 		this.ip = ip;
-		this.schoolId = schoolId;
+//		this.schoolId = schoolId;
 		this.roles = roles;
 	}
 
@@ -132,13 +132,13 @@ public class User implements Serializable {
 		this.ip = ip;
 	}
 
-	public String getSchoolId() {
-		return schoolId;
-	}
-
-	public void setSchoolId(String schoolId) {
-		this.schoolId = schoolId;
-	}
+//	public String getSchoolId() {
+//		return schoolId;
+//	}
+//
+//	public void setSchoolId(String schoolId) {
+//		this.schoolId = schoolId;
+//	}
 
 	public String[] getRoles() {
 		return roles;

@@ -33,6 +33,9 @@ public class PrtgUserRightSetting {
 	@Column(name = "setting_value", nullable = false)
 	private String settingValue;
 
+	@Column(name = "setting_name", nullable = false)
+	private String settingName;
+	
 	@Column(name = "parent_node", nullable = true)
     private String parentNode;
 
@@ -50,13 +53,14 @@ public class PrtgUserRightSetting {
 	}
 
     public PrtgUserRightSetting(String settingId, String prtgAccount, String settingType,
-            String settingValue, String parentNode, String remark, Timestamp createTime,
+            String settingValue,  String settingName, String parentNode, String remark, Timestamp createTime,
             String createBy) {
         super();
         this.settingId = settingId;
         this.prtgAccount = prtgAccount;
         this.settingType = settingType;
         this.settingValue = settingValue;
+        this.settingName = settingName;
         this.parentNode = parentNode;
         this.remark = remark;
         this.createTime = createTime;
@@ -95,7 +99,15 @@ public class PrtgUserRightSetting {
         this.settingValue = settingValue;
     }
 
-    public String getParentNode() {
+    public String getSettingName() {
+		return settingName;
+	}
+
+	public void setSettingName(String settingName) {
+		this.settingName = settingName;
+	}
+
+	public String getParentNode() {
         return parentNode;
     }
 

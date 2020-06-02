@@ -5,10 +5,11 @@ import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import com.cmap.Constants;
 
@@ -22,34 +23,31 @@ import com.cmap.Constants;
 public class UserRightSetting implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Id @GeneratedValue(generator="system-uuid")
+	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	@Column(name = "ID", unique = true)
 	private String id;
-
-	@Column(name = "BELONG_GROUP", nullable = false)
-	private String belongGroup;
-
-	@Column(name = "ROLE", nullable = false)
-	private String role;
 
 	@Column(name = "ACCOUNT", nullable = false)
 	private String account;
 
+	@Column(name = "USERNAME", nullable = true)
+	private String userName;
+	
+	@Column(name = "PASSWORD", nullable = true)
+	private String password;
+	
 	@Column(name = "IS_ADMIN", nullable = false)
 	private String isAdmin = Constants.DATA_N;
 
-	@Column(name = "DENY_ACCESS", nullable = false)
-	private String denyAccess = Constants.DATA_N;
-
-	@Column(name = "SOURCE_IP_ADDR", nullable = false)
-	private String sourceIpAddr = Constants.DATA_STAR_SYMBOL;
-
-	@Column(name = "USER_GROUP", nullable = true)
+	@Column(name = "USER_GROUP", nullable = false)
 	private String userGroup;
 
+	@Column(name = "LOGIN_MODE", nullable = false)
+	private String loginMode;
+	
 	@Column(name = "DELETE_FLAG", nullable = false)
-	private String deleteFlag;
+	private String deleteFlag = Constants.DATA_N;
 
 	@Column(name = "DELETE_TIME", nullable = true)
 	private Timestamp deleteTime;
@@ -73,17 +71,15 @@ public class UserRightSetting implements java.io.Serializable {
 		super();
 	}
 
-	public UserRightSetting(String id, String belongGroup, String role, String account, String isAdmin,
-			String denyAccess, String sourceIpAddr, String userGroup, String deleteFlag, Timestamp deleteTime,
+	public UserRightSetting(String id, String account, String userName, String password, String isAdmin,
+			String userGroup, String deleteFlag, Timestamp deleteTime,
 			String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
 		super();
 		this.id = id;
-		this.belongGroup = belongGroup;
-		this.role = role;
 		this.account = account;
+		this.userName = userName;
+		this.password = password;
 		this.isAdmin = isAdmin;
-		this.denyAccess = denyAccess;
-		this.sourceIpAddr = sourceIpAddr;
 		this.userGroup = userGroup;
 		this.deleteFlag = deleteFlag;
 		this.deleteTime = deleteTime;
@@ -102,28 +98,28 @@ public class UserRightSetting implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public String getBelongGroup() {
-		return belongGroup;
-	}
-
-	public void setBelongGroup(String belongGroup) {
-		this.belongGroup = belongGroup;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
 	public String getAccount() {
 		return account;
 	}
 
 	public void setAccount(String account) {
 		this.account = account;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getIsAdmin() {
@@ -134,28 +130,20 @@ public class UserRightSetting implements java.io.Serializable {
 		this.isAdmin = isAdmin;
 	}
 
-	public String getDenyAccess() {
-		return denyAccess;
-	}
-
-	public void setDenyAccess(String denyAccess) {
-		this.denyAccess = denyAccess;
-	}
-
-	public String getSourceIpAddr() {
-		return sourceIpAddr;
-	}
-
-	public void setSourceIpAddr(String sourceIpAddr) {
-		this.sourceIpAddr = sourceIpAddr;
-	}
-
 	public String getUserGroup() {
 		return userGroup;
 	}
 
 	public void setUserGroup(String userGroup) {
 		this.userGroup = userGroup;
+	}
+
+	public String getLoginMode() {
+		return loginMode;
+	}
+
+	public void setLoginMode(String loginMode) {
+		this.loginMode = loginMode;
 	}
 
 	public String getDeleteFlag() {

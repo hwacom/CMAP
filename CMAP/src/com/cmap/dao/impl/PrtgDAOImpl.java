@@ -22,27 +22,8 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
 	@Log
     private static Logger log;
 	
-	@Override
-	public PrtgAccountMapping findPrtgAccountMappingBySourceId(String sourceId) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(" from PrtgAccountMapping pam ")
-		  .append(" where 1=1 ")
-		  .append(" and pam.sourceId = :sourceId ");
-
-	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createQuery(sb.toString());
-	    q.setParameter("sourceId", sourceId);
-
-	    List<PrtgAccountMapping> entities = (List<PrtgAccountMapping>)q.list();
-	    if (entities == null || (entities != null && entities.isEmpty())) {
-	    	return null;
-	    } else {
-	    	return entities.get(0);
-	    }
-	}
-
     @Override
-    public List<PrtgAccountMapping> findPrtgAccountMappingByAccount(String prtgAccount) {
+    public PrtgAccountMapping findPrtgAccountMappingByAccount(String prtgAccount) {
         StringBuffer sb = new StringBuffer();
         sb.append(" from PrtgAccountMapping pam ")
           .append(" where 1=1 ");
@@ -57,9 +38,20 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
         if (StringUtils.isNotBlank(prtgAccount)) {
             q.setParameter("prtgAccount", prtgAccount);
         }
-        return (List<PrtgAccountMapping>)q.list();
+        return (PrtgAccountMapping)q.uniqueResult();
     }
 
+    @Override
+    public List<PrtgAccountMapping> findPrtgAccountMappingList() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" from PrtgAccountMapping pam ")
+          .append(" where 1=1 ");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        return (List<PrtgAccountMapping>)q.list();
+    }
+    
     @Override
     public List<PrtgUserRightSetting> findPrtgUserRightSetting(String prtgAccount,
             String settingType) {

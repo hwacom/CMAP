@@ -1404,13 +1404,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						}
 					}
 
-					/*
-					//先刪除舊資料
-					for (DeviceDetailInfo ddi : analyzeInfoName.values()) {
-						deviceDAO.deleteDeviceDetailInfoByInfoName(ddi.getDeviceListId(), ddi.getInfoName(), ddi.getUpdateTime(), ddi.getUpdateBy());
-					}
-					*/
-
 					//再新增新資料
 					if (insertEntities != null && !insertEntities.isEmpty()) {
 						deviceDAO.insertEntities(BaseDAO.TARGET_PRIMARY_DB, insertEntities);

@@ -25,15 +25,12 @@
 	<decorator name="accessDenied" page="views/access_denied.jsp">
 		<pattern>/accessDenied*</pattern>
 	</decorator>
-	<decorator name="test" page="views/test/test.jsp">
-		<pattern>/___test___</pattern>
-	</decorator>
 	<decorator name="outsite" page="common/blank.jsp">
 		<pattern>/outsite*</pattern>
 	</decorator>
-	<decorator name="prtg_welcome_iframe" page="views/prtg/welcome.jsp">
+	<!-- <decorator name="prtg_welcome_iframe" page="views/prtg/welcome.jsp">
 		<pattern>/prtg/welcome*</pattern>
-	</decorator>
+	</decorator> -->
 	<decorator name="vm_switch" page="views/plugin/module_vm_switch.jsp">
 		<pattern>/plugin/module/vmswitch*</pattern>
 	</decorator>

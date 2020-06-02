@@ -43,11 +43,11 @@
 			  	    <div class="center" style="width: 3%">
 			  	    	<span style="font-size: 1.5rem">|</span>
 			  	    </div>
-			  	    <div class="col-lg-2 action-btn-bar-style center">
+			  	    <!-- <div class="col-lg-2 action-btn-bar-style center">
 			  	    	<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" id="btnCompare"><spring:message code="variable.modify" /></button>
-			  	    </div>
+			  	    </div> -->
 			  	    <div class="col-lg-2 action-btn-bar-style center">
-			  	    	<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" id="btnCompare"><spring:message code="script.type.modify" /></button>
+			  	    	<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" id="btnTypeModify"><spring:message code="script.type.modify" /></button>
 			  	    </div>
 	        	</div>
 	        </div>
@@ -103,79 +103,76 @@
       	<div id="stepModal_scroll">
 	      	<div id="step1_section" style="display: inline">
 		     	<div class="form-group row">
-	            	<label for="scriptCode" class="col-md-2 col-sm-3 col-form-label"><spring:message code='script' /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<label for="scriptCode" class="col-md-2 col-sm-3 col-form-label"><spring:message code='script.code' /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm" id="scriptCode" name="input_var" placeholder="<spring:message code='script' />" required="required" >
+	            		<input type="text" class="form-control form-control-sm" id="addScriptCode" name="input_var" placeholder="<spring:message code='script.code' />EX:TMP_001" required="required" >
 	            	</div>
 	            </div>      
 	            <div class="form-group row">
 	            	<label for="scriptName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.name" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm" id="scriptName" name="input_var" placeholder="<spring:message code='script.name' />" required="required" >
+	            		<input type="text" class="form-control form-control-sm" id="addScriptName" name="input_var" placeholder="<spring:message code='script.name' />" required="required" >
 	            	</div>
 	            </div>
 	            <div class="form-group row">
-	            	<label for="deviceModel" class="col-md-2 col-sm-3 col-form-label"><spring:message code="device.model" /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<label for="deviceModelList" class="col-md-2 col-sm-3 col-form-label"><spring:message code="device.model" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm" id="deviceModel" name="input_var" placeholder="<spring:message code='device.model' />" required="required" >
+	            		<!-- <input type="text" class="form-control form-control-sm" id="deviceModel" name="input_var" placeholder="<spring:message code='device.model' />" required="required" > -->
+	            		<form:select path="deviceModelList" id="addDeviceModel" class="form-control form-control-sm" style="min-width: 120px">
+			               <form:options items="${deviceModelList}" />
+			            </form:select> 
 	            	</div>
 	            </div>
 	            <div class="form-group row">
 	            	<label for="scriptContent" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.content" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<textarea id="scriptContent" name="input_var" style="width: 100%; resize: none;" rows="10" required="required" >
+	            		<textarea id="addScriptContent" name="input_var" style="width: 100%; resize: none;" rows="10" required="required" >
     					</textarea>
     				</div>
 	            </div>
 	            <div class="form-group row">
 	            	<label for="scriptRemark" class="col-md-2 col-sm-3 col-form-label"><spring:message code="execute.script.remark" /></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm" id="scriptRemark" name="scriptRemark" placeholder="<spring:message code='execute.script.remark' />">
+	            		<input type="text" class="form-control form-control-sm" id="addScriptRemark" name="input_var" placeholder="<spring:message code='execute.script.remark' />">
 	            	</div>
 	            </div>
-	      	</div>	      	
+	        </div> 	
 	      	<!-- [END] Step.1 -->
 	      	
 	      	<!-- [START] Step.2 -->
 	      	<div id="step2_section" style="display: none;">
-	      	  <div class="form-group row">
-		      	<label for="stepModal_enterVarRemark" class="col-md-12 col-sm-2 col-form-label bold">
-		      		<spring:message code="please.confirm.target.and.enter.variable.value" /> :
-		      	</label>
-		      </div>
-		      <div id="step2_target_section">
-		      	<table id="step2_target_table" class="myTable">
-		      	  <thead class="center bold">
-		      	  	<tr>
-			      	  	<th rowspan="3" width="3%"><spring:message code="seq" /></th>
-			      	  	<th rowspan="3" width="12%"><spring:message code="group.name" /></th>
-			      	  	<th rowspan="3" width="25%"><spring:message code="device.name" /></th>
-			      	  	<th colspan="1" width="60%" id="step2_varKey_td"><spring:message code="variable.value" /></th>
-		      	  	</tr>
-		      	  	<tr>
-		      	  		<td class="delivery-var-title">ip_address</td>
-		      	  	</tr>
-		      	  </thead>
-		      	  <tbody>
-		      	  	<!-- 依據前一步驟勾選的設備動態增長 -->
-		      	  </tbody>
-		      	</table>
-		      </div>
-		      
-		      <div class="row">
-		      	<hr class="col-12">
-		      </div>
-
+	      		<div class="form-group row">
+	            	<label for="currentIndex" class="col-md-2 col-sm-3 col-form-label"><spring:message code='script.step.order' /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="currentIndex" readonly="readonly" >
+	            	</div>
+	            </div>      
+	            <div class="form-group row">
+	            	<label for="showContentValue" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.content" /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="showContentValue" readonly="readonly" >
+	            	</div>
+	            </div>
+	            <div class="form-group row">
+	            	<label for="terminalSymbol" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.expect.terminal.symbol" /></label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="terminalSymbol" name="input_var2" placeholder="<spring:message code='script.expect.terminal.symbol' /> (EX:#)" required="required">
+	            	</div>
+	            </div>
+	            <div class="form-group row">
+	            	<label for="errorSymbol" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.error.symbol" /></label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="errorSymbol" name="input_var2" placeholder="<spring:message code='script.error.symbol' /> (EX:Unknown command)">
+	            	</div>
+	            </div>
 	      	</div>
 	      	<!-- [END] Step.2 -->
 	      	
 	      	<!-- [START] Step.3 -->
 	      	<div id="step3_section" style="display: none;">
-	      		<div class="form-group row">
-		      		<div class="col-md-12 col-sm-12" id="stepModal_preview">
-		      		  <!-- 派送前預覽區 -->
-		      		</div>
-		     	</div>
+	      		<div>
+	            	<h1 style="color:red; text-align:center;">請確認是否執行?</h1> 
+	            </div>
 	      	</div>
 	      	<!-- [END] Step.3 -->
       	</div>
@@ -201,6 +198,49 @@
   </div>
 </div>
 <!-- Modal [View] end -->
+
+
+<!-- Modal [Add/Modify] start -->
+<div class="modal fade" id="addModifyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      
+        <h5 class="modal-title" id="exampleModalLabel"><span id="msgModal_title">新增/維護腳本類別</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        
+      </div>
+      <div class="modal-body">
+        <form role="form" id="formEdit" name="formEdit">
+        	<div class="card card-body">
+        	  <div class="col-12">
+	           	<div class="form-group row">
+	            	<label for="addAccount" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.code" /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm checkRequired" id="scriptTypeCode" name="scriptTypeCode" placeholder="<spring:message code="script.type.code" />" >
+	            	</div>
+	            </div>
+	            <div class="form-group row">
+	            	<label for="addUserName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.name" /></label>
+	            	<div class="col-md-10 col-sm-9">
+	                	<input type="text" class="form-control form-control-sm" id="scriptTypeName" name="scriptTypeName" placeholder="<spring:message code="script.type.name" />" >
+	                </div>
+	            </div>
+              </div>
+			</div>
+			<div class="modal-footer">
+        		<button type="button" class="btn btn-secondary" id="btnClose" data-dismiss="modal"><spring:message code="btn.close" /></button>
+        		<button type="button" class="btn btn-success" id="btnSave"><spring:message code="btn.save" /></button>
+			</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [Add/Modify] end -->
+
 </section>
 <script>
 	var msg_chooseType = '<spring:message code="please.choose" /><spring:message code="script" /><spring:message code="type" />';

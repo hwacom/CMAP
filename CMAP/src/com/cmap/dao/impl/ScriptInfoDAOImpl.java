@@ -1,6 +1,8 @@
 package com.cmap.dao.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +20,7 @@ import com.cmap.dao.ScriptInfoDAO;
 import com.cmap.dao.vo.ScriptInfoDAOVO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ScriptInfo;
+import com.cmap.model.ScriptStepAction;
 
 @Repository
 @Transactional
@@ -252,8 +255,7 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 	public ScriptInfo findScriptInfoByIdOrCode(String scriptInfoId, String scriptCode) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from ScriptInfo si ")
-		  .append(" where 1=1 ")
-		  .append(" and si.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+		  .append(" where 1=1 ");
 
 		if (StringUtils.isNotBlank(scriptInfoId)) {
 			sb.append(" and si.scriptInfoId = :scriptInfoId ");
@@ -296,5 +298,42 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 
 		List<ScriptInfo> retList = (List<ScriptInfo>)q.list();
 		return (retList != null && !retList.isEmpty()) ? retList.get(0) : null;
+	}
+	
+
+	@Override
+	public boolean deleteScriptInfo(ScriptInfo info, String actionBy) {
+		if (info != null) {
+			info.setDeleteFlag(MARK_AS_DELETE);
+			info.setUpdateBy(actionBy);
+			info.setUpdateTime(new Timestamp(new Date().getTime()));
+			info.setDeleteBy(actionBy);
+			info.setDeleteTime(new Timestamp(new Date().getTime()));
+
+			for(ScriptStepAction action : info.getScriptStepActions()) {
+				action.setDeleteFlag(MARK_AS_DELETE);
+				action.setUpdateBy(actionBy);
+				action.setUpdateTime(new Timestamp(new Date().getTime()));
+				action.setDeleteBy(actionBy);
+				action.setDeleteTime(new Timestamp(new Date().getTime()));
+				
+				getHibernateTemplate().saveOrUpdate(action);
+			}
+			
+			getHibernateTemplate().saveOrUpdate(info);
+		}else {
+			return false;
+		}
+		return true;
+	}
+	
+
+	@Override
+	public void saveScriptInfo(ScriptInfo model) {
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		session.persist(model);
+		session.flush();
+		session.clear();
+//		getHibernateTemplate().saveOrUpdate(model);
 	}
 }

@@ -1,26 +1,26 @@
 package com.cmap.dao;
 
 import java.util.List;
+
 import com.cmap.model.DeviceList;
 import com.cmap.model.PrtgAccountMapping;
 import com.cmap.model.PrtgUserRightSetting;
 
 public interface PrtgDAO extends BaseDAO {
 
-    /**
-     * 查找設定 By 學校 OID
-     * @param sourceId
-     * @return
-     */
-	public PrtgAccountMapping findPrtgAccountMappingBySourceId(String sourceId);
-
 	/**
 	 * 查找設定 By PRTG account
 	 * @param prtgAccount
 	 * @return
 	 */
-	public List<PrtgAccountMapping> findPrtgAccountMappingByAccount(String prtgAccount);
+	public PrtgAccountMapping findPrtgAccountMappingByAccount(String prtgAccount);
 
+	/**
+	 * 查找設定 PRTG 帳號清單
+	 * @return
+	 */
+	public List<PrtgAccountMapping> findPrtgAccountMappingList();
+	
 	/**
 	 * 查找 PRTG 使用者 Group & Device 權限表
 	 * @param prtgAccount
@@ -57,4 +57,5 @@ public interface PrtgDAO extends BaseDAO {
 	 * @return
 	 */
 	List<PrtgUserRightSetting> findPrtgUserRightSettingBySettingValueAndType(String settingValue, String settingType);
+
 }

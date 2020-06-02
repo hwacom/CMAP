@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
@@ -265,13 +268,6 @@ public class FirewallController extends BaseController {
             fVO.setOrderDirection(orderDirection);
             fVO.setTypeNameMap(typeNameMap);
 
-            int beginMonth = queryDateBegin.indexOf("-") != -1
-                                ? Integer.valueOf(queryDateBegin.split("-")[1]) : 0;
-            int endMonth = queryDateEnd.indexOf("-") != -1
-                                ? Integer.valueOf(queryDateEnd.split("-")[1]) : 0;
-
-            fVO.setQueryMonths(new int[] {beginMonth, endMonth});
-
             String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_FIREWALL_LOG);
 
             if (StringUtils.equals(storeMethod, Constants.STORE_METHOD_OF_FILE)) {
@@ -418,8 +414,6 @@ public class FirewallController extends BaseController {
                                 ? Integer.valueOf(queryDateBegin.split("-")[1]) : 0;
             int endMonth = queryDateEnd.indexOf("-") != -1
                                 ? Integer.valueOf(queryDateEnd.split("-")[1]) : 0;
-
-            fVO.setQueryMonths(new int[] {beginMonth, endMonth});
 
             String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_FIREWALL_LOG);
 

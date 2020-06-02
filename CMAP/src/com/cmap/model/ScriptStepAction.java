@@ -2,6 +2,7 @@ package com.cmap.model;
 
 import java.sql.Timestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +30,7 @@ public class ScriptStepAction {
 	@Column(name = "step_id", unique = true)
 	private String stepId;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "script_info_id", nullable = false)
 	private ScriptInfo scriptInfo;
 

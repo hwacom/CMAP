@@ -21,11 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cmap.AppResponse;
+import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.vo.ScriptDAOVO;
 import com.cmap.exception.ServiceLayerException;
+import com.cmap.model.ScriptInfo;
+import com.cmap.model.ScriptStepAction;
+import com.cmap.model.ScriptType;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ScriptService;
 import com.cmap.service.vo.ScriptServiceVO;
@@ -44,6 +48,10 @@ public class ScriptController extends BaseController {
 	@Autowired
 	private ScriptService scriptService;
 
+	private void init(Model model, HttpServletRequest request) {
+		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+	}
+	
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String main(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		Map<String, String> scriptTypeMap = null;
@@ -59,6 +67,8 @@ public class ScriptController extends BaseController {
 
 			model.addAttribute("scriptType", "");
 			model.addAttribute("scriptTypeList", scriptTypeMap);
+			model.addAttribute("deviceModelList", getDeviceModelMap((String)request.getSession().getAttribute("PRTG_LOGIN_ACCOUNT")));
+			
 		}
 
 		return "script/script_main";
@@ -134,7 +144,7 @@ public class ScriptController extends BaseController {
 				String viewType = jsonData.findValue("type").asText();
 
 				Map<String, Object> retMap = new HashMap<>();
-				retMap.put("script", ssVO.getScriptName());
+				retMap.put("scriptName", ssVO.getScriptName());
 
 				if (StringUtils.equals(viewType, "A")) {
 					retMap.put("content", ssVO.getActionScript());
@@ -143,6 +153,12 @@ public class ScriptController extends BaseController {
 					retMap.put("content", ssVO.getCheckScript());
 				}
 
+				retMap.put("scriptCode", ssVO.getScriptCode());
+				retMap.put("remark", ssVO.getRemark());
+				retMap.put("model", ssVO.getDeviceModel());
+				retMap.put("type", ssVO.getQueryScriptTypeCode());
+				retMap.put("systemDefault", ssVO.getScriptDefault());
+				
 				return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
 
 			} else {
@@ -160,7 +176,7 @@ public class ScriptController extends BaseController {
 	
 
 	@RequestMapping(value = "getScriptType.json", method = RequestMethod.POST, produces="application/json;odata=verbose")
-	public @ResponseBody AppResponse getScriptInfo(Model model, HttpServletRequest request, HttpServletResponse response) {
+	public @ResponseBody AppResponse getScriptType(Model model, HttpServletRequest request, HttpServletResponse response) {
 
 		ScriptDAOVO vo = new ScriptDAOVO();
 		try {
@@ -176,6 +192,148 @@ public class ScriptController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+		}
+	}
+	
+
+	@RequestMapping(value = "checkScriptCode.json", method = RequestMethod.POST, produces="application/json;odata=verbose")
+	public @ResponseBody AppResponse checkScriptCode(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
+			@RequestBody JsonNode jsonData) {
+
+		final String commonErrorMsg = "腳本代碼重複或發生錯誤，請重新操作";
+		try {
+			String scriptCode = jsonData.findValue("scriptCode").asText();
+
+			if (StringUtils.isBlank(scriptCode)) {
+				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+			}
+
+			ScriptInfo ssVO = scriptService.getScriptInfoEntityByScriptCode(scriptCode);
+
+			if (ssVO == null) {				
+				return new AppResponse(HttpServletResponse.SC_OK, "腳本代碼可以使用!!");
+			} else {
+				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+			}
+
+		} catch (ServiceLayerException sle) {
+			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+		}
+	}
+	
+
+	@RequestMapping(value = "delete", method = RequestMethod.POST)
+	public @ResponseBody AppResponse deleteScriptInfo(
+			Model model, HttpServletRequest request, HttpServletResponse response,
+			@RequestBody JsonNode jsonData) {
+
+		try {
+			String scriptInfoId = jsonData.findValue("scriptInfoId").asText();
+
+			String retMsg = scriptService.deleteScriptInfoByIdOrCode(scriptInfoId, null);
+
+			return new AppResponse(HttpServletResponse.SC_OK, retMsg);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(super.getLineNumber(), e.getMessage());
+
+		} finally {
+			init(model, request);
+		}
+	}
+
+	@RequestMapping(value = "save", method = RequestMethod.POST)
+	public @ResponseBody AppResponse saveScriptInfo(
+			Model model, HttpServletRequest request, HttpServletResponse response, @RequestBody JsonNode jsonData) {
+
+		try {			
+			String scriptType = jsonData.findValue("addScriptType").asText();
+			String scriptCode = jsonData.findValue("addScriptCode").asText();
+			String scriptName = jsonData.findValue("addScriptName").asText();
+			String deviceModel = jsonData.findValue("addDeviceModel").asText();
+			String scriptContent = jsonData.findValue("addScriptContentValue").asText();
+			String scriptRemark = jsonData.findValue("addScriptRemark").asText();
+			String terminalSymbol = jsonData.findValue("terminalSymbol").asText();
+			String errorSymbol = jsonData.findValue("errorSymbol").asText();
+
+			com.cmap.model.ScriptType type = scriptService.getScriptTypeByCode(scriptType);
+			
+			ScriptInfo info = new ScriptInfo();
+			info.setScriptType(type);
+			info.setSystemDefault(Constants.DATA_N);
+			info.setScriptCode(scriptCode);
+			info.setScriptName(scriptName);
+			info.setDeviceModel(deviceModel);
+			info.setActionScript(scriptContent.replace(",", System.getProperty("line.separator")));
+			info.setActionScriptRemark(scriptRemark);
+			
+			String[] scriptActions = StringUtils.split(scriptContent, ",");
+			String[] terminalSymbols = StringUtils.splitPreserveAllTokens(terminalSymbol, ",");
+			String[] errorSymbols = StringUtils.splitPreserveAllTokens(errorSymbol, ",");
+			int index = 0;
+			List<ScriptStepAction> scriptStepActions = new ArrayList<>();
+			
+			for(String scriptAction : scriptActions) {
+				ScriptStepAction action = new ScriptStepAction();
+				action.setStepOrder(index+1);
+				action.setCommand(scriptAction);
+				action.setExpectedTerminalSymbol(StringUtils.isBlank(terminalSymbols[index])?null:terminalSymbols[index]);
+				action.setErrorSymbol(StringUtils.isBlank(errorSymbols[index])?null:errorSymbols[index]);
+				
+				if(StringUtils.isBlank(terminalSymbols[index])) {
+					action.setCommandRemark(Constants.SCRIPT_REMARK_OF_NO_EXPECT);
+				}
+				
+				scriptStepActions.add(action);
+				index++;
+			}
+			
+			info.setScriptStepActions(scriptStepActions);
+			
+			String retMsg =scriptService.addOrModifyScriptInfo(info);
+			return new AppResponse(HttpServletResponse.SC_OK, retMsg);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(super.getLineNumber(), e.getMessage());
+
+		} finally {
+			init(model, request);
+		}
+	}
+	
+	private Map<String, String> getDeviceModelMap(String userName) {
+		return commonService.getDeviceModelMap(userName);
+	}
+	
+	@RequestMapping(value = "saveType", method = RequestMethod.POST)
+	public @ResponseBody AppResponse saveScriptType(
+			Model model, HttpServletRequest request, HttpServletResponse response, @RequestBody JsonNode jsonData) {
+
+		try {
+			String scriptTypeCode = jsonData.findValue("scriptTypeCode").asText();
+			String scriptTypeName = jsonData.findValue("scriptTypeName").asText();
+
+			com.cmap.model.ScriptType type = new ScriptType();
+			
+			type.setScriptTypeCode(scriptTypeCode);
+			type.setScriptTypeName(scriptTypeName);
+			
+			String retMsg =scriptService.addOrModifyScriptType(type);
+			
+			return new AppResponse(HttpServletResponse.SC_OK, retMsg);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(super.getLineNumber(), e.getMessage());
+
+		} finally {
+			init(model, request);
 		}
 	}
 }

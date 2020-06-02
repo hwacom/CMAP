@@ -76,10 +76,22 @@ public interface ScriptService {
 	public ScriptServiceVO getScriptInfoByScriptInfoId(String scriptInfoId) throws ServiceLayerException;
 
 	/**
-	 * 以 Script_Code 查找資料
+	 * 以 Script_Code 查找資料 (查詢失敗跳出錯誤，for前端頁面使用)
 	 * @param scriptCode
 	 * @return
 	 * @throws ServiceLayerException
 	 */
 	public ScriptServiceVO getScriptInfoByScriptCode(String scriptCode) throws ServiceLayerException;
+
+	public String deleteScriptInfoByIdOrCode(String scriptInfoId, String scriptCode) throws ServiceLayerException;
+
+	public com.cmap.model.ScriptType getScriptTypeByCode(String scriptTypeCode);
+
+	String addOrModifyScriptInfo(ScriptInfo info) throws ServiceLayerException;
+
+	ScriptInfo getScriptInfoEntityByScriptCode(String scriptCode) throws ServiceLayerException;
+
+	String deleteScriptTypeByCode(String scriptTypeCode) throws ServiceLayerException;
+
+	String addOrModifyScriptType(com.cmap.model.ScriptType type) throws ServiceLayerException;
 }

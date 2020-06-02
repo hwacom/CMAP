@@ -5,20 +5,20 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.Principal;
 import java.util.List;
-import java.util.Objects;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.configuration.security.CustomAuthenticationProvider;
 import com.cmap.extension.openid.connect.sdk.ConfigurationErrorResponse;
 import com.cmap.extension.openid.connect.sdk.ConfigurationRequest;
 import com.cmap.extension.openid.connect.sdk.ConfigurationResponse;
@@ -65,6 +65,7 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+
 import net.minidev.json.JSONObject;
 
 /**
@@ -78,9 +79,6 @@ import net.minidev.json.JSONObject;
 public class OidcController extends BaseController {
 	@Log
 	private static Logger log;
-
-	@Autowired
-	private CustomAuthenticationProvider customerAuthProvider;
 
 	private ClientID clientID = null;
 	private Secret clientSecret = null;
@@ -362,9 +360,7 @@ public class OidcController extends BaseController {
         session.setAttribute(Constants.OIDC_EDU_INFO_JSON, root.toString());
         session.setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
 
-        final String account = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SUB));
-
-        boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles, account);
+        boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles);
 
         if (canAccess) {
         	return loginAuthByPRTG(model, principal, request, schoolId);

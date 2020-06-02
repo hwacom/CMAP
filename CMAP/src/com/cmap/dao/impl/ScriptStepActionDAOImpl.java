@@ -13,6 +13,7 @@ import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.ScriptStepDAO;
 import com.cmap.dao.vo.ScriptDAOVO;
+import com.cmap.model.ScriptStepAction;
 
 @Repository("scriptStepActionDAOImpl")
 @Transactional
@@ -53,4 +54,8 @@ public class ScriptStepActionDAOImpl extends ScriptStepDAOImpl implements Script
 		return transModel2DAOVO(q.list());
 	}
 
+	@Override
+	public void delete(ScriptStepAction action) {
+		getHibernateTemplate().delete(action);
+	}
 }

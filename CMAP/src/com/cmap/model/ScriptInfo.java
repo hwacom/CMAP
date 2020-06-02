@@ -2,6 +2,8 @@ package com.cmap.model;
 
 import java.sql.Timestamp;
 import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -90,7 +92,7 @@ public class ScriptInfo {
 	@Column(name = "update_by", nullable = false)
 	private String updateBy;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "scriptInfo")
+	@OneToMany(fetch = FetchType.LAZY, cascade= {CascadeType.PERSIST}, mappedBy = "scriptInfo")
 	private List<ScriptStepAction> scriptStepActions;
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "scriptInfo")

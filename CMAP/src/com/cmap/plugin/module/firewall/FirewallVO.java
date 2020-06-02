@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.firewall;
 
 import java.util.Map;
+
 import com.cmap.service.vo.CommonServiceVO;
 
 public class FirewallVO extends CommonServiceVO {
@@ -16,7 +17,6 @@ public class FirewallVO extends CommonServiceVO {
     private String queryDstIp;
     private String queryDstPort;
     private String queryAction;
-    private int[] queryMonths;
 
     private String settingName;
     private String settingValue;
@@ -268,12 +268,6 @@ public class FirewallVO extends CommonServiceVO {
     }
     public void setTypeNameMap(Map<String, String> typeNameMap) {
         this.typeNameMap = typeNameMap;
-    }
-    public int[] getQueryMonths() {
-        return queryMonths;
-    }
-    public void setQueryMonths(int[] queryMonths) {
-        this.queryMonths = queryMonths;
     }
     public String getQueryAction() {
         return queryAction;

@@ -15,7 +15,6 @@
 	    	    <div class="col-lg-3 group-field-other">
 	    	    	<label for="queryType" class="font-weight-bold must" style="width: 20%"><spring:message code="firewall.type" /></label>
 	    	    	<form:select path="queryType" id="queryType" style="width: 75%">
-                        <form:option value="" label="=== ALL ===" />
                         <form:options items="${typeList}" />
                     </form:select>
 	    	    </div>

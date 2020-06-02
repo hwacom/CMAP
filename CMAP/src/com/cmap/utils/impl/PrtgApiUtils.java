@@ -63,74 +63,6 @@ public class PrtgApiUtils implements ApiUtils {
 	}
 
 	/**
-	 * 解析 PRTG API 回傳 XML for 非HA架構模式
-	 * @param prtgDoc
-	 * @return
-	 * @throws ServiceLayerException
-	 */
-	/*
-	private Object[] parsePrtgDocument(com.cmap.prtg.PrtgDocument prtgDoc) throws ServiceLayerException {
-		Object[] retObj = new Object[4];
-		com.cmap.prtg.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2[] groups = null;
-
-		try {
-			//無HA架構
-			groups = prtgDoc.getPrtg().getSensortree().getNodes().getGroup().getProbenode().getGroupArray();
-
-		} catch (Exception e) {
-			throw new ServiceLayerException("取得PRTG API >> groupArray異常 :: "+e.toString());
-		}
-
-		Map<String, Map<String, Map<String, String>>> groupDeviceMap = new HashMap<>();
-		Map<String, Map<String, String>> deviceMap = null;
-		Map<String, String> deviceInfoMap = null;
-		Map<String, String> groupInfoMap = new HashMap<>();
-
-		List<String> groupLabelList = new ArrayList<>();
-		List<String> groupValueList = new ArrayList<>();
-		if (groups != null) {
-			for (com.cmap.prtg.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2 group : groups) {
-				if (group == null) {
-					continue;
-				}
-				if (!Env.PRTG_EXCLUDE_GROUP_NAME.contains(group.getName())) {
-
-					String groupId = String.valueOf(group.getId());	//群組ID
-					String groupName = group.getName();	//群組名稱
-
-					groupInfoMap.put(groupId, groupName);
-
-					groupLabelList.add(groupName);
-					groupValueList.add(groupId);
-
-					com.cmap.prtg.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2.Device[] devices = group.getDeviceArray();
-
-					for (com.cmap.prtg.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2.Device device : devices) {
-						deviceInfoMap = composeDeviceInfoMap(group, device);	//組成裝置資訊MAP
-
-						if (groupDeviceMap.containsKey(groupId)) {
-							groupDeviceMap.get(groupId).put(String.valueOf(device.getId()), deviceInfoMap);
-
-						} else {
-							deviceMap = new HashMap<>();
-							deviceMap.put(String.valueOf(device.getId()), deviceInfoMap);
-							groupDeviceMap.put(groupId, deviceMap);
-						}
-					}
-				}
-			}
-		}
-
-		retObj[0] = groupDeviceMap;
-		retObj[1] = deviceMap;
-		retObj[2] = deviceInfoMap;
-		retObj[3] = groupInfoMap;
-
-		return retObj;
-	}
-	*/
-
-	/**
 	 * 解析 PRTG API 回傳 XML for HA架構模式
 	 * @param prtgDoc
 	 * @return
@@ -327,7 +259,7 @@ public class PrtgApiUtils implements ApiUtils {
             String apiUrl = PRTG_ROOT.concat(API_USER_DEVICE_LIST);
 
             String retVal = callPrtg(apiUrl);
-            log.info("for debug retVal = " + retVal);
+
             if (StringUtils.isNotBlank(retVal)) {
                 ObjectMapper oMapper = new ObjectMapper();
                 try {
@@ -401,30 +333,6 @@ public class PrtgApiUtils implements ApiUtils {
 		return retObj;
 	}
 
-	/*
-	private Map<String, String> composeDeviceInfoMap(
-			com.cmap.prtg.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2 group,
-			com.cmap.prtg.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2.Device device) {
-		Map<String, String> deviceInfoMap = null;
-		try {
-			deviceInfoMap = new HashMap<>();
-			deviceInfoMap.put(Constants.GROUP_ID, String.valueOf(group.getId()));
-			deviceInfoMap.put(Constants.GROUP_NAME, getName(group.getName(), Env.PRTG_WRAPPED_SYMBOL_FOR_GROUP_NAME));
-			deviceInfoMap.put(Constants.GROUP_ENG_NAME, getName(group.getName(), Env.PRTG_WRAPPED_SYMBOL_FOR_GROUP_ENG_NAME));
-			deviceInfoMap.put(Constants.DEVICE_ID, String.valueOf(device.getId()));
-			deviceInfoMap.put(Constants.DEVICE_NAME, getName(device.getName(), Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME));
-			deviceInfoMap.put(Constants.DEVICE_ENG_NAME, getName(device.getName(), Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME));
-			deviceInfoMap.put(Constants.DEVICE_IP, device.getHost());
-			deviceInfoMap.put(Constants.DEVICE_SYSTEM, device.getTags());
-
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-		}
-
-		return deviceInfoMap;
-	}
-	*/
-
 	private Map<String, String> composeDeviceInfoMap4HA(
 			com.cmap.prtg.ha.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2 group,
 			com.cmap.prtg.ha.PrtgDocument.Prtg.Sensortree.Nodes.Group.Probenode.Group2.Device device) {
@@ -481,6 +389,7 @@ public class PrtgApiUtils implements ApiUtils {
 				API_LOGIN = StringUtils.replace(API_LOGIN, "{username}",URLEncoder.encode(username, "UTF-8") );
                 API_LOGIN = StringUtils.replace(API_LOGIN, "{password}",URLEncoder.encode(password, "UTF-8") );
                 
+                log.debug("for debug username :" + username +" , password:" + password+",===="+API_LOGIN);
 				String apiUrl = PRTG_ROOT.concat(API_LOGIN);
 
 				String retVal = null;
@@ -499,11 +408,11 @@ public class PrtgApiUtils implements ApiUtils {
 					request.getSession().setAttribute(Constants.PASSHASH, retVal);
 
 					//判斷OIDC_SCHOOL_ID有無值，無值則塞login username(非走OPENID)
-					String sourceId = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID), null);
-
-					if (StringUtils.isBlank(sourceId)) {
-					    request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
-					}
+//					String sourceId = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID), null);
+//
+//					if (StringUtils.isBlank(sourceId)) {
+//					    request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
+//					}
 
 					return true;
 				}
@@ -567,16 +476,6 @@ public class PrtgApiUtils implements ApiUtils {
         return prtgPasshash;
     }
 
-	private void checkPasshash(HttpServletRequest request) throws Exception {
-		User user = SecurityUtil.getSecurityUser().getUser();
-		String username = user.getPrtgLoginAccount();
-		String password = user.getPrtgLoginPassword();
-		
-		if (StringUtils.isBlank(user.getPasshash())) {
-			login(request, username, password);
-		}
-	}
-
 	private String getName(String oriName, final String WRAPPED_SYMBOL) throws Exception {
 		String retVal = "";
 
@@ -615,161 +514,6 @@ public class PrtgApiUtils implements ApiUtils {
 
 		return retVal;
 	}
-
-	/*
-	private String getGroupEngName(String oriGroupName, boolean includeSymbol) throws Exception {
-		String retVal = "";
-
-		try {
-			/*
-	 * 原格式: 192.168.1.3 (1樓大廳) {1F_Lobby} [Cisco Device Cisco IOS]
-	 * >>>>> ip_address (裝置中文名稱) {裝置英文名稱} [裝置作業系統]
-	 * >>>>> 分析取得{裝置英文名稱}
-			if (StringUtils.isNotBlank(oriGroupName)) {
-				if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_GROUP_ENG_NAME)) {
-					final String head = Env.PRTG_WRAPPED_SYMBOL_FOR_GROUP_ENG_NAME.substring(0, 1);
-					final String tail = Env.PRTG_WRAPPED_SYMBOL_FOR_GROUP_ENG_NAME.substring(1, 2);
-
-					retVal = oriGroupName.substring(
-							oriGroupName.indexOf(head)+1, oriGroupName.indexOf(tail));
-
-					if (includeSymbol) {
-						retVal = head.concat(retVal).concat(tail);
-					}
-
-				} else {
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_GROUP_NAME)) {
-						oriGroupName = StringUtils.replace(oriGroupName, getGroupName(oriGroupName, true), "");
-					}
-
-					retVal = oriGroupName;
-				}
-			}
-
-		} catch (Exception e) {
-			throw e;
-		}
-
-		return retVal;
-	}
-
-	private String getDeviceName(String oriDeviceName, boolean includeSymbol) throws Exception {
-		String retVal = "";
-
-		try {
-			/*
-	 * 原格式: 192.168.1.3 (1樓大廳) {1F_Lobby} [Cisco Device Cisco IOS]
-	 * >>>>> ip_address (裝置中文名稱) {裝置英文名稱} [裝置作業系統]
-	 * >>>>> 分析取得(裝置中文名稱)
-			if (StringUtils.isNotBlank(oriDeviceName)) {
-				if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME)) {
-					final String head = Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME.substring(0, 1);
-					final String tail = Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME.substring(1, 2);
-
-					retVal = oriDeviceName.substring(
-							oriDeviceName.indexOf(head)+1, oriDeviceName.indexOf(tail));
-
-					if (includeSymbol) {
-						retVal = head.concat(retVal).concat(tail);
-					}
-
-				} else {
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME)) {
-						oriDeviceName = StringUtils.replace(oriDeviceName, getDeviceEngName(oriDeviceName, true), "");
-					}
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_SYSTEM_VERSION)) {
-						oriDeviceName = StringUtils.replace(oriDeviceName, getDeviceSystem(oriDeviceName, true), "");
-					}
-
-					retVal = oriDeviceName;
-				}
-			}
-
-		} catch (Exception e) {
-			throw e;
-		}
-
-		return retVal;
-	}
-
-	private String getDeviceEngName(String oriDeviceName, boolean includeSymbol) throws Exception {
-		String retVal = "";
-
-		try {
-			/*
-	 * 原格式: 192.168.1.3 (1樓大廳) {1F_Lobby} [Cisco Device Cisco IOS]
-	 * >>>>> ip_address (裝置中文名稱) {裝置英文名稱} [裝置作業系統]
-	 * >>>>> 分析取得{裝置英文名稱}
-			if (StringUtils.isNotBlank(oriDeviceName)) {
-				if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME)) {
-					final String head = Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME.substring(0, 1);
-					final String tail = Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME.substring(1, 2);
-
-					retVal = oriDeviceName.substring(
-							oriDeviceName.indexOf(head)+1, oriDeviceName.indexOf(tail));
-
-					if (includeSymbol) {
-						retVal = head.concat(retVal).concat(tail);
-					}
-
-				} else {
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME)) {
-						oriDeviceName = StringUtils.replace(oriDeviceName, getDeviceName(oriDeviceName, true), "");
-					}
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_SYSTEM_VERSION)) {
-						oriDeviceName = StringUtils.replace(oriDeviceName, getDeviceSystem(oriDeviceName, true), "");
-					}
-
-					retVal = oriDeviceName;
-				}
-			}
-
-		} catch (Exception e) {
-			throw e;
-		}
-
-		return retVal;
-	}
-
-	private String getDeviceSystem(String oriDeviceName, boolean includeSymbol) throws Exception {
-		String retVal = "";
-
-		try {
-			/*
-	 * 原格式: 192.168.1.3 (1樓大廳) {1F_Lobby} [Cisco Device Cisco IOS]
-	 * >>>>> ip_address (裝置中文名稱) {裝置英文名稱} [裝置作業系統]
-	 * >>>>> 分析取得[裝置作業系統]
-			if (StringUtils.isNotBlank(oriDeviceName)) {
-				if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_SYSTEM_VERSION)) {
-					final String head = Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_SYSTEM_VERSION.substring(0, 1);
-					final String tail = Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_SYSTEM_VERSION.substring(1, 2);
-
-					retVal = oriDeviceName.substring(
-							oriDeviceName.indexOf(head)+1, oriDeviceName.indexOf(tail));
-
-					if (includeSymbol) {
-						retVal = head.concat(retVal).concat(tail);
-					}
-
-				} else {
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_NAME)) {
-						oriDeviceName = StringUtils.replace(oriDeviceName, getDeviceName(oriDeviceName, true), "");
-					}
-					if (StringUtils.isNotBlank(Env.PRTG_WRAPPED_SYMBOL_FOR_DEVICE_ENG_NAME)) {
-						oriDeviceName = StringUtils.replace(oriDeviceName, getDeviceEngName(oriDeviceName, true), "");
-					}
-
-					retVal = oriDeviceName;
-				}
-			}
-
-		} catch (Exception e) {
-			throw e;
-		}
-
-		return retVal;
-	}
-	 */
 
 	private String callPrtg(String apiUrl) throws Exception {
 		String resultStr = "";
@@ -811,48 +555,4 @@ public class PrtgApiUtils implements ApiUtils {
 		return resultStr;
 	}
 
-	/*
-	 * Under "commons-httpclient" version: 3.1
-	private String callPrtg(String apiUrl) throws Exception {
-		GetMethod get = null;
-		HttpClient client = null;
-		int statusCode = 0;
-		String resultStr = Integer.toString(statusCode);
-
-		try {
-			Protocol.registerProtocol("https", new Protocol("https", new TrustAllSSLSocketFactory(), 443));
-            client = new HttpClient();
-//            client.getHttpConnectionManager().getParams().setConnectionTimeout(Env.HTTP_CONNECTION_TIME_OUT);
-            client.getHttpConnectionManager().getParams().setConnectionTimeout(1000);
-
-            log.info("apiUrl: "+apiUrl);
-        	get = new GetMethod(apiUrl);
-			get.addRequestHeader("Content-Type", "text/html; charset=UTF-8");
-//			get.getParams().setSoTimeout(Env.HTTP_SOCKET_TIME_OUT);
-			get.getParams().setSoTimeout(1000);
-
-			statusCode = client.executeMethod(get);
-			if (statusCode != HttpStatus.SC_OK) {
-				if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
-					throw new AuthenticateException("PRTG authentication failed !!");
-				}
-
-			} else {
-				// 取得回傳內容
-				resultStr = get.getResponseBodyAsString();
-			}
-
-		} catch (Exception e) {
-			throw e;
-
-		} finally {
-			if (get != null) {
-				// release the connection back to the connection pool
-				get.releaseConnection();
-			}
-		}
-
-		return resultStr;
-	}
-	 */
 }

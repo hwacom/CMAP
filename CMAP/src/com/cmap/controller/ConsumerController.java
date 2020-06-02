@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.servlet.ServletConfig;
@@ -15,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.openid4java.OpenIDException;
@@ -47,6 +49,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.ServletConfigAware;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -70,18 +73,9 @@ public class ConsumerController extends BaseController implements ServletConfigA
 
     private ServletConfig servletConfig;
     private ConsumerManager manager;
-
+    
     public void init() throws ServiceLayerException {
         try {
-            // --- Forward proxy setup (only if needed) ---
-            /*
-            ProxyProperties proxyProps = getProxyProperties(servletConfig);
-            if (proxyProps != null) {
-                log.info("ProxyProperties: " + proxyProps);
-                HttpClientFactory.setProxyProperties(proxyProps);
-            }
-            */
-
             javax.net.ssl.X509TrustManager x509TrustManager = new X509TrustManager();
             org.apache.http.conn.ssl.X509HostnameVerifier x509HostnameVerifier = new X509HostnameVerifier();
 
@@ -154,7 +148,7 @@ public class ConsumerController extends BaseController implements ServletConfigA
             session.setAttribute(Constants.OIDC_EMAIL, email);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-            boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles, account);
+            boolean canAccess = checkUserCanOrNotAccess(request, account, roles);
 
             if (canAccess) {
                 return loginAuthByPRTG(model, principal, request, schoolId);
@@ -289,9 +283,6 @@ public class ConsumerController extends BaseController implements ServletConfigA
 
             // extract the receiving URL from the HTTP request
             StringBuffer receivingURL = httpReq.getRequestURL();
-//          String queryString = httpReq.getQueryString();
-//          if (queryString != null && queryString.length() > 0)
-//              receivingURL.append("?").append(httpReq.getQueryString());
 
             for(String key : httpReq.getParameterMap().keySet()) {
                 receivingURL.append("&" + key + "=" + response.getParameterValue(key));

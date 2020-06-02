@@ -40,10 +40,10 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 public class LoginContoller extends BaseController {
 	@Log
 	private static Logger log;
-
+	
 	private String chkLoginPage(HttpServletRequest request) {
-	    HttpSession session = request.getSession();
-
+	    HttpSession session = request.getSession();	   
+		
 	    if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
             return "redirect:/loginOIDC";
 
@@ -59,15 +59,6 @@ public class LoginContoller extends BaseController {
             }
 
         } else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
-//        	String preUrl = ObjectUtils.toString(session.getAttribute(Constants.PREVIOUS_URL), null);
-//
-//            if (StringUtils.isBlank(preUrl) || StringUtils.equals(preUrl, "/") || StringUtils.equals(preUrl, "/login")) {
-//                return "redirect:/loginOIDC_CY";
-//
-//            } else {
-//                return "redirect:" + preUrl;
-//            }
-//            
             return "redirect:/loginOIDC_CY";
         }else {
             return "redirect:/login";
@@ -308,13 +299,6 @@ public class LoginContoller extends BaseController {
             session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
         }
 
-        /*
-        if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
-            return "login_openid_ntpc";
-        } else {
-            return "redirect:/login";
-        }
-        */
         //TODO:先寫死for新北教網
         return "login_openid_ntpc";
     }
@@ -338,22 +322,6 @@ public class LoginContoller extends BaseController {
 
 		} 
 
-//		if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
-//			URI configurationEndpoint = null;
-//			try {
-//				configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
-//
-//			} catch (URISyntaxException e) {
-//				log.error(e.toString(), e);
-//
-//			}
-//			request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
-//
-//			return "login_openid_cy";
-//
-//		} else {
-//			return "redirect:/login";
-//		}
 		//TODO:先寫死
 		return "login_openid_cy";
 	}
@@ -374,21 +342,10 @@ public class LoginContoller extends BaseController {
         if (login == null) {
             login = "mlc";  //預設苗栗縣教育雲帳號服務登入
         }
-//        logger.info(login);
+        
         try {
 
             if (login.equals("google")) {
-            	/*
-//                google clientid
-                clientID = new ClientID("432402061677-ivsu1a14dtah90f4on0p5tsirfktfj8j.apps.googleusercontent.com");
-                clientSecret = new Secret("I9Jgk7y9RdxdfptniK51mQxg");
-                authEndpoint = new URI("https://accounts.google.com/o/oauth2/auth");
-                tokenEndpoint = new URI("https://www.googleapis.com/oauth2/v4/token");
-                userinfoEndpointURL = new URI("https://www.googleapis.com/oauth2/v3/userinfo");
-                jwksURI = "https://www.googleapis.com/oauth2/v3/certs";
-//                redirectURI = "http://localhost:8080/demoApp/callback";
-                redirectURI = "https://coding.teliclab.info/demoApp/callback";
-                */
 
             } else {
                 //mlc clientid
@@ -450,99 +407,5 @@ public class LoginContoller extends BaseController {
 
 		return null;
 	}
-	
-
-//	@RequestMapping(value = "login/authByOIDC_CY", method = {RequestMethod.GET, RequestMethod.POST})
-//	public String authByOIDC_CY(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
-//		ClientID clientID = null;
-//	    Secret clientSecret = null;
-//	    URI tokenEndpoint = null;
-//	    URI authEndpoint = null;
-//	    String jwksURI = null;
-//	    URI userinfoEndpointURL = null;
-//	    URI eduinfoEndpointURL = null;
-//        String redirectURI = null;
-//
-//		HttpSession session = request.getSession();
-//        String login = request.getParameter("login");
-//        if (login == null) {
-//            login = "cy";  //預設苗栗縣教育雲帳號服務登入
-//        }
-////        logger.info(login);
-//        try {
-//
-//            if (login.equals("google")) {
-//            	/*
-////                google clientid
-//                clientID = new ClientID("432402061677-ivsu1a14dtah90f4on0p5tsirfktfj8j.apps.googleusercontent.com");
-//                clientSecret = new Secret("I9Jgk7y9RdxdfptniK51mQxg");
-//                authEndpoint = new URI("https://accounts.google.com/o/oauth2/auth");
-//                tokenEndpoint = new URI("https://www.googleapis.com/oauth2/v4/token");
-//                userinfoEndpointURL = new URI("https://www.googleapis.com/oauth2/v3/userinfo");
-//                jwksURI = "https://www.googleapis.com/oauth2/v3/certs";
-////                redirectURI = "http://localhost:8080/demoApp/callback";
-//                redirectURI = "https://coding.teliclab.info/demoApp/callback";
-//                */
-//
-//            } else {
-//                //cy clientid
-//                clientID = new ClientID(Env.OIDC_CLIENT_ID);
-//                clientSecret = new Secret(Env.OIDC_CIENT_SECRET);
-//                authEndpoint = new URI(Env.OIDC_AUTH_ENDPOINT);
-//                tokenEndpoint = new URI(Env.OIDC_TOKEN_ENDPOINT);
-//                userinfoEndpointURL = new URI(Env.OIDC_USER_INFO_ENDPOINT);
-//                eduinfoEndpointURL = new URI(Env.OIDC_EDU_INFO_ENDPOINT);
-//                jwksURI = Env.OIDC_JWKS_URI;
-//                redirectURI = Env.OIDC_REDIRECT_URI;
-//            }
-//
-//            session.setAttribute(Constants.OIDC_CLIENT_ID, clientID.getValue());
-//            session.setAttribute(Constants.OIDC_CLIENT_SECRET, clientSecret.getValue());
-//            session.setAttribute(Constants.OIDC_TOKEN_ENDPOINT, tokenEndpoint.toString());
-//            session.setAttribute(Constants.OIDC_USER_INFO_ENDPOINT, userinfoEndpointURL.toString());
-//            session.setAttribute(Constants.OIDC_EDU_INFO_ENDPOINT, eduinfoEndpointURL.toString());
-//            session.setAttribute(Constants.OIDC_JWKS_URI, jwksURI);
-//
-//            URI callback = new URI(redirectURI);
-//            session.setAttribute(Constants.OIDC_REDIRECT_URI, redirectURI);
-//
-//            // Generate random state string for pairing the response to the request
-//            State state = new State();
-//            session.setAttribute(Constants.OIDC_STATE, state.toString());
-//
-//            // Generate nonce
-//            Nonce nonce = new Nonce();
-//
-//            // Compose the request (in code flow)
-//            AuthenticationRequest authzReq = new AuthenticationRequest(
-//                    authEndpoint,
-//                    new ResponseType(Env.OIDC_RESPONSE_TYPE),
-//                    Scope.parse(Env.OIDC_SCOPE),
-//                    clientID,
-//                    callback,
-//                    state,
-//                    nonce);
-//
-//            log.info("1.User authorization request");
-//            log.info(authzReq.getEndpointURI().toString() + "?" + authzReq.toQueryString());
-//            try {
-//				response.sendRedirect(authzReq.getEndpointURI().toString() + "?" + authzReq.toQueryString());
-//
-//			} catch (IOException ioe) {
-//				log.error(ioe.toString(), ioe);
-//
-//				model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "連接教育雲端帳號認證服務失敗，請重新操作或聯絡系統管理員");
-//				return "login_openid_cy";
-//			}
-//
-//        } catch (URISyntaxException ex) {
-//        	log.error(ex.toString(), ex);
-//
-//        	model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "OIDC授權驗證流程發生問題，請重新操作");
-//			return "login_openid_cy";
-//        }
-//
-//		return null;
-//	}
 	
 }

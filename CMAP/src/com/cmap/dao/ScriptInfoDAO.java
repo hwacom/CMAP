@@ -22,4 +22,8 @@ public interface ScriptInfoDAO {
 	 * @throws ServiceLayerException
 	 */
 	public ScriptInfo findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String systemVersion) throws ServiceLayerException;
+
+	void saveScriptInfo(ScriptInfo model);
+
+	boolean deleteScriptInfo(ScriptInfo info, String actionBy);
 }

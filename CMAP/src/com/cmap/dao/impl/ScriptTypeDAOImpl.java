@@ -44,4 +44,32 @@ public class ScriptTypeDAOImpl extends BaseDaoHibernate implements ScriptTypeDAO
 		return (List<ScriptType>)q.list();
 	}
 
+	@Override
+	public ScriptType findScriptTypeNotDefaultByCode(String scriptTypeCode) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" select st ")
+		  .append(" from ScriptType st ")
+		  .append(" where 1=1 ")
+		  .append(" and st.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and st.defaultFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+
+		if (StringUtils.isNotBlank(scriptTypeCode)) {
+			sb.append(" and st.scriptTypeCode = :scriptTypeCode ");
+		}
+
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+
+	    if (StringUtils.isNotBlank(scriptTypeCode)) {
+	    	 q.setParameter("scriptTypeCode", scriptTypeCode);
+	    }
+
+		return (ScriptType)q.uniqueResult();
+	}
+
+	@Override
+	public void saveOrUpdateScriptTypeByCode(ScriptType type) {
+		getHibernateTemplate().saveOrUpdate(type);
+	}
+	
 }
