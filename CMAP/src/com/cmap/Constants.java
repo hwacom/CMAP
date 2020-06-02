@@ -281,6 +281,7 @@ public class Constants {
 	public static final String DATA_POLLER_SETTING_TYPE_OF_TIMESTAMP = "TIMESTAMP";
 	public static final String DATA_POLLER_SETTING_TYPE_OF_USER = "@USER@";
 	public static final String DATA_POLLER_SETTING_TYPE_OF_FILE_NAME = "@FILE_NAME@";
+	public static final String DATA_POLLER_SETTING_TYPE_OF_NULLIF = "@NULLIF@";
 
 	public static final String DATA_POLLER_TARGET_VALUE_FORMAT_OF_NOW = "@NOW@";
 	public static final String DATA_POLLER_TARGET_VALUE_FORMAT_OF_USER = "@USER@";

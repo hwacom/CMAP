@@ -1966,6 +1966,9 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
         } else if (StringUtils.equals(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_FILE_NAME)) {
             String sqlFileName = "'" + fileName + "'";
             specialSetFieldMap.put(targetFieldName, sqlFileName);
+        } else if (StringUtils.equals(sourceColumnType, Constants.DATA_POLLER_SETTING_TYPE_OF_NULLIF)) {
+        	String funcStr = "NULLIF(@`" + targetFieldName + "`, '') ";
+            specialSetFieldMap.put(targetFieldName, funcStr);
         }
 	}
 
@@ -2046,6 +2049,8 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                                 deleteInsertCsvFile(targetFilePath);
 
                             } catch (Exception e) {
+                    	        //處理過程若有失敗，將檔案移至ERROR資料夾下
+                    	        moveFile2ErrorFolder(f);
                                 throw new RuntimeException(e.getMessage());
                             }
                         }
