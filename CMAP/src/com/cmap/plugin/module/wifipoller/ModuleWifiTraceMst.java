@@ -23,7 +23,7 @@ public class ModuleWifiTraceMst {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "data_id", unique = true)
-	private Integer dataId;
+	private Long dataId;
     
 	@Column(name = "client_mac", nullable = false)
 	private String clientMac;
@@ -68,7 +68,7 @@ public class ModuleWifiTraceMst {
 		super();
 	}
 
-    public ModuleWifiTraceMst( Integer dataId, String clientMac, Date startTime, Date endTime, String clientIp,
+    public ModuleWifiTraceMst( Long dataId, String clientMac, Date startTime, Date endTime, String clientIp,
     		String apName, String ssid, Double totalTraffic, Double uploadTraffic, Double downloadTraffic,
     		Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
         super();
@@ -88,11 +88,11 @@ public class ModuleWifiTraceMst {
         this.updateBy = updateBy;
     }
     
-	public Integer getDataId() {
+	public Long getDataId() {
 		return dataId;
 	}
 
-	public void setDataId(Integer dataId) {
+	public void setDataId(Long dataId) {
 		this.dataId = dataId;
 	}
 

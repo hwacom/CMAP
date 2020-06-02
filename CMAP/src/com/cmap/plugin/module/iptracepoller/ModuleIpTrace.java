@@ -23,7 +23,7 @@ public class ModuleIpTrace {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "data_id", unique = true)
-	private Integer dataId;
+	private Long dataId;
     
 	@Column(name = "client_ip", nullable = false)
 	private String clientIp;
@@ -74,7 +74,7 @@ public class ModuleIpTrace {
 		super();
 	}
     
-	public ModuleIpTrace(Integer dataId, String clientIp, Date startTime, Date endTime, String clientMac,
+	public ModuleIpTrace(Long dataId, String clientIp, Date startTime, Date endTime, String clientMac,
 			String groupId, String groupName, String deviceId, String deviceName, String deviceModel, String portId,
 			String portName, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
 		super();
@@ -96,11 +96,11 @@ public class ModuleIpTrace {
 		this.updateBy = updateBy;
 	}
 
-	public Integer getDataId() {
+	public Long getDataId() {
 		return dataId;
 	}
 
-	public void setDataId(Integer dataId) {
+	public void setDataId(Long dataId) {
 		this.dataId = dataId;
 	}
 
