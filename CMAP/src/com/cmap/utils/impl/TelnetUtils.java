@@ -60,19 +60,14 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	@Override
 	public boolean connect(final String ipAddress, final Integer port) throws Exception {
 		boolean result = false;
-		try {
-			if (telnet != null) {
-				telnet.connect(
-						ipAddress,
-						port == null ? Env.TELNET_DEFAULT_PORT : port);
-				log.info("Telnet connect success! >>> [ " + ipAddress + ":" + port + " ]");
+		if (telnet != null) {
+			telnet.connect(
+					ipAddress,
+					port == null ? Env.TELNET_DEFAULT_PORT : port);
+			log.info("Telnet connect success! >>> [ " + ipAddress + ":" + port + " ]");
 
-				in = telnet.getInputStream();
-				out = new PrintStream(telnet.getOutputStream());
-			}
-
-		} catch (Exception e) {
-			log.error(e.toString(), e);
+			in = telnet.getInputStream();
+			out = new PrintStream(telnet.getOutputStream());
 		}
 
 		return result;
@@ -81,56 +76,59 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	@Override
 	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception {
 		String output = "";
+			
+		output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
 		
-		try {			
-			output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
+		if(StringUtils.isNotBlank(output)) {
+			if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//直接輸入密碼
+				write(password);
+			}else {
+				write(account);
+				Thread.sleep(1000); // 執行命令間格時間
+				write(password);
+			}				
+			processLog.append(output);
+			
+			output = readUntil(Env.TELNET_LOGIN_ENABLE_TEXT);
 			
 			if(StringUtils.isNotBlank(output)) {
-				if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//直接輸入密碼
-					write(password);
-				}else {
-					write(account);
-					Thread.sleep(1000); // 執行命令間格時間
-					write(password);
-				}				
-				processLog.append(output);
+				if (output.indexOf("Login incorrect") > 0) {
+					throw new Exception("Login info incorrect!!");
+				}else if (output.indexOf("Login timeout") > 0) {
+					throw new Exception("Login info incorrect!!");
+				}
 				
-				Thread.sleep(1000); // 執行命令間格時間
-				output = readUntil(Env.TELNET_LOGIN_ENABLE_TEXT);
-
-				if(StringUtils.isNotBlank(output)) { 
-					
-					boolean enableFlag = false;
-					for(String text : Env.TELNET_LOGIN_ENABLE_TEXT) { //判斷是否包含需要enable字元
-						if(output.toLowerCase().endsWith(text)) {
-							enableFlag = true;
-							break;
-						}
+				boolean enableFlag = false;
+				for(String text : Env.TELNET_LOGIN_ENABLE_TEXT) { //判斷是否包含需要enable字元
+					if(output.toLowerCase().endsWith(text)) {
+						enableFlag = true;
+						log.info("telnet login need enable");
+						break;
 					}
+				}
+				
+				if(enableFlag) {
+					write("enable");
 					
-					if(enableFlag) {
-						write("enable");
-						
-						output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
-						
-						if(StringUtils.isNotBlank(output)) {
-							if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//enable 直接輸入密碼
-								write(enable);
-							}else { //enable需要輸入帳號
-								write(account);
-								Thread.sleep(1000); // 執行命令間格時間
-								write(enable);
-							}
-							
-							processLog.append(output);
+					output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
+					
+					if(StringUtils.isNotBlank(output)) {
+						if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//enable 直接輸入密碼
+							write(enable);
+						}else { //enable需要輸入帳號
+							write(account);
+							Thread.sleep(1000); // 執行命令間格時間
+							write(enable);
 						}
+						
+						processLog.append(output);
 					}
 				}
 			}
-			
-		} catch (SocketTimeoutException ste){//有些狀況不需輸入帳號
-			
+		}else {
+			throw new Exception("Login info incorrect!! readUntil empty!!");
 		}
+		
 		return false;
 	}
 

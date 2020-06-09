@@ -234,7 +234,7 @@ function envAction(action) {
 		var modifyLoginMode = $('#addLoginMode :selected').map(function() {
 			        	return $(this).val();
 			        }).get();
-		var addIsAdmin = $("input[name='addIsAdmin']").map(function() {
+		var addIsAdmin = $('#addIsAdmin :selected').map(function() {
 			       	 return $(this).val();
 			        }).get();
 		

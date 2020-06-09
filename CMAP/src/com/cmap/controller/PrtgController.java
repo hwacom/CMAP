@@ -1,8 +1,6 @@
 package com.cmap.controller;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,22 +8,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,17 +20,10 @@ import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.PrtgAccountMapping;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
 import com.cmap.service.PrtgService;
-import com.cmap.service.UserService;
-import com.cmap.service.vo.PrtgServiceVO;
-import com.cmap.utils.ApiUtils;
-import com.cmap.utils.impl.CloseableHttpClientUtils;
-import com.cmap.utils.impl.PrtgApiUtils;
-import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 @RequestMapping("/prtg")
@@ -55,6 +34,9 @@ public class PrtgController extends BaseController {
 	@Autowired
 	private CommonService commonService;
 
+	@Autowired
+	private PrtgService prtgService;
+	
 	private void init(Model model) {
 		model.addAttribute("PRTG_IP_ADDR", Env.PRTG_SERVER_IP);
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
@@ -252,8 +234,20 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "getPrtgNetFlowSummaryUri", method = RequestMethod.POST)
 	public @ResponseBody AppResponse getPrtgNetFlowSummaryUri(Model model, HttpServletRequest request, HttpServletResponse response) {
 
+		HttpSession session = request.getSession();
 		try {
-			String netFlowSummaryMapUrl = composePrtgUrl(request, Env.PRTG_DEFAULT_NET_FLOW_SUMMARY_URI);
+			final String prtgAccount = Objects.toString(session.getAttribute(Constants.PRTG_LOGIN_ACCOUNT), null);
+			String netFlowSummaryMapUrl = "";
+			
+			PrtgAccountMapping accountMapping = prtgService.getMappingByAccount(prtgAccount);
+
+			if (accountMapping == null || StringUtils.isBlank(accountMapping.getNetFlowOutputMapUrl())) {
+				netFlowSummaryMapUrl = Env.PRTG_DEFAULT_NET_FLOW_SUMMARY_URI;	//如果沒設定則取得預設MAP
+			}else {
+				netFlowSummaryMapUrl = accountMapping.getNetFlowOutputMapUrl();
+			}
+
+			netFlowSummaryMapUrl = composePrtgUrl(request, netFlowSummaryMapUrl);
 
 			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
 			app.putData("uri", netFlowSummaryMapUrl);

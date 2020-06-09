@@ -120,13 +120,13 @@
         	<div class="card card-body">
         	  <div class="col-12">
 	           	<div class="form-group row">
-	            	<label for="addAccount" class="col-md-2 col-sm-3 col-form-label"><spring:message code="login.account" /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<label for="addAccount" class="col-md-2 col-sm-3 col-form-label"><spring:message code="user.account" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
 	            		<input type="text" class="form-control form-control-sm checkRequired" id="addAccount" name="addAccount" placeholder="user account" >
 	            	</div>
 	            </div>
 	            <div class="form-group row">
-	            	<label for="addUserName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="user.account" /></label>
+	            	<label for="addUserName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="user.name" /></label>
 	            	<div class="col-md-10 col-sm-9">
 	                	<input type="text" class="form-control form-control-sm" id="addUserName" name="addUserName" placeholder="使用者" >
 	                </div>
@@ -148,7 +148,10 @@
 	            <div class="form-group row">
 	            	<label for="addIsAdmin" class="col-md-2 col-sm-3 col-form-label"><spring:message code="user.right.isadmin" /></label>
 	            	<div class="col-md-10 col-sm-9">
-	                	<input type="text" class="form-control form-control-sm" id="addIsAdmin" name="addIsAdmin" placeholder="Y/N">
+	                	<form:select path="addIsAdmin" id="addIsAdmin" name="addIsAdmin" class="form-control form-control-sm">
+		                  	<form:option value="Y" label="Y" />
+		                  	<form:option value="N" label="N" />
+		                </form:select>
 	                </div>
 	            </div>
 	            <div class="form-group row">

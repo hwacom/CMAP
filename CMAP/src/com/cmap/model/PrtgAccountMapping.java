@@ -30,6 +30,9 @@ public class PrtgAccountMapping {
 	@Column(name = "prtg_username")
 	private String prtgUsername;
 	
+	@Column(name = "net_flow_output_map_url", nullable = true)
+    private String netFlowOutputMapUrl;
+	
 	@Column(name = "remark", nullable = true)
 	private String remark;
 
@@ -44,7 +47,7 @@ public class PrtgAccountMapping {
 	}
 
 	public PrtgAccountMapping(String id, String prtgAccount, String prtgUsername, String remark, Timestamp createTime,
-			String createBy) {
+			String createBy, String netFlowOutputMapUrl) {
 		super();
 		this.id = id;
 		this.prtgAccount = prtgAccount;
@@ -52,6 +55,7 @@ public class PrtgAccountMapping {
 		this.remark = remark;
 		this.createTime = createTime;
 		this.createBy = createBy;
+		this.netFlowOutputMapUrl = netFlowOutputMapUrl;
 	}
 
     public String getId() {
@@ -76,6 +80,14 @@ public class PrtgAccountMapping {
 
 	public void setPrtgUsername(String prtgUsername) {
 		this.prtgUsername = prtgUsername;
+	}
+
+	public String getNetFlowOutputMapUrl() {
+		return netFlowOutputMapUrl;
+	}
+
+	public void setNetFlowOutputMapUrl(String netFlowOutputMapUrl) {
+		this.netFlowOutputMapUrl = netFlowOutputMapUrl;
 	}
 
     public String getRemark() {

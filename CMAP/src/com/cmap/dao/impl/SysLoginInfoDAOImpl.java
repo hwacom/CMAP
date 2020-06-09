@@ -45,13 +45,18 @@ public class SysLoginInfoDAOImpl extends BaseDaoHibernate implements SysLoginInf
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from SysLoginInfo sli ")
 		  .append(" where 1=1 ")
-		  .append(" and sli.sessionId = :sessionId ");
+		  .append(" and sli.sessionId = :sessionId ")
+		  .append(" ORDER BY sli.LOGIN_TIME desc ");
+		
+		
 
 	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 	    q.setParameter("sessionId", sessionId);
-
-	    return (SysLoginInfo)q.uniqueResult();
+	    
+	    List<SysLoginInfo> resultList = (List<SysLoginInfo>)q.list();
+	    
+	    return resultList == null ? null:resultList.get(0);
 	}
 	
 	@Override

@@ -141,7 +141,7 @@ public class BaseController {
             SysLoginInfo info = new SysLoginInfo();
             info.setSessionId(request.getSession().getId());
             info.setIpAddr(ipAddr);
-            info.setAccount((String) request.getSession().getAttribute(Constants.USERNAME));
+            info.setAccount((String) request.getSession().getAttribute(Constants.OIDC_SUB));
             info.setUserName((String) request.getSession().getAttribute(Constants.OIDC_USER_NAME));
             info.setLoginTime(new Timestamp((new Date()).getTime()));
             sysLoginInfoDAO.saveSysLoginInfo(info);

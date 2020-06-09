@@ -32,6 +32,6 @@ public class I18nController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
-		return null;
+		return "admin/admin_env";
 	}
 }

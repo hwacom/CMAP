@@ -44,31 +44,36 @@ public class UserServiceImpl implements UserService {
 	public boolean checkUserCanAccess(HttpServletRequest request, String account, String[] roles) {
 		boolean canAccess = false;
 		try {
-		    UserRightSetting userRught = userDAO.findUserRightSetting(account);
+		    UserRightSetting userRight = userDAO.findUserRightSetting(account);
 
-		    if(roles != null) {
+		    log.debug("for debug userRight = " + (userRight!=null) + ", account = " + account);
+		    if(userRight != null) {
 		    	boolean isAdmin = false;
-		    	
-		    	for(String title :Env.OIDC_ADMIN_TITLE) {
-		    		for(String role:roles) {
-		    			if(StringUtils.equals(role, title)) {
-		    				isAdmin = true;
-		    				break;
-		    			}
-		    		}
-		    		if(isAdmin) {
-		    			break;
-		    		}
+		    	if(roles != null) {
+			    	for(String title :Env.OIDC_ADMIN_TITLE) {
+			    		for(String role:roles) {
+			    			if(StringUtils.equals(role, title)) {
+			    				isAdmin = true;
+			    				break;
+			    			}
+			    		}
+			    		if(isAdmin) {
+			    			break;
+			    		}
+			    	}
+			    	
+		    	}else {
+		    		isAdmin = StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false;
 		    	}
 		    	
 		    	request.getSession().setAttribute(Constants.ISADMIN, isAdmin);
 				request.getSession().setAttribute(Constants.USERROLE, isAdmin?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
 		    }else {
-		    	request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRught.getIsAdmin(), Constants.DATA_Y)?true:false);
-		    	request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRught.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
+		    	request.getSession().setAttribute(Constants.ISADMIN, false);
+		    	request.getSession().setAttribute(Constants.USERROLE, Constants.USERROLE_USER);
 		    }
 		    
-			return userRught != null;
+			return userRight != null;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);

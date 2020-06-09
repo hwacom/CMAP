@@ -148,7 +148,7 @@ public class ConsumerController extends BaseController implements ServletConfigA
             session.setAttribute(Constants.OIDC_EMAIL, email);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-            boolean canAccess = checkUserCanOrNotAccess(request, account, roles);
+            boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles);
 
             if (canAccess) {
                 return loginAuthByPRTG(model, principal, request, schoolId);

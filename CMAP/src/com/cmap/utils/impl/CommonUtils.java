@@ -197,6 +197,7 @@ public class CommonUtils {
 		if (cmd.contains(Env.CLI_VAR_TFTP_IP)) {
 			cmd = StringUtils.replace(cmd, Env.CLI_VAR_TFTP_IP, configInfoVO.gettFtpIP());
 		}
+		
 		if (cmd.contains(Env.CLI_VAR_TFTP_OUTPUT_FILE_PATH)) {
 			String tFtpFilePath = configInfoVO.gettFtpFilePath();
 
@@ -213,7 +214,7 @@ public class CommonUtils {
 			if (StringUtils.isNotBlank(remark)) {
 				tFtpFilePath = StringUtils.replace(tFtpFilePath, Env.COMM_SEPARATE_SYMBOL, remark);
 			}
-
+			
 			cmd = StringUtils.replace(cmd, Env.CLI_VAR_TFTP_OUTPUT_FILE_PATH, tFtpFilePath);
 		}
 		if (cmd.contains(Env.CLI_VAR_FTP_IP)) {

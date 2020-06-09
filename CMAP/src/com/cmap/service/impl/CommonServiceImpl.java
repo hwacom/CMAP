@@ -231,9 +231,29 @@ public class CommonServiceImpl implements CommonService {
             retVO = new CommonServiceVO();
 
             // Step 1. 取得 PRTG_ACCOUNT_MAPPING 設定
-            PrtgAccountMapping accountMapping = prtgDAO.findPrtgAccountMappingByAccount(prtgAccount);
+            List<PrtgAccountMapping> accountList = prtgDAO.findPrtgAccountMappingList();
 
-            if (accountMapping != null) {
+            if (accountList != null && !accountList.isEmpty()) {
+                // 過濾掉相同帳號但因不同學校所設定的多組資料，權限只依帳號設定，相同帳號的資料只保留一筆
+                String preVal = null, nowVal = null;
+                boolean firstRound = true;
+                for (Iterator<PrtgAccountMapping> it = accountList.iterator(); it.hasNext();) {
+                    if (firstRound) {
+                        preVal = it.next().getPrtgAccount();
+                        firstRound = false;
+                        continue;
+                    }
+
+                    nowVal = it.next().getPrtgAccount();
+
+                    if (StringUtils.equals(preVal, nowVal)) {
+                        it.remove();
+                    }
+
+                    preVal = nowVal;
+                }
+                _accountCount = accountList.size();
+
                 ApiUtils prtgApiUtils = new PrtgApiUtils();
                 String account = null, password = null, passhash = null;
 
@@ -244,7 +264,7 @@ public class CommonServiceImpl implements CommonService {
 
                 // Step 2. 迴圈跑所有 ACCOUNT
                 int round = 1;
-
+                for (PrtgAccountMapping pam : accountList) {
                     String percent = new BigDecimal(round)
                                           .divide(new BigDecimal(_accountCount), new MathContext(5, RoundingMode.HALF_UP))
                                           .multiply(new BigDecimal(100))
@@ -256,9 +276,9 @@ public class CommonServiceImpl implements CommonService {
                         prtgApiUtils.init();
 
                         // Step 2-1. 呼叫 PRTG API 取得每個 ACCOUNT 的群組&設備權限列表
-                        account = accountMapping.getPrtgAccount();
+                        account = pam.getPrtgAccount();
                         password = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
-
+                        
                         // 先取得此組帳密所對應的Passhash，後續撈群組&設備選單就不必再各別撈一次
                         sTime = System.currentTimeMillis();
                         passhash = prtgApiUtils.getPasshash(account, password);
@@ -466,10 +486,12 @@ public class CommonServiceImpl implements CommonService {
                     } catch (Exception e) {
                         // 其中發生錯誤則跳過
                         log.error(e.toString(), e);
+                        continue;
 
                     } finally {
                         round++;
                     }
+                }
 
                 prtgDAO.deleteEntities(BaseDAO.TARGET_PRIMARY_DB, deleteEntities);
                 prtgDAO.insertEntities(BaseDAO.TARGET_PRIMARY_DB, insertEntities);
