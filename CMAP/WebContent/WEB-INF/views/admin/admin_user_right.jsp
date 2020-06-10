@@ -148,10 +148,10 @@
 	            <div class="form-group row">
 	            	<label for="addIsAdmin" class="col-md-2 col-sm-3 col-form-label"><spring:message code="user.right.isadmin" /></label>
 	            	<div class="col-md-10 col-sm-9">
-	                	<form:select path="addIsAdmin" id="addIsAdmin" name="addIsAdmin" class="form-control form-control-sm">
-		                  	<form:option value="Y" label="Y" />
-		                  	<form:option value="N" label="N" />
-		                </form:select>
+					    <select id="addIsAdmin" name="addIsAdmin" class="form-control form-control-sm" style="min-width: 40px" >
+							<option value="Y" label="Y" />
+			                 <option value="N" label="N" />                   
+					    </select>
 	                </div>
 	            </div>
 	            <div class="form-group row">
