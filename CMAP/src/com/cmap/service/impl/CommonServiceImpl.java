@@ -716,13 +716,7 @@ public class CommonServiceImpl implements CommonService {
 	public PrtgServiceVO findPrtgLoginInfo(String username) {
 		PrtgServiceVO retVO = null;
 		try {
-			UserRightSetting userRight = userDAO.findUserRightSetting(username);
-			
-			if(userRight == null) {
-				throw new ServiceLayerException("使用者權限錯誤!!");
-			}
-			
-			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingByAccount(userRight.getUserGroup());
+			PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingByAccount(username);
 
 			if (mapping != null) {
 				retVO = new PrtgServiceVO();

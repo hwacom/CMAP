@@ -122,10 +122,9 @@ public class BaseController {
 			
             prtgVO = commonService.findPrtgLoginInfo(userRight.getUserGroup());
 
-            if (prtgVO == null ||
-                    (prtgVO != null && StringUtils.isBlank(prtgVO.getAccount()) && StringUtils.isBlank(prtgVO.getPassword()))) {
-                throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (username: " + userRight.getUserGroup() + " )");
-            }
+			if (prtgVO == null || (prtgVO != null && StringUtils.isBlank(prtgVO.getAccount()))) {
+				throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (username: " + userRight.getUserGroup() + " )");
+			}
 
             String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
             
