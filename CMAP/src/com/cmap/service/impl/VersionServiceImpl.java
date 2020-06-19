@@ -37,7 +37,6 @@ import com.cmap.model.ConfigVersionDiffLog;
 import com.cmap.model.ConfigVersionInfo;
 import com.cmap.model.DeviceList;
 import com.cmap.security.SecurityUtil;
-import com.cmap.service.ConfigService;
 import com.cmap.service.ProvisionService;
 import com.cmap.service.StepService;
 import com.cmap.service.StepService.Result;
@@ -639,7 +638,14 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						}
 
 					} else {
-						throw new Exception("檔案取得異常");
+						log.error("檔案取得異常，或取得檔案為空");
+						if (contentOriList == null) {
+							contentOriList = new ArrayList<>();
+							retVO.setVersionOri(vsVO.getConfigVersion());
+						} else {
+							contentRevList = new ArrayList<>();
+							retVO.setVersionRev(vsVO.getConfigVersion());
+						}
 					}
 
 					// Step5. 關閉FTP連線
