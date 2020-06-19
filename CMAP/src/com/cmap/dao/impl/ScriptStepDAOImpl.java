@@ -9,19 +9,19 @@ import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 
 import com.cmap.annotation.Log;
-import com.cmap.dao.vo.ScriptDAOVO;
+import com.cmap.dao.vo.ScriptStepDAOVO;
 import com.cmap.model.ScriptInfo;
 
 public class ScriptStepDAOImpl extends BaseDaoHibernate {
 	@Log
     private static Logger log;
 	
-	protected List<ScriptDAOVO> transModel2DAOVO(List<? extends Object> modelList) {
-		List<ScriptDAOVO> voList = new ArrayList<>();
+	protected List<ScriptStepDAOVO> transModel2DAOVO(List<? extends Object> modelList) {
+		List<ScriptStepDAOVO> voList = new ArrayList<>();
 
-		ScriptDAOVO daovo;
+		ScriptStepDAOVO daovo;
 		for (Object modelObj : modelList) {
-			daovo = new ScriptDAOVO();
+			daovo = new ScriptStepDAOVO();
 			BeanUtils.copyProperties(modelObj, daovo);
 
 			ScriptInfo scriptInfo = null;

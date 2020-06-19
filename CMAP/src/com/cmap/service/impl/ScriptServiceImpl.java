@@ -23,8 +23,8 @@ import com.cmap.dao.ScriptDefaultMappingDAO;
 import com.cmap.dao.ScriptInfoDAO;
 import com.cmap.dao.ScriptStepDAO;
 import com.cmap.dao.ScriptTypeDAO;
-import com.cmap.dao.vo.ScriptDAOVO;
 import com.cmap.dao.vo.ScriptInfoDAOVO;
+import com.cmap.dao.vo.ScriptStepDAOVO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.ScriptInfo;
@@ -77,7 +77,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 		String deviceModel = device != null ? device.getDeviceModel() : Env.MEANS_ALL_SYMBOL;
 		final String scriptCode = scriptListDefaultDAO.findDefaultScriptCodeBySystemVersion(type, deviceModel);
 
-		List<ScriptDAOVO> daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(null, scriptCode);
+		List<ScriptStepDAOVO> daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(null, scriptCode);
 
 		if (daovoList == null || (daovoList != null && daovoList.isEmpty())) {
 			if (!StringUtils.equals(deviceModel, Env.MEANS_ALL_SYMBOL)) {
@@ -93,7 +93,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 			}
 
 			ScriptServiceVO ssVO;
-			for (ScriptDAOVO daovo : daovoList) {
+			for (ScriptStepDAOVO daovo : daovoList) {
 				ssVO = new ScriptServiceVO();
 				BeanUtils.copyProperties(daovo, ssVO);
 
@@ -146,7 +146,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 			scripts = new ArrayList<>();
 		}
 
-		List<ScriptDAOVO> daovoList = null;
+		List<ScriptStepDAOVO> daovoList = null;
 
 		if (StringUtils.equals(scriptMode, Constants.SCRIPT_MODE_ACTION)) {
 		    daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(scriptInfoId, scriptCode);
@@ -156,7 +156,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 		}
 
 		ScriptServiceVO ssVO;
-		for (ScriptDAOVO daovo : daovoList) {
+		for (ScriptStepDAOVO daovo : daovoList) {
 			ssVO = new ScriptServiceVO();
 			BeanUtils.copyProperties(daovo, ssVO);
 

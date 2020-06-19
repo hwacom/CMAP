@@ -15,7 +15,7 @@ import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.ScriptDefaultMappingDAO;
-import com.cmap.dao.vo.ScriptDAOVO;
+import com.cmap.dao.vo.ScriptStepDAOVO;
 import com.cmap.model.ScriptDefaultMapping;
 import com.cmap.model.ScriptListDefault;
 
@@ -25,12 +25,12 @@ public class ScriptDefaultMappingDAOImpl extends BaseDaoHibernate implements Scr
 	@Log
     private static Logger log;
 	
-	private List<ScriptDAOVO> transModel2DAOVO(List<ScriptListDefault> modelList) {
-		List<ScriptDAOVO> voList = new ArrayList<>();
+	private List<ScriptStepDAOVO> transModel2DAOVO(List<ScriptListDefault> modelList) {
+		List<ScriptStepDAOVO> voList = new ArrayList<>();
 
-		ScriptDAOVO daovo;
+		ScriptStepDAOVO daovo;
 		for (ScriptListDefault model : modelList) {
-			daovo = new ScriptDAOVO();
+			daovo = new ScriptStepDAOVO();
 			BeanUtils.copyProperties(model, daovo);
 			daovo.setScriptTypeId(model.getScriptType().getScriptTypeId());
 			daovo.setScriptStepOrder(String.valueOf(model.getScriptStepOrder()));
@@ -64,7 +64,7 @@ public class ScriptDefaultMappingDAOImpl extends BaseDaoHibernate implements Scr
 	}
 
 	@Override
-	public long countScriptList(ScriptDAOVO slDAOVO) {
+	public long countScriptList(ScriptStepDAOVO slDAOVO) {
 		// TODO 自動產生的方法 Stub
 		return 0;
 	}

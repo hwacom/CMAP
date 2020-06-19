@@ -82,12 +82,12 @@
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="login.account" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="user.account" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="user.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="login.password" /></th>		      
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>		       
-		      <th scope="col" nowrap="nowrap">login_mode</th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="login.mode" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="user.right.isadmin" /></th>
 		      <th scope="col" nowrap="nowrap">CREATE_TIME</th>
 		      <th scope="col" nowrap="nowrap">CREATE_BY</th>
@@ -155,7 +155,7 @@
 	                </div>
 	            </div>
 	            <div class="form-group row">
-                	<label for="addLoginMode" class="col-md-2 col-sm-3 col-form-label"><spring:message code="group.name" /><spring:message code="type" /><span class="pull-right" style="color: red;">＊ </span></label>
+                	<label for="addLoginMode" class="col-md-2 col-sm-3 col-form-label"><spring:message code="login.mode" /><span class="pull-right" style="color: red;">＊ </span></label>
                   	<div class="col-md-10 col-sm-9">
                   		<form:select path="loginModeList" id="addLoginMode" class="form-control form-control-sm" style="min-width: 40px">
 			               <form:options items="${loginModeList}" />

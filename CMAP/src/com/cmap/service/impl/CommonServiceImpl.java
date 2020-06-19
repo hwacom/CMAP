@@ -314,17 +314,19 @@ public class CommonServiceImpl implements CommonService {
                         sTime = System.currentTimeMillis();
                         // 取得sensor清單
                         String deviceId = null;
+                        List<PrtgUserSensorDetailVO> sensorVOList = new ArrayList<>();
                         if(StringUtils.isNotBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
                         	deviceId = Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW;
-                        }
-                        PrtgUserSensorMainVO sensorVO = prtgApiUtils.getUserSensorList(account, password, passhash, deviceId);
-                        List<PrtgUserSensorDetailVO> sensorVOList = sensorVO.getSensors();
-                        _sensorCount += sensorVOList.size();
+                        	PrtgUserSensorMainVO sensorVO = prtgApiUtils.getUserSensorList(account, password, passhash, deviceId);
+                            sensorVOList = sensorVO.getSensors();
+                            _sensorCount += sensorVOList.size();
 
-                        eTime = System.currentTimeMillis();
-                        log.info("[getUserSensorList] Spent: " + (eTime - sTime) + " (ms).");
+                            eTime = System.currentTimeMillis();
+                            log.info("[getUserSensorList] Spent: " + (eTime - sTime) + " (ms).");
+                            
+                            sTime = System.currentTimeMillis();
+                        }
                         
-                        sTime = System.currentTimeMillis();
                         // Step 2-2. 與既有設定判斷寫入 OR 更新資料
                         List<PrtgUserRightSetting> rightSettingList = prtgDAO.findPrtgUserRightSetting(account, null);
 
