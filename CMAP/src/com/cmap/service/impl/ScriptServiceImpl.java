@@ -438,6 +438,11 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 	}
 	
 	@Override
+	public List<ScriptInfo> getScriptInfoByScriptCodeLike(String scriptCode, String deviceModel) throws ServiceLayerException {
+		return scriptInfoDAO.findScriptInfoByCodeLike(scriptCode, deviceModel);
+	}
+	
+	@Override
 	public String deleteScriptTypeByCode(String scriptTypeCode) throws ServiceLayerException {
 		String msg = "選取刪除資料；成功 !!";
 		try {
