@@ -1178,7 +1178,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
 	public Map<String, String> findPrtgAccountMappingList(String account) {
     	List<PrtgAccountMapping> result = new ArrayList<>();
-    	Map<String, String> retMap = new LinkedHashMap<>();
+    	Map<String, String> retMap = new HashMap<>();
     	
 		try {	
 			if(StringUtils.isNotBlank(account)) {
