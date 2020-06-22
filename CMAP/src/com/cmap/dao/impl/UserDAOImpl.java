@@ -73,16 +73,13 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 		.append(" and deleteFlag = '"+Constants.DATA_MARK_NOT_DELETE+"' ");
 
 		if (StringUtils.isNotBlank(vo.getAccount())) {
-			sb.append(" and urs.account like :account ");
-		}
-		if (StringUtils.isNotBlank(vo.getPassword())) {
-			sb.append(" and urs.password like :password ");
+			sb.append(" and urs.account = :account ");
 		}
 		if (StringUtils.isNotBlank(vo.getUserName())) {
-			sb.append(" and urs.userName like :userName ");
+			sb.append(" and urs.userName = :userName ");
 		}
 		if (StringUtils.isNotBlank(vo.getUserGroup())) {
-			sb.append(" and urs.userGroup like :userGroup ");
+			sb.append(" and urs.userGroup = :userGroup ");
 		}
 
 		if (StringUtils.isNotBlank(vo.getSearchValue())) {
@@ -101,16 +98,13 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 		Query<?> q = session.createQuery(sb.toString());
 
 		if (StringUtils.isNotBlank(vo.getAccount())) {
-			q.setParameter("account", "%".concat(vo.getAccount()).concat("%"));
-		}
-		if (StringUtils.isNotBlank(vo.getPassword())) {
-			q.setParameter("password", "%".concat(vo.getPassword()).concat("%"));
+			q.setParameter("account", vo.getAccount());
 		}
 		if (StringUtils.isNotBlank(vo.getUserGroup())) {
-			q.setParameter("userGroup", "%".concat(vo.getUserGroup()).concat("%"));
+			q.setParameter("userGroup", vo.getUserGroup());
 		}
 		if (StringUtils.isNotBlank(vo.getUserName())) {
-			q.setParameter("userName", "%".concat(vo.getUserName()).concat("%"));
+			q.setParameter("userName", vo.getUserName());
 		}
 
 		if (StringUtils.isNotBlank(vo.getSearchValue())) {
@@ -131,16 +125,13 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 		.append(" and deleteFlag = '"+Constants.DATA_MARK_NOT_DELETE+"' ");
 
 		if (StringUtils.isNotBlank(vo.getAccount())) {
-			sb.append(" and urs.account like :account ");
-		}
-		if (StringUtils.isNotBlank(vo.getPassword())) {
-			sb.append(" and urs.password like :password ");
+			sb.append(" and urs.account = :account ");
 		}
 		if (StringUtils.isNotBlank(vo.getUserName())) {
-			sb.append(" and urs.userName like :userName ");
+			sb.append(" and urs.userName = :userName ");
 		}
 		if (StringUtils.isNotBlank(vo.getUserGroup())) {
-			sb.append(" and urs.userGroup like :userGroup ");
+			sb.append(" and urs.userGroup = :userGroup ");
 		}
 
 		if (StringUtils.isNotBlank(vo.getSearchValue())) {
@@ -159,16 +150,13 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 		Query<?> q = session.createQuery(sb.toString());
 
 		if (StringUtils.isNotBlank(vo.getAccount())) {
-			q.setParameter("account", "%".concat(vo.getAccount()).concat("%"));
-		}
-		if (StringUtils.isNotBlank(vo.getPassword())) {
-			q.setParameter("password", "%".concat(vo.getPassword()).concat("%"));
+			q.setParameter("account", vo.getAccount());
 		}
 		if (StringUtils.isNotBlank(vo.getUserGroup())) {
-			q.setParameter("userGroup", "%".concat(vo.getUserGroup()).concat("%"));
+			q.setParameter("userGroup", vo.getUserGroup());
 		}
 		if (StringUtils.isNotBlank(vo.getUserName())) {
-			q.setParameter("userName", "%".concat(vo.getUserName()).concat("%"));
+			q.setParameter("userName", vo.getUserName());
 		}
 
 		if (StringUtils.isNotBlank(vo.getSearchValue())) {

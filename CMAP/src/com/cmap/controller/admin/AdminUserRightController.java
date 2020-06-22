@@ -59,8 +59,7 @@ public class AdminUserRightController extends BaseController {
 		} finally {
 			init(model, request);
 			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
-			com.cmap.model.User user = SecurityUtil.getSecurityUser().getUser();
-			model.addAttribute("userGroupList", getUserRightGroup(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserName()));
+			model.addAttribute("userGroupList", getUserRightGroup(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserUnit()));
 			
 			Map<String, String> loginModeMap = new HashMap<String, String>();
 			for(String mode : Env.LOGIN_MODE) {
@@ -139,7 +138,7 @@ public class AdminUserRightController extends BaseController {
 	}
 
 	@RequestMapping(value = "getEnvConfig.json", method = RequestMethod.POST)
-	public @ResponseBody DatatableResponse findDeviceListData(
+	public @ResponseBody DatatableResponse getEnvConfig(
 			Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
@@ -161,12 +160,8 @@ public class AdminUserRightController extends BaseController {
 			
 			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
 			
-			if(isAdmin) {
-				urVO.setAccount(account);
-			}else {//非管理員權限只可查詢自己
-				urVO.setAccount((String)request.getSession().getAttribute(Constants.USERNAME));
-			}
-			
+			//非管理員權限只可查詢自己
+			urVO.setAccount(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserUnit());
 			urVO.setUserName(userName);
 			urVO.setUserGroup(userGroup);
 			
