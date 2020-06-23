@@ -279,6 +279,34 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 	}
 
 	@Override
+	public List<ScriptInfo> findScriptInfoByCodeLike(String scriptCode, String deviceModel) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from ScriptInfo si ")
+		  .append(" where 1=1 ");
+
+		if (StringUtils.isNotBlank(scriptCode)) {
+			sb.append(" and si.scriptCode like :scriptCode ");
+		}
+		if (StringUtils.isNotBlank(deviceModel)) {
+			sb.append(" and si.deviceModel like :deviceModel ");
+		}
+		
+		sb.append(" order by si.scriptCode desc");
+		
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Query<?> q = session.createQuery(sb.toString());
+
+		if (StringUtils.isNotBlank(deviceModel)) {
+			q.setParameter("deviceModel", deviceModel);
+		}
+		if (StringUtils.isNotBlank(scriptCode)) {
+			q.setParameter("scriptCode", scriptCode.concat("%"));
+		}
+
+		return (List<ScriptInfo>)q.list();
+	}
+	
+	@Override
 	public ScriptInfo findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String deviceModel) throws ServiceLayerException {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select si ")

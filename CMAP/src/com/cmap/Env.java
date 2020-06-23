@@ -294,6 +294,7 @@ public class Env {
 
 	public static List<String> TELNET_LOGIN_USERNAME_TEXT  = new ArrayList<>();
 	public static String TELNET_LOGIN_PASSWORD_TEXT;
+	public static List<String> TELNET_LOGIN_SUCCESS_TEXT  = new ArrayList<>();
 	public static List<String> TELNET_LOGIN_ENABLE_TEXT  = new ArrayList<>();
 	public static Integer TELNET_READ_UNTIL_MAX_RUNTIME;
 

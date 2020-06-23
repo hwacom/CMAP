@@ -294,7 +294,6 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		try {
 			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
 			BeanUtils.copyProperties(dsVO, siDAOVO);
-			siDAOVO.setQuerySystemDefault(Constants.DATA_N);
 
 			retVal = scriptInfoDAO.countScriptInfo(siDAOVO);
 
@@ -312,8 +311,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		try {
 			ScriptInfoDAOVO siDAOVO = new ScriptInfoDAOVO();
 			BeanUtils.copyProperties(dsVO, siDAOVO);
-			siDAOVO.setQuerySystemDefault(Constants.DATA_N);
-
+			
 			List<ScriptInfo> entities = scriptInfoDAO.findScriptInfo(siDAOVO, startRow, pageLength);
 			List<DeviceList> devices = deviceDAO.findDistinctDeviceListByGroupIdsOrDeviceIds(groupIds, null);
 			List<String> deviceModels = new ArrayList<>();
@@ -322,11 +320,10 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 			DeliveryServiceVO vo;
 			if (entities != null && !(entities.isEmpty())) {
 				for (ScriptInfo entity : entities) {
-					if(deviceModels.contains(entity.getDeviceModel()) || entity.getDeviceModel().equals(Env.MEANS_ALL_SYMBOL)){
+					if(deviceModels.contains(entity.getDeviceModel()) || entity.getDeviceModel().equals(Env.MEANS_ALL_SYMBOL)){						
 						vo = new DeliveryServiceVO();
 						BeanUtils.copyProperties(entity, vo);
 						vo.setScriptTypeName(entity.getScriptType().getScriptTypeName());
-
 						retList.add(vo);
 					}					
 				}
@@ -1264,12 +1261,26 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 					brVO.setQueryStatusFlag(Arrays.asList(Constants.STATUS_FLAG_BLOCK));
 					
 	                if(varKey.contains(keyGlobal)) {
+	                	
 		                //綁定行為時，計算同設備資料筆數放入Entry Num
 		                if(blockFlag) {                
-								long count = blockedRecordService.countModuleBlockedList(brVO);
-
-								//從255往回設定
-								valueList.add( String.valueOf(250 - count));
+								List<ModuleBlockedList> bList = blockedRecordService.findModuleBlockedList(brVO);
+								
+								//從250往回設定
+								for ( int i = 250; i <= 1 ; i--) {
+									boolean checkFlag = true;
+									for(ModuleBlockedList record : bList) {
+										if(StringUtils.equals(record.getGlobalValue(), String.valueOf(i))) {
+											checkFlag = false;
+											break;
+										}
+										
+									}
+									if(checkFlag) {
+										valueList.add( String.valueOf(i));
+										break;
+									}
+								}
 		                }else {
 		                	//解除綁定，放入紀錄中global Value 的Entry Num
 		                	brVO.setQueryMacAddress(varMap.get(Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK.replaceAll(Env.SCRIPT_VAR_KEY_SYMBOL, "")));
@@ -1281,7 +1292,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 		                		throw new ServiceLayerException("供裝前系統檢核不通過，請重新操作；若仍再次出現此訊息，請與系統維護商聯繫");
 		                	}
 		                }   
-	                }	                
+	                }
 	                newVarValue.add(valueList);
 				}
 				pVO.setVarValue(newVarValue);

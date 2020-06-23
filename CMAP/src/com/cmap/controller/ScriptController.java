@@ -25,7 +25,7 @@ import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.dao.vo.ScriptDAOVO;
+import com.cmap.dao.vo.ScriptStepDAOVO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ScriptInfo;
 import com.cmap.model.ScriptStepAction;
@@ -178,7 +178,7 @@ public class ScriptController extends BaseController {
 	@RequestMapping(value = "getScriptType.json", method = RequestMethod.POST, produces="application/json;odata=verbose")
 	public @ResponseBody AppResponse getScriptType(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-		ScriptDAOVO vo = new ScriptDAOVO();
+		ScriptStepDAOVO vo = new ScriptStepDAOVO();
 		try {
 			Map<String, String> scriptTypeMap = null;
 			scriptTypeMap = getScriptTypeList(null);
@@ -202,19 +202,23 @@ public class ScriptController extends BaseController {
 
 		final String commonErrorMsg = "腳本代碼重複或發生錯誤，請重新操作";
 		try {
-			String scriptCode = jsonData.findValue("scriptCode").asText();
+			String scriptType = jsonData.findValue("scriptType").asText();
 
-			if (StringUtils.isBlank(scriptCode)) {
+			if (StringUtils.isBlank(scriptType)) {
 				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
 			}
 
-			ScriptInfo ssVO = scriptService.getScriptInfoEntityByScriptCode(scriptCode);
-
-			if (ssVO == null) {				
-				return new AppResponse(HttpServletResponse.SC_OK, "腳本代碼可以使用!!");
-			} else {
-				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+			List<ScriptInfo> ssVO = scriptService.getScriptInfoByScriptCodeLike(scriptType, null);
+			
+			int maxidx = 1;
+			for(ScriptInfo info : ssVO) {
+				if(maxidx < Integer.valueOf(info.getScriptCode().replace(scriptType, ""))) {
+					maxidx = Integer.valueOf(info.getScriptCode().replace(scriptType, ""));
+				}
 			}
+			String count = ssVO == null? "001": String.format("%03d", maxidx+1);
+			
+			return new AppResponse(HttpServletResponse.SC_OK, scriptType.concat(count));
 
 		} catch (ServiceLayerException sle) {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
@@ -277,6 +281,7 @@ public class ScriptController extends BaseController {
 			String[] errorSymbols = StringUtils.splitPreserveAllTokens(errorSymbol, ",");
 			int index = 0;
 			List<ScriptStepAction> scriptStepActions = new ArrayList<>();
+			StringBuffer actionScriptVar = new StringBuffer("[\"");
 			
 			for(String scriptAction : scriptActions) {
 				ScriptStepAction action = new ScriptStepAction();
@@ -291,8 +296,21 @@ public class ScriptController extends BaseController {
 				
 				scriptStepActions.add(action);
 				index++;
+				
+				if(scriptAction.indexOf("%") >= 0 ) {
+					String[] array = scriptAction.split("%");
+					for(int idx = 0; idx < array.length ; idx++) {
+						if(idx % 2 == 1) {
+							if(actionScriptVar.length() > 2) {
+								actionScriptVar.append("\",\"");
+							}
+							actionScriptVar.append(array[idx].trim());
+						}
+					}
+				}
 			}
 			
+			info.setActionScriptVariable(actionScriptVar.append("\"]").toString());
 			info.setScriptStepActions(scriptStepActions);
 			
 			String retMsg =scriptService.addOrModifyScriptInfo(info);

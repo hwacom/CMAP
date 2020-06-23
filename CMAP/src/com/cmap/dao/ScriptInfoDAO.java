@@ -26,4 +26,6 @@ public interface ScriptInfoDAO {
 	void saveScriptInfo(ScriptInfo model);
 
 	boolean deleteScriptInfo(ScriptInfo info, String actionBy);
+
+	List<ScriptInfo> findScriptInfoByCodeLike(String scriptCode, String deviceModel);
 }

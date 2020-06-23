@@ -94,4 +94,6 @@ public interface ScriptService {
 	String deleteScriptTypeByCode(String scriptTypeCode) throws ServiceLayerException;
 
 	String addOrModifyScriptType(com.cmap.model.ScriptType type) throws ServiceLayerException;
+	
+	List<ScriptInfo> getScriptInfoByScriptCodeLike(String scriptCode, String deviceModel) throws ServiceLayerException;
 }

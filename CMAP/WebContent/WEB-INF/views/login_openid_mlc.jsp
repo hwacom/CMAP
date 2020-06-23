@@ -60,41 +60,6 @@
 			  		  			<button class="btn btn-block btn-success" type="submit" id="btnLogin"><spring:message code="login" /></button> <!-- Sign in -->
 			  		  		</div>
 			  		    </div>
-			  		    <div class="row">
-				  		<div class="col-md-6 col-sm-12 offset-md-3 m-t-5 login-form">
-					  		<form class="form-signin" name="f" method='POST'>
-							  <c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
-							      <span class="red">
-							        	<spring:message code="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
-							      </span>
-							  </c:if>
-					  		  <div class="form-group row" style="vertical-align: middle;">
-					  		  	<div class="col-3">
-					  		  		<span class="h5" style="color: black"><spring:message code="login.account" />:</span>
-					  		  	</div>
-					  		  	<div class="col-9">
-					  		  		<label for="inputAccount" class="sr-only"><spring:message code="login.account" /></label>
-					  		  		<input type="text" name="username" id="inputAccount" class="form-control" placeholder="<spring:message code="login.account" />" required autofocus>
-					  		  	</div>
-					  		  </div>
-						      <div class="form-group row">
-						      	<div class="col-3">
-						      		<span class="h5" style="color: black"><spring:message code="login.password" />:</span>
-					  		  	</div>
-					  		  	<div class="col-9">
-					  		  		<label for="inputPassword" class="sr-only"><spring:message code="login.password" /></label>
-					  		  		<input type="password" name="password" id="inputPassword" class="form-control" placeholder="<spring:message code="login.password" />" required>
-					  		  	</div>
-					  		  </div>
-					  		   <input type="hidden" name="previousPage" value="<%=request.getSession().getAttribute("PREVIOUS_URL") %>">
-						      <div class="row">
-					  		  	<div class="col-sm-12">
-					  		  		<button class="btn btn-block btn-success" type="submit"><spring:message code="login" /></button> <!-- Sign in -->
-					  		  	</div>
-					  		  </div>
-						    </form>
-						</div>
-				  	</div>
 					</div>
 			  	</div>
 	  		</div>

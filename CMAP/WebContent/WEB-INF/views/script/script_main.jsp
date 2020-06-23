@@ -103,9 +103,9 @@
       	<div id="stepModal_scroll">
 	      	<div id="step1_section" style="display: inline">
 		     	<div class="form-group row">
-	            	<label for="scriptCode" class="col-md-2 col-sm-3 col-form-label"><spring:message code='script.code' /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<label for="scriptCode" class="col-md-2 col-sm-4 col-form-label"><spring:message code='script.code' /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm" id="addScriptCode" name="input_var" placeholder="<spring:message code='script.code' />EX:TMP_001" required="required" >
+	            		<input type="text" class="form-control form-control-sm" id="addScriptCode" name="input_var" placeholder="<spring:message code='script.code' />EX:TMP_001" readonly="readonly" >
 	            	</div>
 	            </div>      
 	            <div class="form-group row">

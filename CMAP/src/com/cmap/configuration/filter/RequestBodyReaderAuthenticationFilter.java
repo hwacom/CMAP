@@ -77,6 +77,8 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 				request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
 				request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
 				request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight.getUserName());
+				request.getSession().setAttribute(Constants.OIDC_SUB, username);
+				request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
 				
 	            SysLoginInfo info = new SysLoginInfo();
 	            info.setSessionId(request.getSession().getId());
@@ -168,7 +170,9 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 				if (loginSuccess) {
 					request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
 					request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
-					request.getSession().setAttribute(Constants.OIDC_USER_NAME, username);
+					request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight.getUserName());
+					request.getSession().setAttribute(Constants.OIDC_SUB, username);
+					request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
 					request.getSession().setAttribute("LDAP_AUTH_RESULT", true);
 					
 		            SysLoginInfo info = new SysLoginInfo();

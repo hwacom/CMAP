@@ -13,8 +13,7 @@
    		   width=100% 
    		   style="height:calc(100vh - 55px)" 
    		   frameborder="0" 
-   		   src="${IFRAME_URI }" 
-   		   sandbox="allow-forms allow-scripts allow-same-origin"
+   		   src="${IFRAME_URI }"
    		   >
   	 Failed to open PRTG main page.
    </iframe>

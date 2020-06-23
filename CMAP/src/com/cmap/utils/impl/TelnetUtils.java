@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -76,57 +77,71 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	@Override
 	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception {
 		String output = "";
-			
-		output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
+		
+		Thread.sleep(1000);
+		output = readUntil(Arrays.asList(":"));
 		
 		if(StringUtils.isNotBlank(output)) {
+			log.debug("for debug output = " + output);
+			
 			if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//直接輸入密碼
 				write(password);
 			}else {
+				log.debug("for debug login account & password!");
 				write(account);
-				Thread.sleep(1000); // 執行命令間格時間
+				Thread.sleep(1000);
 				write(password);
-			}				
+			}
 			processLog.append(output);
 			
-			output = readUntil(Env.TELNET_LOGIN_ENABLE_TEXT);
+			Thread.sleep(2000);
+			output = readUntil(Env.TELNET_LOGIN_SUCCESS_TEXT);
 			
 			if(StringUtils.isNotBlank(output)) {
-				if (output.indexOf("Login incorrect") > 0) {
-					throw new Exception("Login info incorrect!!");
-				}else if (output.indexOf("Login timeout") > 0) {
+				boolean actionFlag = false;
+				
+				log.debug("for debug output = " + output);
+				for(String text:Env.TELNET_LOGIN_SUCCESS_TEXT) {
+					if(output.toLowerCase().endsWith(text)) {
+						actionFlag = true;
+					}
+				}
+				
+				if(!actionFlag) {
 					throw new Exception("Login info incorrect!!");
 				}
 				
-				boolean enableFlag = false;
 				for(String text : Env.TELNET_LOGIN_ENABLE_TEXT) { //判斷是否包含需要enable字元
 					if(output.toLowerCase().endsWith(text)) {
-						enableFlag = true;
+						actionFlag = true;
 						log.info("telnet login need enable");
 						break;
 					}
 				}
 				
-				if(enableFlag) {
+				if(actionFlag) {
 					write("enable");
-					
-					output = readUntil(Env.TELNET_LOGIN_USERNAME_TEXT);
+					output = readUntil(Arrays.asList(":"));
 					
 					if(StringUtils.isNotBlank(output)) {
+						log.debug("for debug output = " + output);
+						
 						if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//enable 直接輸入密碼
 							write(enable);
 						}else { //enable需要輸入帳號
 							write(account);
-							Thread.sleep(1000); // 執行命令間格時間
+							Thread.sleep(1000);
 							write(enable);
 						}
 						
 						processLog.append(output);
 					}
 				}
+			}else {
+				throw new Exception("Login incorrect!! telnet read login sucess text is empty!!");
 			}
 		}else {
-			throw new Exception("Login info incorrect!! readUntil empty!!");
+			throw new Exception("Login incorrect!! readUntil is empty!!");
 		}
 		
 		return false;
@@ -136,8 +151,8 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 		try {
 			out.println(cmd);
 			out.flush();
-			log.debug("cmd: "+cmd);
-
+			log.debug("cmd = " + cmd);
+			
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
@@ -160,6 +175,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 				sb.append(ch);
 				
 				if (lastChars.contains(String.valueOf(ch))) {
+					log.debug("for debug lastChars = " + lastChars.toString() + ";sb = " + sb.toString());
 					for(String text:pattern) {
 						if (Strings.toUpperCase(sb.toString().trim()).endsWith(Strings.toUpperCase(text))) {
 							return sb.toString();
@@ -173,6 +189,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 				}
 				*/
 				if (runTime > Env.TELNET_READ_UNTIL_MAX_RUNTIME) {
+					log.debug("for debug lastChars = " + lastChars.toString() + ";sb = " + sb.toString());
 					return sb.toString();
 				}
 

@@ -52,11 +52,16 @@ $(document).ready(function() {
 		envAction('add');
 	});
 	
-	$('#addScriptCode').unbind('blur').bind('blur',function(){
-		if ($('input[name=radiobox]:checked:eq(0)').length == 0) {
-			checkScriptCode();
-		}		
-    });
+//	$('#addScriptCode').unbind('blur').bind('blur',function(){
+//		if ($('input[name=radiobox]:checked:eq(0)').length == 0 && $('#addScriptCode').val().trim().length > 0) {
+//			if($('#addScriptCode').val().trim().length > 3){
+//				alert("輸入數值過大，請小於999");
+//				return false;
+//			}
+//			$('#addScriptCode').val(paddingLeft($('#addScriptCode').val(), 3));
+//			checkScriptCode();
+//		}		
+//    });
 	
 	$("#btnTypeModify").click(function(e) {
 		window.sessionStorage.clear();
@@ -64,10 +69,10 @@ $(document).ready(function() {
 		
 		if (scriptType.val() == "") {
 			$("#scriptTypeName").val("");
-			$("#scriptTypeCode").val("");
+			$("#scriptTypeCode").val("").removeAttr("readonly");
 		}else{
 			$("#scriptTypeName").val(scriptType.text());
-			$("#scriptTypeCode").val(scriptType.val());
+			$("#scriptTypeCode").val(scriptType.val()).attr("readonly", "readonly");
 		}
 		
 		$("#addModifyModal").modal({
@@ -334,8 +339,8 @@ function showPanel(action) {
 		});
 		
 		window.sessionStorage.setItem("addScriptType", $("#queryScriptType :selected").val());
-		
-	}else if (action == 'modify'){//TODO
+		checkScriptCode();		
+	}else if (action == 'modify'){
 		showScriptContent($("input[name='radiobox']:checked").val(), 'A', 'modifyInfo') ;
 				
 		scriptCodeCheck = true;
@@ -492,7 +497,7 @@ function checkB4Next(num) {
 						$.each(textValue, function(key, value) {
 //							console.log("TEXTAREA word : " + value);
 							if(value.trim().length > 0){
-								inputVar.push(value.trim());
+								inputVar.push(value.trim().replace(",", " "));
 								lineCount ++ ;
 							}
 						});
@@ -511,7 +516,7 @@ function checkB4Next(num) {
 					$(input).addClass("required");
 				});
 				
-				alert("請輸入變數值");
+				alert("必填欄位請輸入資訊!");
 				return false;
 			}
 			window.sessionStorage.setItem("addDeviceModel", $('#addDeviceModel :selected').val());
@@ -539,7 +544,7 @@ function checkB4Next(num) {
 						if(input.value.trim() == ""){
 							input.value = "";
 						}
-						inputVar.push(input.value);
+						inputVar.push(input.value.replace(",", " "));
 						window.sessionStorage.setItem(input.id, inputVar);
 					}
 				});
@@ -550,7 +555,7 @@ function checkB4Next(num) {
 					$(input).addClass("required");
 				});
 				
-				alert("請輸入變數值");
+				alert("必填欄位請輸入資訊!");
 				return false;
 			}
 			return success;
@@ -564,7 +569,7 @@ function checkB4Next(num) {
 //確認腳本代碼
 function checkScriptCode() {
 	var obj = new Object();
-	obj.scriptCode = $("#addScriptCode").val().trim();
+	obj.scriptType = $("#queryScriptType :selected").val();
 	var result = true;
 	
 	$.ajax({
@@ -578,7 +583,7 @@ function checkScriptCode() {
 		async: true,
 		success : function(resp) {
 			if (resp.code == '200') {
-				alert(resp.message);
+				$("#addScriptCode").val(resp.message);
 				scriptCodeCheck = true;
 			} else {
 				alert(resp.message);

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.ScriptStepDAO;
-import com.cmap.dao.vo.ScriptDAOVO;
+import com.cmap.dao.vo.ScriptStepDAOVO;
 import com.cmap.model.ScriptStepAction;
 
 @Repository("scriptStepCheckDAOImpl")
@@ -20,7 +20,7 @@ public class ScriptStepCheckDAOImpl extends ScriptStepDAOImpl implements ScriptS
     private static Logger log;
 
 	@Override
-	public List<ScriptDAOVO> findScriptStepByScriptInfoIdOrScriptCode(String scriptInfoId, String scriptCode) {
+	public List<ScriptStepDAOVO> findScriptStepByScriptInfoIdOrScriptCode(String scriptInfoId, String scriptCode) {
 	    if (StringUtils.isBlank(scriptInfoId) && StringUtils.isBlank(scriptCode)) {
             return null;
         }
