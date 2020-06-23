@@ -511,7 +511,9 @@ function findData(from) {
 		alert(msg_chooseDate);
 		return;
 	}
-	if ( ($("#query_SourceIp").val().trim().length == 0) && ($("#query_DestinationIp").val().trim().length == 0) && ($("#queryGroup").val().trim().length == 0)){
+	if ( ($("#query_SourceIp").val().trim().length == 0) &&($("#query_DestinationIp").val().trim().length == 0) &&
+			($("#query_SourcePort").val().trim().length == 0) && ($("#query_DestinationPort").val().trim().length == 0) &&
+			($("#queryGroup").val().trim().length == 0)){
 		alert(msg_chooseIp);
 		return;
 	}

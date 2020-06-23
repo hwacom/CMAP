@@ -47,7 +47,9 @@ public class WifiPollerController extends BaseController {
 	
 	@Autowired
 	private WifiPollerService wifiPollerService;
-	
+	//是否查詢條件為sensorId
+  	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
+  	
 	/**
 	 * 初始化選單
 	 * @param model
@@ -55,16 +57,29 @@ public class WifiPollerController extends BaseController {
 	 */
 	private void initMenu(Model model, HttpServletRequest request) {
 		Map<String, String> groupListMap = null;
-		Map<String, String> deviceListMap = null;
+		Map<String, String> sensorListMap = null;
+		//Map<String, String> deviceListMap = null;
 		try {
-			groupListMap = getGroupList(request);
-
+			if(isSensorSearchMode) {
+				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
+					sensorListMap = getSensorList(request, null);
+				}else {
+					sensorListMap = getSensorList(request, Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW);
+				}
+			}else {
+				groupListMap = getGroupList(request);
+			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 
 		} finally {
 			model.addAttribute("queryGroup", "");
-			model.addAttribute("groupList", groupListMap);
+			if(isSensorSearchMode) {
+				model.addAttribute("groupList", sensorListMap);
+			}else {
+				model.addAttribute("groupList", groupListMap);
+			}	
+			model.addAttribute("isSensorSearchMode", isSensorSearchMode);
 
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
@@ -89,8 +104,9 @@ public class WifiPollerController extends BaseController {
 	@RequestMapping(value = "getTotalFilteredCount.json", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody AppResponse getTotalFilteredCount(
             Model model, HttpServletRequest request, HttpServletResponse response,
-    		//@RequestParam(name="queryGroup", required=true, defaultValue="") String queryGroup,
-			@RequestParam(name="queryDate", required=false, defaultValue="") String queryDate,
+            @RequestParam(name="queryGroupId", required=true, defaultValue="") String queryGroupId,
+			@RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
+			@RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
 			@RequestParam(name="queryTimeBegin", required=false, defaultValue="") String queryTimeBegin,
 			@RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
 			@RequestParam(name="queryClientMac", required=false, defaultValue="") String queryClientMac,
@@ -103,7 +119,9 @@ public class WifiPollerController extends BaseController {
 	    WifiPollerVO searchVO;
         try {
         	searchVO = new WifiPollerVO();
-        	searchVO.setQueryDate(queryDate);
+        	searchVO.setQueryGroupId(queryGroupId);
+        	searchVO.setQueryDateBegin(queryDateBegin);
+        	searchVO.setQueryDateEnd(queryDateEnd);
         	searchVO.setQueryTimeBegin(queryTimeBegin);
         	searchVO.setQueryTimeEnd(queryTimeEnd);
         	searchVO.setQueryClientMac(queryClientMac);
@@ -130,8 +148,9 @@ public class WifiPollerController extends BaseController {
 	@RequestMapping(value = "getWifiMstData.json", method = {RequestMethod.POST, RequestMethod.GET})
 	public @ResponseBody DatatableResponse getWifiMstData(
 			Model model, HttpServletRequest request, HttpServletResponse response,
-			//@RequestParam(name="queryGroup", required=true, defaultValue="") String queryGroup,
-			@RequestParam(name="queryDate", required=false, defaultValue="") String queryDate,
+			@RequestParam(name="queryGroupId", required=true, defaultValue="") String queryGroupId,
+			@RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
+			@RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
 			@RequestParam(name="queryTimeBegin", required=false, defaultValue="") String queryTimeBegin,
 			@RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
 			@RequestParam(name="queryClientMac", required=false, defaultValue="") String queryClientMac,
@@ -152,17 +171,18 @@ public class WifiPollerController extends BaseController {
 			if (StringUtils.isBlank(queryGroup)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("group.name", Locale.TAIWAN, null);
 	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowVO>(), new Long(0), msg);
-	        }*/
-	        if (StringUtils.isBlank(queryDate)) {
+	        }
+	        if (StringUtils.isBlank(queryDateBegin) || StringUtils.isBlank(queryDateEnd)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("date", Locale.TAIWAN, null);
-	            return new DatatableResponse(new Long(0), new ArrayList<WifiPollerVO>(), new Long(0), msg);
+	            return new DatatableResponse(new Long(0), new ArrayList<IpTracePollerVO>(), new Long(0), msg);
 	        }
 	        if (StringUtils.isBlank(queryTimeBegin) || StringUtils.isBlank(queryTimeEnd)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("time", Locale.TAIWAN, null);
-	            return new DatatableResponse(new Long(0), new ArrayList<WifiPollerVO>(), new Long(0), msg);
+	            return new DatatableResponse(new Long(0), new ArrayList<IpTracePollerVO>(), new Long(0), msg);
 	        }
-
-	        WifiPollerVO resultVO = doDataQuery(queryDate, queryTimeBegin, queryTimeEnd, queryClientMac,
+			*/
+			
+	        WifiPollerVO resultVO = doDataQuery(queryGroupId, queryDateBegin, queryDateEnd, queryTimeBegin, queryTimeEnd, queryClientMac,
 	        		queryClientIp, queryApName, querySsid, startNum, pageLength,  orderColIdx, orderDirection );
 	        
 	        filteredTotal = resultVO.getMatchedList().size();
@@ -178,14 +198,16 @@ public class WifiPollerController extends BaseController {
 	}
 	
 	
-	private WifiPollerVO doDataQuery(String queryDate, String queryTimeBegin, String queryTimeEnd, String queryClientMac,
+	private WifiPollerVO doDataQuery(String queryGroupId, String queryDateBegin, String queryDateEnd, String queryTimeBegin, String queryTimeEnd, String queryClientMac,
 			String queryClientIp, String queryApName, String querySsid, Integer startNum, Integer pageLength,
 			Integer orderColIdx, String orderDirection) throws ServiceLayerException {
 
 			WifiPollerVO retVO = new WifiPollerVO();
 		    try {
 		        	WifiPollerVO searchVO = new WifiPollerVO();
-		        	searchVO.setQueryDate(queryDate);
+		        	searchVO.setQueryGroupId(queryGroupId);
+		        	searchVO.setQueryDateBegin(queryDateBegin);
+		        	searchVO.setQueryDateEnd(queryDateEnd);
 		        	searchVO.setQueryTimeBegin(queryTimeBegin);
 		        	searchVO.setQueryTimeEnd(queryTimeEnd);
 		        	searchVO.setQueryClientMac(queryClientMac);

@@ -11,41 +11,38 @@
       	<form>
       		<div class="container-fluid">
 	      	  <div class="form-group row">
-	      	  <!-- 
-	    	    <div class="col-lg-3 group-field-other">
+	      	  	<div class="col-lg-3 group-field-other">
 	    	    	<label for="queryGroup" class="font-weight-bold must" style="width: 20%"><spring:message code="group.name" /></label>
-	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">    	    		 
+					<!-- Group List為空的例外處理 btn 增加disabled attr -->
+	    	    	<c:if test="${fn:length(groupList) gt 1}">
+	    	    			<script> 
+                        		var is_btnDisabled = "false";
+                        	</script>
+                    </c:if>
+                    <c:if test="${fn:length(groupList) lt 1}">
+	    	    			<script> 
+	    	    				var msg_errorGroupList = '<spring:message code="ERROR.grouplist.access.fail" />';
+                    			alert(msg_errorGroupList);
+                    			var is_btnDisabled = "true";
+                        	</script>
+                    </c:if>
+                    <!-- Group List為空的例外處理 -->
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup" onchange="changeDeviceMenu('queryDevice', this.value)">    	    		 
+                        <!-- ToDo 根據User身分限制只有super user才可使用ALL查詢 -->
                         <c:if test="${fn:length(groupList) gt 1}">
                         	<form:option value="" label="=== ALL ===" />
-                        </c:if>              
+                        </c:if>
                         <form:options items="${groupList}" />
                     </form:select>
-	    	    </div>
-	    	     -->
+	    	   	</div>
 	    	    <!-- 
 	    	    <div class="col-lg-3 group-field-other">
 					<span class="font-weight-bold" style="width: 25%"><spring:message code="device.name" /></span>
 					// TODO
 				</div>
 				 -->
-				<div class="col-lg-3 group-field-other">
-	    	    	<label for="query_Date" class="font-weight-bold must" style="width: 25%"><spring:message code="wifi.poller.date.conn" /></label>
-	    	    	<input type="date" id="query_Date" style="width: 70%">
-	    	    </div>
-	    	     <div class="col-lg-3 group-field-other">
-	    	    	<label for="query_TimeBegin" class="font-weight-bold must" style="width: 14%"><spring:message code="time" /></label>
-	    	    	<input type="time" id="query_TimeBegin" style="width: 38%">
-	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
-	    	    	<input type="time" id="query_TimeEnd" style="width: 38%">
-	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 5px;">
-	   	    		<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
-	    	   	</div>
-	    	   	<div class="col-lg-2 offset-lg-1 group-field-other">
-	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
-	    	    </div>
-	    	  </div>
-	    	  <div class="form-group row">
+			  </div>
+			  <div class="form-group row">
 	    	    <div class="col-lg-3 group-field-other">
 					<label for="query_ClientMac" class="font-weight-bold" style="width: 25%"><spring:message code="wifi.poller.client.mac" /></label>
 					<input type="text" id="query_ClientMac" class="" style="width: 70%">
@@ -62,6 +59,22 @@
 					<label for="query_Ssid" class="font-weight-bold" style="width: 35%"><spring:message code="wifi.poller.ssid" /></label>
 					<input type="text" id="query_Ssid" class="" style="width: 60%">
 				</div>
+	      	  </div>
+			  <div class="form-group row">
+	    	    <div class="col-lg-7 group-field-other">
+	    	    	<label for="query_DateBegin" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.start.time" /></label>
+	    	    	<input type="date" id="query_DateBegin" style="width: 18%"/>
+	    	    	<input type="time" id="query_TimeBegin" style="width: 15%"/>
+					<span class="font-weight-bold center" style="width: 2%">~</span>
+	    	    	<input type="date" id="query_DateEnd" style="width: 18%"/>
+	    	    	<input type="time" id="query_TimeEnd" style="width: 15%"/> 	
+	    	    </div>
+	    	    <div class="col-lg-2  group-field-other">
+	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
+	    	    </div>  
+				<div class="col-lg-2" style="padding-top: 5px;">
+	   	    		<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' } ><spring:message code="inquiry" /></button>
+	    	   	</div>
 	      	 </div>
 	      	</div>
 		</form>
@@ -114,7 +127,7 @@
 				  </div>
 				  <div class="form-group row">
 		    	    <div class="col-sm-12">
-				      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_mobile"><spring:message code="inquiry" /></button>
+				      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_mobile" ${is_btnDisabled eq 'true' ? 'disabled' : '' }><spring:message code="inquiry" /></button>
 				    </div>
 				  </div>
 				</form>

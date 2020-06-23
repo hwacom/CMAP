@@ -46,9 +46,13 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         sb.append(" select count(data_id) ")
           .append(" from ").append(tableName).append(" nfrd ")
           .append(" where 1=1 ");
-
+        // 請配合Index左前綴結合原則順序設置條件
+        // INDEX `IDX_UI` (`GROUP_ID`, `SENSOR_ID`, `SOURCE_IP`, `SOURCE_PORT`, `DESTINATION_IP`, `DESTINATION_PORT`, `FROM_DATE_TIME`),
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
         	sb.append(" and nfrd.group_id = :groupId ");
+        }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            sb.append(" and nfrd.sensor_id = :sensorId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
@@ -65,26 +69,16 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         if (StringUtils.isNotBlank(nfVO.getQuerySenderIp())) {
             sb.append(" and nfrd.sender_ip = :querySenderIp ");
         }
-        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            sb.append(" and nfrd.sensor_id = :sensorId ");
-        }
         if (StringUtils.isNotBlank(nfVO.getQueryMac())) {
             sb.append(" and ( nfrd.source_MAC = :queryMac ")
               .append("       or nfrd.destination_MAC = :queryMac ) ");
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date = :queryDateStr ")
-              .append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
+        // 範圍查詢會中止Index左前綴結合需放在最後面接合,否則會影響查詢效能
+        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+        	sb.append(" and (nfrd.from_date_time >= :queryDateTimeBeginStr and nfrd.from_date_time < :queryDateTimeEndStr) ");
         }
-        /*
-        if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
-            sb.append(" and ( nfrd.now < DATE_ADD(:endDate, INTERVAL 1 DAY) ")
-              .append("       or nfrd.from_date_time < DATE_ADD(:endDate, INTERVAL 1 DAY) ")
-              .append("       or nfrd.to_date_time < DATE_ADD(:endDate, INTERVAL 1 DAY) ) ");
-        }
-        */
-
+        // Big Data模糊查詢效能太差不開放此用法
+       /*
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             StringBuffer sfb = new StringBuffer();
             sfb.append(" and ( ");
@@ -102,7 +96,7 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
 
             sfb.append(" ) ");
             sb.append(sfb);
-        }
+        }*/
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
@@ -114,6 +108,9 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
 
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             q.setParameter("groupId", nfVO.getQueryGroupId());
+        }
+        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
+            q.setParameter("sensorId", nfVO.getQuerySensorId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             q.setParameter("querySourceIp", nfVO.getQuerySourceIp());
@@ -130,23 +127,19 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         if (StringUtils.isNotBlank(nfVO.getQuerySenderIp())) {
             q.setParameter("querySenderIp", nfVO.getQuerySenderIp());
         }
-        if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            q.setParameter("sensorId", nfVO.getQuerySensorId());
-        }
         if (StringUtils.isNotBlank(nfVO.getQueryMac())) {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
-            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
-            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
+        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+            q.setParameter("queryDateTimeBeginStr", nfVO.getQueryDateBegin().concat(" ").concat(nfVO.getQueryTimeBegin()));
+            q.setParameter("queryDateTimeEndStr", nfVO.getQueryDateBegin().concat(" ").concat(nfVO.getQueryTimeEnd()));
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
-            q.setParameter("endDate", nfVO.getQueryDateEnd());
-        }
+        // Big Data模糊查詢效能太差不開放此用法
+       /*
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             q.setParameter("searchValue", "%".concat(nfVO.getSearchValue()).concat("%"));
         }
+        */
         log.debug("queryString==" + q.getQueryString());
         return DataAccessUtils.longResult(q.list());
 	}
@@ -168,6 +161,8 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         if (StringUtils.isNotBlank(nfVO.getQueryDataId())) {
             sb.append(" and nfrd.data_id = :dataId ");
         }
+        // 請配合Index左前綴結合原則順序設置條件
+        // INDEX `IDX_UI` (`GROUP_ID`, `SENSOR_ID`, `SOURCE_IP`, `SOURCE_PORT`, `DESTINATION_IP`, `DESTINATION_PORT`, `FROM_DATE_TIME`),
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
         	sb.append(" and nfrd.group_id = :groupId ");
         }
@@ -193,21 +188,12 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
             sb.append(" and ( nfrd.source_MAC = :queryMac ")
               .append("       or nfrd.destination_MAC = :queryMac ) ");
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date = :queryDateStr ");
+        // 範圍查詢會中止Index左前綴結合需放在最後面接合,否則會影響查詢效能
+        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+        	sb.append(" and (nfrd.from_date_time >= :queryDateTimeBeginStr and nfrd.from_date_time < :queryDateTimeEndStr) ");
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
-            sb.append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
-        }
-        /*
-        if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
-            sb.append(" and ( nfrd.now < DATE_ADD(:endDate, INTERVAL 1 DAY) ")
-              .append("       or nfrd.from_date_time < DATE_ADD(:endDate, INTERVAL 1 DAY) ")
-              .append("       or nfrd.to_date_time < DATE_ADD(:endDate, INTERVAL 1 DAY) ) ");
-        }
-        */
-
+        // Big Data模糊查詢效能太差不開放此用法
+       /*
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             StringBuffer sfb = new StringBuffer();
             sfb.append(" and ( ");
@@ -225,13 +211,13 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
 
             sfb.append(" ) ");
             sb.append(sfb);
-        }
+        }*/
 
         if (StringUtils.isNotBlank(nfVO.getOrderColumn())) {
             sb.append(" order by nfrd.").append(nfVO.getOrderColumn()).append(" ").append(nfVO.getOrderDirection());
 
         } else {
-            sb.append(" order by nfrd.from_time desc ");
+            sb.append(" order by nfrd.from_date_time desc ");
         }
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
@@ -269,19 +255,17 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         if (StringUtils.isNotBlank(nfVO.getQueryMac())) {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
+        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+            q.setParameter("queryDateTimeBeginStr", nfVO.getQueryDateBegin().concat(" ").concat(nfVO.getQueryTimeBegin()));
+            q.setParameter("queryDateTimeEndStr", nfVO.getQueryDateBegin().concat(" ").concat(nfVO.getQueryTimeEnd()));
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
-            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
-            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
-        }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
-            q.setParameter("endDate", nfVO.getQueryDateEnd());
-        }
+        // Big Data模糊查詢效能太差不開放此用法
+       /*
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             q.setParameter("searchValue", "%".concat(nfVO.getSearchValue()).concat("%"));
         }
+        */
+        // 支援UI分頁查詢
         if (startRow != null && pageLength != null) {
             q.setFirstResult(startRow);
             q.setMaxResults(pageLength);
@@ -562,7 +546,8 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         sb.append(" select sum(size) ")
           .append(" from ").append(tableName).append(" nfrd ")
           .append(" where 1=1 ");
-
+        // 請配合Index左前綴結合原則順序設置條件
+        // INDEX `IDX_UI` (`GROUP_ID`, `SENSOR_ID`, `SOURCE_IP`, `SOURCE_PORT`, `DESTINATION_IP`, `DESTINATION_PORT`, `FROM_DATE_TIME`),
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
             sb.append(" and nfrd.group_id = :groupId ");
         }
@@ -588,19 +573,12 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
             sb.append(" and ( nfrd.source_MAC = :queryMac ")
               .append("       or nfrd.destination_MAC = :queryMac ) ");
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            //sb.append(" and (nfrd.now >= DATE_FORMAT(:beginDate, '%Y-%m-%d') and nfrd.now < DATE_ADD(:beginDate, INTERVAL 1 DAY)) ");
-            sb.append(" and nfrd.from_date = :queryDateStr ")
-              .append(" and (nfrd.from_time >= :queryTimeBeginStr and nfrd.from_time < :queryTimeEndStr) ");
+        // 範圍查詢會中止Index左前綴結合需放在最後面接合,否則會影響查詢效能
+        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+        	sb.append(" and (nfrd.from_date_time >= :queryDateTimeBeginStr and nfrd.from_date_time < :queryDateTimeEndStr) ");
         }
+        // Big Data模糊查詢效能太差不開放此用法
         /*
-        if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
-            sb.append(" and ( nfrd.now < DATE_ADD(:endDate, INTERVAL 1 DAY) ")
-              .append("       or nfrd.from_date_time < DATE_ADD(:endDate, INTERVAL 1 DAY) ")
-              .append("       or nfrd.to_date_time < DATE_ADD(:endDate, INTERVAL 1 DAY) ) ");
-        }
-        */
-
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             StringBuffer sfb = new StringBuffer();
             sfb.append(" and ( ");
@@ -618,7 +596,7 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
 
             sfb.append(" ) ");
             sb.append(sfb);
-        }
+        }*/
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
@@ -652,23 +630,22 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         if (StringUtils.isNotBlank(nfVO.getQueryMac())) {
             q.setParameter("queryMac", nfVO.getQueryMac());
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin())) {
-            q.setParameter("queryDateStr", nfVO.getQueryDateBegin());
-            q.setParameter("queryTimeBeginStr", nfVO.getQueryTimeBegin());
-            q.setParameter("queryTimeEndStr", nfVO.getQueryTimeEnd());
+        if (StringUtils.isNotBlank(nfVO.getQueryDateBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeBegin()) && StringUtils.isNotBlank(nfVO.getQueryTimeEnd())) {
+            q.setParameter("queryDateTimeBeginStr", nfVO.getQueryDateBegin().concat(" ").concat(nfVO.getQueryTimeBegin()));
+            q.setParameter("queryDateTimeEndStr", nfVO.getQueryDateBegin().concat(" ").concat(nfVO.getQueryTimeEnd()));
         }
-        if (StringUtils.isNotBlank(nfVO.getQueryDateEnd())) {
-            q.setParameter("endDate", nfVO.getQueryDateEnd());
-        }
+        // Big Data模糊查詢效能太差不開放此用法
+       /*
         if (StringUtils.isNotBlank(nfVO.getSearchValue())) {
             q.setParameter("searchValue", "%".concat(nfVO.getSearchValue()).concat("%"));
         }
+        */
         log.debug("queryString==" + q.getQueryString());
         
         List<BigDecimal> retList = (List<BigDecimal>)q.list();
         return (retList != null && !retList.isEmpty()) ? retList.get(0) : null;
 	}
-
+	 
     @Override
     public List<DataPollerSetting> getHasAlreadySetUpNetFlowDataPollerInfo() {
         StringBuffer sb = new StringBuffer();
@@ -693,6 +670,7 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
     }
 
     @Override
+    @Deprecated  // 已經沒有now_date_str欄位啦
     public List<Object[]> getUploadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select 'UPLOAD', nfrd.source_ip, sum(nfrd.size) ")
@@ -713,6 +691,7 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
     }
 
     @Override
+    @Deprecated  // 已經沒有now_date_str欄位啦
     public List<Object[]> getDownloadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize) {
         StringBuffer sb = new StringBuffer();
         sb.append(" select 'DOWNLOAD', nfrd.destination_ip, sum(nfrd.size) ")

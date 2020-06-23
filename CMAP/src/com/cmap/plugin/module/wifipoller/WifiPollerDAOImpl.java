@@ -32,12 +32,6 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         if (StringUtils.isNotBlank(clientMac)) {
             sb.append(" and mwtm.clientMac = :clientMac ");
         }
-        if (StringUtils.isNotBlank(startTime)) {
-            sb.append(" and mwtm.startTime = :startTime ");
-        }
-        if (StringUtils.isNotBlank(endTime)) {
-            sb.append(" and mwtm.endTime = :endTime ");
-        }
         if (StringUtils.isNotBlank(clientIp)) {
             sb.append(" and mwtm.clientIp = :clientIp ");
         }
@@ -47,7 +41,13 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         if (StringUtils.isNotBlank(clientIp)) {
             sb.append(" and mwtm.ssid = :ssid ");
         }
-
+        if (StringUtils.isNotBlank(startTime)) {
+            sb.append(" and mwtm.startTime = :startTime ");
+        }
+        if (StringUtils.isNotBlank(endTime)) {
+            sb.append(" and mwtm.endTime = :endTime ");
+        }
+        
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
         if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
@@ -105,22 +105,28 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         	.append(" from module_wifi_trace_mst mst")
         	.append(" where 1=1 ");
 
+        if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
+            sb.append(" and mst.group_id = :queryGroupId ");
+        }
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            sb.append(" and mst.client_mac = :clientMac ");
+            sb.append(" and mst.client_mac = :queryClientMac ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            sb.append(" and mst.client_ip = :clientIp ");
+            sb.append(" and mst.client_ip = :queryClientIp ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryApName())) {
-            sb.append(" and mst.ap_name = :apName ");
+            sb.append(" and mst.ap_name = :queryApName ");
         }
         if (StringUtils.isNotBlank(searchVO.getQuerySsid())) {
-            sb.append(" and mst.ssid = :ssid ");
+            sb.append(" and mst.ssid = :querySsid ");
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            sb.append(" and (mst.start_time >= :queryDateTimeBeginStr and mst.start_time < :queryDateTimeEndStr) ");
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            sb.append(" and mst.start_time >= :queryDateTimeBeginStr ");
         }
-
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            sb.append(" and mst.start_time <= :queryDateTimeEndStr ");
+        }
+        
        if (StringUtils.isNotBlank(searchVO.getOrderColumn())) {
            sb.append(" order by ").append(searchVO.getOrderColumn()).append(" ").append(searchVO.getOrderDirection());
 
@@ -136,21 +142,26 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         //log.debug("xxxDebug:"+sb.toString());
         Query<?> q = session.createNativeQuery(sb.toString());
 
+        if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
+            q.setParameter("queryGroupId", searchVO.getQueryGroupId());
+        }
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            q.setParameter("clientMac", searchVO.getQueryClientMac());
+            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            q.setParameter("clientIp", searchVO.getQueryClientIp());
+            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryApName())) {
-            q.setParameter("apName", searchVO.getQueryApName());
+            q.setParameter("queryApName", searchVO.getQueryApName());
         }
         if (StringUtils.isNotBlank(searchVO.getQuerySsid())) {
-            q.setParameter("ssid", searchVO.getQuerySsid());
+            q.setParameter("querySsid", searchVO.getQuerySsid());
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeBegin()));
-            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeEnd()));
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&& StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDateEnd().concat(" ").concat(searchVO.getQueryTimeEnd()));
         }
         if (startRow != null && pageLength != null) {
             q.setFirstResult(startRow);
@@ -201,20 +212,27 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         sb.append(" select count(data_id) ")
         	.append(" from module_wifi_trace_mst mst ")
         	.append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
+            sb.append(" and mst.group_id = :queryGroupId ");
+        }
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            sb.append(" and mst.client_mac = :clientMac ");
+            sb.append(" and mst.client_mac = :queryClientMac ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            sb.append(" and mst.client_ip = :clientIp ");
+            sb.append(" and mst.client_ip = :queryClientIp ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryApName())) {
-            sb.append(" and mst.ap_name = :apName ");
+            sb.append(" and mst.ap_name = :queryApName ");
         }
         if (StringUtils.isNotBlank(searchVO.getQuerySsid())) {
-            sb.append(" and mst.ssid = :ssid ");
+            sb.append(" and mst.ssid = :querySsid ");
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            sb.append(" and (mst.start_time >= :queryDateTimeBeginStr and mst.start_time < :queryDateTimeEndStr) ");
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            sb.append(" and mst.start_time >= :queryDateTimeBeginStr ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&&StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            sb.append(" and mst.start_time <= :queryDateTimeEndStr ");
         }
 
        sb.append(" order by mst.start_time, mst.client_ip desc ");
@@ -227,21 +245,26 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
 
         Query<?> q = session.createNativeQuery(sb.toString());
 
+        if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
+            q.setParameter("queryGroupId", searchVO.getQueryGroupId());
+        }
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            q.setParameter("clientMac", searchVO.getQueryClientMac());
+            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            q.setParameter("clientIp", searchVO.getQueryClientIp());
+            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryApName())) {
-            q.setParameter("apName", searchVO.getQueryApName());
+            q.setParameter("queryApName", searchVO.getQueryApName());
         }
         if (StringUtils.isNotBlank(searchVO.getQuerySsid())) {
-            q.setParameter("ssid", searchVO.getQuerySsid());
+            q.setParameter("querySsid", searchVO.getQuerySsid());
         }
-        if (StringUtils.isNotBlank(searchVO.getQueryDate())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) && StringUtils.isNotBlank(searchVO.getQueryTimeEnd())) {
-            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeBegin()));
-            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDate().concat(" ").concat(searchVO.getQueryTimeEnd()));
+        if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
+            q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryDateEnd())&& StringUtils.isNotBlank(searchVO.getQueryTimeEnd()) ) {
+            q.setParameter("queryDateTimeEndStr", searchVO.getQueryDateEnd().concat(" ").concat(searchVO.getQueryTimeEnd()));
         }
 
         return DataAccessUtils.longResult(q.list());

@@ -345,9 +345,11 @@ public class NetFlowTraceController extends BaseController {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("time", Locale.TAIWAN, null);
 	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowTraceVO>(), new Long(0), msg);
 	        }
-	        if (StringUtils.isBlank(querySourceIp) && StringUtils.isBlank(queryDestinationIp)&&StringUtils.isBlank(queryGroup)) {
+	        if (StringUtils.isBlank(querySourceIp) && StringUtils.isBlank(queryDestinationIp)&&StringUtils.isBlank(querySourcePort) && StringUtils.isBlank(queryDestinationPort)&&StringUtils.isBlank(queryGroup)) {
 	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("net.flow.source.ip", Locale.TAIWAN, null)
-	            + "or" + messageSource.getMessage("net.flow.destination.ip", Locale.TAIWAN, null);
+	            + " / " + messageSource.getMessage("net.flow.destination.ip", Locale.TAIWAN, null)
+	            + " / " + messageSource.getMessage("net.flow.source.port", Locale.TAIWAN, null)
+	            + " / " + messageSource.getMessage("net.flow.destination.port", Locale.TAIWAN, null);
 	            return new DatatableResponse(new Long(0), new ArrayList<NetFlowTraceVO>(), new Long(0), msg);
 	        }
 
@@ -405,7 +407,7 @@ public class NetFlowTraceController extends BaseController {
 	        nfVO.setPageLength(pageLength);
 	        nfVO.setSearchValue(searchValue);
 	        //nfVO.setOrderColumn(getOrderColumnName(orderColIdx)); //效能issue，暫定限制僅能用From_Date_Time排序
-	        nfVO.setOrderColumn("From_Time");
+	        nfVO.setOrderColumn("From_Date_Time");
 	        nfVO.setOrderDirection(orderDirection);
 
 	        String storeMethod = dataPollerService.getStoreMethodByDataType(Constants.DATA_TYPE_OF_NET_FLOW);

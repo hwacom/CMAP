@@ -53,18 +53,18 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
             .append("      on ( mit.group_id = mids.group_id ")
             .append("           and mit.client_ip = mids.ip_addr ) ")
         	.append(" where 1=1 ");
-
-        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            sb.append(" and mit.client_mac = :queryClientMac ");
-        }
-        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            sb.append(" and mit.client_ip = :queryClientIp ");
-        }
+        
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             sb.append(" and mit.group_id = :queryGroupId ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDevice())) {
             sb.append(" and mit.device_id = :queryDevice ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
+            sb.append(" and mit.client_mac = :queryClientMac ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+            sb.append(" and mit.client_ip = :queryClientIp ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
             sb.append(" and mit.start_time >= :queryDateTimeBeginStr ");
@@ -90,18 +90,18 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         }
         //log.debug("xxxDebug:"+sb.toString());
         Query<?> q = session.createNativeQuery(sb.toString());
-
-        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
-        }
-        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
-        }
+        
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             q.setParameter("queryGroupId", searchVO.getQueryGroupId());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDevice())) {
             q.setParameter("queryDevice", searchVO.getQueryDevice());
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
+            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
             q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
@@ -155,17 +155,17 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         	.append(" from module_ip_trace mit ")
         	.append(" where 1=1 ");
 
-        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            sb.append(" and mit.client_mac = :queryClientMac ");
-        }
-        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            sb.append(" and mit.client_ip = :queryClientIp ");
-        }
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             sb.append(" and mit.group_id = :queryGroupId ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDevice())) {
             sb.append(" and mit.device_id = :queryDevice ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
+            sb.append(" and mit.client_mac = :queryClientMac ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+            sb.append(" and mit.client_ip = :queryClientIp ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
             sb.append(" and mit.start_time >= :queryDateTimeBeginStr ");
@@ -185,17 +185,17 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
 
         Query<?> q = session.createNativeQuery(sb.toString());
 
-        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
-        }
-        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
-        }
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
             q.setParameter("queryGroupId", searchVO.getQueryGroupId());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDevice())) {
             q.setParameter("queryDevice", searchVO.getQueryDevice());
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
+            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
             q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
@@ -220,11 +220,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
             .append("           and mit.client_ip = mids.ip_addr ) ")
         	.append(" where 1=1 ");
 
-        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-        	sb.append(" and mit.client_ip = :queryClientIp ");
-        }
         if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
         	sb.append(" and mit.group_id = :queryGroupId ");
+        }
+        if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+        	sb.append(" and mit.client_ip = :queryClientIp ");
         }
         // 2020-05-06 Alvin 增加5min延遲時間容錯
         if (StringUtils.isNotBlank(searchVO.getQueryFromDateTime()) ) {
@@ -241,11 +241,11 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
 
 		Query<?> q = session.createNativeQuery(sb.toString());
 
-		if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-			q.setParameter("queryClientIp", searchVO.getQueryClientIp());
-		}
 		if (StringUtils.isNotBlank(searchVO.getQueryGroupId())) {
 			q.setParameter("queryGroupId", searchVO.getQueryGroupId());
+		}
+		if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
+			q.setParameter("queryClientIp", searchVO.getQueryClientIp());
 		}
 		if (StringUtils.isNotBlank(searchVO.getQueryFromDateTime()) ) {
 			q.setParameter("queryFromDateTimeStr", searchVO.getQueryFromDateTime());
