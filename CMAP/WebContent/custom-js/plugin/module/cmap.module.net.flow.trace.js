@@ -611,7 +611,7 @@ function findData(from) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[3 , 'desc' ]],
+			"order": [[13 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -662,7 +662,7 @@ function findData(from) {
 				{ "data" : "session" , "orderable" : false },
 				{ "data" : "ethernetType" , "orderable" : false },
 				{ "data" : "protocol" , "orderable" : false },
-				{ "data" : "fromDateTime" },
+				{ "data" : "fromDateTime" , "orderable" : true },
 				{ "data" : "toDateTime" , "orderable" : false },
 				{ "data" : "channelID" , "orderable" : false },
 				{ "data" : "toS" , "orderable" : false },
@@ -692,8 +692,8 @@ function findData(from) {
 				{
 					"targets" : [3],
 					"className" : "left",
-					"searchable": true,
-					"orderable": true,
+					"searchable": false,
+					"orderable": false,
 					"render" : function(data, type, row) {
 									var html;
 									html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.fromDateTime+'\',\''+row.sourceIPInGroup+'\',\''+row.groupName+'\',\''+row.sourceIP+'\')">'+row.sourceIP+'</a>';
@@ -703,8 +703,8 @@ function findData(from) {
 				{
 					"targets" : [6],
 					"className" : "left",
-					"searchable": true,
-					"orderable": true,
+					"searchable": false,
+					"orderable": false,
 					"render" : function(data, type, row) {
 									var html;
 									html = '<a href="#" onclick="viewIpPort(\''+row.groupId+'\',\''+row.fromDateTime+'\',\''+row.destinationIPInGroup+'\',\''+row.groupName+'\',\''+row.destinationIP+'\')">'+row.destinationIP+'</a>';
