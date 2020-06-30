@@ -372,6 +372,7 @@ public class Env {
 	public static String TFTP_LOCAL_ROOT_DIR_PATH;
 	public static String TFTP_DIR_PATH_SEPARATE_SYMBOL;
 
+	public static String MEANS_ALL_SYMBOL;
 	public static String SCRIPT_VAR_KEY_SYMBOL;
 
 	public static String DEFAULT_DATA_POLLER_FILE_CHARSET;
