@@ -277,45 +277,39 @@ public class PrtgApiUtils implements ApiUtils {
         return retVO;
     }
 
-    @Override
-    public PrtgUserSensorMainVO getUserSensorList(String prtgLoginAccount, String prtgLoginPassword,
-            String prtgPashhash, String deviceId) throws Exception {
-        PrtgUserSensorMainVO retVO = null;
-        try {
-            prtgPashhash = checkPasshash(prtgLoginAccount, prtgLoginPassword, prtgPashhash);
+	@Override
+	public PrtgUserSensorMainVO getUserSensorList(String prtgLoginAccount, String prtgLoginPassword,
+			String prtgPashhash) throws Exception {
+		PrtgUserSensorMainVO retVO = null;
+		try {
+			prtgPashhash = checkPasshash(prtgLoginAccount, prtgLoginPassword, prtgPashhash);
 
-            prtgLoginAccount = StringUtils.trim(prtgLoginAccount);
-            prtgPashhash = StringUtils.trim(prtgPashhash);
+			prtgLoginAccount = StringUtils.trim(prtgLoginAccount);
+			prtgPashhash = StringUtils.trim(prtgPashhash);
 
-            API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{username}", prtgLoginAccount);
-            API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{passhash}", prtgPashhash);
+			API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{username}", prtgLoginAccount);
+			API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{passhash}", prtgPashhash);
 
-            if (StringUtils.isNotBlank(deviceId)) {
-                API_USER_SENSOR_LIST = StringUtils.replace(API_USER_SENSOR_LIST, "{deviceId}", deviceId);
-            } else {
-                API_USER_SENSOR_LIST = StringUtils.substring(API_USER_SENSOR_LIST, 0, StringUtils.lastIndexOf(API_USER_SENSOR_LIST, "&"));
-            }
+			String apiUrl = PRTG_ROOT.concat(API_USER_SENSOR_LIST);
 
-            String apiUrl = PRTG_ROOT.concat(API_USER_SENSOR_LIST);
+			String retVal = callPrtg(apiUrl);
+			if (StringUtils.isNotBlank(retVal)) {
+				ObjectMapper oMapper = new ObjectMapper();
+				try {
+					retVO = oMapper.readValue(retVal, PrtgUserSensorMainVO.class);
 
-            String retVal = callPrtg(apiUrl);
-            if (StringUtils.isNotBlank(retVal)) {
-                ObjectMapper oMapper = new ObjectMapper();
-                try {
-                    retVO = oMapper.readValue(retVal, PrtgUserSensorMainVO.class);
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+					return null;
+				}
+			}
 
-                } catch (Exception e) {
-                    log.error(e.toString(), e);
-                    return null;
-                }
-            }
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+		return retVO;
+	}
 
-        } catch (Exception e) {
-            log.error(e.toString(), e);
-        }
-        return retVO;
-    }
-    
 	@Override
 	public Map[] getGroupAndDeviceMenu(HttpServletRequest request) throws Exception {
 		Map[] retObj = null;

@@ -372,7 +372,6 @@ public class Env {
 	public static String TFTP_LOCAL_ROOT_DIR_PATH;
 	public static String TFTP_DIR_PATH_SEPARATE_SYMBOL;
 
-	public static String MEANS_ALL_SYMBOL;
 	public static String SCRIPT_VAR_KEY_SYMBOL;
 
 	public static String DEFAULT_DATA_POLLER_FILE_CHARSET;
@@ -384,7 +383,8 @@ public class Env {
 	public static String SETTING_ID_OF_NET_FLOW_TRACE;
 
 	public static String DEFAULT_DEVICE_ID_FOR_NET_FLOW;
-	public static String NET_FLOW_SEARCH_MODE_WITH_SENSOR;
+	public static String NET_FLOW_SEARCH_MODE_WITH_SENSOR;	//TODO net flow預計全改為sensor mode
+	public static String IP_TRACE_POLLER_SEARCH_MODE_WITH_SENSOR;
 	
 	public static String DATA_POLLER_NET_FLOW_TABLE_BASE_NAME;
 	public static String NET_FLOW_OUTPUT_FILE_EXT_NAE;

@@ -1,7 +1,9 @@
 package com.cmap.utils;
 
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import com.cmap.service.vo.PrtgUserDeviceMainVO;
 import com.cmap.service.vo.PrtgUserGroupMainVO;
 import com.cmap.service.vo.PrtgUserSensorMainVO;
@@ -68,9 +70,8 @@ public interface ApiUtils extends Api {
 	 * @param prtgLoginAccount
 	 * @param prtgLoginPassword
 	 * @param prtgPashhash
-	 * @param deviceId
 	 * @return
 	 * @throws Exception
 	 */
-	public PrtgUserSensorMainVO getUserSensorList(String prtgLoginAccount, String prtgLoginPassword, String prtgPashhash, String deviceId) throws Exception;
+	public PrtgUserSensorMainVO getUserSensorList(String prtgLoginAccount, String prtgLoginPassword, String prtgPashhash) throws Exception;
 }

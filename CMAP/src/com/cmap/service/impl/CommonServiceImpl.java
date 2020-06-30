@@ -313,19 +313,15 @@ public class CommonServiceImpl implements CommonService {
 
                         sTime = System.currentTimeMillis();
                         // 取得sensor清單
-                        String deviceId = null;
                         List<PrtgUserSensorDetailVO> sensorVOList = new ArrayList<>();
-                        if(StringUtils.isNotBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
-                        	deviceId = Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW;
-                        	PrtgUserSensorMainVO sensorVO = prtgApiUtils.getUserSensorList(account, password, passhash, deviceId);
-                            sensorVOList = sensorVO.getSensors();
-                            _sensorCount += sensorVOList.size();
+                    	PrtgUserSensorMainVO sensorVO = prtgApiUtils.getUserSensorList(account, password, passhash);
+                        sensorVOList = sensorVO.getSensors();
+                        _sensorCount += sensorVOList.size();
 
-                            eTime = System.currentTimeMillis();
-                            log.info("[getUserSensorList] Spent: " + (eTime - sTime) + " (ms).");
-                            
-                            sTime = System.currentTimeMillis();
-                        }
+                        eTime = System.currentTimeMillis();
+                        log.info("[getUserSensorList] Spent: " + (eTime - sTime) + " (ms).");
+                        
+                        sTime = System.currentTimeMillis();
                         
                         // Step 2-2. 與既有設定判斷寫入 OR 更新資料
                         List<PrtgUserRightSetting> rightSettingList = prtgDAO.findPrtgUserRightSetting(account, null);
@@ -998,31 +994,24 @@ public class CommonServiceImpl implements CommonService {
 	@Override
 	public DeviceLoginInfo findDeviceLoginInfo(String deviceListId, String groupId, String deviceId) {
 		try {
-			DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, groupId, deviceId);
-
+			DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, null, null);
+			
 			if (loginInfo == null) {
-			    if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)) {
-			        // 若by【資料ID + 設備ID】查找不到，則再往上一層by【群組ID + 設備ID】查找
-			    	deviceListId = Constants.DATA_STAR_SYMBOL;
-
-			    } else if (!StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL)) {
-			        // 若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
-			    	deviceId = Constants.DATA_STAR_SYMBOL;
-
-			    } else if (!StringUtils.equals(groupId, Constants.DATA_STAR_SYMBOL)) {
-			    	// 若by【群組ID】查找不到，則再往上一層by【* + * + *】查找
-			    	groupId = Constants.DATA_STAR_SYMBOL;
-
-			    } else {
-			    	return null;
-			    }
-
-			    return findDeviceLoginInfo(deviceListId, groupId, deviceId);
-
-			} else {
-				return loginInfo;
+				// 若by【資料ID】查找不到，則再往上一層by【設備ID】查找
+				loginInfo = deviceDAO.findDeviceLoginInfo(null, null, deviceId);
 			}
 
+			if (loginInfo == null) {
+				//若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
+				loginInfo = deviceDAO.findDeviceLoginInfo(null, groupId, null);
+			}
+			
+			if (loginInfo == null) {
+				// 若by【群組ID】查找不到，則再往上一層by【* + * + *】查找
+				loginInfo = deviceDAO.findDeviceLoginInfo(Constants.DATA_STAR_SYMBOL, Constants.DATA_STAR_SYMBOL, Constants.DATA_STAR_SYMBOL);
+			}
+			
+			return loginInfo;
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return null;

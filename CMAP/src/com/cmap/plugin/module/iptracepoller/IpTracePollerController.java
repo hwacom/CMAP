@@ -28,7 +28,6 @@ import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
-import com.cmap.plugin.module.ip.mapping.IpMappingServiceVO;
 import com.cmap.security.SecurityUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +44,7 @@ public class IpTracePollerController extends BaseController {
 	@Autowired
 	private IpTracePollerService ipTracePollerService;
 	//是否查詢條件為sensorId
-  	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
+  	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.IP_TRACE_POLLER_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
   	
 	/**
 	 * 初始化選單
@@ -58,11 +57,7 @@ public class IpTracePollerController extends BaseController {
 		Map<String, String> deviceListMap = null;
 		try {
 			if(isSensorSearchMode) {
-				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
-					sensorListMap = getSensorList(request, null);
-				}else {
-					sensorListMap = getSensorList(request, Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW);
-				}
+				sensorListMap = getSensorList(request, null);
 			}else {
 				groupListMap = getGroupList(request);
 			}
