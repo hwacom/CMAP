@@ -9,9 +9,11 @@ public class WifiPollerVO extends CommonServiceVO {
 
     private String queryClientMac;
     private String queryClientIp;
+    private String queryGroupId;
     private String queryApName;
     private String querySsid;
-    private String queryDate;
+    private String queryDateBegin;
+    private String queryDateEnd;
     private String queryTimeBegin;
     private String queryTimeEnd;
     // for getWifiDetailData
@@ -56,11 +58,23 @@ public class WifiPollerVO extends CommonServiceVO {
 	public void setQueryClientIp(String queryClientIp) {
 		this.queryClientIp = queryClientIp;
 	}
-	public String getQueryDate() {
-		return queryDate;
+	public String getQueryGroupId() {
+		return queryGroupId;
 	}
-	public void setQueryDate(String queryDate) {
-		this.queryDate = queryDate;
+	public void setQueryGroupId(String queryGroupId) {
+		this.queryGroupId = queryGroupId;
+	}
+	public String getQueryDateBegin() {
+		return queryDateBegin;
+	}
+	public void setQueryDateBegin(String queryDateBegin) {
+		this.queryDateBegin = queryDateBegin;
+	}
+	public String getQueryDateEnd() {
+		return queryDateEnd;
+	}
+	public void setQueryDateEnd(String queryDateEnd) {
+		this.queryDateEnd = queryDateEnd;
 	}
 	public String getQueryTimeBegin() {
 		return queryTimeBegin;

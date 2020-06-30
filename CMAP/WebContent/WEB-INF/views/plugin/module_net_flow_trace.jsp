@@ -71,10 +71,12 @@
 					<label for="query_DestinationIp" class="font-weight-bold" style="width: 45%"><spring:message code="net.flow.destination.ip" /></label>
 					<input type="text" id="query_DestinationIp" class="input-ip" style="width: 50%">
 				</div>
+				<!-- 
 				<div class="col-lg-3 group-field-other">
 					<label for="query_SenderIp" class="font-weight-bold" style="width: 35%"><spring:message code="net.flow.sender.ip" /></label>
 					<input type="text" id="query_SenderIp" class="input-ip" style="width: 60%">
 				</div>
+				 -->
 				<div class="col-lg-2 offset-lg-1 group-field-other">
 	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
 	    	    </div>
@@ -161,10 +163,12 @@
 		    	  	<label for="query_DestinationPort_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.port" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_DestinationPort_mobile">
 				  </div>
+				  <!-- 
 				  <div class="form-group row">
 		    	  	<label for="query_SenderIp_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.sender.ip" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_SenderIp_mobile">
 				  </div>
+				   -->
 				  <div class="form-group row">
 		    	  	<label for="queryMac_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.mac" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="queryMac_mobile">
@@ -264,8 +268,7 @@
 <c:set var="val"><spring:message code="group.name"/></c:set>
 
 <script>
-	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
-	var msg_chooseIp = '<spring:message code="please.choose" /><spring:message code="net.flow.source.ip" /> or <spring:message code="net.flow.destination.ip" />';
+	var msg_chooseIp = '<spring:message code="please.choose" /><spring:message code="net.flow.source.ip" /> / <spring:message code="net.flow.destination.ip" /> / <spring:message code="net.flow.source.port" /> / <spring:message code="net.flow.destination.port" />';
 </script>
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.net.flow.trace.min.js"></script>
