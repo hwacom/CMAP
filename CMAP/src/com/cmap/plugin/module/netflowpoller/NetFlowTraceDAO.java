@@ -31,20 +31,4 @@ public interface NetFlowTraceDAO extends BaseDAO {
 	 */
 	public List<DataPollerSetting> getHasAlreadySetUpNetFlowDataPollerInfo();
 
-	/**
-	 * 取得上傳流量(Source_IP)超過設定值的IP資料
-	 * @param tableName
-	 * @param limitSize
-	 * @return
-	 */
-	public List<Object[]> getUploadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize);
-
-	/**
-	 * 取得下載流量(Destination_IP)超過設定值的IP資料
-	 * @param tableName
-	 * @param limitSize
-	 * @return
-	 */
-	public List<Object[]> getDownloadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize);
-
 }

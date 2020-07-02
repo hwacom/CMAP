@@ -35,11 +35,7 @@ public class NetFlowTraceVO extends CommonServiceVO {
 	private String dataId;
 	private String groupId;
 	private String groupName;
-	private String now;
 	private String fromDateTime;
-	private String toDateTime;
-	private String ethernetType;
-	private String protocol;
 	private String sourceIP;
 	private String sourcePort;
 	private String sourceMAC;
@@ -48,22 +44,11 @@ public class NetFlowTraceVO extends CommonServiceVO {
 	private String destinationMAC;
 	private String size;
 	private String session;
-	private String channelID;
-	private String toS;
-	private String senderIP;
 	private String inboundInterface;
 	private String outboundInterface;
-	private String sourceASI;
-	private String destinationASI;
-	private String sourceMask;
-	private String destinationMask;
 	private String nextHop;
-	private String sourceVLAN;
-	private String destinationVLAN;
-	private String flowID;
 	private String sourceIPInGroup;
 	private String destinationIPInGroup;
-	private String sensorId;
 	
 	private String totalFlow;
 
@@ -115,44 +100,12 @@ public class NetFlowTraceVO extends CommonServiceVO {
 		this.queryMac = queryMac;
 	}
 
-	public String getNow() {
-		return now;
-	}
-
-	public void setNow(String now) {
-		this.now = now;
-	}
-
 	public String getFromDateTime() {
 		return fromDateTime;
 	}
 
 	public void setFromDateTime(String fromDateTime) {
 		this.fromDateTime = fromDateTime;
-	}
-
-	public String getToDateTime() {
-		return toDateTime;
-	}
-
-	public void setToDateTime(String toDateTime) {
-		this.toDateTime = toDateTime;
-	}
-
-	public String getEthernetType() {
-		return ethernetType;
-	}
-
-	public void setEthernetType(String ethernetType) {
-		this.ethernetType = ethernetType;
-	}
-
-	public String getProtocol() {
-		return protocol;
-	}
-
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
 	}
 
 	public String getSourceIP() {
@@ -219,30 +172,6 @@ public class NetFlowTraceVO extends CommonServiceVO {
 		this.session = session;
 	}
 
-	public String getChannelID() {
-		return channelID;
-	}
-
-	public void setChannelID(String channelID) {
-		this.channelID = channelID;
-	}
-
-	public String getToS() {
-		return toS;
-	}
-
-	public void setToS(String toS) {
-		this.toS = toS;
-	}
-
-	public String getSenderIP() {
-		return senderIP;
-	}
-
-	public void setSenderIP(String senderIP) {
-		this.senderIP = senderIP;
-	}
-
 	public String getInboundInterface() {
 		return inboundInterface;
 	}
@@ -259,38 +188,6 @@ public class NetFlowTraceVO extends CommonServiceVO {
 		this.outboundInterface = outboundInterface;
 	}
 
-	public String getSourceASI() {
-		return sourceASI;
-	}
-
-	public void setSourceASI(String sourceASI) {
-		this.sourceASI = sourceASI;
-	}
-
-	public String getDestinationASI() {
-		return destinationASI;
-	}
-
-	public void setDestinationASI(String destinationASI) {
-		this.destinationASI = destinationASI;
-	}
-
-	public String getSourceMask() {
-		return sourceMask;
-	}
-
-	public void setSourceMask(String sourceMask) {
-		this.sourceMask = sourceMask;
-	}
-
-	public String getDestinationMask() {
-		return destinationMask;
-	}
-
-	public void setDestinationMask(String destinationMask) {
-		this.destinationMask = destinationMask;
-	}
-
 	public String getNextHop() {
 		return nextHop;
 	}
@@ -298,31 +195,7 @@ public class NetFlowTraceVO extends CommonServiceVO {
 	public void setNextHop(String nextHop) {
 		this.nextHop = nextHop;
 	}
-
-	public String getSourceVLAN() {
-		return sourceVLAN;
-	}
-
-	public void setSourceVLAN(String sourceVLAN) {
-		this.sourceVLAN = sourceVLAN;
-	}
-
-	public String getDestinationVLAN() {
-		return destinationVLAN;
-	}
-
-	public void setDestinationVLAN(String destinationVLAN) {
-		this.destinationVLAN = destinationVLAN;
-	}
-
-	public String getFlowID() {
-		return flowID;
-	}
-
-	public void setFlowID(String flowID) {
-		this.flowID = flowID;
-	}
-
+	
 	public String getGroupId() {
 		return groupId;
 	}
@@ -514,12 +387,4 @@ public class NetFlowTraceVO extends CommonServiceVO {
     public void setDestinationIPInGroup(String destinationIPInGroup) {
         this.destinationIPInGroup = destinationIPInGroup;
     }
-
-	public String getSensorId() {
-		return sensorId;
-	}
-
-	public void setSensorId(String sensorId) {
-		this.sensorId = sensorId;
-	}
 }

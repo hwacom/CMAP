@@ -201,35 +201,18 @@ function addRow(dataList) {
 		var cTR = $("#resultTable > tbody > tr:eq(0)").clone();
 		$(cTR).find("td:eq(0)").html( ++rowCount );
 		$(cTR).find("td:eq(1)").html( data.groupName );
-		$(cTR).find("td:eq(2)").html( data.now );
+		$(cTR).find("td:eq(2)").html( data.fromDateTime );
 		$(cTR).find("td:eq(3)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.fromDateTime+'\',\''+data.sourceIPInGroup+'\',\''+data.groupName+'\',\''+data.sourceIP+'\')">'+data.sourceIP+'</a>' );
-		//$(cTR).find("td:eq(3)").html( data.sourceIP);
 		$(cTR).find("td:eq(4)").html( data.sourcePort );
 		$(cTR).find("td:eq(5)").html( data.sourceMAC );
 		$(cTR).find("td:eq(6)").html( '<a href="#" onclick="viewIpPort(\''+data.groupId+'\',\''+data.fromDateTime+'\',\''+data.destinationIPInGroup+'\',\''+data.groupName+'\',\''+data.destinationIP+'\')">'+data.destinationIP+'</a>' );
-		//$(cTR).find("td:eq(6)").html( data.destinationIP );
 		$(cTR).find("td:eq(7)").html( data.destinationPort );
 		$(cTR).find("td:eq(8)").html( data.destinationMAC );
 		$(cTR).find("td:eq(9)").html( data.size );
 		$(cTR).find("td:eq(10)").html( data.session );
-		$(cTR).find("td:eq(11)").html( data.ethernetType );
-		$(cTR).find("td:eq(12)").html( data.protocol);
-		$(cTR).find("td:eq(13)").html( data.fromDateTime );
-		$(cTR).find("td:eq(14)").html( data.toDateTime );
-		$(cTR).find("td:eq(15)").html( data.channelID );
-		$(cTR).find("td:eq(16)").html( data.toS );
-		$(cTR).find("td:eq(17)").html( data.senderIP );
-		$(cTR).find("td:eq(18)").html( data.inboundInterface );
-		$(cTR).find("td:eq(19)").html( data.outboundInterface );
-		$(cTR).find("td:eq(20)").html( data.sourceASI );
-		$(cTR).find("td:eq(21)").html( data.destinationASI );
-		$(cTR).find("td:eq(22)").html( data.sourceMask );
-		$(cTR).find("td:eq(23)").html( data.destinationMask );
-		$(cTR).find("td:eq(24)").html( data.nextHop );
-		$(cTR).find("td:eq(25)").html( data.sourceVLAN );
-		$(cTR).find("td:eq(26)").html( data.destinationVLAN );
-		$(cTR).find("td:eq(27)").html( data.flowID );
-		$(cTR).find("td:eq(28)").html( data.sensorId );
+		$(cTR).find("td:eq(11)").html( data.inboundInterface );
+		$(cTR).find("td:eq(12)").html( data.outboundInterface );
+		$(cTR).find("td:eq(13)").html( data.nextHop );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -535,7 +518,7 @@ function findData(from) {
 		{
 			"autoWidth" 	: true,
 			"paging" 		: false,
-			"bFilter" 		: true,
+			"bFilter" 		: false,
 			"ordering" 		: true,
 			"info" 			: true,
 			"serverSide" 	: true,
@@ -611,7 +594,7 @@ function findData(from) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[13 , 'desc' ]],
+			"order": [[2 , 'desc' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -651,7 +634,7 @@ function findData(from) {
 			"columns" : [
 				{},
 				{ "data" : "groupName" , "orderable" : false },
-				{ "data" : "now" , "orderable" : false },
+				{ "data" : "fromDateTime" , "orderable" : false },
 				{},
 				{ "data" : "sourcePort" , "orderable" : false },
 				{ "data" : "sourceMAC" , "orderable" : false },
@@ -660,24 +643,9 @@ function findData(from) {
 				{ "data" : "destinationMAC" , "orderable" : false },
 				{ "data" : "size" , "orderable" : false },
 				{ "data" : "session" , "orderable" : false },
-				{ "data" : "ethernetType" , "orderable" : false },
-				{ "data" : "protocol" , "orderable" : false },
-				{ "data" : "fromDateTime" , "orderable" : true },
-				{ "data" : "toDateTime" , "orderable" : false },
-				{ "data" : "channelID" , "orderable" : false },
-				{ "data" : "toS" , "orderable" : false },
-				{ "data" : "senderIP" , "orderable" : false },
 				{ "data" : "inboundInterface" , "orderable" : false },
 				{ "data" : "outboundInterface" , "orderable" : false },
-				{ "data" : "sourceASI" , "orderable" : false },
-				{ "data" : "destinationASI" , "orderable" : false },
-				{ "data" : "sourceMask" , "orderable" : false },
-				{ "data" : "destinationMask" , "orderable" : false },
-				{ "data" : "nextHop" , "orderable" : false },
-				{ "data" : "sourceVLAN" , "orderable" : false },
-				{ "data" : "destinationVLAN" , "orderable" : false },
-				{ "data" : "flowID" , "orderable" : false },
-				{ "data" : "sensorId" , "orderable" : false }
+				{ "data" : "nextHop" , "orderable" : false }
 			],
 			"columnDefs" : [
 				{

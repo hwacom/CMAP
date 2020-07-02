@@ -60,6 +60,8 @@ public class WifiPollerController extends BaseController {
 		Map<String, String> sensorListMap = null;
 		//Map<String, String> deviceListMap = null;
 		try {
+			// 2020-07-01 modified by Alvin 修正為一律載入GroupList不受SensorMode影響
+			/*
 			if(isSensorSearchMode) {
 				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
 					sensorListMap = getSensorList(request, null);
@@ -69,16 +71,23 @@ public class WifiPollerController extends BaseController {
 			}else {
 				groupListMap = getGroupList(request);
 			}
+			*/
+			groupListMap = getGroupList(request);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 
 		} finally {
 			model.addAttribute("queryGroup", "");
+			// 2020-07-01 modified by Alvin 修正為一律載入GroupList不受SensorMode影響
+			/*
 			if(isSensorSearchMode) {
 				model.addAttribute("groupList", sensorListMap);
 			}else {
 				model.addAttribute("groupList", groupListMap);
 			}	
+			*/
+			model.addAttribute("groupList", groupListMap);
+			
 			model.addAttribute("isSensorSearchMode", isSensorSearchMode);
 
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);

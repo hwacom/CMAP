@@ -49,10 +49,11 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         // 請配合Index左前綴結合原則順序設置條件
         // INDEX `IDX_UI` (`GROUP_ID`, `SENSOR_ID`, `SOURCE_IP`, `SOURCE_PORT`, `DESTINATION_IP`, `DESTINATION_PORT`, `FROM_DATE_TIME`),
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-        	sb.append(" and nfrd.group_id = :groupId ");
+        	sb.append(" and nfrd.group_id = :queryGroupId ");
         }
+        // 2020-07-01 Modified by Alvin for supporting the sensor mode
         if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            sb.append(" and nfrd.sensor_id = :sensorId ");
+            sb.append(" and nfrd.group_id = :querySensorId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
@@ -107,10 +108,10 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         Query<?> q = session.createNativeQuery(sb.toString());
 
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-            q.setParameter("groupId", nfVO.getQueryGroupId());
+            q.setParameter("queryGroupId", nfVO.getQueryGroupId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            q.setParameter("sensorId", nfVO.getQuerySensorId());
+            q.setParameter("querySensorId", nfVO.getQuerySensorId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             q.setParameter("querySourceIp", nfVO.getQuerySourceIp());
@@ -164,10 +165,11 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         // 請配合Index左前綴結合原則順序設置條件
         // INDEX `IDX_UI` (`GROUP_ID`, `SENSOR_ID`, `SOURCE_IP`, `SOURCE_PORT`, `DESTINATION_IP`, `DESTINATION_PORT`, `FROM_DATE_TIME`),
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-        	sb.append(" and nfrd.group_id = :groupId ");
+        	sb.append(" and nfrd.group_id = :queryGroupId ");
         }
+        // 2020-07-01 Modified by Alvin for supporting the sensor mode
         if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            sb.append(" and nfrd.sensor_id = :sensorId ");
+            sb.append(" and nfrd.group_id = :querySensorId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
@@ -232,10 +234,10 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
             q.setParameter("dataId", nfVO.getQueryDataId());
         }
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-            q.setParameter("groupId", nfVO.getQueryGroupId());
+            q.setParameter("queryGroupId", nfVO.getQueryGroupId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            q.setParameter("sensorId", nfVO.getQuerySensorId());
+            q.setParameter("querySensorId", nfVO.getQuerySensorId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             q.setParameter("querySourceIp", nfVO.getQuerySourceIp());
@@ -549,10 +551,11 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         // 請配合Index左前綴結合原則順序設置條件
         // INDEX `IDX_UI` (`GROUP_ID`, `SENSOR_ID`, `SOURCE_IP`, `SOURCE_PORT`, `DESTINATION_IP`, `DESTINATION_PORT`, `FROM_DATE_TIME`),
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-            sb.append(" and nfrd.group_id = :groupId ");
+            sb.append(" and nfrd.group_id = :queryGroupId ");
         }
+        // 2020-07-01 Modified by Alvin for supporting the sensor mode
         if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            sb.append(" and nfrd.sensor_id = :sensorId ");
+            sb.append(" and nfrd.group_id = :querySensorId ");
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             sb.append(" and nfrd.source_ip = :querySourceIp ");
@@ -607,10 +610,10 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         Query<?> q = session.createNativeQuery(sb.toString());
 
         if (StringUtils.isNotBlank(nfVO.getQueryGroupId())) {
-            q.setParameter("groupId", nfVO.getQueryGroupId());
+            q.setParameter("queryGroupId", nfVO.getQueryGroupId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySensorId())) {
-            q.setParameter("sensorId", nfVO.getQuerySensorId());
+            q.setParameter("querySensorId", nfVO.getQuerySensorId());
         }
         if (StringUtils.isNotBlank(nfVO.getQuerySourceIp())) {
             q.setParameter("querySourceIp", nfVO.getQuerySourceIp());
@@ -667,48 +670,6 @@ public class NetFlowTraceDAOImpl extends BaseDaoHibernate implements NetFlowTrac
         q.setParameter("dataType", Env.DEFAULT_NET_FLOW_DATA_TYPE);
 
         return (List<DataPollerSetting>)q.list();
-    }
-
-    @Override
-    @Deprecated  // 已經沒有now_date_str欄位啦
-    public List<Object[]> getUploadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(" select 'UPLOAD', nfrd.source_ip, sum(nfrd.size) ")
-          .append(" from ").append(tableName).append(" nfrd ")
-          .append(" where 1=1 ")
-          .append(" and nfrd.now_date_str = '").append(nowDateStr).append("' ")
-          .append(" group by nfrd.source_ip ")
-          .append(" having sum(nfrd.size) > ").append(limitSize);
-
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
-
-        Query<?> q = session.createNativeQuery(sb.toString());
-        return (List<Object[]>)q.list();
-    }
-
-    @Override
-    @Deprecated  // 已經沒有now_date_str欄位啦
-    public List<Object[]> getDownloadFlowExceedLimitSizeIpData(String tableName, String nowDateStr, String limitSize) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(" select 'DOWNLOAD', nfrd.destination_ip, sum(nfrd.size) ")
-          .append(" from ").append(tableName).append(" nfrd ")
-          .append(" where 1=1 ")
-          .append(" and nfrd.now_date_str = '").append(nowDateStr).append("' ")
-          .append(" group by nfrd.destination_ip ")
-          .append(" having sum(nfrd.size) > ").append(limitSize);
-
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
-
-        Query<?> q = session.createNativeQuery(sb.toString());
-        return (List<Object[]>)q.list();
     }
 
 }
