@@ -210,9 +210,10 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(8)").html( data.destinationMAC );
 		$(cTR).find("td:eq(9)").html( data.size );
 		$(cTR).find("td:eq(10)").html( data.session );
-		$(cTR).find("td:eq(11)").html( data.inboundInterface );
-		$(cTR).find("td:eq(12)").html( data.outboundInterface );
-		$(cTR).find("td:eq(13)").html( data.nextHop );
+		$(cTR).find("td:eq(11)").html( data.protocol );
+		$(cTR).find("td:eq(12)").html( data.inboundInterface );
+		$(cTR).find("td:eq(13)").html( data.outboundInterface );
+		$(cTR).find("td:eq(14)").html( data.nextHop );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -643,6 +644,7 @@ function findData(from) {
 				{ "data" : "destinationMAC" , "orderable" : false },
 				{ "data" : "size" , "orderable" : false },
 				{ "data" : "session" , "orderable" : false },
+				{ "data" : "protocol" , "orderable" : false },
 				{ "data" : "inboundInterface" , "orderable" : false },
 				{ "data" : "outboundInterface" , "orderable" : false },
 				{ "data" : "nextHop" , "orderable" : false }

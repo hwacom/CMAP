@@ -489,11 +489,10 @@ public class NetFlowTraceController extends BaseController {
 	        if (dataList != null && !dataList.isEmpty()) {
 	            String fileName = getFileName(Env.EXPORT_DATA_CSV_FILE_NAME_OF_NET_FLOW);
 	            String[] fieldNames = new String[] {
-	                    "groupName", "now", "fromDateTime", "toDateTime", "ethernetType", "protocol",
+	                    "groupName", "fromDateTime",
 	                    "sourceIP", "sourcePort", "sourceMAC", "destinationIP", "destinationPort",
-	                    "destinationMAC", "size","session", "channelID", "toS", "senderIP", "inboundInterface",
-	                    "outboundInterface", "sourceASI", "destinationASI", "sourceMask", "destinationMask",
-	                    "nextHop", "sourceVLAN", "destinationVLAN", "flowID"
+	                    "destinationMAC", "size","session", "protocol", "inboundInterface",
+	                    "outboundInterface", "nextHop"
 	            };
 	            String[] columnsTitles = Env.EXPORT_DATA_CSV_COLUMNS_TITLES_OF_NET_FLOW_TRACE.split(",");
 

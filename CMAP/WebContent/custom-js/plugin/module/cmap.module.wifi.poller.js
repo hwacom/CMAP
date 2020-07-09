@@ -373,8 +373,10 @@ function findNextData() {
 
 	$.ajax({
 		url : _ctx + '/plugin/module/wifiPoller/getWifiMstData.json',
-		data : {
-			"queryDate" : $("#query_Date").val(),
+		data : {	
+			"queryGroupId" : $("#queryGroup").val(),
+			"queryDateBegin" : $("#query_DateBegin").val(),
+			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
 			"queryClientMac" : $("#query_ClientMac").val(),

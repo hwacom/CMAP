@@ -44,6 +44,7 @@ public class NetFlowTraceVO extends CommonServiceVO {
 	private String destinationMAC;
 	private String size;
 	private String session;
+	private String protocol;
 	private String inboundInterface;
 	private String outboundInterface;
 	private String nextHop;
@@ -171,7 +172,15 @@ public class NetFlowTraceVO extends CommonServiceVO {
 	public void setSession(String session) {
 		this.session = session;
 	}
+	
+	public String getProtocol() {
+		return protocol;
+	}
 
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+	
 	public String getInboundInterface() {
 		return inboundInterface;
 	}
