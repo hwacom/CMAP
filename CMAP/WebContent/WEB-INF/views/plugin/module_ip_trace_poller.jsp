@@ -54,7 +54,7 @@
 					<label for="query_ClientIp" class="font-weight-bold" style="width: 20%"><spring:message code="ip.trace.poller.client.ip" /></label>
 					<input type="text" id="query_ClientIp" class="input-ip" style="width: 70%">
 				</div>
-	    	   	<div class="col-lg-2 offset-lg-1 group-field-other">
+	    	   	<div class="col-lg-2 offset-lg-3 group-field-other">
 	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
 	    	    </div>
 	    	  </div>

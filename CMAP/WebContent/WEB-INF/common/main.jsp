@@ -78,6 +78,8 @@
 	<!-- dataTable -->
 	<!-- <script src="${pageContext.request.contextPath}/resources/js/dataTable/jquery.dataTables.min.js"></script> -->
 	<script src="${pageContext.request.contextPath}/resources/DataTables/datatables.min.js"></script>
+	<!-- dataFormat -->
+	<script src="${pageContext.request.contextPath}/resources/js/dateformat/DateFormat.min.js"></script>
 	<!-- Underscore -->
 	<script src="${pageContext.request.contextPath}/resources/js/underscore/underscore-min.js"></script>
 	<!-- blockUI -->

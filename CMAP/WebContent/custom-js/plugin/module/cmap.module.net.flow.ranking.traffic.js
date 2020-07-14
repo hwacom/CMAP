@@ -12,55 +12,105 @@ $(document).ready(function() {
 	} else {
 		initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "mp_netFlowCurrentRanking_traffic");
 	}
+	// 宣告按鈕函式功能
+	// btn set queryDate period
+	$("#btn_1d_web").click(function() {
+			var dateBegin = new Date();
+			var dateEnd = new Date();
+			var datePeriod = 1; // 日期區間
+			dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
+			$("#queryDateBegin").val(dateBegin.format("yyyy-MM-dd"));
+			$("#queryDateEnd").val(dateEnd.format("yyyy-MM-dd"));
+	});
+	$("#btn_3d_web").click(function() {
+		var dateBegin = new Date();
+		var dateEnd = new Date();
+		var datePeriod = 3; // 日期區間
+		dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
+		
+		$("#queryDateBegin").val(dateBegin.format("yyyy-MM-dd"));
+		$("#queryDateEnd").val(dateEnd.format("yyyy-MM-dd"));
+	});
+	$("#btn_7d_web").click(function() {
+		var dateBegin = new Date();
+		var dateEnd = new Date();
+		var datePeriod = 7; // 日期區間
+		dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
+		
+		$("#queryDateBegin").val(dateBegin.format("yyyy-MM-dd"));
+		$("#queryDateEnd").val(dateEnd.format("yyyy-MM-dd"));
+	});
+	//btn set queryDate period (mobile)
+	$("#btn_1d_mobile").click(function() {
+		var dateBegin = new Date();
+		var dateEnd = new Date();
+		var datePeriod = 1; // 日期區間
+		dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
+		$("#queryDateBegin_mobile").val(dateBegin.format("yyyy-MM-dd"));
+		$("#queryDateEnd_mobile").val(dateEnd.format("yyyy-MM-dd"));
+	});
+	$("#btn_3d_mobile").click(function() {
+		var dateBegin = new Date();
+		var dateEnd = new Date();
+		var datePeriod = 3; // 日期區間
+		dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
 	
-	$("#btnSearch_1_web").click(function(e) {
-		findData('WEB', 1);
+		$("#queryDateBegin_mobile").val(dateBegin.format("yyyy-MM-dd"));
+		$("#queryDateEnd_mobile").val(dateEnd.format("yyyy-MM-dd"));
 	});
-	$("#btnSearch_3_web").click(function(e) {
-		findData('WEB', 3);
+	$("#btn_7d_mobile").click(function() {
+		var dateBegin = new Date();
+		var dateEnd = new Date();
+		var datePeriod = 7; // 日期區間
+		dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
+	
+		$("#queryDateBegin_mobile").val(dateBegin.format("yyyy-MM-dd"));
+		$("#queryDateEnd_mobile").val(dateEnd.format("yyyy-MM-dd"));
 	});
-	$("#btnSearch_7_web").click(function(e) {
-		findData('WEB', 7);
+	// 初始化預設值欄位
+	var dateBegin = new Date();
+	var dateEnd = new Date();
+	var datePeriod = 1; // 日期區間
+	dateBegin.setDate(dateBegin.getDate() - datePeriod + 1);
+	$("#queryDateBegin").val(dateBegin.format("yyyy-MM-dd"));
+	$("#queryDateEnd").val(dateEnd.format("yyyy-MM-dd"));
+	$("#queryDateBegin_mobile").val(dateBegin.format("yyyy-MM-dd"));
+	$("#queryDateEnd_mobile").val(dateEnd.format("yyyy-MM-dd"));
+	// 宣告input欄位檢核
+	var inputDateBegin = new Cleave('.input-date-begin', {
+	    date: true,
+	    delimiter: '-',
+	    datePattern: ['Y', 'm', 'd']
 	});
-	$("#btnSearch_1_mobile").click(function(e) {
-		findData('MOBILE', 1);
+	var inputDateEnd = new Cleave('.input-date-end', {
+	    date: true,
+	    delimiter: '-',
+	    datePattern: ['Y', 'm', 'd']
 	});
-	$("#btnSearch_3_mobile").click(function(e) {
-		findData('MOBILE', 3);
+	var inputDateBeginMobile = new Cleave('.input-date-begin-mobile', {
+	    date: true,
+	    delimiter: '-',
+	    datePattern: ['Y', 'm', 'd']
 	});
-	$("#btnSearch_7_mobile").click(function(e) {
-		findData('MOBILE', 7);
-	});
-	$("#btnExport_1d").click(function(e) {
-		showExportPanelSelf(1);
-	});
-	$("#btnExport_3d").click(function(e) {
-		showExportPanelSelf(3);
-	});
-	$("#btnExport_7d").click(function(e) {
-		showExportPanelSelf(7);
+	var inputDateEndMobile = new Cleave('.input-date-end-mobile', {
+	    date: true,
+	    delimiter: '-',
+	    datePattern: ['Y', 'm', 'd']
 	});
 });
 
-function showExportPanelSelf(day) {
-	$("#dataExportModal").modal({
-		backdrop : 'static'
-	});
-	
-	$("#dataExportModal_recordCountSelect").val("").change();
-	$("#dataExportModal_recordCountInput").val("");
-	
-	$("#dataExportModal_var1").val(day + "D");
-}
-
 //[資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
 function doDataExport(exportRecordCount) {
-	var var1 = $("#dataExportModal_var1").val();
-	var queryDatePeriod = var1.replace("D", "");
+	// 確認日期區間必填
+	if ($("#queryDateBegin").val().trim().length == 0 || $("#queryDateEnd").val().trim().length == 0){
+		alert(msg_chooseDate);
+		return;
+	}
 	var dataObj = new Object();
+	//Mobile不支援Export匯出
 	dataObj.queryGroup = $("#queryGroup").val();
-	dataObj.queryDatePeriod = queryDatePeriod;
-	dataObj.var1 = var1;
+	dataObj.queryDateBegin = $("#queryDateBegin").val();
+	dataObj.queryDateEnd = $("#queryDateEnd").val();
 	dataObj.exportRecordCount = exportRecordCount;
 	
 	$.ajax({
@@ -97,9 +147,14 @@ function doDataExport(exportRecordCount) {
 }
 
 //查詢按鈕動作
-function findData(from, period) {
+function findData(from) {
+	//接收form參數值
 	$('#queryFrom').val(from);
-	$("#queryDatePeriod").val(period);
+	// 確認日期區間必填
+	if ($("#queryDateBegin").val().trim().length == 0 || $("#queryDateEnd").val().trim().length == 0){
+		alert(msg_chooseDate);
+		return;
+	}
 	
 	if (from == 'MOBILE') {
 		$('#collapseExample').collapse('hide');
@@ -138,10 +193,13 @@ function findData(from, period) {
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
 						d.queryGroup = $("#queryGroup").val();
+						d.queryDateBegin = $("#queryDateBegin").val();
+						d.queryDateEnd = $("#queryDateEnd").val();
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						d.queryGroup = $("#queryGroup_mobile").val();
+						d.queryDateBegin = $("#queryDateBegin_mobile").val();
+						d.queryDateEnd = $("#queryDateEnd_mobile").val();
 					}
-					d.queryDatePeriod = $("#queryDatePeriod").val();
 					return d;
 				},
 				beforeSend : function() {
@@ -153,21 +211,6 @@ function findData(from, period) {
 				"error" : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();
 				},
-				/*
-				"dataSrc" : function(json) {
-					if (json.data.length > 0) {
-						if (json.otherMsg != null && json.otherMsg != "") {
-							$("#div_TotalFlow").css("display", "contents");
-							$("#result_TotalFlow").text("總流量：" + json.otherMsg);
-						}
-						
-					} else {
-						$("#div_TotalFlow").css("display", "contents");
-						$("#result_TotalFlow").text("查無符合資料");
-					}
-					return json.data;
-				},
-				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
 			"order": [[4 , 'desc' ]],

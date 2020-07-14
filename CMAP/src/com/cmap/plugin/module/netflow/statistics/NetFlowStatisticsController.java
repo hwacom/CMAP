@@ -132,7 +132,6 @@ public class NetFlowStatisticsController extends BaseController {
     public @ResponseBody DatatableResponse getNetFlowTrafficData(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name="queryGroup", required=false, defaultValue="") String queryGroup,
-            @RequestParam(name="queryDatePeriod", required=true, defaultValue="") String queryDatePeriod,
             @RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
             @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
             @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
@@ -156,30 +155,8 @@ public class NetFlowStatisticsController extends BaseController {
             nowDate.set(Calendar.MINUTE, 0);
             nowDate.set(Calendar.SECOND, 0);
             nowDate.set(Calendar.MILLISECOND, 0);
-
-            String beginDate = null;
-            String endDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
-            switch (queryDatePeriod) {
-                case "1":
-                    break;
-
-                case "3":
-                    nowDate.add(Calendar.DAY_OF_MONTH, -3);
-                    break;
-
-                case "7":
-                    nowDate.add(Calendar.DAY_OF_MONTH, -7);
-                    break;
-
-                default:
-                    nowDate.add(Calendar.DAY_OF_MONTH, Integer.valueOf(queryDatePeriod)*-1);
-                    break;
-            }
-
-            beginDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
-
-            nfsVO.setQueryDateBegin(beginDate);
-            nfsVO.setQueryDateEnd(endDate);
+            nfsVO.setQueryDateBegin(queryDateBegin);
+            nfsVO.setQueryDateEnd(queryDateEnd);
             nfsVO.setStartNum(startNum);
             nfsVO.setPageLength(pageLength);
             nfsVO.setSearchValue(searchValue);
@@ -213,7 +190,6 @@ public class NetFlowStatisticsController extends BaseController {
     public @ResponseBody AppResponse trafficDataExport(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name="queryGroup", required=false, defaultValue="") String queryGroup,
-            @RequestParam(name="queryDatePeriod", required=true, defaultValue="") String queryDatePeriod,
             @RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
             @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
             @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
@@ -232,37 +208,8 @@ public class NetFlowStatisticsController extends BaseController {
 
             nfsVO = new NetFlowStatisticsVO();
             nfsVO.setQueryGroupId(queryGroup);
-
-            Calendar nowDate = Calendar.getInstance();
-            nowDate.setTime(new Date());
-            nowDate.set(Calendar.HOUR_OF_DAY, 0);
-            nowDate.set(Calendar.MINUTE, 0);
-            nowDate.set(Calendar.SECOND, 0);
-            nowDate.set(Calendar.MILLISECOND, 0);
-
-            String beginDate = null;
-            String endDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
-            switch (queryDatePeriod) {
-                case "1":
-                    break;
-
-                case "3":
-                    nowDate.add(Calendar.DAY_OF_MONTH, -3);
-                    break;
-
-                case "7":
-                    nowDate.add(Calendar.DAY_OF_MONTH, -7);
-                    break;
-
-                default:
-                    nowDate.add(Calendar.DAY_OF_MONTH, Integer.valueOf(queryDatePeriod)*-1);
-                    break;
-            }
-
-            beginDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
-
-            nfsVO.setQueryDateBegin(beginDate);
-            nfsVO.setQueryDateEnd(endDate);
+            nfsVO.setQueryDateBegin(queryDateBegin);
+            nfsVO.setQueryDateEnd(queryDateEnd);
             nfsVO.setStartNum(queryStartNum);
             nfsVO.setPageLength(queryPageLength);
             nfsVO.setSearchValue(searchValue);
@@ -300,7 +247,6 @@ public class NetFlowStatisticsController extends BaseController {
     public @ResponseBody DatatableResponse getNetFlowSessionData(
             Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name="queryGroup", required=false, defaultValue="") String queryGroup,
-            @RequestParam(name="queryDatePeriod", required=true, defaultValue="") String queryDatePeriod,
             @RequestParam(name="queryDateBegin", required=false, defaultValue="") String queryDateBegin,
             @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
             @RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
@@ -317,37 +263,8 @@ public class NetFlowStatisticsController extends BaseController {
         try {
             nfsVO = new NetFlowStatisticsVO();
             nfsVO.setQueryGroupId(queryGroup);
-
-            Calendar nowDate = Calendar.getInstance();
-            nowDate.setTime(new Date());
-            nowDate.set(Calendar.HOUR_OF_DAY, 0);
-            nowDate.set(Calendar.MINUTE, 0);
-            nowDate.set(Calendar.SECOND, 0);
-            nowDate.set(Calendar.MILLISECOND, 0);
-
-            String beginDate = null;
-            String endDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
-            switch (queryDatePeriod) {
-                case "1":
-                    break;
-
-                case "3":
-                    nowDate.add(Calendar.DAY_OF_MONTH, -3);
-                    break;
-
-                case "7":
-                    nowDate.add(Calendar.DAY_OF_MONTH, -7);
-                    break;
-
-                default:
-                    nowDate.add(Calendar.DAY_OF_MONTH, Integer.valueOf(queryDatePeriod)*-1);
-                    break;
-            }
-
-            beginDate = Constants.FORMAT_YYYY_MM_DD.format(nowDate.getTime());
-
-            nfsVO.setQueryDateBegin(beginDate);
-            nfsVO.setQueryDateEnd(endDate);
+            nfsVO.setQueryDateBegin(queryDateBegin);
+            nfsVO.setQueryDateEnd(queryDateEnd);
             nfsVO.setStartNum(startNum);
             nfsVO.setPageLength(pageLength);
             nfsVO.setSearchValue(searchValue);
