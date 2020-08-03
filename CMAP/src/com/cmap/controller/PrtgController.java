@@ -387,6 +387,24 @@ public class PrtgController extends BaseController {
         }
     }
 
+	@RequestMapping(value = "getPrtgAbnormalHisUri", method = RequestMethod.POST)
+	public @ResponseBody AppResponse getPrtgAbnormalHisUri(Model model, HttpServletRequest request, HttpServletResponse response) {
+		
+		try {
+			String abnormalHisMapUrl = composePrtgUrl(request, Env.PRTG_DEFAULT_ABNORMAL_HIS_URI);
+
+			AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+			app.putData("uri", abnormalHisMapUrl);
+			return app;
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(super.getLineNumber(), e.getMessage());
+
+		} finally {
+		}
+	}
+	
 	@RequestMapping(value = "/index/login", method = RequestMethod.GET)
 	public String prtgIndexAndLogin(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -530,4 +548,15 @@ public class PrtgController extends BaseController {
         }
         return "prtg/email_update";
     }
+	
+	@RequestMapping(value = "/abnormalHis", method = RequestMethod.GET)
+	public String prtgAbnormalHis(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			init(model);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+		return "prtg/abnormal_his";
+	}
 }

@@ -414,6 +414,17 @@
 	                    </c:if>
 	                    <!-- [防火牆LOG查詢] END -->
 	                    
+	                    <!-- [異常歷史紀錄查詢] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_PRTG_ABNORMAL_HIS eq __SHOW__}">
+		                    <li class="subMenu-item">
+		                    	<a id="cm_abnormalHis" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/abnormalHis')">
+		                    	  <span data-feather="list"></span>
+		                    	  	<span><spring:message code="func.prtg.abnormal.his" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [異常歷史紀錄查詢] END -->
+	                    
 	                    <!-- [設備roop查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_LOOP_SEARCH eq __SHOW__}">
 		                    <li class="subMenu-item">

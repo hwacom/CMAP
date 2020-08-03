@@ -2044,10 +2044,62 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                             try {
                                 // Step 1. 執行CSV檔資料寫入DB
                                 insertData2DBByFile(setting, targetFilePath, targetTableName, extraSetStr);
-
-                                // Step 2. 刪除CSV檔案
+                                log.debug("insertData2DBByFile成功!");
+                                // Step 2. 根據setting判斷刪除CSV檔案後是否做Archive備份
+                                final String backupFilePath = setting.getBackupFilePath();          // 壓縮備份檔案存放路徑
+                                final String zipBackupFile = setting.getZipBackupFile();          // 是否壓縮備份檔案
+                                // Step 2.1. 若有設定要壓縮備份檔案，則在此部分讀完檔案內容後作壓縮
+                			    if (StringUtils.equals(zipBackupFile, Constants.DATA_Y)) {
+                			        try {
+                               			final String todayStr = Constants.FORMAT_YYYY_MM_DD_NOSYMBOL.format(new Date()); //建立folder用Layer1
+                            			final String hourStr = Constants.FORMAT_HH24.format(new Date()); //建立folder用Layer2
+                                        // 備份夾以日期區隔分開存放後再以24小時區分資料
+                        				final String todayFolder = backupFilePath + File.separator + todayStr;
+                        				// 建立備份資料夾Layer1
+                        				Path pathToday = Paths.get(todayFolder);
+                        				if (!Files.exists(pathToday)) {
+                        					try {
+                        						Files.createDirectories(pathToday);
+                        					} catch (IOException e) {
+                        						log.error(e.toString(), e);
+                        						throw new ServiceLayerException("建立備份資料夾失敗(Layer1 Date)");
+                        					}
+                        				}
+                                        // 建立備份資料夾Layer2
+                        				final String hourFolder = todayFolder + File.separator + hourStr;
+                        				Path pathHour = Paths.get(hourFolder);
+                        				if (!Files.exists(pathHour)) {
+                        					try {
+                        						Files.createDirectories(pathHour);
+                        					} catch (IOException e) {
+                        						log.error(e.toString(), e);
+                        						throw new ServiceLayerException("建立備份資料夾失敗(Layer2 Hour)");
+                        					}
+                        				}
+                			        	// zipFiles Utils需要把欲壓縮檔案放進List中
+                			        	List<File> srcFileList = new ArrayList<>();
+                	                    srcFileList.add(f);
+                	                    String zipFileName = "";
+                	                    String zipFilePath = "";
+                	                    // 指定zip檔輸出備份路徑
+                	                    if (fileName.indexOf(".csv") != -1) {
+                	                    	zipFileName = fileName.replace(".csv", ".zip");
+                	                    } else {
+                	                    	zipFileName = fileName.concat(".zip");
+                	                    }
+                	                    zipFilePath = hourFolder + File.separator + zipFileName;
+                	                    if (StringUtils.isNotBlank(zipFilePath)) {
+                	                        File zipFile = new File(zipFilePath);
+                	                        CommonUtils.zipFiles(srcFileList, zipFile);
+                	                    }
+                	                    log.debug("匯入資料檔案: [ " + fileName + " ] 壓縮備份成功!");
+                			        } catch (Exception e) {
+                			            log.error(e.toString(), e);
+                			        }
+                			    }
+                			    // Step 2.2. 刪除匯入原始檔案(檔案很多很大備份失敗也要刪除)
                                 deleteInsertCsvFile(targetFilePath);
-
+                                log.debug("deleteInsertCsvFile成功!");
                             } catch (Exception e) {
                     	        //處理過程若有失敗，將檔案移至ERROR資料夾下
                     	        moveFile2ErrorFolder(f);

@@ -54,7 +54,7 @@ public class SysLoginInfoDAOImpl extends BaseDaoHibernate implements SysLoginInf
 	    
 	    List<SysLoginInfo> resultList = (List<SysLoginInfo>)q.list();
 	    
-	    return resultList == null ? null:resultList.get(0);
+	    return resultList == null || resultList.isEmpty() ? null:resultList.get(0);
 	}
 	
 	@Override

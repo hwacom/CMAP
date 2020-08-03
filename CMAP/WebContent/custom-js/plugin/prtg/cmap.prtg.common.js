@@ -14,6 +14,7 @@ var URI_DEVICE_FAILURE = "getPrtgDeviceFailureUri";
 var URI_ABNORMAL_TRAFFIC = "getPrtgAbnormalTrafficUri";
 var URI_EMAIL_UPDATE = "getEmailUpdateUri";
 var URI_LOOP_SEARCH = "getPrtgLoopSearchUri";
+var URI_ABNORMAL_HIS = "getPrtgAbnormalHisUri";
 
 var OPEN_METHOD_IFRAME = "IFRAME";
 var OPEN_METHOD_WINDOW = "WINDOW";

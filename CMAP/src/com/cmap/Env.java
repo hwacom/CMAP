@@ -53,7 +53,8 @@ public class Env {
 	public static String SHOW_MENU_ITEM_PLUGIN_NET_FLOW_TRACE;		             // 監控平台 > Net flow trace查詢	
     public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 監控平台 > Wifi查詢
     public static String SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER;		             // 監控平台 > IP異動紀錄查詢
-    
+    public static String SHOW_MENU_ITEM_PRTG_ABNORMAL_HIS;		             // 監控平台 > 異常歷史紀錄查詢
+
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_BACKUP;                   // 組態管理 > 版本備份
@@ -412,7 +413,8 @@ public class Env {
 	public static String PRTG_DEFAULT_EMAIL_UPDATE_URI;
 	public static String PRTG_LOGOUT_URI;
 	public static String PRTG_DEFAULT_LOOP_SEARCH_URI;
-
+	public static String PRTG_DEFAULT_ABNORMAL_HIS_URI;
+	
 	public static String DEFAULT_INSERT_DB_FILE_DIR;
 	public static String DEFAULT_FILE_LINE_ENDING_SYMBOL;
 
