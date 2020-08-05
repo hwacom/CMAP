@@ -54,7 +54,7 @@ public class SysLoginInfoDAOImpl extends BaseDaoHibernate implements SysLoginInf
 	    
 	    List<SysLoginInfo> resultList = (List<SysLoginInfo>)q.list();
 	    
-	    return resultList == null ? null:resultList.get(0);
+	    return resultList == null || resultList.isEmpty() ? null:resultList.get(0);
 	}
 	
 	@Override
@@ -70,8 +70,10 @@ public class SysLoginInfoDAOImpl extends BaseDaoHibernate implements SysLoginInf
 	@Override
 	public void updateLogoutTime(String sessionId) {
 		SysLoginInfo info = findSysLoginInfoBySessionId(sessionId);
-		Timestamp nowTimestamp = new Timestamp((new Date()).getTime());
-		info.setLogoutTime(nowTimestamp);
-		saveSysLoginInfo(info);
+		if(info != null) {
+			Timestamp nowTimestamp = new Timestamp((new Date()).getTime());
+			info.setLogoutTime(nowTimestamp);
+			saveSysLoginInfo(info);
+		}
 	}
 }
