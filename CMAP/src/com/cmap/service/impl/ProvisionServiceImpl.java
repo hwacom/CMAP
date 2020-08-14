@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.annotation.Log;
 import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
@@ -259,10 +261,8 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 				String chkResultMsg = "OK";
 				String commonErrorMsg = "供裝前系統檢核異常";
 
-				if (!entity.getScriptInfoId().equals(psVO.getScriptInfoId())
-						|| !entity.getScriptCode().equals(psVO.getScriptCode())) {
+				if (!entity.getScriptCode().equals(psVO.getScriptCode())) {
 					chkResultMsg = "供裝前參數檢核異常 >> Entity.ScriptInfoId : " + entity.getScriptInfoId()
-													+ " <> VO.ScriptInfoId : " + psVO.getScriptInfoId()
 													+ " ; Entity.ScriptCode : " + entity.getScriptCode()
 													+ " <> VO.ScriptCode : " + psVO.getScriptCode();
 

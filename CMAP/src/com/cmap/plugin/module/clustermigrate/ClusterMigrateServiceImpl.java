@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -326,7 +328,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
 
                             provisionReason = "Cluster migrate >> 查看 cluster 狀態";
                             DeliveryParameterVO dpVO = new DeliveryParameterVO();
-                            dpVO.setScriptInfoId(clusterStatusScriptVO.getScriptInfoId());
+//                            dpVO.setScriptInfoId(clusterStatusScriptVO.getScriptInfoId());
                             dpVO.setScriptCode(clusterStatusScriptVO.getScriptCode());
                             dpVO.setDeviceInfo(deviceInfo);
                             dpVO.setReason(provisionReason);
@@ -404,7 +406,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
 
                         provisionReason = "Cluster migrate >> 執行 cluster migrate";
                         DeliveryParameterVO dpVO = new DeliveryParameterVO();
-                        dpVO.setScriptInfoId(clusterMigrateScriptVO.getScriptInfoId());
+//                        dpVO.setScriptInfoId(clusterMigrateScriptVO.getScriptInfoId());
                         dpVO.setScriptCode(clusterMigrateScriptVO.getScriptCode());
                         dpVO.setDeviceInfo(deviceInfo);
                         dpVO.setReason(provisionReason);
@@ -692,7 +694,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
 
             provisionReason = "Service restart";
             DeliveryParameterVO dpVO = new DeliveryParameterVO();
-            dpVO.setScriptInfoId(serviceRestartScriptVO.getScriptInfoId());
+//            dpVO.setScriptInfoId(serviceRestartScriptVO.getScriptInfoId());
             dpVO.setScriptCode(serviceRestartScriptVO.getScriptCode());
             dpVO.setDeviceInfo(deviceInfo);
             dpVO.setReason(provisionReason);

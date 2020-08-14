@@ -116,6 +116,7 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
           .append("  ,mbl.status_flag ")
           .append("  ,mbl.script_code ")
           .append("  ,mbl.script_name ")
+          .append("  ,mbl.undo_script_code ")
           .append("  ,mbl.block_time ")
           .append("  ,mbl.block_by ")
           .append("  ,mbl.block_reason ")

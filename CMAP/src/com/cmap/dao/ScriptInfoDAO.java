@@ -27,5 +27,5 @@ public interface ScriptInfoDAO {
 
 	boolean deleteScriptInfo(ScriptInfo info, String actionBy);
 
-	List<ScriptInfo> findScriptInfoByCodeLike(String scriptCode, String deviceModel);
+	List<ScriptInfo> findScriptInfoByScriptTypeCode(String scriptTypeCode, String deviceModel);
 }

@@ -1,7 +1,6 @@
 package com.cmap.dao.impl;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
-import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.ScriptInfoDAO;
 import com.cmap.dao.vo.ScriptInfoDAOVO;
@@ -36,11 +34,8 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		  .append(" where 1=1 ")
 		  .append(" and si.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeId())) {
-			sb.append(" and si.scriptType.scriptTypeId = :scriptTypeId ");
-		}
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeCode())) {
-			sb.append(" and si.scriptType.scriptTypeCode = :scriptTypeCode ");
+		if (daovo.getQueryScriptTypeCode() != null && !daovo.getQueryScriptTypeCode().isEmpty()) {
+			sb.append(" and si.scriptType.scriptTypeCode in (:scriptTypeCode) ");
 		}
 		if (StringUtils.isNotBlank(daovo.getQueryScriptInfoId())) {
 			sb.append(" and si.scriptInfoId = :scriptInfoId ");
@@ -48,10 +43,10 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			sb.append(" and si.systemDefault = :systemDefault ");
 		}
-		if (daovo.isOnlySwitchPort() || daovo.isOnlyIpOpenBlock() || daovo.isOnlyMacOpenBlock() || daovo.isOnlyIpMacBinding()) {
-			sb.append(" and si.scriptCode in (:scriptCode) ");
+		if (!daovo.isAdmin()) {
+			sb.append(" and si.adminOnly = '").append(Constants.DATA_N).append("' ");
 		}
-
+		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 			sb.append(" and ( ")
 			  .append("       si.scriptName like :searchValue ")
@@ -73,10 +68,7 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		Query<?> q = session.createQuery(sb.toString());
 
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeId())) {
-			q.setParameter("scriptTypeId", daovo.getQueryScriptTypeId());
-		}
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeCode())) {
+		if (daovo.getQueryScriptTypeCode() != null && !daovo.getQueryScriptTypeCode().isEmpty()) {
 			q.setParameter("scriptTypeCode", daovo.getQueryScriptTypeCode());
 		}
 		if (StringUtils.isNotBlank(daovo.getQueryScriptInfoId())) {
@@ -84,46 +76,6 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		}
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			q.setParameter("systemDefault", daovo.getQuerySystemDefault());
-		}
-		
-		List<String> scriptList = new ArrayList<>();
-		if (daovo.isOnlySwitchPort()) {
-			if (Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE != null) {
-				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE);
-			}
-			// 若使用者為管理者，多查出中心端的Port控制腳本
-			if (daovo.isAdmin() && Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN != null) {
-				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN);
-			}
-			q.setParameterList("scriptCode", scriptList);
-			
-		} else if (daovo.isOnlyIpOpenBlock()) {
-			if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE != null) {
-				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
-			}
-			// 若使用者為管理者，多查出中心端的IP控制腳本
-			if (daovo.isAdmin() && Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-			}
-			q.setParameterList("scriptCode", scriptList);
-			
-		} else if (daovo.isOnlyMacOpenBlock()) {
-			if (Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE != null) {
-				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE);
-			}
-			// 若使用者為管理者，多查出中心端的MAC控制腳本
-			if (daovo.isAdmin() && Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-			}
-			q.setParameterList("scriptCode", scriptList);
-		} else if (daovo.isOnlyIpMacBinding()) {
-			if (Env.SCRIPT_CODE_OF_IP_MAC_BIND != null) {
-				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_BIND);
-			}
-			if (Env.SCRIPT_CODE_OF_IP_MAC_UNBIND != null) {
-				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_UNBIND);
-			}
-			q.setParameterList("scriptCode", scriptList);
 		}
 		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
@@ -140,11 +92,8 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		  .append(" where 1=1 ")
 		  .append(" and si.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeId())) {
-			sb.append(" and si.scriptType.scriptTypeId = :scriptTypeId ");
-		}
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeCode())) {
-			sb.append(" and si.scriptType.scriptTypeCode = :scriptTypeCode ");
+		if (daovo.getQueryScriptTypeCode() != null && !daovo.getQueryScriptTypeCode().isEmpty()) {
+			sb.append(" and si.scriptType.scriptTypeCode in (:scriptTypeCode) ");
 		}
 		if (StringUtils.isNotBlank(daovo.getQueryScriptInfoId())) {
 			sb.append(" and si.scriptInfoId = :scriptInfoId ");
@@ -155,8 +104,8 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			sb.append(" and si.systemDefault = :systemDefault ");
 		}
-		if (daovo.isOnlySwitchPort() || daovo.isOnlyIpOpenBlock() || daovo.isOnlyMacOpenBlock() || daovo.isOnlyIpMacBinding()) {
-			sb.append(" and si.scriptCode in (:scriptCode) ");
+		if (!daovo.isAdmin()) {
+			sb.append(" and si.adminOnly = '").append(Constants.DATA_N).append("' ");
 		}
 
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
@@ -186,10 +135,7 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		Query<?> q = session.createQuery(sb.toString());
 
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeId())) {
-			q.setParameter("scriptTypeId", daovo.getQueryScriptTypeId());
-		}
-		if (StringUtils.isNotBlank(daovo.getQueryScriptTypeCode())) {
+		if (daovo.getQueryScriptTypeCode() != null && !daovo.getQueryScriptTypeCode().isEmpty()) {
 			q.setParameter("scriptTypeCode", daovo.getQueryScriptTypeCode());
 		}
 		if (StringUtils.isNotBlank(daovo.getQueryScriptInfoId())) {
@@ -200,45 +146,6 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		}
 		if (StringUtils.isNotBlank(daovo.getQuerySystemDefault())) {
 			q.setParameter("systemDefault", daovo.getQuerySystemDefault());
-		}
-		List<String> scriptList = new ArrayList<>();
-		if (daovo.isOnlySwitchPort()) {
-			if (Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE != null) {
-				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE);
-			}
-			// 若使用者為管理者，多查出中心端的Port控制腳本
-			if (daovo.isAdmin() && Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN != null) {
-				scriptList.addAll(Env.DELIVERY_SWITCH_PORT_SCRIPT_CODE_4_ADMIN);
-			}
-			q.setParameterList("scriptCode", scriptList);
-			
-		} else if (daovo.isOnlyIpOpenBlock()) {
-			if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE != null) {
-				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE);
-			}
-			// 若使用者為管理者，多查出中心端的IP控制腳本
-			if (daovo.isAdmin() && Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-				scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-			}
-			q.setParameterList("scriptCode", scriptList);
-			
-		} else if (daovo.isOnlyMacOpenBlock()) {
-			if (Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE != null) {
-				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE);
-			}
-			// 若使用者為管理者，多查出中心端的MAC控制腳本
-			if (daovo.isAdmin() && Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-				scriptList.addAll(Env.DELIVERY_MAC_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-			}
-			q.setParameterList("scriptCode", scriptList);
-		} else if (daovo.isOnlyIpMacBinding()) {
-			if (Env.SCRIPT_CODE_OF_IP_MAC_BIND != null) {
-				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_BIND);
-			}
-			if (Env.SCRIPT_CODE_OF_IP_MAC_UNBIND != null) {
-				scriptList.addAll(Env.SCRIPT_CODE_OF_IP_MAC_UNBIND);
-			}
-			q.setParameterList("scriptCode", scriptList);
 		}
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(daovo.getSearchValue()).concat("%"));
@@ -255,7 +162,8 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 	public ScriptInfo findScriptInfoByIdOrCode(String scriptInfoId, String scriptCode) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from ScriptInfo si ")
-		  .append(" where 1=1 ");
+		  .append(" where 1=1 ")
+		  .append(" and si.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
 		if (StringUtils.isNotBlank(scriptInfoId)) {
 			sb.append(" and si.scriptInfoId = :scriptInfoId ");
@@ -279,19 +187,20 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 	}
 
 	@Override
-	public List<ScriptInfo> findScriptInfoByCodeLike(String scriptCode, String deviceModel) {
+	public List<ScriptInfo> findScriptInfoByScriptTypeCode(String scriptTypeCode, String deviceModel) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from ScriptInfo si ")
-		  .append(" where 1=1 ");
+		  .append(" where 1=1 ")
+		  .append(" and si.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(scriptCode)) {
-			sb.append(" and si.scriptCode like :scriptCode ");
+		if (StringUtils.isNotBlank(scriptTypeCode)) {
+			sb.append(" and si.scriptType.scriptTypeCode = :scriptTypeCode ");
 		}
 		if (StringUtils.isNotBlank(deviceModel)) {
 			sb.append(" and si.deviceModel like :deviceModel ");
 		}
 		
-		sb.append(" order by si.scriptCode desc");
+		sb.append(" order by si.scriptCode");
 		
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		Query<?> q = session.createQuery(sb.toString());
@@ -299,8 +208,8 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		if (StringUtils.isNotBlank(deviceModel)) {
 			q.setParameter("deviceModel", deviceModel);
 		}
-		if (StringUtils.isNotBlank(scriptCode)) {
-			q.setParameter("scriptCode", scriptCode.concat("%"));
+		if (StringUtils.isNotBlank(scriptTypeCode)) {
+			q.setParameter("scriptTypeCode", scriptTypeCode);
 		}
 
 		return (List<ScriptInfo>)q.list();
@@ -362,6 +271,5 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 		session.persist(model);
 		session.flush();
 		session.clear();
-//		getHibernateTemplate().saveOrUpdate(model);
 	}
 }

@@ -3,20 +3,14 @@ package com.cmap.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cmap.Constants;
 import com.cmap.annotation.Log;
-import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.ScriptDefaultMappingDAO;
 import com.cmap.dao.vo.ScriptStepDAOVO;
-import com.cmap.model.ScriptDefaultMapping;
 import com.cmap.model.ScriptListDefault;
 
 @Repository("scriptListDefaultDAOImpl")
@@ -40,33 +34,6 @@ public class ScriptDefaultMappingDAOImpl extends BaseDaoHibernate implements Scr
 		}
 
 		return voList;
-	}
-
-	@Override
-	public String findDefaultScriptCodeBySystemVersion(ScriptType scriptType, String deviceModel) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(" select sdm ")
-		.append(" from ScriptDefaultMapping sdm ")
-		.append(" where 1=1 ")
-		.append(" and sdm.scriptType = :scriptType ")
-		.append(" and sdm.deviceModel = :deviceModel ")
-		.append(" and sdm.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-		Query<?> q = session.createQuery(sb.toString());
-		q.setParameter("scriptType", scriptType.toString());
-		q.setParameter("deviceModel", StringUtils.isBlank(deviceModel) ? "*" : deviceModel);
-
-		List<ScriptDefaultMapping> entity = (List<ScriptDefaultMapping>)q.list();
-		String scriptCode = entity != null && !entity.isEmpty() ? entity.get(0).getDefaultScriptCode() : null;
-
-		return scriptCode;
-	}
-
-	@Override
-	public long countScriptList(ScriptStepDAOVO slDAOVO) {
-		// TODO 自動產生的方法 Stub
-		return 0;
 	}
 
 }

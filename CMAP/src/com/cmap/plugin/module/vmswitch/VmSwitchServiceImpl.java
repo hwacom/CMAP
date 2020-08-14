@@ -6,17 +6,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
-import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.BaseDAO;
 import com.cmap.dao.ConfigDAO;
@@ -830,9 +831,9 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             deviceIdList.add(deviceId);
 
             DeliveryParameterVO dpVO = new DeliveryParameterVO();
-            dpVO.setGroupId(groupIdList);
+//            dpVO.setGroupId(groupIdList);
             dpVO.setDeviceId(deviceIdList);
-            dpVO.setScriptInfoId(vmShutdownPortScriptVO.getScriptInfoId());
+//            dpVO.setScriptInfoId(vmShutdownPortScriptVO.getScriptInfoId());
             dpVO.setScriptCode(vmShutdownPortScriptVO.getScriptCode());
             dpVO.setReason(logKey);
 
@@ -929,7 +930,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	                     * Step 4-2-2. 執行 CLI 取得 VM name 對應的 VM ID
 	                     */
 	                    DeliveryParameterVO dpVO = new DeliveryParameterVO();
-	                    dpVO.setScriptInfoId(vmInfoScriptVO.getScriptInfoId());
+//	                    dpVO.setScriptInfoId(vmInfoScriptVO.getScriptInfoId());
 	                    dpVO.setScriptCode(vmInfoScriptVO.getScriptCode());
 
 	                    deviceInfo = new HashMap<>();
@@ -960,7 +961,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	                    /*
 	                     * Step 4-2-3. 執行 CLI 將指定的 VM ID 關機(power off)
 	                     */
-	                    dpVO.setScriptInfoId(powerOffScriptVO.getScriptInfoId());
+//	                    dpVO.setScriptInfoId(powerOffScriptVO.getScriptInfoId());
 	                    dpVO.setScriptCode(powerOffScriptVO.getScriptCode());
 	                    dpVO.setReason(logKey);
 
@@ -1402,7 +1403,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
              * Step 2. 準備腳本派送所需參數
              */
             DeliveryParameterVO dpVO = new DeliveryParameterVO();
-            dpVO.setScriptInfoId(vmSubScriberScriptVO.getScriptInfoId());
+//            dpVO.setScriptInfoId(vmSubScriberScriptVO.getScriptInfoId());
             dpVO.setScriptCode(vmSubScriberScriptVO.getScriptCode());
 
             List<String> groupIdList = new ArrayList<>();
@@ -1411,7 +1412,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             groupIdList.add(deviceList.getGroupId());
             deviceIdList.add(deviceList.getDeviceId());
 
-            dpVO.setGroupId(groupIdList);
+//            dpVO.setGroupId(groupIdList);
             dpVO.setDeviceId(deviceIdList);
 
             /*

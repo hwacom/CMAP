@@ -34,6 +34,8 @@ public interface ConfigDAO extends BaseDAO {
 	 */
 	public List<ConfigVersionInfo> findConfigVersionInfoByVersionIDs(List<String> versionIDs);
 
+	public ConfigVersionInfo getLastConfigVersionInfoByDeviceIdAndConfigType(String deviceId, String configType);
+	
 	/**
 	 * 查詢版本資料 BY UK欄位
 	 * @param groupId
@@ -49,5 +51,7 @@ public interface ConfigDAO extends BaseDAO {
 	        String deviceNameLike, String deviceListId);
 
 	public ConfigVersionDiffLog findConfigVersionDiffLogById(String diffLogId);
+
+	
 }
 

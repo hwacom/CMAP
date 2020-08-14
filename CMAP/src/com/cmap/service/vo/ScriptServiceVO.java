@@ -1,8 +1,11 @@
 package com.cmap.service.vo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScriptServiceVO extends CommonServiceVO {
 
-	private String queryScriptTypeCode;
+	private List<String> queryScriptTypeCode = new ArrayList<>();
 
 	private String scriptInfoId;
 	private String scriptListId;
@@ -40,7 +43,8 @@ public class ScriptServiceVO extends CommonServiceVO {
 	private String updateBy;
 
 	private Boolean enableModify;
-
+	private boolean isAdmin;
+	
 	public String getScriptInfoId() {
 		return scriptInfoId;
 	}
@@ -221,10 +225,10 @@ public class ScriptServiceVO extends CommonServiceVO {
 	public void setUpdateBy(String updateBy) {
 		this.updateBy = updateBy;
 	}
-	public String getQueryScriptTypeCode() {
+	public List<String> getQueryScriptTypeCode() {
 		return queryScriptTypeCode;
 	}
-	public void setQueryScriptTypeCode(String queryScriptTypeCode) {
+	public void setQueryScriptTypeCode(List<String> queryScriptTypeCode) {
 		this.queryScriptTypeCode = queryScriptTypeCode;
 	}
 	public Boolean getEnableModify() {
@@ -239,4 +243,10 @@ public class ScriptServiceVO extends CommonServiceVO {
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
     }
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 }

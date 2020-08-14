@@ -101,7 +101,8 @@ public class Env {
     public static String SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT;                   // 後台管理 > 預設腳本維護
     public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
     public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
-
+    public static String SHOW_MENU_ITEM_BK_LOGIN_INFO;						 // 後台管理 > 登入紀錄查詢
+    
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_NET_FLOW;              // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_VERSION_MAIN;          // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_TRAFFIC_RANK;          // 設定各校即時IP流量排行查詢功能資料匯出CSV檔名格式
@@ -261,6 +262,7 @@ public class Env {
 	public static String PRTG_API_USER_SENSOR_LIST;
 
 	public static String BACKUP_FILENAME_FORMAT;
+	public static String BACKUP_DIR_FORMAT;
 	public static String BACKUP_FILENAME_SEQ_NO_LENGTH;
 	public static SimpleDateFormat BACKUP_FILENAME_DATE_FORMAT = new SimpleDateFormat();
 	public static Boolean ENABLE_TEMP_FILE_RANDOM_CODE;

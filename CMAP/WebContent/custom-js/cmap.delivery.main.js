@@ -737,18 +737,14 @@ function checkDeliveryParameters() {
 }
 
 function doDelivery() {
-	var scriptInfoId = window.sessionStorage.getItem(_DELIVERY_SCRIPT_INFO_ID_);
 	var scriptCode = window.sessionStorage.getItem(_DELIVERY_SCRIPT_CODE_);
-	var groupId = $.parseJSON(window.sessionStorage.getItem(_DELIVERY_GROUP_ID_));
 	var deviceId = $.parseJSON(window.sessionStorage.getItem(_DELIVERY_DEVICE_ID_));
 	var varKey = $.parseJSON(window.sessionStorage.getItem(_DELIVERY_VAR_KEY_));
 	var varValue = $.parseJSON(window.sessionStorage.getItem(_DELIVERY_VAR_VALUE_));
 	var reason = window.sessionStorage.getItem(_DELIVERY_REASON_);
 	
 	var ps = {
-		"scriptInfoId" : scriptInfoId,
 		"scriptCode" : scriptCode,
-		"groupId" : groupId,
 		"deviceId" : deviceId,
 		"varKey" : varKey,
 		"varValue" : varValue,

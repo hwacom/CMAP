@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService {
 
 		    log.debug("for debug userRight = " + (userRight!=null) + ", account = " + account);
 		    if(userRight != null) {
-		    	boolean isAdmin = false;
-		    	if(roles != null) {
+		    	boolean isAdmin = StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false;
+		    	if(roles != null && !isAdmin) {
 			    	for(String title :Env.OIDC_ADMIN_TITLE) {
 			    		for(String role:roles) {
 			    			if(StringUtils.equals(role, title)) {
@@ -62,8 +62,6 @@ public class UserServiceImpl implements UserService {
 			    		}
 			    	}
 			    	
-		    	}else {
-		    		isAdmin = StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false;
 		    	}
 		    	
 		    	request.getSession().setAttribute(Constants.ISADMIN, isAdmin);

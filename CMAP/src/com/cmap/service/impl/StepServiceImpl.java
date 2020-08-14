@@ -1,6 +1,8 @@
 package com.cmap.service.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -30,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
-import com.cmap.comm.enums.BlockType;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
@@ -142,7 +144,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		String deviceConfigBackupMode = Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE;
 		try {
 			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
-			loginInfo = findDeviceLoginInfo(Constants.DATA_STAR_SYMBOL, Constants.DATA_STAR_SYMBOL, device.getDeviceId());
+			loginInfo = findDeviceLoginInfo(device.getDeviceListId(), device.getGroupId(), device.getDeviceId());
 			if(StringUtils.isNotBlank(loginInfo.getConfigBackupMode())) {
 				deviceConfigBackupMode = loginInfo.getConfigBackupMode();
 			}
@@ -242,7 +244,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					switch (_step) {
 						case LOAD_DEFAULT_SCRIPT:
 							try {
-								scripts = loadDefaultScript(deviceListId, scripts, ScriptType.BACKUP);
+								scripts = loadDefaultScript(deviceListId, ScriptType.BACKUP);
 
 								/*
 								 * Provision_Log_Step => for 最後寫入供裝紀錄Table使用
@@ -335,7 +337,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						case LOGIN_DEVICE:
 							try {
 								login2Device(connectUtils, ciVO);
-								Thread.sleep(3000); //登入之後等待時間
 								break;
 
 							} catch (Exception e) {
@@ -687,13 +688,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	/**
-	 * [Step] 取得預設腳本內容
+	 * [Step] 取得預設腳本內容(備份、還原)
 	 * @param script
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	private List<ScriptServiceVO> loadDefaultScript(String deviceListId, List<ScriptServiceVO> script, ScriptType type) throws ServiceLayerException {
-		return scriptService.loadDefaultScript(deviceListId, script, type);
+	private List<ScriptServiceVO> loadDefaultScript(String deviceListId, ScriptType type) throws ServiceLayerException {
+		return scriptService.loadDefaultScript(deviceListId, type);
 	}
 
 	/**
@@ -707,75 +708,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	/**
-	 * [Step] 針對特定腳本寫入LOG table
+	 * [Step] 針對特定腳本寫入LOG table( 封鎖開通紀錄 blockList)
 	 * @throws ServiceLayerException
 	 */
     private void writeSpecifyLog(
             ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList, String remark) throws ServiceLayerException {
         try {
-            List<String> ipOpenScriptCodeList = Env.SCRIPT_CODE_OF_IP_OPEN;
-            List<String> ipBlockScriptCodeList = Env.SCRIPT_CODE_OF_IP_BLOCK;
-            List<String> portOpenScriptCodeList = Env.SCRIPT_CODE_OF_PORT_OPEN;
-            List<String> portBlockScriptCodeList = Env.SCRIPT_CODE_OF_PORT_BLOCK;
-            List<String> macOpenScriptCodeList = Env.SCRIPT_CODE_OF_MAC_OPEN;
-            List<String> macBlockScriptCodeList = Env.SCRIPT_CODE_OF_MAC_BLOCK;
-            List<String> ipMacBindScriptCodeList = Env.SCRIPT_CODE_OF_IP_MAC_BIND;
-            List<String> ipMacUnbindScriptCodeList = Env.SCRIPT_CODE_OF_IP_MAC_UNBIND;
-
-            BlockType blockType = null;
-            String actionStatusFlag = null;
-            if (ipOpenScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.IP;
-                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
-
-            } else if (ipBlockScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.IP;
-                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
-
-            } else if (portOpenScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.PORT;
-                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
-
-            } else if (portBlockScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.PORT;
-                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
-                
-            } else if (macOpenScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.MAC;
-                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
-
-            } else if (macBlockScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.MAC;
-                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
-                
-            } else if (ipMacUnbindScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.IP_MAC;
-                actionStatusFlag = Constants.STATUS_FLAG_OPEN;
-
-            } else if (ipMacBindScriptCodeList.contains(scriptCode)) {
-                blockType = BlockType.IP_MAC;
-                actionStatusFlag = Constants.STATUS_FLAG_BLOCK;
-            }
-
-            if (blockType != null) {
-            	switch (blockType) {
-                    case IP:
-                    	blockedRecordService.writeModuleBlockIpListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-                        break;
-
-                    case PORT:
-                    	blockedRecordService.writeModuleBlockPortListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-                        break;
-
-                    case MAC:
-                    	blockedRecordService.writeModuleBlockMacListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-                        break;
-                        
-                    case IP_MAC:                    	
-                    	blockedRecordService.writeModuleIpMacBoundListRecord(ciVO, scriptCode, varMapList, actionStatusFlag, remark);
-                        break;
-                }
-            }
+            blockedRecordService.writeModuleBlockListRecord(ciVO, scriptCode, varMapList, remark);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -977,8 +916,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		List<List<VersionServiceVO>> allVersionList = new ArrayList<>();  // 存放 Running & Startup 各自的前後版本 config 內容
 		boolean haveDiffVersion = false;
 		List<String> tmpList = outputList.stream().collect(Collectors.toList());
-		ConfigVersionInfoDAOVO daovo;
-
+		
 		for (final String output : tmpList) {
 
 			if (output.indexOf(Env.COMM_SEPARATE_SYMBOL) != -1) {
@@ -986,11 +924,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			}
 
 			// 查找此裝置前一版本組態檔資料
-			daovo = new ConfigVersionInfoDAOVO();
-			daovo.setQueryGroup1(ciVO.getGroupId());
-			daovo.setQueryDevice1(ciVO.getDeviceId());
-			daovo.setQueryConfigType(type);
-			List<Object[]> entityList = configDAO.findConfigVersionInfoByDAOVO4New(daovo, null, null);
+			ConfigVersionInfo configInfo = configDAO.getLastConfigVersionInfoByDeviceIdAndConfigType(ciVO.getDeviceId(), type);
 
 			// 當前備份版本正確檔名
 			final String nowVersionFileName = StringUtils.replace(ciVO.getConfigFileName(), Env.COMM_SEPARATE_SYMBOL, type);
@@ -1005,49 +939,31 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			final String nowVersionTempFileName = tempFileName;
 
 			List<VersionServiceVO> vsVOs;
-			if (entityList != null && !entityList.isEmpty()) {
-				final ConfigVersionInfo cviEntity = (ConfigVersionInfo)entityList.get(0)[0];
-				final DeviceList dlEntity = (DeviceList)entityList.get(0)[1];
-
+			if (configInfo != null) {
 				vsVOs = new ArrayList<>();
 
 				//前一版本VO
 				VersionServiceVO preVersionVO = new VersionServiceVO();
-
-				/*
-				String configFIleDirPath = dlEntity.getConfigFileDirPath();
-				if (Env.ENABLE_REMOTE_BACKUP_USE_TODAY_ROOT_DIR) {
-					SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
-					String date_yyyyMMdd = cviEntity.getCreateTime() != null ? sdf.format(cviEntity.getCreateTime()) : sdf.format(new Date());
-					configFIleDirPath = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(configFIleDirPath);
-				}
-				*/
 				preVersionVO.setCheckEnableCurrentDateSetting(true);
-				preVersionVO.setConfigFileDirPath(dlEntity.getConfigFileDirPath());
-				preVersionVO.setFileFullName(cviEntity.getFileFullName());
-				preVersionVO.setCreateDate(cviEntity.getCreateTime() != null ? new Date(cviEntity.getCreateTime().getTime()) : null);
-				preVersionVO.setFileFullName(cviEntity.getFileFullName());
+				preVersionVO.setConfigFileDirPath(Objects.toString(configInfo.getConfigFileDirPath(), File.separator));
+				preVersionVO.setFileFullName(configInfo.getFileFullName());
+				preVersionVO.setCreateDate(configInfo.getCreateTime());
 				vsVOs.add(preVersionVO);
 
 				//當下備份上傳版本VO
 				VersionServiceVO nowVersionVO = new VersionServiceVO();
-
 				/*
 				 * 若TFTP Server與CMAP系統不是架設在同一台主機上
 				 * Config file從Device上傳時會先放置於temp資料夾內(Env.TFTP_TEMP_DIR_PATH)
 				 * 比對版本內容時抓取的檔名(FileFullName)也必須調整為temp資料夾內檔名(nowVersionTempFileName，有加上時間細數碼)
 				 */
 				if (_mode == ConnectionMode.TFTP) {
-					nowVersionVO.setConfigFileDirPath(
-							Env.TFTP_SERVER_AT_LOCAL ? ciVO.getConfigFileDirPath() : Env.TFTP_TEMP_DIR_PATH);
-					nowVersionVO.setFileFullName(
-							!Env.TFTP_SERVER_AT_LOCAL ? nowVersionTempFileName : nowVersionFileName);
+					nowVersionVO.setConfigFileDirPath(ciVO.getConfigFileDirPath());
+					nowVersionVO.setFileFullName(!Env.TFTP_SERVER_AT_LOCAL ? nowVersionTempFileName : nowVersionFileName);
 
 				} else if (_mode == ConnectionMode.FTP) {
-					nowVersionVO.setConfigFileDirPath(
-							Env.FTP_SERVER_AT_LOCAL ? ciVO.getConfigFileDirPath() : Env.FTP_TEMP_DIR_PATH);
-					nowVersionVO.setFileFullName(
-							!Env.FTP_SERVER_AT_LOCAL ? nowVersionTempFileName : nowVersionFileName);
+					nowVersionVO.setConfigFileDirPath(ciVO.getConfigFileDirPath());
+					nowVersionVO.setFileFullName(!Env.FTP_SERVER_AT_LOCAL ? nowVersionTempFileName : nowVersionFileName);
 				}
 
 				vsVOs.add(nowVersionVO);
@@ -1071,7 +987,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 //					}
 					if (_mode == ConnectionMode.TFTP) {
 						if (Env.TFTP_SERVER_AT_LOCAL) {
-							deleteLocalFile(Env.TFTP_LOCAL_ROOT_DIR_PATH.concat("\\").concat(nowVersionFileName));
+							deleteLocalFile(Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(nowVersionVO.getConfigFileDirPath()).concat(nowVersionVO.getFileFullName()));
 						}
 					}
 
@@ -1091,18 +1007,18 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				 * (1)若[Env.TFTP_SERVER_AT_LOCAL=false]，將檔案從TFTP temp資料夾copy到Device對應目錄;若為true則不需再作處理
 				 */
 				if (_mode == ConnectionMode.TFTP) {
-					if (Env.TFTP_SERVER_AT_LOCAL == null || (Env.TFTP_SERVER_AT_LOCAL != null && !Env.TFTP_SERVER_AT_LOCAL)) {
+					if (Env.TFTP_SERVER_AT_LOCAL == null || !Env.TFTP_SERVER_AT_LOCAL) {
 						final String sourceDirPath = Env.TFTP_TEMP_DIR_PATH;
-						final String targetDirPath = ciVO.getConfigFileDirPath().concat((StringUtils.isNotBlank(Env.TFTP_DIR_PATH_SEPARATE_SYMBOL) ? Env.TFTP_DIR_PATH_SEPARATE_SYMBOL : File.separator)).concat(nowVersionFileName);
+						final String targetDirPath = ciVO.getConfigFileDirPath().concat(nowVersionFileName);
 						ciVO.setFileFullName(nowVersionTempFileName);
 
 						fileUtils.moveFiles(ciVO, sourceDirPath, targetDirPath);
 					}
 
 				} else if (_mode == ConnectionMode.FTP) {
-					if (Env.FTP_SERVER_AT_LOCAL == null || (Env.FTP_SERVER_AT_LOCAL != null && !Env.FTP_SERVER_AT_LOCAL)) {
+					if (Env.FTP_SERVER_AT_LOCAL == null && !Env.FTP_SERVER_AT_LOCAL) {
 						final String sourceDirPath = Env.FTP_TEMP_DIR_PATH;
-						final String targetDirPath = ciVO.getConfigFileDirPath().concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(nowVersionFileName);
+						final String targetDirPath = ciVO.getConfigFileDirPath().concat(nowVersionFileName);
 						ciVO.setFileFullName(nowVersionTempFileName);
 
 						fileUtils.moveFiles(ciVO, sourceDirPath, targetDirPath);
@@ -1240,42 +1156,64 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			String _loginAccount = null;
 			String _loginPassword = null;
 
-			// Step1. 建立FileServer傳輸物件
-			switch (Env.FILE_TRANSFER_MODE) {
-				case FTP:
-					fileUtils = new FtpFileUtils();
-					_hostIp = Env.FTP_HOST_IP;
-					_hostPort = Env.FTP_HOST_PORT;
-					_loginAccount = Env.FTP_LOGIN_ACCOUNT;
-					_loginPassword = Env.FTP_LOGIN_PASSWORD;
-					break;
+			if(Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP) && Env.TFTP_SERVER_AT_LOCAL) {
+				
+				String targetFileName = null;
+				if(StringUtils.equals(configInfoVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(configInfoVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(configInfoVO.getFileFullName());
+				}else {
+					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(configInfoVO.getConfigFileDirPath()).concat(configInfoVO.getFileFullName());
+				}
+				
+				//read file into stream, try-with-resources
+				try {
+					targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+					log.debug("for debug targetFileName = " + targetFileName);
+					retList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 
-				case TFTP:
-					fileUtils = new TFtpFileUtils();
-					_hostIp = Env.TFTP_HOST_IP;
-					_hostPort = Env.TFTP_HOST_PORT;
-					break;
+			}else {
+				// Step1. 建立FileServer傳輸物件
+				switch (Env.FILE_TRANSFER_MODE) {
+					case FTP:
+						fileUtils = new FtpFileUtils();
+						_hostIp = Env.FTP_HOST_IP;
+						_hostPort = Env.FTP_HOST_PORT;
+						_loginAccount = Env.FTP_LOGIN_ACCOUNT;
+						_loginPassword = Env.FTP_LOGIN_PASSWORD;
+						break;
+
+					case TFTP:
+						fileUtils = new TFtpFileUtils();
+						_hostIp = Env.TFTP_HOST_IP;
+						_hostPort = Env.TFTP_HOST_PORT;
+						break;
+				}
+
+				// Step2. FTP連線
+				fileUtils.connect(_hostIp, _hostPort);
+
+				// Step3. FTP登入
+				fileUtils.login(_loginAccount, _loginPassword);
+
+				// Step3. 移動作業目錄至指定的裝置
+				String fileDir = configInfoVO.getConfigFileDirPath();
+
+				if (Env.ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR) {
+					SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
+					fileDir = sdf.format(new Date()).concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileDir);
+				}
+
+				fileUtils.changeDir(fileDir, false);
+
+				// Step4. 下載指定的Config落地檔
+				retList = fileUtils.downloadFiles(configInfoVO);
 			}
-
-			// Step2. FTP連線
-			fileUtils.connect(_hostIp, _hostPort);
-
-			// Step3. FTP登入
-			fileUtils.login(_loginAccount, _loginPassword);
-
-			// Step3. 移動作業目錄至指定的裝置
-			String fileDir = configInfoVO.getConfigFileDirPath();
-
-			if (Env.ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR) {
-				SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
-				fileDir = sdf.format(new Date()).concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileDir);
-			}
-
-			fileUtils.changeDir(fileDir, false);
-
-			// Step4. 下載指定的Config落地檔
-			retList = fileUtils.downloadFiles(configInfoVO);
-
+			
+			
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
@@ -1428,25 +1366,19 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		cviDAOVO.setQueryDevice1(configInfoVO.getDeviceId());
 		cviDAOVO.setQueryDateBegin1(Constants.FORMAT_YYYY_MM_DD.format(new Date()));
 		cviDAOVO.setQueryDateEnd1(Constants.FORMAT_YYYY_MM_DD.format(new Date()));
-		List<Object[]> modelList = configDAO.findConfigVersionInfoByDAOVO4New(cviDAOVO, null, null);
-
+		ConfigVersionInfo configInfo = configDAO.getLastConfigVersionInfoByDeviceIdAndConfigType(configInfoVO.getDeviceId(), null);
+		
 		int seqNo = 1;
-		if (modelList != null && !modelList.isEmpty()) {
-			ConfigVersionInfo cvi = (ConfigVersionInfo)modelList.get(0)[0];
-			String currentSeq = StringUtils.isNotBlank(cvi.getConfigVersion())
-					? cvi.getConfigVersion().substring(cvi.getConfigVersion().length()-3, cvi.getConfigVersion().length())
+		if (configInfo != null && StringUtils.equals(Constants.FORMAT_YYYY_MM_DD.format(configInfo.getCreateTime()), Constants.FORMAT_YYYY_MM_DD.format(new Date()))) {
+			String currentSeq = StringUtils.isNotBlank(configInfo.getConfigVersion())
+					? configInfo.getConfigVersion().substring(configInfo.getConfigVersion().length()-3, configInfo.getConfigVersion().length())
 							: "0";
 
 					seqNo += Integer.valueOf(currentSeq);
 		}
 
 		String fileName = CommonUtils.composeConfigFileName(configInfoVO, seqNo);
-		
-		String tFtpTargetFilePath =
-				(Env.TFTP_SERVER_AT_LOCAL ? configInfoVO.getConfigFileDirPath() : Env.TFTP_TEMP_DIR_PATH).concat((StringUtils.isNotBlank(Env.TFTP_DIR_PATH_SEPARATE_SYMBOL) ? Env.TFTP_DIR_PATH_SEPARATE_SYMBOL : File.separator)).concat(fileName);
-		String ftpTargetFilePath =
-				(Env.FTP_SERVER_AT_LOCAL ? configInfoVO.getConfigFileDirPath() : Env.FTP_TEMP_DIR_PATH).concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileName);
-		//configInfoVO.getConfigFileDirPath().concat(File.separator).concat(fileName);
+		String filePath = CommonUtils.composeConfigDirPath(configInfoVO, fileServerMode == ConnectionMode.TFTP);
 
 		/*
 		 * 若 TFTP Server 與 CMAP系統 不是架設在同一台主機上
@@ -1455,7 +1387,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		 */
 		String tempFileRandomCode = "";
 		//TODO
-		String tempFilePath = fileServerMode == ConnectionMode.TFTP ? tFtpTargetFilePath : ftpTargetFilePath;
+		String tempFilePath = filePath;
 		if (Env.ENABLE_TEMP_FILE_RANDOM_CODE) {
 			long miles = System.currentTimeMillis();
 			long seconds = TimeUnit.MILLISECONDS.toSeconds(miles) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(miles));
@@ -1464,10 +1396,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		}
 
 		configInfoVO.setConfigFileName(fileName);
-		configInfoVO.settFtpFilePath(tFtpTargetFilePath);
-		configInfoVO.setFtpFilePath(ftpTargetFilePath);
+		configInfoVO.setFileFullName(fileName);
+		configInfoVO.setConfigFileDirPath(filePath);
+		configInfoVO.settFtpFilePath(filePath);
+		configInfoVO.setFtpFilePath(filePath);
 		configInfoVO.setTempFileRandomCode(tempFileRandomCode);
 		configInfoVO.setTempFilePath(tempFilePath);
+		
+		log.debug("for debug filepath = " + filePath +", filename = " + fileName);
 	}
 
 	/**
@@ -1495,7 +1431,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			vo = (ConfigInfoVO)configInfoVO.clone();
 			vo.setConfigType(type);
 			vo.setConfigContent(content);
-
+			vo.setConfigFileDirPath(configInfoVO.getConfigFileDirPath());
+			
 			String configFileName = vo.getConfigFileName();
 			if (configFileName.indexOf(Env.COMM_SEPARATE_SYMBOL) != -1) {
 				configFileName = StringUtils.replace(configFileName, Env.COMM_SEPARATE_SYMBOL, type);
@@ -2047,8 +1984,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	                                if (scriptList.contains(scriptCode) && scriptInfo.getDeviceModel().equalsIgnoreCase(Env.DELIVERY_MAC_BLOCK_WITH_IP_DEVICE_MODEL)) {
 
 	                                	//scriptType == 1 封鎖， 2 開通
-	                                	int scriptType =  Integer.parseInt((scriptCode.split("_"))[1]) % 2;
-	                                	String scriptTypeName = scriptType == 1 ?"封鎖":  "開通";
+	                                	String scriptTypeName = scriptInfo.getUndoScriptCode() == null ?"開通":"封鎖";
 	                                	
 	                                    // 取出需要走替代方案的 IP 清單
 	                                    List<String> ipList = (List<String>)alternativeProcessParaMap.get(Constants.PARA_IP_ADDRESS);
@@ -2063,7 +1999,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		                                    // 查找[MAC]腳本
 	                                        ScriptInfo macBlockScriptInfo = null;
 	                                        try {
-	                                            macBlockScriptInfo = scriptService.loadDefaultScriptInfo(deviceListId, scriptType == 1 ?ScriptType.MAC_BLOCK:ScriptType.MAC_OPEN);
+	                                            macBlockScriptInfo = scriptService.loadDefaultScriptInfo(dlEntity.getDeviceModel(), ScriptType.MAC_.toString(), scriptInfo.getUndoScriptCode());
 	
 	                                        } catch (Exception e) {
 	                                            log.error(e.toString(), e);
@@ -2563,7 +2499,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		ProvisionServiceVO psMasterVO = new ProvisionServiceVO();
 		ProvisionServiceVO psDetailVO = new ProvisionServiceVO();
 		ProvisionServiceVO psStepVO = new ProvisionServiceVO();
-		ProvisionServiceVO psRetryVO;
 		ProvisionServiceVO psDeviceVO;
 
 		// 定義retry次數，預設為1表示不retry
@@ -2671,24 +2606,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								if (vsVOs != null && !vsVOs.isEmpty() && ciVO != null) {
 									VersionServiceVO vsVO = vsVOs.get(0);
 									String remoteFileDirPath = vsVO.getRemoteFileDirPath();
-
-									if (Env.ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR) {
-										String yyyyMMdd = vsVO.getCreateYyyyMMdd();
-
-										if (StringUtils.isBlank(yyyyMMdd)) {
-											SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
-											yyyyMMdd = sdf.format(new Date());
-										}
-
-										remoteFileDirPath =
-												Env.FTP_DIR_SEPARATE_SYMBOL.concat(yyyyMMdd).concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(remoteFileDirPath);
-									}
 									String configFileName = vsVO.getFileFullName();
 
 									String ftpConfigPath = remoteFileDirPath.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(configFileName);
 									String deviceFlashConfigPath = Env.DEFAULT_DEVICE_FLASH_DIR_PATH.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(configFileName);
-
+									
 									ciVO.setFtpFilePath(ftpConfigPath);						// 要還原的組態檔案在FTP上的完整路徑
+									ciVO.settFtpFilePath(ftpConfigPath);						// 要還原的組態檔案在FTP上的完整路徑
 									ciVO.setDeviceFlashConfigPath(deviceFlashConfigPath);	// 要還原的組態檔案傳到設備後的儲存路徑
 								}
 
@@ -2739,7 +2663,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								if (!__NEED_DOWNLOAD_RESTORE_FILE__) {
 									break;
 								}
-
 								login2FileServer(fileUtils, ciVO);
 								break;
 
@@ -2797,25 +2720,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得組態還原預設腳本
 						case LOAD_DEFAULT_SCRIPT:
 							try {
-							    switch (restoreMethod) {
-				                    case FTP:
-				                        scripts = loadDefaultScript(deviceListId, scripts, ScriptType.RESTORE_WITH_COPY_CONFIG);
-				                        break;
-
-				                    case LOCAL:
-				                        scripts = loadDefaultScript(deviceListId, scripts, ScriptType.RESTORE_WITHOUT_COPY_CONFIG);
-				                        break;
-
-                                    default:
-                                        break;
-				                }
-
+								scripts = loadDefaultScript(deviceListId, ScriptType.RES_);
 								/*
 								 * Provision_Log_Step
 								 */
 								final String scriptName = (scripts != null && !scripts.isEmpty()) ? scripts.get(0).getScriptName() : null;
 								final String scriptCode = (scripts != null && !scripts.isEmpty()) ? scripts.get(0).getScriptCode() : null;
-
+								
 								psStepVO.setScriptCode(scriptCode);
 								psStepVO.setRemark(scriptName);
 

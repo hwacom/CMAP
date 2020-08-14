@@ -4,24 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.cmap.model.DeviceDetailInfo;
 
 public class DeliveryServiceVO extends CommonServiceVO {
 
 	private String queryGroup;
 	private String queryDevice;
-	private String queryScriptType;
-	private String queryScriptTypeId;
-	private String queryScriptTypeCode;
+	private List<String> queryScriptTypeCode = new ArrayList<>();
 	private String queryScriptInfoId;
 	private String queryTimeBegin;
 	private String queryTimeEnd;
 	private String queryLogStepId;
-	private boolean onlySwitchPort = false;
-	private boolean onlyIpOpenBlock = false;
-	private boolean onlyMacOpenBlock = false;
-	private boolean onlyIpMacBinding = false;
-	
+
 	private boolean isAdmin = false;
 
 	private String retMsg;
@@ -90,22 +85,10 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	public void setQueryDevice(String queryDevice) {
 		this.queryDevice = queryDevice;
 	}
-	public String getQueryScriptType() {
-		return queryScriptType;
-	}
-	public void setQueryScriptType(String queryScriptType) {
-		this.queryScriptType = queryScriptType;
-	}
-	public String getQueryScriptTypeId() {
-		return queryScriptTypeId;
-	}
-	public void setQueryScriptTypeId(String queryScriptTypeId) {
-		this.queryScriptTypeId = queryScriptTypeId;
-	}
-	public String getQueryScriptTypeCode() {
+	public List<String> getQueryScriptTypeCode() {
 		return queryScriptTypeCode;
 	}
-	public void setQueryScriptTypeCode(String queryScriptTypeCode) {
+	public void setQueryScriptTypeCode(List<String> queryScriptTypeCode) {
 		this.queryScriptTypeCode = queryScriptTypeCode;
 	}
 	public String getDeviceListId() {
@@ -372,12 +355,6 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	public void setQueryLogStepId(String queryLogStepId) {
 		this.queryLogStepId = queryLogStepId;
 	}
-	public boolean isOnlySwitchPort() {
-		return onlySwitchPort;
-	}
-	public void setOnlySwitchPort(boolean onlySwitchPort) {
-		this.onlySwitchPort = onlySwitchPort;
-	}
 	public String getRetMsg() {
 		return retMsg;
 	}
@@ -389,24 +366,6 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	}
 	public void setCmdOutputList(List<String> cmdOutputList) {
 		this.cmdOutputList = cmdOutputList;
-	}
-	public boolean isOnlyIpOpenBlock() {
-		return onlyIpOpenBlock;
-	}
-	public void setOnlyIpOpenBlock(boolean onlyIpOpenBlock) {
-		this.onlyIpOpenBlock = onlyIpOpenBlock;
-	}
-	public boolean isOnlyMacOpenBlock() {
-		return onlyMacOpenBlock;
-	}
-	public void setOnlyMacOpenBlock(boolean onlyMacOpenBlock) {
-		this.onlyMacOpenBlock = onlyMacOpenBlock;
-	}
-    public boolean isOnlyIpMacBinding() {
-		return onlyIpMacBinding;
-	}
-	public void setOnlyIpMacBinding(boolean onlyIpMacBinding) {
-		this.onlyIpMacBinding = onlyIpMacBinding;
 	}
 	public String getDeviceModel() {
         return deviceModel;

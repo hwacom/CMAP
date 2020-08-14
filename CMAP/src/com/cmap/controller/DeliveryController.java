@@ -2,13 +2,14 @@ package com.cmap.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,7 +51,7 @@ public class DeliveryController extends BaseController {
 	private void initMenu(Model model, HttpServletRequest request) {
 		try {
 			groupListMap = getGroupList(request);
-			scriptTypeMap = getScriptTypeList(Constants.DEFAULT_FLAG_N);
+			scriptTypeMap = getScriptTypeList(null);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -99,31 +100,6 @@ public class DeliveryController extends BaseController {
 		return "delivery/delivery_record";
 	}
 
-	@RequestMapping(value = "getDeviceListData.json", method = RequestMethod.POST)
-	public @ResponseBody DatatableResponse queryByDevice(
-			Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
-			@RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,
-			@RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
-			@RequestParam(name="order[0][column]", required=false, defaultValue="6") Integer orderColIdx,
-			@RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection) {
-
-		long total = 0;
-		long filterdTotal = 0;
-		List<DeliveryServiceVO> dataList = new ArrayList<>();
-		DeliveryServiceVO dsVO;
-		try {
-			dsVO = new DeliveryServiceVO();
-
-		} catch (Exception e) {
-
-		} finally {
-			//initMenu(model, request);
-		}
-
-		return new DatatableResponse(total, dataList, filterdTotal);
-	}
-
 	@RequestMapping(value = "getScriptListData.json", method = RequestMethod.POST)
 	public @ResponseBody DatatableResponse queryByScript(
 			Model model, HttpServletRequest request, HttpServletResponse response,
@@ -140,13 +116,13 @@ public class DeliveryController extends BaseController {
 		DeliveryServiceVO dsVO;
 		try {
 			dsVO = new DeliveryServiceVO();
-			dsVO.setQueryScriptTypeCode(queryScriptTypeCode);
+			if(StringUtils.isNotBlank(queryScriptTypeCode))dsVO.setQueryScriptTypeCode(Arrays.asList(queryScriptTypeCode));
 			dsVO.setStartNum(startNum);
 			dsVO.setPageLength(pageLength);
 			dsVO.setSearchValue(searchValue);
 			dsVO.setOrderColumn(UI_SEARCH_BY_SCRIPT_COLUMNS[orderColIdx]);
 			dsVO.setOrderDirection(orderDirection);
-			
+						
 			try {
 				boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
 				dsVO.setAdmin(isAdmin);
@@ -175,30 +151,14 @@ public class DeliveryController extends BaseController {
 		return new DatatableResponse(total, dataList, filterdTotal);
 	}
 
-	private boolean logAccessRecord(HttpServletRequest request, DeliveryServiceVO logVO) {
-		try {
-			String ipAddr = getIp(request);
-			String macAddr = getMac(ipAddr);
-			logVO.setIpAddr(ipAddr);
-			logVO.setMacAddr(macAddr);
-			logVO.setActionBy(SecurityUtil.getSecurityUser().getUsername());
-			logVO.setActionTime(new Date());
-			deliveryService.logAccessRecord(logVO);
-			return true;
-
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-			return false;
-		}
-	}
-
 	@RequestMapping(value = "getScriptInfo.json", method = RequestMethod.POST, produces="application/json;odata=verbose")
 	public @ResponseBody AppResponse getScriptInfo(Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name="scriptInfoId", required=true) String scriptInfoId) {
 
 		DeliveryServiceVO dsVO;
 		try {
-			dsVO = deliveryService.getScriptInfoByIdOrCode(scriptInfoId, null);
+			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+			dsVO = deliveryService.getScriptInfoByIdOrCode(scriptInfoId, null, isAdmin);
 			final String deviceModel = dsVO.getDeviceModel();
 
 			//取得Group & Device選單內容
@@ -257,11 +217,8 @@ public class DeliveryController extends BaseController {
 		DeliveryServiceVO retVO;
 		try {
 			DeliveryParameterVO pVO = (DeliveryParameterVO)transJSON2Object(ps, DeliveryParameterVO.class);
-
-			//IP MAC 綁定特殊判斷
-			pVO = deliveryService.checkB4DoBindingDelivery(pVO);
-			//MAC 綁定/解鎖特殊判斷
-			pVO = deliveryService.checkB4DoIpMacOpenBlockDelivery(pVO);
+			
+			pVO = deliveryService.checkB4DoSpecialScript(pVO);
 			
 			retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, pVO, false, null, null, true);
 			String retVal = retVO.getRetMsg();

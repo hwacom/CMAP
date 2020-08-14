@@ -315,8 +315,10 @@ public class CommonServiceImpl implements CommonService {
                         // 取得sensor清單
                         List<PrtgUserSensorDetailVO> sensorVOList = new ArrayList<>();
                     	PrtgUserSensorMainVO sensorVO = prtgApiUtils.getUserSensorList(account, password, passhash);
-                        sensorVOList = sensorVO.getSensors();
-                        _sensorCount += sensorVOList.size();
+                    	if(sensorVO != null) {
+                    		sensorVOList = sensorVO.getSensors();
+                            _sensorCount += sensorVOList.size();
+                    	}                        
 
                         eTime = System.currentTimeMillis();
                         log.info("[getUserSensorList] Spent: " + (eTime - sTime) + " (ms).");
@@ -1003,7 +1005,7 @@ public class CommonServiceImpl implements CommonService {
 
 			if (loginInfo == null) {
 				//若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
-				loginInfo = deviceDAO.findDeviceLoginInfo(null, groupId, null);
+				loginInfo = deviceDAO.findDeviceLoginInfo(null, groupId, Constants.DATA_STAR_SYMBOL);
 			}
 			
 			if (loginInfo == null) {

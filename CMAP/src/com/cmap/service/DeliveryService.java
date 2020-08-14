@@ -5,7 +5,6 @@ import java.util.List;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
-import com.cmap.plugin.module.blocked.record.BlockedRecordVO;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 
@@ -19,7 +18,7 @@ public interface DeliveryService {
 
 	public List<DeliveryServiceVO> findScriptList(DeliveryServiceVO dsVO, List<String> groupIds, Integer startRow, Integer pageLength) throws ServiceLayerException;
 
-	public DeliveryServiceVO getScriptInfoByIdOrCode(String scriptInfoId, String scriptCode) throws ServiceLayerException;
+	public DeliveryServiceVO getScriptInfoByIdOrCode(String scriptInfoId, String scriptCode, boolean isAdmin) throws ServiceLayerException;
 
 	public DeliveryServiceVO getVariableSetting(List<String> groups, List<String> devices, List<String> variables) throws ServiceLayerException;
 
@@ -74,51 +73,11 @@ public interface DeliveryService {
 	public List<DeviceList> findGroupDeviceOfSpecifyLayer(String groupId, List<String> deviceLayer) throws ServiceLayerException;
 
 	/**
-	 * 同步設備上封鎖清單(IP)[Cisco]
-	 * @param isAdmin
-	 * @param prtgLoginAccount
-	 * @param brVO
-	 * @param dbRecordList
-	 * @return
-	 * @throws ServiceLayerException
-	 */
-	public boolean doSyncDeviceIpBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
-
-	/**
-	 * 同步設備上封鎖清單(Port)[Cisco]
-	 * @param isAdmin
-	 * @param prtgLoginAccount
-	 * @param brVO
-	 * @param dbRecordList
-	 * @return
-	 * @throws ServiceLayerException
-	 */
-	public boolean doSyncDevicePortBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
-
-	/**
-	 * 同步設備上封鎖清單(Mac)[Cisco]
-	 * @param isAdmin
-	 * @param prtgLoginAccount
-	 * @param brVO
-	 * @param dbRecordList
-	 * @return
-	 * @throws ServiceLayerException
-	 */
-	public boolean doSyncDeviceMacBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
-
-	/**
-	 * IP MAC 綁定/解除供裝前檢核、異動
+	 * 執行特殊腳本前檢查(EX: 封鎖、開通、綁定)
 	 * @param pVO
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public DeliveryParameterVO checkB4DoBindingDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
+	public DeliveryParameterVO checkB4DoSpecialScript(DeliveryParameterVO pVO) throws ServiceLayerException;
 
-	/**
-	 * IP MAC 封鎖/解除供裝前檢核、異動
-	 * @param pVO
-	 * @return
-	 * @throws ServiceLayerException
-	 */
-	public DeliveryParameterVO checkB4DoIpMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
 }

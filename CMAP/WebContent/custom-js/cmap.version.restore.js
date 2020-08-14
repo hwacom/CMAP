@@ -2,11 +2,12 @@
  * 
  */
 var resultTable;
+var remarkShowLength = 80;	//設定欄位顯示內容最大長度
 
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_cm", "toggleMenu_cm_items", "cm_restore");
 	
-	changeDeviceMenu("queryDevice1", $("#queryGroup1").val());
+	changeDeviceMenu("queryDevice", $("#queryGroup").val());
 	
 	//查詢按鈕(Web)點擊事件
     $('#btnSearch_web').click(function (e) {
@@ -135,6 +136,20 @@ function doRestoreGo() {
 	}
 }
 
+function chkChecked() {
+	var hasChecked = false;
+	
+	$('input[type=checkbox][name=chkbox]').each(function () {
+        if (this.checked) {
+        	hasChecked = true;
+         	return false;
+        }
+	});
+	
+	return hasChecked;
+	//$("#btnBackup").prop( "disabled", disabled );
+}
+
 function pressViewConfig() {
 	var selectVal = $('#viewScriptModal_versionSelect').val();
 	
@@ -157,7 +172,7 @@ function findData(from) {
 	}
 	
 	if (typeof resultTable !== "undefined") {
-		resultTable.clear().draw();
+//		resultTable.clear().draw();
 		resultTable.ajax.reload();
 		
 	} else {
@@ -181,19 +196,24 @@ function findData(from) {
 			"language" : {
 	    		"url" : _ctx + "/resources/js/dataTable/i18n/Chinese-traditional.json"
 	        },
+	        "createdRow": function( row, data, dataIndex ) {
+	        	   if(data.deviceName != null && data.deviceName.length > remarkShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
+	        	      $(row).children('td').eq(3).attr('onclick','javascript:changeShowContent(this, '+remarkShowLength+');');
+	        	      $(row).children('td').eq(3).addClass('cursor_zoom_in');
+	        	   }
+	        	   $(row).children('td').eq(3).attr('content', data.deviceName);
+	        	},
 			"ajax" : {
 				"url" : _ctx + '/version/getDeviceListData.json',
 				"type" : 'POST',
 				"data" : function ( d ) {
-					d.maxCountByDevice = true;
-					
 					if ($('#queryFrom').val() == 'WEB') {
-						d.queryGroup1 = $("#queryGroup1").val(),
-						d.queryDevice1 = $("#queryDevice1").val()
+						d.queryGroup = $("#queryGroup").val(),
+						d.queryDevice = $("#queryDevice").val()
 					
 					} else if ($('#queryFrom').val() == 'MOBILE') {
-						d.queryGroup1 = $("#queryGroup1_mobile").val(),
-						d.queryDevice1 = $("#queryDevice1_mobile").val()
+						d.queryGroup = $("#queryGroup_mobile").val(),
+						d.queryDevice = $("#queryDevice_mobile").val()
 					}
 					
 					return d;
@@ -202,7 +222,7 @@ function findData(from) {
 					ajaxErrorHandler();
 				}
 			},
-			"order": [[3 , 'asc' ]],
+//			"order": [[3 , 'asc' ]],
 			"initComplete": function(settings, json){
             },
 			"drawCallback" : function(settings) {
@@ -223,7 +243,7 @@ function findData(from) {
 			"columns" : [
 				{},{},
 				{ "data" : "groupName" },
-				{ "data" : "deviceName" },
+				{},
 				{ "data" : "deviceModel" , "className" : "center" }
 			],
 			"columnDefs" : [
@@ -233,7 +253,7 @@ function findData(from) {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="radio" id="radiobox" name="radiobox" onclick="resetTrBgColor();changeTrBgColor(this)" value='+row.deviceListId+'>';
+								 var html = '<input type="radio" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.deviceListId+'>';
 								 return html;
 							 }
 				},
@@ -244,6 +264,19 @@ function findData(from) {
 					"orderable": false,
 					"render": function (data, type, row, meta) {
 						       	return meta.row + meta.settings._iDisplayStart + 1;
+						   	}
+				},
+				{
+					"targets" : [3],
+					"className" : "left",
+					"searchable": true,
+					"orderable": true,
+					"render": function (data, type, row, meta) {
+								if (row.deviceName != null && row.deviceName.length > remarkShowLength) {
+									 return getPartialContentHtml(row.deviceName, remarkShowLength); //內容長度超出設定，僅顯示部分內容
+								} else {
+									return row.deviceName; 						//未超出設定則全部顯示
+								}
 						   	}
 				}
 			],

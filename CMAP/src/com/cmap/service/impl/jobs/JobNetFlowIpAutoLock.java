@@ -63,7 +63,7 @@ public class JobNetFlowIpAutoLock extends BaseJobImpl implements BaseJobService 
 				
 				try {
 					dpVO = new DeliveryParameterVO();
-					dpVO.setGroupId(Arrays.asList(groupId));
+//					dpVO.setGroupId(Arrays.asList(groupId));
 					dpVO.setDeviceId(Arrays.asList(deviceId));
 					dpVO.setScriptCode(Env.DELIVERY_IP_AUTO_BLOCK_SCRIPT_CODE);
 					dpVO.setVarKey(Arrays.asList(ipAddressVarKey));

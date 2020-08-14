@@ -2,6 +2,7 @@ package com.cmap.service;
 
 import java.util.List;
 import java.util.Map;
+
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.ScriptInfo;
@@ -10,23 +11,23 @@ import com.cmap.service.vo.ScriptServiceVO;
 public interface ScriptService {
 
     /**
-     * 取得預設腳本資料並替換掉指令中參數部分，回傳替換好的指令List
+     * 取得預設腳本資料並替換掉指令中參數部分，回傳替換好的指令List(備份、還原)
      * @param deviceListId
-     * @param script
      * @param type
      * @return
      * @throws ServiceLayerException
      */
-	public List<ScriptServiceVO> loadDefaultScript(String deviceListId, List<ScriptServiceVO> script, ScriptType type) throws ServiceLayerException;
+	public List<ScriptServiceVO> loadDefaultScript(String deviceListId, ScriptType type) throws ServiceLayerException;
 
 	/**
 	 * 取得預設腳本的 Script_Info 資料
-	 * @param deviceListId
+	 * @param deviceId
 	 * @param type
+	 * @param undoFlag
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public ScriptInfo loadDefaultScriptInfo(String deviceListId, ScriptType type) throws ServiceLayerException;
+	public ScriptInfo loadDefaultScriptInfo(String deviceModel, String scriptType, String undoFlag) throws ServiceLayerException;
 
 	/**
 	 * 取得指定腳本 Action / Check 指令內容
@@ -43,11 +44,11 @@ public interface ScriptService {
 	/**
 	 * 查找[腳本類別 + 設備系統版本]對應的預設腳本資訊
 	 * @param scriptType
-	 * @param systemVersion
+	 * @param deviceModel
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public ScriptServiceVO findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String systemVersion) throws ServiceLayerException;
+	public ScriptServiceVO findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String deviceModel);
 
 	/**
 	 * 依查詢條件查詢符合的資料筆數
@@ -94,6 +95,8 @@ public interface ScriptService {
 	String deleteScriptTypeByCode(String scriptTypeCode) throws ServiceLayerException;
 
 	String addOrModifyScriptType(com.cmap.model.ScriptType type) throws ServiceLayerException;
-	
-	List<ScriptInfo> getScriptInfoByScriptCodeLike(String scriptCode, String deviceModel) throws ServiceLayerException;
+
+	List<ScriptInfo> getScriptInfoByScriptTypeCode(String scriptTypeCode, String deviceModel)
+			throws ServiceLayerException;
+
 }

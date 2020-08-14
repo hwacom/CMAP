@@ -54,7 +54,6 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
-import com.cmap.comm.BaseAuthentication;
 import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
@@ -155,12 +154,6 @@ public class BaseController {
                     role = role.concat(Env.COMM_SEPARATE_SYMBOL).concat(Constants.USERROLE_USER);
                     request.getSession().setAttribute(Constants.USERROLE, role);
                 }
-            }
-
-            String userOIDCSub = Objects.toString(request.getSession().getAttribute(Constants.OIDC_SUB), null);
-
-            if (StringUtils.isNotBlank(userOIDCSub)) {
-                BaseAuthentication.authAdminRole(request, userOIDCSub);
             }
 
         } catch (Exception e) {

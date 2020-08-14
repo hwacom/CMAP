@@ -58,7 +58,10 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			
 			if(userRight == null) {
 				throw new ServiceLayerException("使用者登入資訊錯誤!!");
-			}else if(!StringUtils.equals(StringUtils.upperCase(EncryptUtils.getSha256(password)), userRight.getPassword())){
+			} else if (StringUtils.equalsIgnoreCase(userRight.getLoginMode(), "CM") && !StringUtils
+					.equals(StringUtils.upperCase(EncryptUtils.getSha256(password)), userRight.getPassword())) {
+				log.debug("for debug 1 = " + StringUtils.upperCase(EncryptUtils.getSha256(password))+ 
+						", 2 = " + userRight.getPassword() + ", 3 = " + password);				
 				throw new ServiceLayerException("使用者登入資訊錯誤!!");
 			}
 			
@@ -168,9 +171,9 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 				loginSuccess = prtgApiUtils.login(request, mapping.getPrtgAccount(), adminPass);
 
 				if (loginSuccess) {
-					request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
-					request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
-					request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight.getUserName());
+					request.getSession().setAttribute(Constants.USERROLE, userRight != null && StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
+					request.getSession().setAttribute(Constants.ISADMIN, userRight != null && StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
+					request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight != null ?userRight.getUserName():username);
 					request.getSession().setAttribute(Constants.OIDC_SUB, username);
 					request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
 					request.getSession().setAttribute("LDAP_AUTH_RESULT", true);

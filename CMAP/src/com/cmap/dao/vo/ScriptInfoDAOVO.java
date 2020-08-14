@@ -1,29 +1,21 @@
 package com.cmap.dao.vo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScriptInfoDAOVO extends CommonDAOVO {
 
-	private String queryScriptTypeId;
-	private String queryScriptTypeCode;
+	private List<String> queryScriptTypeCode = new ArrayList<>();
 	private String queryScriptInfoId;
 	private String queryScriptCode;
 	private String querySystemDefault;
-	private boolean onlySwitchPort = false;
-	private boolean onlyIpOpenBlock = false;
-	private boolean onlyMacOpenBlock = false;
-	private boolean onlyIpMacBinding = false;
 	
 	private boolean isAdmin = false;
 
-	public String getQueryScriptTypeId() {
-		return queryScriptTypeId;
-	}
-	public void setQueryScriptTypeId(String queryScriptTypeId) {
-		this.queryScriptTypeId = queryScriptTypeId;
-	}
-	public String getQueryScriptTypeCode() {
+	public List<String> getQueryScriptTypeCode() {
 		return queryScriptTypeCode;
 	}
-	public void setQueryScriptTypeCode(String queryScriptTypeCode) {
+	public void setQueryScriptTypeCode(List<String> queryScriptTypeCode) {
 		this.queryScriptTypeCode = queryScriptTypeCode;
 	}
 	public String getQueryScriptInfoId() {
@@ -43,30 +35,6 @@ public class ScriptInfoDAOVO extends CommonDAOVO {
 	}
 	public void setQuerySystemDefault(String querySystemDefault) {
 		this.querySystemDefault = querySystemDefault;
-	}
-	public boolean isOnlySwitchPort() {
-		return onlySwitchPort;
-	}
-	public void setOnlySwitchPort(boolean onlySwitchPort) {
-		this.onlySwitchPort = onlySwitchPort;
-	}
-	public boolean isOnlyIpOpenBlock() {
-		return onlyIpOpenBlock;
-	}
-	public void setOnlyIpOpenBlock(boolean onlyIpOpenBlock) {
-		this.onlyIpOpenBlock = onlyIpOpenBlock;
-	}
-	public boolean isOnlyMacOpenBlock() {
-		return onlyMacOpenBlock;
-	}
-	public void setOnlyMacOpenBlock(boolean onlyMacOpenBlock) {
-		this.onlyMacOpenBlock = onlyMacOpenBlock;
-	}
-	public boolean isOnlyIpMacBinding() {
-		return onlyIpMacBinding;
-	}
-	public void setOnlyIpMacBinding(boolean onlyIpMacBinding) {
-		this.onlyIpMacBinding = onlyIpMacBinding;
 	}
 	public boolean isAdmin() {
 		return isAdmin;

@@ -130,13 +130,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/login/authByOIDC_CY/**").permitAll()
 			.antMatchers("/login/app").permitAll()                                       // 提供給APP呼叫的登入入口 (Y190603, Case No.C46001804008 >> 新北前瞻計畫-教育網路基礎建設 (網管支援))
 			.antMatchers("/prtg/getPasshash/**").permitAll()                             // 提供給APP呼叫取得PRTG passhash (Y190603, Case No.C46001804008 >> 新北前瞻計畫-教育網路基礎建設 (網管支援))
-			.antMatchers("/admin/env/refreshAll").permitAll()
+			.antMatchers("/admin/env/refreshAll").hasAnyRole("ADMIN")
 			.antMatchers("/userRight").permitAll()
 			.antMatchers("/admin/**").hasAnyRole("ADMIN")
 			.antMatchers("/i18n/reload").permitAll()
-//			.antMatchers("/___test___/**").permitAll()
-			.antMatchers("/plugin/module/vmswitch/chkVmStatus/**").permitAll()           // 提供PRTG呼叫切換VM備援 (Y190117, Case No.C31001704016 >> APT HeNBGW & ePDG-LI Expansion)
-			                                                                             // Y190409, VM切換須先進行登入驗證，登入後自動跳轉到VM切換UI
+			.antMatchers("/provision/**").permitAll()
+			//TODO 待確認是否可移除
 			.antMatchers("/plugin/module/clustermigrate/setting/**").permitAll()         // 提供PRTG呼叫設定cluster migrate (Y190426, 同欣電子-POC)
 			.antMatchers("/plugin/module/clustermigrate/service/restart/**").permitAll() // 提供PRTG呼叫設定cluster migrate (Y190426, 同欣電子-POC)
 			.antMatchers("/plugin/module/clustermigrate/cluster/migrate/**").permitAll() // 提供PRTG呼叫設定cluster migrate (Y190426, 同欣電子-POC)

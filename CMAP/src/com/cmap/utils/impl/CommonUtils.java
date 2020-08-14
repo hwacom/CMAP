@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +42,7 @@ public class CommonUtils {
 		 * [dName]-[dIP]-[configType]-[date]-[seqNo].[extName]
 		 * Ex: 1F_Center-192.168.1.1-RUNNING_CONFIG-201808210914-001.cfg
 		 */
-		// 裝置名稱: [Device_Name]
+		// 裝置ID: [Device_Id]
 		if (fileName.indexOf(Constants.DIR_PATH_DEVICE_ID) != -1) {
 			fileName = StringUtils.replace(fileName, Constants.DIR_PATH_DEVICE_ID, vo.getDeviceId());
 		}
@@ -76,26 +77,43 @@ public class CommonUtils {
 			fileName = StringUtils.replace(fileName, Constants.DIR_PATH_EXT_NAME, Env.CONFIG_FILE_EXTENSION_NAME);
 		}
 
-		/*
-		fileName = vo.getDeviceEngName()										// 裝置名稱: [Device_Name]
-				.concat("-")													// 分隔符號: -
-				.concat(vo.getDeviceIp())										// 裝置IP: [Device_Ip]
-				.concat("-")													// 分隔符號: -
-				.concat(
-						StringUtils.isBlank(vo.getConfigType())
-						? Env.COMM_SEPARATE_SYMBOL
-								: vo.getConfigType())							// 組態檔類別: running/startup
-				.concat("-")													// 分隔符號: -
-				.concat(Constants.FORMAT_CONFIG_FILE_NAME.format(new Date())) 	// 日期戳記: YYYYMMDDHH24MI
-				.concat("-")													// 分隔符號: -
-				.concat(StringUtils.leftPad(String.valueOf(seqNo), 3, "0")) 	// 流水號: [seqNo]
-				.concat(".")													// 小數點: .
-				.concat(Env.CONFIG_FILE_EXTENSION_NAME);						// 副檔名: [系統參數]
-		 */
-
 		return fileName;
 	}
 
+	public static String composeConfigDirPath(ConfigInfoVO vo, boolean isTFTP) {
+
+		String dirPath = "";
+		if(isTFTP) {
+			dirPath.concat(Env.TFTP_SERVER_AT_LOCAL ? "" :  Env.TFTP_TEMP_DIR_PATH);
+		}else {
+			dirPath.concat(Env.FTP_SERVER_AT_LOCAL ? "" : Env.FTP_TEMP_DIR_PATH);
+		}
+		dirPath.concat(StringUtils.isNotBlank(Env.BACKUP_DIR_FORMAT) ? Env.BACKUP_DIR_FORMAT : "");
+
+		/*
+		 *[dName]-[dIP]-[date]
+		 * Ex: 1F_Center-192.168.1.1-RUNNING_CONFIG-201808210914
+		 */
+		// 裝置ID: [Device_Id]
+		if (dirPath.indexOf(Constants.DIR_PATH_DEVICE_ID) != -1) {
+			dirPath = StringUtils.replace(dirPath, Constants.DIR_PATH_DEVICE_ID, vo.getDeviceId());
+		}
+		// 裝置名稱: [Device_Name]
+		if (dirPath.indexOf(Constants.DIR_PATH_DEVICE_NAME) != -1) {
+			dirPath = StringUtils.replace(dirPath, Constants.DIR_PATH_DEVICE_NAME, vo.getDeviceEngName());
+		}
+		// 裝置IP: [Device_Ip]
+		if (dirPath.indexOf(Constants.DIR_PATH_DEVICE_IP) != -1) {
+			dirPath = StringUtils.replace(dirPath, Constants.DIR_PATH_DEVICE_IP, vo.getDeviceIp());
+		}
+		// 日期戳記: YYYYMMDD
+		if (dirPath.indexOf(Constants.DIR_PATH_DATE) != -1) {
+			dirPath = StringUtils.replace(dirPath, Constants.DIR_PATH_DATE, new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		}
+
+		return dirPath;
+	}
+	
 	public static ConfigVersionInfo composeModelEntityByConfigInfoVO(ConfigInfoVO ciVO, boolean jobTrigger) {
 		String _user = "";
 
@@ -115,6 +133,7 @@ public class CommonUtils {
 				,ciVO.getDeviceModel()
 				,ciVO.getConfigType()
 				,StringUtils.substring(ciVO.getConfigFileName(), 0, ciVO.getConfigFileName().lastIndexOf("."))
+				,ciVO.getConfigFileDirPath()
 				,ciVO.getConfigFileName()
 				,Constants.DATA_MARK_NOT_DELETE
 				,null
@@ -199,7 +218,12 @@ public class CommonUtils {
 		}
 		
 		if (cmd.contains(Env.CLI_VAR_TFTP_OUTPUT_FILE_PATH)) {
-			String tFtpFilePath = configInfoVO.gettFtpFilePath();
+			String tFtpFilePath = "";
+			if(StringUtils.equals(configInfoVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(configInfoVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+				tFtpFilePath.concat(configInfoVO.getConfigFileName());
+			}else {
+				tFtpFilePath = configInfoVO.getConfigFileDirPath().concat(configInfoVO.getConfigFileName());
+			}
 
 			if (!Env.TFTP_SERVER_AT_LOCAL) {
 				/*
@@ -208,7 +232,7 @@ public class CommonUtils {
 				 * 因此，放置在 temp 資料夾內的檔案名稱須加上時間細數碼
 				 */
 				//				tFtpFilePath = tFtpFilePath.concat("-").concat(configInfoVO.getTempFileRandomCode());
-				tFtpFilePath = configInfoVO.getTempFilePath();
+				tFtpFilePath = configInfoVO.getTempFilePath().concat(configInfoVO.getConfigFileName());
 			}
 
 			if (StringUtils.isNotBlank(remark)) {
@@ -230,7 +254,12 @@ public class CommonUtils {
 			cmd = StringUtils.replace(cmd, Env.CLI_VAR_FTP_LOGIN_PWD, configInfoVO.getFtpPassword());
 		}
 		if (cmd.contains(Env.CLI_VAR_FTP_OUTPUT_FILE_PATH)) {
-			String ftpFilePath = configInfoVO.getFtpFilePath();
+			String ftpFilePath = "";
+			if(StringUtils.equals(configInfoVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(configInfoVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+				ftpFilePath.concat(configInfoVO.getConfigFileName());
+			}else {
+				ftpFilePath = configInfoVO.getConfigFileDirPath().concat(configInfoVO.getConfigFileName());
+			}
 
 			if (!Env.FTP_SERVER_AT_LOCAL) {
 				/*
@@ -243,7 +272,7 @@ public class CommonUtils {
 				ftpFilePath = StringUtils.replace(ftpFilePath, Env.COMM_SEPARATE_SYMBOL, remark);
 			}
 
-			cmd = StringUtils.replace(cmd, Env.CLI_VAR_FTP_OUTPUT_FILE_PATH, ftpFilePath);
+			cmd = StringUtils.replace(cmd, Env.CLI_VAR_FTP_OUTPUT_FILE_PATH, ftpFilePath.concat(configInfoVO.getConfigFileName()));
 		}
 		if (cmd.contains(Env.CLI_VAR_CMD_LIST)) {
 			cmd = StringUtils.replace(cmd, Env.CLI_VAR_CMD_LIST, cli);

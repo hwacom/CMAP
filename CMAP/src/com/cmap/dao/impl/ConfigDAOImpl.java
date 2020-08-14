@@ -668,6 +668,32 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
     }
 
 	@Override
+    public ConfigVersionInfo getLastConfigVersionInfoByDeviceIdAndConfigType(String deviceId, String configType) {
+	    StringBuffer sb = new StringBuffer();
+        sb.append(" select cvi ")
+          .append(" from ConfigVersionInfo cvi ")
+          .append(" where 1=1 ")
+          .append(" and cvi.deviceId = :deviceId ");
+        
+        if(StringUtils.isNotBlank(configType)) {
+        	sb.append(" and cvi.configType = :configType ");
+        }
+        
+        sb.append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+          .append(" order by createTime desc");
+
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        q.setParameter("deviceId", deviceId);
+        if(StringUtils.isNotBlank(configType)) {
+        	q.setParameter("configType", configType);
+        }
+
+        List<ConfigVersionInfo> result = (List<ConfigVersionInfo>) q.list();
+        return result == null || result.isEmpty() ? null : result.get(0);
+    }
+	
+	@Override
 	public void insertConfigVersionInfo(ConfigVersionInfo configVersionInfo) {
 		getHibernateTemplate().save(configVersionInfo);
 	}

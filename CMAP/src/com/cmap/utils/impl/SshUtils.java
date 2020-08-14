@@ -5,6 +5,7 @@ import static net.sf.expectit.filter.Filters.removeNonPrintable;
 import static net.sf.expectit.matcher.Matchers.contains;
 
 import java.security.PublicKey;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			if (ssh == null) {
 				throw new IllegalStateException("SSH connect interrupted! >>> [ " + ipAddress + ":" + port + " ]");
 			}
-
+			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 			ssh.addHostKeyVerifier(
 					new HostKeyVerifier() {
 						@Override
@@ -95,33 +96,12 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 		try {
 			checkSshStatus();
 
-//			ssh.authPublickey(account); //TODO
 			ssh.authPassword(account, password);			
 			log.info("SSH login success!! >>> [ account: " + account + " , password: " + password + " ]");
 
 		} catch (Exception e) {
 			throw new Exception("[SSH login failed] >> [ account: " + account + " , password: " + password + " ] " + e.getMessage());
 		}
-		
-		//TODO 待修改
-//		try {
-//			List<ScriptServiceVO> scriptList = new ArrayList<>();
-//			ScriptServiceVO vo = new ScriptServiceVO();
-//			vo.setScriptStepOrder("1");
-//			vo.setScriptContent("enable");
-//			vo.setExpectedTerminalSymbol(Env.TELNET_LOGIN_PASSWORD_TEXT);
-//			vo.setRemark(Constants.SCRIPT_REMARK_OF_NO_EXPECT);
-//			ScriptServiceVO vo2 = new ScriptServiceVO();
-//			vo2.setScriptStepOrder("2");
-//			vo2.setScriptContent(Env.CLI_VAR_ENABLE_PWD);
-//			vo2.setRemark(Constants.SCRIPT_REMARK_OF_NO_EXPECT);
-//			scriptList.add(vo);
-//			scriptList.add(vo2);
-//			sendCommands(scriptList, ciVO, new StepServiceVO());
-//		} catch (Exception e) {
-//			//失敗跳過處理
-//			log.error("for debug set enable exception!!");
-//		}
 		
 		return true;
 	}

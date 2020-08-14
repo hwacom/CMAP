@@ -51,6 +51,9 @@ public class ModuleBlockedList implements java.io.Serializable {
     @Column(name = "script_name", nullable = true)
     private String scriptName;
     
+    @Column(name = "undo_script_code")
+    private String undoScriptCode;
+    
     @Column(name = "block_time", nullable = false)
     private Timestamp blockTime;
 
@@ -91,33 +94,34 @@ public class ModuleBlockedList implements java.io.Serializable {
 
 	public ModuleBlockedList(String listId, String groupId, String deviceId, String blockType, String ipAddress,
 			String macAddress, String port, String globalValue, String statusFlag, String scriptCode, String scriptName,
-			Timestamp blockTime, String blockBy, String blockReason, Timestamp openTime, String openBy,
-			String openReason, String remark, Timestamp createTime, String createBy, Timestamp updateTime,
-			String updateBy) {
-        super();
-        this.listId = listId;
-        this.groupId = groupId;
-        this.deviceId = deviceId;
-        this.blockType = blockType;
-        this.ipAddress = ipAddress;
-        this.macAddress = macAddress;
-        this.port = port;
-        this.globalValue = globalValue;
-        this.statusFlag = statusFlag;
-        this.scriptCode = scriptCode;
-        this.scriptName = scriptName;
-        this.blockTime = blockTime;
-        this.blockBy = blockBy;
-        this.blockReason = blockReason;
-        this.openTime = openTime;
-        this.openBy = openBy;
-        this.openReason = openReason;        
-        this.remark = remark;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-    }
+			String undoScriptCode, Timestamp blockTime, String blockBy, String blockReason, Timestamp openTime,
+			String openBy, String openReason, String remark, Timestamp createTime, String createBy,
+			Timestamp updateTime, String updateBy) {
+		super();
+		this.listId = listId;
+		this.groupId = groupId;
+		this.deviceId = deviceId;
+		this.blockType = blockType;
+		this.ipAddress = ipAddress;
+		this.macAddress = macAddress;
+		this.port = port;
+		this.globalValue = globalValue;
+		this.statusFlag = statusFlag;
+		this.scriptCode = scriptCode;
+		this.scriptName = scriptName;
+		this.undoScriptCode = undoScriptCode;
+		this.blockTime = blockTime;
+		this.blockBy = blockBy;
+		this.blockReason = blockReason;
+		this.openTime = openTime;
+		this.openBy = openBy;
+		this.openReason = openReason;
+		this.remark = remark;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+	}
 
 	public String getListId() {
 		return listId;
@@ -205,6 +209,14 @@ public class ModuleBlockedList implements java.io.Serializable {
 
 	public void setScriptName(String scriptName) {
 		this.scriptName = scriptName;
+	}
+
+	public String getUndoScriptCode() {
+		return undoScriptCode;
+	}
+
+	public void setUndoScriptCode(String undoScriptCode) {
+		this.undoScriptCode = undoScriptCode;
 	}
 
 	public Timestamp getBlockTime() {

@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.DatatableResponse;
@@ -66,11 +69,12 @@ public class VersionController extends BaseController {
 			model.addAttribute("queryDevice1", "");
 			model.addAttribute("device1List", deviceListMap);
 
+			//版本管理使用
 			model.addAttribute("queryGroup2", "");
 			model.addAttribute("group2List", groupListMap);
 			model.addAttribute("queryDevice2", "");
 			model.addAttribute("device2List", deviceListMap);
-
+			
 			model.addAttribute("queryConfigType", "");
 			model.addAttribute("configTypeList", configTypeMap);
 
@@ -143,9 +147,11 @@ public class VersionController extends BaseController {
 					return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
 
 				} else {
+					log.error("configFileContent is blank ! "+versionIDs);
 					return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 				}
 			} else {
+				log.error("config not fund ! "+versionIDs);
 				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 			}
 
@@ -410,7 +416,7 @@ public class VersionController extends BaseController {
 			vsVO = new VersionServiceVO();
 			setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup) ? "queryGroup" : "queryGroupList", queryGroup);
 			setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice) ? "queryDevice" : "queryDeviceList", queryGroup, queryDevice);
-
+			
 			vsVO.setStartNum(startNum);
 			vsVO.setPageLength(pageLength);
 			vsVO.setSearchValue(searchValue);
@@ -432,7 +438,7 @@ public class VersionController extends BaseController {
 			}
 
 			filterdTotal = versionService.countDeviceList(vsVO);
-
+			
 			if (filterdTotal != 0) {
 				dataList = versionService.findDeviceList(vsVO, startNum, pageLength);
 			}

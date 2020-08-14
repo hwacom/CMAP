@@ -33,6 +33,7 @@ public class BlockedRecordVO extends CommonServiceVO {
     private String statusFlag;
     private String scriptCode;
 	private String scriptName;
+	private String undoScriptCode;
     private String blockTimeStr;
     private String blockBy;
     private String blockReason;
@@ -246,6 +247,14 @@ public class BlockedRecordVO extends CommonServiceVO {
 
 	public void setScriptName(String scriptName) {
 		this.scriptName = scriptName;
+	}
+
+	public String getUndoScriptCode() {
+		return undoScriptCode;
+	}
+
+	public void setUndoScriptCode(String undoScriptCode) {
+		this.undoScriptCode = undoScriptCode;
 	}
 
 	public String getBlockTimeStr() {

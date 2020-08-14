@@ -832,7 +832,7 @@
 		                		<li class="subMenu-item">
 			                    	<a id="bk_login" href="${pageContext.request.contextPath}/admin/loginInfo">
 			                    	  <span data-feather="package"></span> 
-			                    	  	<span><spring:message code="func.sys.log.inquiry" /></span>
+			                    	  	<span><spring:message code="func.sys.login.info" /></span>
 			                    	</a>
 			                    </li>
 		                	</c:if>

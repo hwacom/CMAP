@@ -2,6 +2,7 @@ package com.cmap.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,14 +103,17 @@ public class ScriptController extends BaseController {
 		List<ScriptServiceVO> dataList = new ArrayList<>();
 		ScriptServiceVO ssVO;
 		try {
+			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+			
 			ssVO = new ScriptServiceVO();
 			ssVO.setStartNum(startNum);
 			ssVO.setPageLength(pageLength);
 			ssVO.setSearchValue(searchValue);
 			ssVO.setOrderColumn(UI_SCRIPT_TABLE_COLUMNS[orderColIdx]);
 			ssVO.setOrderDirection(orderDirection);
-			ssVO.setQueryScriptTypeCode(queryScriptTypeCode);
-
+			if(StringUtils.isNotBlank(queryScriptTypeCode))ssVO.setQueryScriptTypeCode(Arrays.asList(queryScriptTypeCode));
+			ssVO.setAdmin(isAdmin);
+			
 			filterdTotal = scriptService.countScriptInfo(ssVO);
 
 			if (filterdTotal != 0) {
@@ -156,7 +160,7 @@ public class ScriptController extends BaseController {
 				retMap.put("scriptCode", ssVO.getScriptCode());
 				retMap.put("remark", ssVO.getRemark());
 				retMap.put("model", ssVO.getDeviceModel());
-				retMap.put("type", ssVO.getQueryScriptTypeCode());
+				retMap.put("type", String.join(", ", ssVO.getQueryScriptTypeCode()));
 				retMap.put("systemDefault", ssVO.getScriptDefault());
 				
 				return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
@@ -208,7 +212,7 @@ public class ScriptController extends BaseController {
 				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
 			}
 
-			List<ScriptInfo> ssVO = scriptService.getScriptInfoByScriptCodeLike(scriptType, null);
+			List<ScriptInfo> ssVO = scriptService.getScriptInfoByScriptTypeCode(scriptType, null);
 			
 			int maxidx = 1;
 			for(ScriptInfo info : ssVO) {
@@ -275,10 +279,11 @@ public class ScriptController extends BaseController {
 			info.setDeviceModel(deviceModel);
 			info.setActionScript(scriptContent.replace(",", System.getProperty("line.separator")));
 			info.setActionScriptRemark(scriptRemark);
+			info.setAdminOnly(Constants.DATA_N);
 			
 			String[] scriptActions = StringUtils.split(scriptContent, ",");
 			String[] terminalSymbols = StringUtils.splitPreserveAllTokens(terminalSymbol, ",");
-			String[] errorSymbols = StringUtils.splitPreserveAllTokens(errorSymbol, ",");
+			String[] errorSymbols = StringUtils.isBlank(errorSymbol) ? null :StringUtils.splitPreserveAllTokens(errorSymbol, ",");
 			int index = 0;
 			List<ScriptStepAction> scriptStepActions = new ArrayList<>();
 			StringBuffer actionScriptVar = new StringBuffer("[\"");
@@ -288,7 +293,7 @@ public class ScriptController extends BaseController {
 				action.setStepOrder(index+1);
 				action.setCommand(scriptAction);
 				action.setExpectedTerminalSymbol(StringUtils.isBlank(terminalSymbols[index])?null:terminalSymbols[index]);
-				action.setErrorSymbol(StringUtils.isBlank(errorSymbols[index])?null:errorSymbols[index]);
+				action.setErrorSymbol(errorSymbols == null ?null:errorSymbols[index]);
 				
 				if(StringUtils.isBlank(terminalSymbols[index])) {
 					action.setCommandRemark(Constants.SCRIPT_REMARK_OF_NO_EXPECT);

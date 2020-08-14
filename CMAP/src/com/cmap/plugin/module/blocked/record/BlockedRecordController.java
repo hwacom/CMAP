@@ -27,6 +27,7 @@ import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.BlockType;
+import com.cmap.comm.enums.ScriptType;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
@@ -35,6 +36,7 @@ import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.internal.Strings;
 
 @Controller
 @RequestMapping("/plugin/module/blockedRecord")
@@ -179,13 +181,11 @@ public class BlockedRecordController extends BaseController {
             List<String> varKeys = new ArrayList<>();
             List<List<String>> varValues = new ArrayList<>();
 
-            String scriptCode = null;
             String groupId = null;
             String deviceId = null;
             String varKeyJson = null;
             List<String> varValue = null;
             String reason = reasonInput;
-            String[] scriptCodeArr;
             
             // Step 1. 準備必要參數
             BlockedRecordVO queryVO, brVO;
@@ -199,12 +199,18 @@ public class BlockedRecordController extends BaseController {
 
                 if (recordList != null && !recordList.isEmpty()) {
                     brVO = recordList.get(0);
-                    scriptCodeArr = brVO.getScriptCode().split("_");
-                    scriptCode = scriptCodeArr[0]+"_"+ String.format("%03d",Integer.parseInt(scriptCodeArr[1])+1);
-                    		
+                    if(StringUtils.isBlank(brVO.getUndoScriptCode())) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
                     // Step 2. 查解鎖腳本
-                    retVO = deliveryService.getScriptInfoByIdOrCode(null, scriptCode);
-
+                    boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+                    retVO = deliveryService.getScriptInfoByIdOrCode(null, brVO.getUndoScriptCode(), isAdmin);
+                    if(retVO == null) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
+                    pVO.setScriptCode(brVO.getUndoScriptCode());
                     varKeyJson = retVO.getActionScriptVariable();
                     Gson gson = new Gson();
                     varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
@@ -266,9 +272,6 @@ public class BlockedRecordController extends BaseController {
             }
 
             // Step 3. 呼叫共用
-            pVO.setScriptInfoId(retVO.getScriptInfoId());
-            pVO.setScriptCode(scriptCode);
-            pVO.setGroupId(groupIds);
             pVO.setDeviceId(deviceIds);
             pVO.setVarKey(varKeys);
             pVO.setVarValue(varValues);
@@ -311,13 +314,11 @@ public class BlockedRecordController extends BaseController {
             List<String> varKeys = new ArrayList<>();
             List<List<String>> varValues = new ArrayList<>();
 
-            String scriptCode = null;
             String groupId = null;
             String deviceId = null;
             String varKeyJson = null;
             List<String> varValue = null;
             String reason = reasonInput;
-            String[] scriptCodeArr;
             
             // Step 1. 準備必要參數
             BlockedRecordVO queryVO, brVO;
@@ -330,12 +331,18 @@ public class BlockedRecordController extends BaseController {
 
                 if (recordList != null && !recordList.isEmpty()) {
                     brVO = recordList.get(0);
-                    scriptCodeArr = brVO.getScriptCode().split("_");
-                    scriptCode = scriptCodeArr[0]+"_"+ String.format("%03d",Integer.parseInt(scriptCodeArr[1])+1);
-                    		
+                    if(StringUtils.isBlank(brVO.getUndoScriptCode())) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
                     // Step 2. 查解鎖腳本
-                    retVO = deliveryService.getScriptInfoByIdOrCode(null, scriptCode);
-
+                    boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+                    retVO = deliveryService.getScriptInfoByIdOrCode(null, brVO.getUndoScriptCode(), isAdmin);
+                    if(retVO == null) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
+                    pVO.setScriptCode(brVO.getUndoScriptCode());
                     varKeyJson = retVO.getActionScriptVariable();
                     Gson gson = new Gson();
                     varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
@@ -369,9 +376,6 @@ public class BlockedRecordController extends BaseController {
             }
 
             // Step 3. 呼叫共用
-            pVO.setScriptInfoId(retVO.getScriptInfoId());
-            pVO.setScriptCode(scriptCode);
-            pVO.setGroupId(groupIds);
             pVO.setDeviceId(deviceIds);
             pVO.setVarKey(varKeys);
             pVO.setVarValue(varValues);
@@ -414,13 +418,11 @@ public class BlockedRecordController extends BaseController {
             List<String> varKeys = new ArrayList<>();
             List<List<String>> varValues = new ArrayList<>();
 
-            String scriptCode = null;
             String groupId = null;
             String deviceId = null;
             String varKeyJson = null;
             List<String> varValue = null;
             String reason = reasonInput;
-            String[] scriptCodeArr;
             
             // Step 1. 準備必要參數
             BlockedRecordVO queryVO, brVO;
@@ -433,12 +435,18 @@ public class BlockedRecordController extends BaseController {
 
                 if (recordList != null && !recordList.isEmpty()) {
                     brVO = recordList.get(0);
-                    scriptCodeArr = brVO.getScriptCode().split("_");
-                    scriptCode = scriptCodeArr[0]+"_"+ String.format("%03d",Integer.parseInt(scriptCodeArr[1])+1);
-                    		
+                    if(StringUtils.isBlank(brVO.getUndoScriptCode())) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
                     // Step 2. 查解鎖腳本
-                    retVO = deliveryService.getScriptInfoByIdOrCode(null, scriptCode);
-
+                    boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+                    retVO = deliveryService.getScriptInfoByIdOrCode(null, brVO.getUndoScriptCode(), isAdmin);
+                    if(retVO == null) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
+                    pVO.setScriptCode(brVO.getUndoScriptCode());
                     varKeyJson = retVO.getActionScriptVariable();
                     Gson gson = new Gson();
                     varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
@@ -469,9 +477,6 @@ public class BlockedRecordController extends BaseController {
             }
 
             // Step 3. 呼叫共用
-            pVO.setScriptInfoId(retVO.getScriptInfoId());
-            pVO.setScriptCode(scriptCode);
-            pVO.setGroupId(groupIds);
             pVO.setDeviceId(deviceIds);
             pVO.setVarKey(varKeys);
             pVO.setVarValue(varValues);
@@ -514,18 +519,15 @@ public class BlockedRecordController extends BaseController {
             List<String> varKeys = new ArrayList<>();
             List<List<String>> varValues = new ArrayList<>();
 
-            String scriptCode = null;
             String groupId = null;
             String deviceId = null;
             String varKeyJson = null;
             List<String> varValue = null;
             String reason = reasonInput;
-            String[] scriptCodeArr;
             
             // Step 1. 準備必要參數
             BlockedRecordVO queryVO, brVO;
-            List<BlockedRecordVO> recordList = null;  
-            Map<String, Integer>recordPortMap = null;
+            List<BlockedRecordVO> recordList = null;
             for (String listId : listIdArray) {
             	queryVO = new BlockedRecordVO();
             	queryVO.setQueryListId(listId);
@@ -534,12 +536,19 @@ public class BlockedRecordController extends BaseController {
 
                 if (recordList != null && !recordList.isEmpty()) {
                     brVO = recordList.get(0);
-                    scriptCodeArr = brVO.getScriptCode().split("_");
-                    scriptCode = scriptCodeArr[0]+"_"+ String.format("%03d",Integer.parseInt(scriptCodeArr[1])+1);
-                    		
+                    if(StringUtils.isBlank(brVO.getUndoScriptCode())) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
                     // Step 2. 查解鎖腳本
-                    retVO = deliveryService.getScriptInfoByIdOrCode(null, scriptCode);
-
+                    boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
+                    retVO = deliveryService.getScriptInfoByIdOrCode(null, brVO.getUndoScriptCode(), isAdmin);
+                    
+                    if(retVO == null) {
+                    	return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無開通腳本無法解鎖!");
+                    }
+                    
+                    pVO.setScriptCode(brVO.getUndoScriptCode());
                     varKeyJson = retVO.getActionScriptVariable();
                     Gson gson = new Gson();
                     varKeys = gson.fromJson(varKeyJson, new TypeToken<List<String>>(){}.getType());
@@ -573,9 +582,6 @@ public class BlockedRecordController extends BaseController {
             }
 
             // Step 3. 呼叫共用
-            pVO.setScriptInfoId(retVO.getScriptInfoId());
-            pVO.setScriptCode(scriptCode);
-            pVO.setGroupId(groupIds);
             pVO.setDeviceId(deviceIds);
             pVO.setVarKey(varKeys);
             pVO.setVarValue(varValues);
@@ -657,7 +663,7 @@ public class BlockedRecordController extends BaseController {
 					
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_IP_MAC_BINDING:
 					brVO.setOrderColumn(UI_IP_MAC_BOUND_RECORD_COLUMNS[orderColIdx]);
-					brVO.setQueryBlockType(BlockType.IP_MAC.toString());
+					brVO.setQueryBlockType(BlockType.BIND.toString());
 					break;					
 			}
             
@@ -677,13 +683,13 @@ public class BlockedRecordController extends BaseController {
             	
 				String prtgLoginAccount = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
 
-				if (BlockType.IP.toString().equals(brVO.getQueryBlockType()) && deliveryService.doSyncDeviceIpBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
+				if (BlockType.IP.toString().equals(brVO.getQueryBlockType()) && blockedRecordService.doSyncDeviceIpBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
 					dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);  
 				}
-				if (BlockType.PORT.toString().equals(brVO.getQueryBlockType()) && deliveryService.doSyncDevicePortBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
+				if (BlockType.PORT.toString().equals(brVO.getQueryBlockType()) && blockedRecordService.doSyncDevicePortBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
 					dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);  
 				}
-				if (BlockType.MAC.toString().equals(brVO.getQueryBlockType()) && deliveryService.doSyncDeviceMacBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
+				if (BlockType.MAC.toString().equals(brVO.getQueryBlockType()) && blockedRecordService.doSyncDeviceMacBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
 					dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);  
 				}
 				filterdTotal = dataList.size();
@@ -719,7 +725,7 @@ public class BlockedRecordController extends BaseController {
 		DeliveryServiceVO dsVO;
 		try {
 			dsVO = new DeliveryServiceVO();
-			dsVO.setQueryScriptTypeCode(queryScriptTypeCode);
+			dsVO.setQueryScriptTypeCode(Arrays.asList(queryScriptTypeCode));
 			dsVO.setStartNum(startNum);
 			dsVO.setPageLength(pageLength);
 			dsVO.setSearchValue(searchValue);
@@ -736,19 +742,19 @@ public class BlockedRecordController extends BaseController {
 
 			switch (onlyOneScript) {
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_SWITCH_PORT:
-					dsVO.setOnlySwitchPort(true);
+					dsVO.setQueryScriptTypeCode(Arrays.asList(ScriptType.PORT_.toString()));
 					break;
 
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_IP_OPEN_BLOCK:
-					dsVO.setOnlyIpOpenBlock(true);
+					dsVO.setQueryScriptTypeCode(Arrays.asList(ScriptType.IP_.toString(), ScriptType.IP_CTR_.toString()));
 					break;
 
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_MAC_OPEN_BLOCK:
-					dsVO.setOnlyMacOpenBlock(true);
+					dsVO.setQueryScriptTypeCode(Arrays.asList(ScriptType.MAC_.toString()));
 					break;
 					
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_IP_MAC_BINDING:
-					dsVO.setOnlyIpMacBinding(true);
+					dsVO.setQueryScriptTypeCode(Arrays.asList(ScriptType.BIND_.toString()));
 					break;					
 			}
 

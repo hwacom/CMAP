@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.vo.ConfigInfoVO;
+import com.cmap.service.vo.DeliveryParameterVO;
 
 public interface BlockedRecordService {
 
@@ -40,53 +41,17 @@ public interface BlockedRecordService {
     public void saveOrUpdateRecord(List<BlockedRecordVO> brVOs) throws ServiceLayerException;
 
     /**
-     * 寫入 IP MAC 綁定 紀錄資料
-     * @param ciVO
-     * @param scriptCode
-     * @param varMapList
-     * @param actionStatusFlag
-     * @param remark
-     * @throws ServiceLayerException
-     */
-    public void writeModuleIpMacBoundListRecord(ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList,
-			String actionStatusFlag, String remark) throws ServiceLayerException;
-
-    /**
-     * 寫入 MAC 鎖定 紀錄資料
-     * @param ciVO
-     * @param scriptCode
-     * @param varMapList
-     * @param actionStatusFlag
-     * @param remark
-     * @throws ServiceLayerException
-     */
-    public void writeModuleBlockMacListRecord(ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList,
-			String actionStatusFlag, String remark) throws ServiceLayerException;
-
-	/**
-	 * 寫入 PORT 鎖定 紀錄資料
+	 * 寫入 鎖定/開通 紀錄資料
+	 * 
 	 * @param ciVO
 	 * @param scriptCode
 	 * @param varMapList
-	 * @param actionStatusFlag
 	 * @param remark
 	 * @throws ServiceLayerException
 	 */
-    public void writeModuleBlockPortListRecord(ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList,
-			String actionStatusFlag, String remark) throws ServiceLayerException;
-
-    /**
-     * 寫入 IP 鎖定 紀錄資料
-     * @param ciVO
-     * @param scriptCode
-     * @param varMapList
-     * @param actionStatusFlag
-     * @param remark
-     * @throws ServiceLayerException
-     */
-    public void writeModuleBlockIpListRecord(ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList,
-			String actionStatusFlag, String remark) throws ServiceLayerException;
-
+	public void writeModuleBlockListRecord(ConfigInfoVO ciVO, String scriptCode, List<Map<String, String>> varMapList,
+			String remark) throws ServiceLayerException;
+	
     /**
 	 * 檢核比對DB封鎖記錄清單(IP)
 	 * 
@@ -144,4 +109,55 @@ public interface BlockedRecordService {
      * @return
      */
     public List<BlockedRecordVO> compareMacBlockedList(List<BlockedRecordVO> dbRecordList, Map<String, BlockedRecordVO> compareMap);
+    
+
+	/**
+	 * 同步設備上封鎖清單(IP)[Cisco]
+	 * @param isAdmin
+	 * @param prtgLoginAccount
+	 * @param brVO
+	 * @param dbRecordList
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public boolean doSyncDeviceIpBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
+
+	/**
+	 * 同步設備上封鎖清單(Port)[Cisco]
+	 * @param isAdmin
+	 * @param prtgLoginAccount
+	 * @param brVO
+	 * @param dbRecordList
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public boolean doSyncDevicePortBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
+
+	/**
+	 * 同步設備上封鎖清單(Mac)[Cisco]
+	 * @param isAdmin
+	 * @param prtgLoginAccount
+	 * @param brVO
+	 * @param dbRecordList
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public boolean doSyncDeviceMacBlockedList(boolean isAdmin, String prtgLoginAccount, BlockedRecordVO brVO, List<BlockedRecordVO> dbRecordList) throws ServiceLayerException;
+
+	/**
+	 * IP MAC 綁定/解除供裝前檢核、異動
+	 * @param pVO
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public DeliveryParameterVO checkB4DoBindingDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
+
+	/**
+	 * IP MAC 封鎖/解除供裝前檢核、異動
+	 * @param pVO
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public DeliveryParameterVO checkB4DoIpMacOpenBlockDelivery(DeliveryParameterVO pVO) throws ServiceLayerException;
+
 }

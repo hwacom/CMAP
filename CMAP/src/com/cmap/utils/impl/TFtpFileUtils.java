@@ -131,7 +131,7 @@ public class TFtpFileUtils implements FileUtils {
 			checkTFtpStatus();
 			fileContentList = new ArrayList<>();
 
-			String targetFileName = ciVO.getConfigFileDirPath().concat(File.separator).concat(ciVO.getFileFullName());
+			String targetFileName = ciVO.getConfigFileDirPath().concat(ciVO.getFileFullName());
 			log.info("[TFTP dowloadFiles] >> targetFileName: "+targetFileName);
 
 			if (hostPort != null) {

@@ -256,28 +256,23 @@ public class LoginContoller extends BaseController {
 			}
 
 		} else {
-			if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
-				URI configurationEndpoint = null;
+			URI configurationEndpoint = null;
+			try {
+				configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
+
+			} catch (URISyntaxException e) {
+				log.error(e.toString(), e);
+
 				try {
-					configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
+					configurationEndpoint = new URI(Constants.OIDC_MLC_CONFIGURATION_ENDPOINT);
 
-				} catch (URISyntaxException e) {
-					log.error(e.toString(), e);
-
-					try {
-						configurationEndpoint = new URI(Constants.OIDC_MLC_CONFIGURATION_ENDPOINT);
-
-					} catch (URISyntaxException e1) {
-						log.error(e1.toString(), e1);
-					}
+				} catch (URISyntaxException e1) {
+					log.error(e1.toString(), e1);
 				}
-				request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
-
-				return "login_openid_mlc";
-
-			} else {
-				return "redirect:/login";
 			}
+			request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
+
+			return "login_openid_mlc";
 		}
 	}
 

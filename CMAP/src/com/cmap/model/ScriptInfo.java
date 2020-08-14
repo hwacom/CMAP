@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
@@ -56,6 +57,12 @@ public class ScriptInfo {
 	@Column(name = "action_script_remark", nullable = true)
 	private String actionScriptRemark;
 
+	@Column(name = "ADMIN_ONLY", nullable = true)
+	private String adminOnly;
+	
+	@Column(name = "UNDO_SCRIPT_CODE", nullable = true)
+	private String undoScriptCode;
+	
 	@Column(name = "check_script_variable", nullable = true)
 	private String checkScriptVariable;
 	
@@ -67,9 +74,6 @@ public class ScriptInfo {
 
 	@Column(name = "check_keyword", nullable = true)
 	private String checkKeyword;
-
-	@Column(name = "script_description", nullable = true)
-	private String scriptDescription;
 
 	@Column(name = "delete_flag", nullable = false)
 	private String deleteFlag = "N";
@@ -102,37 +106,37 @@ public class ScriptInfo {
 		super();
 	}
 
-    public ScriptInfo(String scriptInfoId, String systemDefault, String scriptCode,
-            String scriptName, ScriptType scriptType, String deviceModel, String actionScript,
-            String actionScriptVariable, String actionScriptRemark, String checkScript,
-            String checkScriptRemark, String checkKeyword, String scriptDescription,
-            String deleteFlag, Timestamp deleteTime, String deleteBy, Timestamp createTime,
-            String createBy, Timestamp updateTime, String updateBy,
-            List<ScriptStepAction> scriptStepActions, List<ScriptStepCheck> scriptStepChecks) {
-        super();
-        this.scriptInfoId = scriptInfoId;
-        this.systemDefault = systemDefault;
-        this.scriptCode = scriptCode;
-        this.scriptName = scriptName;
-        this.scriptType = scriptType;
-        this.deviceModel = deviceModel;
-        this.actionScript = actionScript;
-        this.actionScriptVariable = actionScriptVariable;
-        this.actionScriptRemark = actionScriptRemark;
-        this.checkScript = checkScript;
-        this.checkScriptRemark = checkScriptRemark;
-        this.checkKeyword = checkKeyword;
-        this.scriptDescription = scriptDescription;
-        this.deleteFlag = deleteFlag;
-        this.deleteTime = deleteTime;
-        this.deleteBy = deleteBy;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-        this.scriptStepActions = scriptStepActions;
-        this.scriptStepChecks = scriptStepChecks;
-    }
+	public ScriptInfo(String scriptInfoId, String systemDefault, String scriptCode, String scriptName,
+			ScriptType scriptType, String deviceModel, String actionScript, String actionScriptVariable,
+			String actionScriptRemark, String adminOnly, String undoScriptCode, String checkScript,
+			String checkScriptRemark, String checkKeyword, String deleteFlag, Timestamp deleteTime, String deleteBy,
+			Timestamp createTime, String createBy, Timestamp updateTime, String updateBy,
+			List<ScriptStepAction> scriptStepActions, List<ScriptStepCheck> scriptStepChecks) {
+		super();
+		this.scriptInfoId = scriptInfoId;
+		this.systemDefault = systemDefault;
+		this.scriptCode = scriptCode;
+		this.scriptName = scriptName;
+		this.scriptType = scriptType;
+		this.deviceModel = deviceModel;
+		this.actionScript = actionScript;
+		this.actionScriptVariable = actionScriptVariable;
+		this.actionScriptRemark = actionScriptRemark;
+		this.adminOnly = adminOnly;
+		this.undoScriptCode = undoScriptCode;
+		this.checkScript = checkScript;
+		this.checkScriptRemark = checkScriptRemark;
+		this.checkKeyword = checkKeyword;
+		this.deleteFlag = deleteFlag;
+		this.deleteTime = deleteTime;
+		this.deleteBy = deleteBy;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+		this.scriptStepActions = scriptStepActions;
+		this.scriptStepChecks = scriptStepChecks;
+	}
 
     public String getScriptInfoId() {
         return scriptInfoId;
@@ -206,7 +210,23 @@ public class ScriptInfo {
         this.actionScriptRemark = actionScriptRemark;
     }
 
-    public String getCheckScriptVariable() {
+    public String getAdminOnly() {
+		return adminOnly;
+	}
+
+	public void setAdminOnly(String adminOnly) {
+		this.adminOnly = adminOnly;
+	}
+
+	public String getUndoScriptCode() {
+		return undoScriptCode;
+	}
+
+	public void setUndoScriptCode(String undoScriptCode) {
+		this.undoScriptCode = undoScriptCode;
+	}
+
+	public String getCheckScriptVariable() {
 		return checkScriptVariable;
 	}
 
@@ -236,14 +256,6 @@ public class ScriptInfo {
 
     public void setCheckKeyword(String checkKeyword) {
         this.checkKeyword = checkKeyword;
-    }
-
-    public String getScriptDescription() {
-        return scriptDescription;
-    }
-
-    public void setScriptDescription(String scriptDescription) {
-        this.scriptDescription = scriptDescription;
     }
 
     public String getDeleteFlag() {

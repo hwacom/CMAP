@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,9 +13,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-"scriptInfoId",
 "scriptCode",
-"groupId",
 "deviceId",
 "varKey",
 "varValue",
@@ -25,12 +21,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public class DeliveryParameterVO {
 
-	@JsonProperty("scriptInfoId")
-	private String scriptInfoId;
 	@JsonProperty("scriptCode")
 	private String scriptCode;
-	@JsonProperty("groupId")
-	private List<String> groupId = null;
 	@JsonProperty("deviceId")
 	private List<String> deviceId = null;
 	@JsonProperty("varKey")
@@ -40,19 +32,7 @@ public class DeliveryParameterVO {
 	@JsonProperty("reason")
 	private String reason;
 	@JsonIgnore
-	private Map<String, Object> additionalProperties = new HashMap<>();
-	@JsonIgnore
 	private Map<String, String> deviceInfo = new HashMap<>();
-
-	@JsonProperty("scriptInfoId")
-	public String getScriptInfoId() {
-		return scriptInfoId;
-	}
-
-	@JsonProperty("scriptInfoId")
-	public void setScriptInfoId(String scriptInfoId) {
-		this.scriptInfoId = scriptInfoId;
-	}
 
 	@JsonProperty("scriptCode")
 	public String getScriptCode() {
@@ -62,16 +42,6 @@ public class DeliveryParameterVO {
 	@JsonProperty("scriptCode")
 	public void setScriptCode(String scriptCode) {
 		this.scriptCode = scriptCode;
-	}
-
-	@JsonProperty("groupId")
-	public List<String> getGroupId() {
-		return groupId;
-	}
-
-	@JsonProperty("groupId")
-	public void setGroupId(List<String> groupId) {
-		this.groupId = groupId;
 	}
 
 	@JsonProperty("deviceId")
@@ -113,17 +83,7 @@ public class DeliveryParameterVO {
 	public void setReason(String reason) {
 		this.reason = reason;
 	}
-
-	@JsonAnyGetter
-	public Map<String, Object> getAdditionalProperties() {
-		return this.additionalProperties;
-	}
-
-	@JsonAnySetter
-	public void setAdditionalProperty(String name, Object value) {
-		this.additionalProperties.put(name, value);
-	}
-
+	
 	public Map<String, String> getDeviceInfo() {
 		return deviceInfo;
 	}
@@ -134,6 +94,6 @@ public class DeliveryParameterVO {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("scriptInfoId", scriptInfoId).append("scriptCode", scriptCode).append("groupId", groupId).append("deviceId", deviceId).append("varKey", varKey).append("varValue", varValue).append("reason", reason).append("additionalProperties", additionalProperties).append("deviceInfo", deviceInfo).toString();
+		return new ToStringBuilder(this).append("scriptCode", scriptCode).append("deviceId", deviceId).append("varKey", varKey).append("varValue", varValue).append("reason", reason).append("deviceInfo", deviceInfo).toString();
 	}
 }

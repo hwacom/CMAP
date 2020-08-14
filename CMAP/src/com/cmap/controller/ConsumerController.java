@@ -129,7 +129,7 @@ public class ConsumerController extends BaseController implements ServletConfigA
             String[] identifierArray = identifier.getIdentifier().split("/");
             Gson gson = new Gson();
             User[] users = gson.fromJson(request.getAttribute("timezone").toString(), User[].class);
-
+            log.debug("for debug user = " + request.getAttribute("timezone").toString());
             String account = identifierArray[identifierArray.length - 1];
             String schoolId = users[0].getId();
             String username = request.getAttribute("fullname").toString();

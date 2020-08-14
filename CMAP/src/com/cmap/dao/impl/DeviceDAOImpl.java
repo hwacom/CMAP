@@ -448,13 +448,6 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 
 		StringBuffer sb = new StringBuffer();
 		sb.append(" delete DeviceDetailInfo ddi ")
-		/*
-		  .append(" set ddi.deleteFlag = '").append(Constants.DATA_MARK_DELETE).append("' ")
-		  .append("    ,ddi.deleteTime = :deleteTime ")
-		  .append("    ,ddi.deleteBy = :deleteBy ")
-		  .append("    ,ddi.updateTime = :deleteTime ")
-		  .append("    ,ddi.updateBy = :deleteBy ")
-		*/
 		  .append(" where 1=1 ");
 
 		if (StringUtils.isNotBlank(deviceListId)) {

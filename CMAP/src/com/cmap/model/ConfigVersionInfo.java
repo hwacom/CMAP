@@ -1,12 +1,14 @@
 package com.cmap.model;
 
 import java.sql.Timestamp;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
@@ -45,6 +47,9 @@ public class ConfigVersionInfo {
 	@Column(name = "config_version", nullable = false)
 	private String configVersion;
 
+	@Column(name = "config_file_dir_path", nullable = true)
+	private String configFileDirPath;
+	
 	@Column(name = "file_full_name", nullable = false)
 	private String fileFullName;
 
@@ -73,28 +78,29 @@ public class ConfigVersionInfo {
 		super();
 	}
 
-    public ConfigVersionInfo(String versionId, String groupId, String groupName, String deviceId,
-            String deviceName, String deviceModel, String configType, String configVersion,
-            String fileFullName, String deleteFlag, Timestamp deleteTime, String deleteBy,
-            Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
-        super();
-        this.versionId = versionId;
-        this.groupId = groupId;
-        this.groupName = groupName;
-        this.deviceId = deviceId;
-        this.deviceName = deviceName;
-        this.deviceModel = deviceModel;
-        this.configType = configType;
-        this.configVersion = configVersion;
-        this.fileFullName = fileFullName;
-        this.deleteFlag = deleteFlag;
-        this.deleteTime = deleteTime;
-        this.deleteBy = deleteBy;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-    }
+	public ConfigVersionInfo(String versionId, String groupId, String groupName, String deviceId, String deviceName,
+			String deviceModel, String configType, String configVersion, String configFileDirPath, String fileFullName,
+			String deleteFlag, Timestamp deleteTime, String deleteBy, Timestamp createTime, String createBy,
+			Timestamp updateTime, String updateBy) {
+		super();
+		this.versionId = versionId;
+		this.groupId = groupId;
+		this.groupName = groupName;
+		this.deviceId = deviceId;
+		this.deviceName = deviceName;
+		this.deviceModel = deviceModel;
+		this.configType = configType;
+		this.configVersion = configVersion;
+		this.configFileDirPath = configFileDirPath;
+		this.fileFullName = fileFullName;
+		this.deleteFlag = deleteFlag;
+		this.deleteTime = deleteTime;
+		this.deleteBy = deleteBy;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+	}
 
     public String getVersionId() {
         return versionId;
@@ -160,7 +166,15 @@ public class ConfigVersionInfo {
         this.configVersion = configVersion;
     }
 
-    public String getFileFullName() {
+    public String getConfigFileDirPath() {
+		return configFileDirPath;
+	}
+
+	public void setConfigFileDirPath(String configFileDirPath) {
+		this.configFileDirPath = configFileDirPath;
+	}
+
+	public String getFileFullName() {
         return fileFullName;
     }
 

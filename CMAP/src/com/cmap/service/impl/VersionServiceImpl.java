@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -307,7 +308,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				for (ConfigVersionInfo cvi : cviList) {
 					VersionServiceVO vo = new VersionServiceVO();
 					BeanUtils.copyProperties(cvi, vo);
-
+					
 					DeviceList dl = deviceDAO.findDeviceListByGroupAndDeviceId(cvi.getGroupId(), cvi.getDeviceId());
 
 					//TODO
@@ -325,6 +326,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 					if (dl != null) {
 						BeanUtils.copyProperties(dl, vo);
+						vo.setConfigFileDirPath(cvi.getConfigFileDirPath());
 						retList.add(vo);
 					}
 
@@ -350,7 +352,29 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			String _loginAccount = null;
 			String _loginPassword = null;
 
-			if (StringUtils.isNotBlank(vsVO.getConfigFileDirPath())) {
+			if(Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP) && Env.TFTP_SERVER_AT_LOCAL) {
+				
+				String targetFileName = null;
+				if(StringUtils.equals(vsVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(vsVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(vsVO.getFileFullName());
+				}else {
+					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(vsVO.getConfigFileDirPath()).concat(vsVO.getFileFullName());
+				}
+				
+				//read file into stream, try-with-resources
+				try {
+					targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+					log.info("version read all lines "+targetFileName);
+					contentList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
+					
+					if (contentList == null || contentList.isEmpty()) {
+						log.error("contentList is null ! can't get file "+targetFileName);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}else {
 
 				// Step1. 建立FileServer傳輸物件
 				switch (Env.FILE_TRANSFER_MODE) {
@@ -387,27 +411,12 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				}
 
 				vsVO.setRemoteFileDirPath(fileDir);
-//				fileUtils.changeDir(fileDir, false);
+//					fileUtils.changeDir(fileDir, false);
 
 				// Step4. 下載指定的Config落地檔
 				ConfigInfoVO ciVO = new ConfigInfoVO();
 				BeanUtils.copyProperties(vsVO, ciVO);
 				contentList = fileUtils.downloadFiles(ciVO);
-
-				// Step5. 轉換為String for UI輸出
-			    if (contentList != null && !contentList.isEmpty()) {
-                    vsVO.setConfigContentList(contentList);
-
-                    if (transHtmlFormat) {
-                        sb = new StringBuffer();
-
-                        for (String content : contentList) {
-                            sb.append(content).append("<br />");
-                        }
-
-                        vsVO.setConfigFileContent(sb.toString());
-                    }
-                }
 
 				// Step6. 關閉FTP連線
 				if (fileUtils != null) {
@@ -419,6 +428,23 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 					}
 				}
 			}
+			
+			// Step5. 轉換為String for UI輸出
+		    if (contentList != null && !contentList.isEmpty()) {
+                vsVO.setConfigContentList(contentList);
+
+                if (transHtmlFormat) {
+                    sb = new StringBuffer();
+
+                    for (String content : contentList) {
+                        sb.append(content).append("<br />");
+                    }
+
+                    vsVO.setConfigFileContent(sb.toString());
+                }
+            }else {
+				log.error("contentList is null ! ");
+            }
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -531,8 +557,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	public VersionServiceVO compareConfigFiles(List<VersionServiceVO> voList) throws ServiceLayerException {
 		VersionServiceVO retVO = new VersionServiceVO();
 		FileUtils fileUtils = null;
-		List<String> contentOriList = null;
-		List<String> contentRevList = null;
+		List<String> contentOriList = new ArrayList<>();
+		List<String> contentRevList = new ArrayList<>();
 		List<VersionServiceVO> retOriList = null;
 		List<VersionServiceVO> retRevList = null;
 
@@ -545,10 +571,11 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				Integer _hostPort = null;
 				String _loginAccount = null;
 				String _loginPassword = null;
-
+				String targetFileName = null;
+				
 				if (StringUtils.isNotBlank(vsVO.getConfigFileDirPath())) {
 
-					List<String> cList = null;
+					List<String> cList = new ArrayList<>();
 					ConfigInfoVO ciVO = new ConfigInfoVO();
 					log.debug("for bedug Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP) = " + Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP));
 					log.debug("for bedug Env.TFTP_SERVER_AT_LOCAL = " + Env.TFTP_SERVER_AT_LOCAL);
@@ -557,17 +584,18 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						// Step4. 下載指定的Config落地檔
 						BeanUtils.copyProperties(vsVO, ciVO);
 						
-						String targetFileName = null;
 						if(StringUtils.equals(ciVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(ciVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
 							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(ciVO.getFileFullName());
 						}else {
-							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(File.separator).concat(ciVO.getFileFullName());
+							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(vsVO.getConfigFileDirPath()).concat(ciVO.getFileFullName());
 						}
 						
 						//read file into stream, try-with-resources
 						try {
+							targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+							log.debug("for debug targetFileName = " + targetFileName);
 							cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
-
+							
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -629,21 +657,24 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		            }
 
 					if (cList != null && !cList.isEmpty()) {
-						if (contentOriList == null) {
+						if (contentOriList.isEmpty()) {
 							contentOriList = cList;
+							log.debug("for debug contentOriList = " +  String.join("," ,cList.toString()));
 							retVO.setVersionOri(vsVO.getConfigVersion());
 						} else {
+							log.debug("for debug contentRevList = " +  String.join("," ,cList.toString()));
 							contentRevList = cList;
 							retVO.setVersionRev(vsVO.getConfigVersion());
 						}
 
 					} else {
-						log.error("檔案取得異常，或取得檔案為空");
-						if (contentOriList == null) {
+						log.error("檔案取得異常，或取得檔案為空, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + targetFileName);
+						if (contentOriList.isEmpty()) {
 							contentOriList = new ArrayList<>();
+							log.debug("for debug contentOriList isEmpty!!" );
 							retVO.setVersionOri(vsVO.getConfigVersion());
 						} else {
-							contentRevList = new ArrayList<>();
+							log.debug("for debug contentRevList isEmpty!!" );
 							retVO.setVersionRev(vsVO.getConfigVersion());
 						}
 					}
@@ -673,31 +704,13 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				oriAddedLineCount += markDiffList(da.getOriginal(), da.getRevised(), oriAddedLineCount, retOriList, retVO);
 				revAddedLineCount += markDiffList(da.getRevised(), da.getOriginal(), revAddedLineCount, retRevList, retVO);
 
-				//				String pos = String.valueOf(da.getOriginal().getPosition()+oriAddedLineCount);
-				//				diffPos += retVO.getDiffPos().concat(pos).concat(",");
 			}
-			//			retVO.setDiffPos(diffPos);
+
 			diffPos = retVO.getDiffPos();
 			if (StringUtils.isNotBlank(diffPos)) {
 				diffPos = removeDuplicatePos(diffPos);
 				retVO.setDiffPos(diffPos);
 			}
-
-			//log.info("diffPos: " + retVO.getDiffPos());
-
-			//			log.info("**************************************************************************************");
-			//int max = retOriList.size() >= retRevList.size() ? retOriList.size() : retRevList.size();
-			/*
-			for (int i=0; i<max; i++) {
-				retOriList.size();
-				retOriList.get(i);
-				new VersionServiceVO();
-				retRevList.size();
-				retRevList.get(i);
-				new VersionServiceVO();
-			}
-			*/
-			//			log.info("**************************************************************************************");
 
 			retVO.setDiffRetOriList(retOriList);
 			retVO.setDiffRetRevList(retRevList);
