@@ -44,7 +44,7 @@ public class ScriptController extends BaseController {
 	@Log
 	private static Logger log;
 
-	private static final String[] UI_SCRIPT_TABLE_COLUMNS = new String[] {"","","si.scriptName","si.scriptType.scriptTypeCode","si.systemVersion","si.actionScript","si.actionScriptRemark","si.checkScript","si.checkScriptRemark","si.createTime","si.updateTime"};
+	private static final String[] UI_SCRIPT_TABLE_COLUMNS = new String[] {"","","si.scriptName","si.scriptType.scriptTypeCode","si.deviceModel","si.actionScript","si.actionScriptRemark","si.checkScript","si.checkScriptRemark","si.createTime","si.updateTime"};
 
 	@Autowired
 	private ScriptService scriptService;
