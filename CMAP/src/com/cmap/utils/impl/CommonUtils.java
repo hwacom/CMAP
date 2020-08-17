@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -84,12 +85,10 @@ public class CommonUtils {
 
 		String dirPath = "";
 		if(isTFTP) {
-			dirPath.concat(Env.TFTP_SERVER_AT_LOCAL ? "" :  Env.TFTP_TEMP_DIR_PATH);
+			dirPath = Env.TFTP_SERVER_AT_LOCAL ? Objects.toString(Env.BACKUP_DIR_FORMAT, "") :  Env.TFTP_TEMP_DIR_PATH.concat(Objects.toString(Env.BACKUP_DIR_FORMAT, ""));
 		}else {
-			dirPath.concat(Env.FTP_SERVER_AT_LOCAL ? "" : Env.FTP_TEMP_DIR_PATH);
+			dirPath = Env.FTP_SERVER_AT_LOCAL ? Objects.toString(Env.BACKUP_DIR_FORMAT, "") : Env.FTP_TEMP_DIR_PATH.concat(Objects.toString(Env.BACKUP_DIR_FORMAT, ""));
 		}
-		dirPath.concat(StringUtils.isNotBlank(Env.BACKUP_DIR_FORMAT) ? Env.BACKUP_DIR_FORMAT : "");
-
 		/*
 		 *[dName]-[dIP]-[date]
 		 * Ex: 1F_Center-192.168.1.1-RUNNING_CONFIG-201808210914
@@ -219,12 +218,12 @@ public class CommonUtils {
 		
 		if (cmd.contains(Env.CLI_VAR_TFTP_OUTPUT_FILE_PATH)) {
 			String tFtpFilePath = "";
-			if(StringUtils.equals(configInfoVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(configInfoVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+			if(StringUtils.isBlank(configInfoVO.getConfigFileDirPath()) || configInfoVO.getConfigFileDirPath().length() == 1) {
 				tFtpFilePath.concat(configInfoVO.getConfigFileName());
 			}else {
 				tFtpFilePath = configInfoVO.getConfigFileDirPath().concat(configInfoVO.getConfigFileName());
 			}
-
+			
 			if (!Env.TFTP_SERVER_AT_LOCAL) {
 				/*
 				 * 若 TFTP Server 與 CMAP系統 不是架設在同一台主機上 (因TFTP Client端無法刪除 Server端檔案)
@@ -238,7 +237,7 @@ public class CommonUtils {
 			if (StringUtils.isNotBlank(remark)) {
 				tFtpFilePath = StringUtils.replace(tFtpFilePath, Env.COMM_SEPARATE_SYMBOL, remark);
 			}
-			
+			log.debug("for debug configInfoVO.getConfigFileDirPath() = "+configInfoVO.getConfigFileDirPath()+", tFtpFilePath="+tFtpFilePath);
 			cmd = StringUtils.replace(cmd, Env.CLI_VAR_TFTP_OUTPUT_FILE_PATH, tFtpFilePath);
 		}
 		if (cmd.contains(Env.CLI_VAR_FTP_IP)) {
@@ -255,7 +254,7 @@ public class CommonUtils {
 		}
 		if (cmd.contains(Env.CLI_VAR_FTP_OUTPUT_FILE_PATH)) {
 			String ftpFilePath = "";
-			if(StringUtils.equals(configInfoVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(configInfoVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+			if(StringUtils.isBlank(configInfoVO.getConfigFileDirPath()) || configInfoVO.getConfigFileDirPath().length() == 1) {
 				ftpFilePath.concat(configInfoVO.getConfigFileName());
 			}else {
 				ftpFilePath = configInfoVO.getConfigFileDirPath().concat(configInfoVO.getConfigFileName());

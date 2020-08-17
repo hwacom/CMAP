@@ -187,7 +187,7 @@ public class TFtpFileUtils implements FileUtils {
 		try {
 			checkTFtpStatus();
 
-			String targetFileName = ciVO.getConfigFileDirPath().concat(File.separator).concat(ciVO.getFileFullName());
+			String targetFileName = ciVO.getConfigFileDirPath().concat(ciVO.getFileFullName());
 
 			log.info("[uploadFiles] >> tftp.receiveFile");
 			tftp.receiveFile(targetFileName, TFTP.BINARY_MODE, oStream, hostIp, hostPort);
