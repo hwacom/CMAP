@@ -584,7 +584,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						// Step4. 下載指定的Config落地檔
 						BeanUtils.copyProperties(vsVO, ciVO);
 						
-						if(StringUtils.equals(ciVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(ciVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+						if(StringUtils.isBlank(ciVO.getConfigFileDirPath()) || ciVO.getConfigFileDirPath().length() == 1) {
 							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(ciVO.getFileFullName());
 						}else {
 							targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(vsVO.getConfigFileDirPath()).concat(ciVO.getFileFullName());

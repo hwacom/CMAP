@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -987,7 +986,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 //					}
 					if (_mode == ConnectionMode.TFTP) {
 						if (Env.TFTP_SERVER_AT_LOCAL) {
-							deleteLocalFile(Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(nowVersionVO.getConfigFileDirPath()).concat(nowVersionVO.getFileFullName()));
+							String targetFileName = "";				
+							if(StringUtils.isBlank(nowVersionVO.getConfigFileDirPath()) || nowVersionVO.getConfigFileDirPath().length() == 1) {
+								targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(nowVersionVO.getFileFullName());
+							}else {
+								targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(nowVersionVO.getConfigFileDirPath()).concat(nowVersionVO.getFileFullName());
+							}
+							targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+							deleteLocalFile(targetFileName);
 						}
 					}
 
@@ -1158,8 +1164,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			if(Env.FILE_TRANSFER_MODE.equals(ConnectionMode.TFTP) && Env.TFTP_SERVER_AT_LOCAL) {
 				
-				String targetFileName = null;
-				if(StringUtils.equals(configInfoVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(configInfoVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
+				String targetFileName = null;				
+				if(StringUtils.isBlank(configInfoVO.getConfigFileDirPath()) || configInfoVO.getConfigFileDirPath().length() == 1) {
 					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(configInfoVO.getFileFullName());
 				}else {
 					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(configInfoVO.getConfigFileDirPath()).concat(configInfoVO.getFileFullName());
@@ -1501,26 +1507,26 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws FileOperationException
 	 */
-	private boolean moveLocalFile(ConfigInfoVO ciVO) throws FileOperationException {
-		try {
-			final String source = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(Env.TFTP_TEMP_DIR_PATH).concat(ciVO.getFileFullName());
-			final String target = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(ciVO.getFileFullName());
-
-			final Path sourcePath = Paths.get(source);
-			final Path targetPath = Paths.get(target);
-
-			if (Files.isRegularFile(sourcePath) & Files.isReadable(sourcePath) & Files.isExecutable(sourcePath)) {
-				Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-				return true;
-
-			} else {
-				throw new FileOperationException("[組態檔內容相同，但無法移動檔案] >> " + source);
-			}
-
-		} catch (Exception e) {
-			throw new FileOperationException("[組態檔內容相同，但移動檔案過程異常] >> " + e.toString());
-		}
-	}
+//	private boolean moveLocalFile(ConfigInfoVO ciVO) throws FileOperationException {
+//		try {
+//			final String source = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(Env.TFTP_TEMP_DIR_PATH).concat(ciVO.getFileFullName());
+//			final String target = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(ciVO.getFileFullName());
+//
+//			final Path sourcePath = Paths.get(source);
+//			final Path targetPath = Paths.get(target);
+//
+//			if (Files.isRegularFile(sourcePath) & Files.isReadable(sourcePath) & Files.isExecutable(sourcePath)) {
+//				Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+//				return true;
+//
+//			} else {
+//				throw new FileOperationException("[組態檔內容相同，但無法移動檔案] >> " + source);
+//			}
+//
+//		} catch (Exception e) {
+//			throw new FileOperationException("[組態檔內容相同，但移動檔案過程異常] >> " + e.toString());
+//		}
+//	}
 
 	/**
 	 * [Step] 登入FTP
