@@ -375,7 +375,7 @@
 		                    	  <span data-feather="shuffle"></span>
 		                    	  	<span>
 		                    	  		<spring:message code="func.plugin.net.flow" />
-		                    	  		<span class="badge badge-info">New</span>
+									</span>
 		                    	</a>
 		                    </li>
 	                    </c:if>

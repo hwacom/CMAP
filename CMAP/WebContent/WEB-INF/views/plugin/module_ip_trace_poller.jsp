@@ -27,7 +27,7 @@
                         	</script>
                     </c:if>
                     <!-- Group List為空的例外處理 -->
-	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup">
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="queryGroup" id="queryGroup" onchange="changeDeviceMenu('queryDevice', this.value)">
 	    	    		<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
                         	<c:if test="${fn:length(groupList) ge 1}">
                         		<form:option value="" label="=== ALL ===" />
