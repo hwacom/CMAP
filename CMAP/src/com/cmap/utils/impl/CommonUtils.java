@@ -217,9 +217,11 @@ public class CommonUtils {
 		}
 		
 		if (cmd.contains(Env.CLI_VAR_TFTP_OUTPUT_FILE_PATH)) {
+			// 如果環境變數有定義BACKUP_DIR_FORMAT會被填充至configInfoVO.configFileName, 如果沒有定義根目錄資料夾或是定義值為根目錄時
+			// 腳本轉換TFTP_OUTPUT_FILE_PATH將被設定為檔案名稱
 			String tFtpFilePath = "";
 			if(StringUtils.isBlank(configInfoVO.getConfigFileDirPath()) || configInfoVO.getConfigFileDirPath().length() == 1) {
-				tFtpFilePath.concat(configInfoVO.getConfigFileName());
+				tFtpFilePath = configInfoVO.getConfigFileName();
 			}else {
 				tFtpFilePath = configInfoVO.getConfigFileDirPath().concat(configInfoVO.getConfigFileName());
 			}
