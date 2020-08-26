@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
+import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -36,6 +40,7 @@ public class AdminJobController extends BaseController {
 	private static final String[] UI_TABLE_COLUMNS =
 			new String[] {"","","qt.jobGroup","qt.jobName","qt.priority","qt.triggerState","qt.prevFireTime","qt.nextFireTime","qt.misfireInstr","qct.cronExpression","qct.timeZoneId","qjd.jobClassName","qjd.description"};
 
+	
 	@Autowired
 	JobService jobService;
 
@@ -45,10 +50,13 @@ public class AdminJobController extends BaseController {
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)
 	public String adminJob(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
-
+		Map<String, String> distributedGroupList = new HashMap<>();
+		
 		try {
-
-
+			List<String> groupids = Env.DISTRIBUTED_GROUP_ID;
+			for(String id:groupids) {
+				distributedGroupList.put(id, id);
+			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 
@@ -62,6 +70,10 @@ public class AdminJobController extends BaseController {
 				executeOrderMap.put(i, i);
 			}
 			model.addAttribute("inputPriority", executeOrderMap);
+
+			if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
+				model.addAttribute("distributedGroupList", distributedGroupList);
+			}
 
 			init(model, request);
 		}

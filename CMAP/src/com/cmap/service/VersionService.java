@@ -103,10 +103,11 @@ public interface VersionService {
 	 * @param configType
 	 * @param deviceListIDs
 	 * @param jobTrigger
+	 * @param triggerName
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger)
+	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName)
 	        throws ServiceLayerException;
 
 	/**

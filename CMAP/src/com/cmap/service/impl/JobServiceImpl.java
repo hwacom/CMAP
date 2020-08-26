@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
@@ -361,7 +363,12 @@ public class JobServiceImpl implements JobService {
 		ObjectMapper mapper = new ObjectMapper();
 		JobDataMap jobDataMap = new JobDataMap();
 		jobDataMap.put(Constants.QUARTZ_PARA_SCHED_TYPE, jsVO.getInputSchedType());
-
+		
+		//增加分散式架構判斷
+		if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
+			jobDataMap.put(Constants.QUARTZ_PARA_DISTRIBUTED_GROUP_ID,  jsVO.getInputJobGroup());
+		}
+		
 		switch (jsVO.getInputSchedType()) {
 			case Constants.QUARTZ_SCHED_TYPE_BACKUP_CONFIG:
 				jobDataMap.put(Constants.QUARTZ_PARA_DEVICE_LIST_ID, mapper.writeValueAsString(jsVO.getInputDeviceListIds()));

@@ -30,10 +30,12 @@ import com.cmap.service.DeliveryService;
 import com.cmap.service.ProvisionApiService;
 import com.cmap.service.PrtgService;
 import com.cmap.service.ScriptService;
+import com.cmap.service.VersionService;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.cmap.service.vo.ProvisionParameterVO;
 import com.cmap.service.vo.ScriptServiceVO;
+import com.cmap.service.vo.VersionServiceVO;
 import com.cmap.utils.impl.EncryptUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -51,6 +53,9 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 	
 	@Autowired
 	private ScriptService scriptService;
+	
+	@Autowired
+	private VersionService versionService;
 	
 	@Autowired
 	private ProvisionApiAccessLogDAO provisionApiAccessLogDAO;
@@ -74,6 +79,7 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 		}
 		
 	}
+	
 	@Override
 	public Map<String, Object> getDefaultScriptInfo(JsonNode jsonData, String ip)  {
 		
@@ -131,7 +137,7 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 						varkey = vo.getActionScriptVariable() == null ? "  " :vo.getActionScriptVariable().replaceAll("\"", "");
 						varkey = varkey.substring(1, varkey.length()-1);
 					}else {
-						dlEntity = deviceDAO.findDeviceListByDeviceListId(id);
+						dlEntity = deviceDAO.findDeviceListByGroupAndDeviceId(null, id);
 						info = scriptService.loadDefaultScriptInfo(dlEntity.getDeviceModel(), scriptType, undoFlag);
 						codeList = codeList == null ? info.getScriptCode() : codeList.concat(Env.COMM_SEPARATE_SYMBOL).concat(info.getScriptCode());
 						varkey = info.getActionScriptVariable() == null ? "" :info.getActionScriptVariable().replaceAll("\"", "").substring(1, varkey.length()-1);
@@ -362,5 +368,74 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 				log.error(e.toString(), e);
 			}
 		}
+	}
+	
+	@Override
+	public Map<String, Object> doApiConfigBackup(JsonNode jsonData, String ip)  {
+		
+		String infoMsg = "success";
+		String errMsg = "";
+		Map<String, Object> data = new HashMap<String, Object>();
+		
+		try {
+			String username = jsonData.get("user").textValue();
+			String configType = jsonData.has("configType") ? jsonData.findValue("configType").asText() : null;
+			Iterator<JsonNode> ipIt = jsonData.get("deviceIp").iterator();
+
+			if(StringUtils.isBlank(username) || ipIt == null || !ipIt.hasNext()) {
+				data.put("infoMsg", "error");
+				data.put("errMsg", "參數不正確!!");
+	            return data;
+			}
+
+			String deviceIp = null;
+			List<String> deviceListIds = new ArrayList<>();
+			String deviceIds = null;
+			DeviceList dlEntity = null;
+			
+			VersionServiceVO retVO = null;
+			while (ipIt.hasNext()) {
+				deviceIp = ipIt.next().asText();				
+				
+				dlEntity = deviceDAO.findDeviceListByDeviceIp(deviceIp);
+				if (dlEntity == null) {
+					data.put("infoMsg", "error");
+					data.put("errMsg", "參數不正確!!");
+					return data;
+				}
+				deviceListIds.add(dlEntity.getDeviceListId());
+				deviceIds = deviceIds == null? dlEntity.getDeviceId() : deviceIds.concat(Env.COMM_SEPARATE_SYMBOL).concat(dlEntity.getDeviceId());
+			}
+			
+			retVO = versionService.backupConfig(configType, deviceListIds, false, "API Trigger backup");
+			
+			ProvisionApiAccessLog paal = new ProvisionApiAccessLog();
+			String checkHash = StringUtils.upperCase(EncryptUtils.getSha256(username.concat(new Date().toString())));
+			paal.setCheckHash(checkHash);
+			paal.setUserIp(ip);
+			paal.setUserName(username);
+			paal.setActionIp(ip);
+			paal.setActionUser(username);
+			paal.setAccessTime(new Timestamp((new Date()).getTime()));
+			paal.setActionTime(new Timestamp((new Date()).getTime()));
+			paal.setAction("DONE");
+			paal.setDeviceIds(deviceIds);
+			paal.setScriptCode("");
+			paal.setVarKey("");
+			
+			saveProvisionApiLog(paal);
+			
+			// Step 2. 回傳JSON格式
+			data.put("infoMsg", retVO.getRetMsg());
+			data.put("errMsg", errMsg);
+			
+	    } catch (Exception e) {
+            log.error(e.toString(), e);
+            data.put("infoMsg", "error");
+			data.put("errMsg", e.toString());
+            return data;
+	    }
+		
+		return data;
 	}
 }

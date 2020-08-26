@@ -219,7 +219,7 @@
 	           	<div class="form-group row">
 	            	<label for="addAccount" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.code" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm checkRequired" id="scriptTypeCode" name="scriptTypeCode" placeholder="<spring:message code="script.type.code" />" >
+	            		<input type="text" class="form-control form-control-sm checkRequired" id="scriptTypeCode" name="scriptTypeCode" placeholder="<spring:message code="script.type.code" /> (EX:TMP_)" >
 	            	</div>
 	            </div>
 	            <div class="form-group row">

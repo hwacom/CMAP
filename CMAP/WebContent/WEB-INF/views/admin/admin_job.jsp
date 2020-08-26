@@ -140,7 +140,14 @@
 	           	<div class="form-group row">
 	            	<label for="inputJobGroup" class="col-md-2 col-sm-3 col-form-label">群組名稱<span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	                	<input type="text" class="form-control form-control-sm" id="inputJobGroup" name="inputJobGroup" placeholder="群組名稱">
+	                    <c:if test="${fn:length(distributedGroupList) ge 1}">
+		                    <form:select path="distributedGroupList" id="inputJobGroup" name="inputJobGroup" class="form-control form-control-sm">
+		                		<form:options items="${distributedGroupList}" />
+		                	</form:select>
+	                    </c:if>
+	                    <c:if test="${fn:length(distributedGroupList) lt 1}">
+	    	    			<input type="text" class="form-control form-control-sm" id="inputJobGroup" name="inputJobGroup" placeholder="群組名稱">
+                    	</c:if>
 	                </div>
 	            </div>
 	            <div class="form-group row">

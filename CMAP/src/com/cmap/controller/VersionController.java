@@ -498,7 +498,7 @@ public class VersionController extends BaseController {
 				deviceListIDs.add(jn.asText());
 			}
 
-			retVO = versionService.backupConfig(configType, deviceListIDs, false);
+			retVO = versionService.backupConfig(configType, deviceListIDs, false, null);
 
 			return new AppResponse(HttpServletResponse.SC_OK, retVO.getRetMsg());
 

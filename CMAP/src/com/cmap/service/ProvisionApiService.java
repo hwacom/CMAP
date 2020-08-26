@@ -24,4 +24,6 @@ public interface ProvisionApiService {
 	Map<String, Object> doApiProvision(JsonNode jsonData, String ip);
 
 	Map<String, Object> getDefaultScriptInfo(JsonNode jsonData, String ip);
+
+	Map<String, Object> doApiConfigBackup(JsonNode jsonData, String ip);
 }

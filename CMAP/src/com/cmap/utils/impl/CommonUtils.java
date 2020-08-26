@@ -257,7 +257,7 @@ public class CommonUtils {
 		if (cmd.contains(Env.CLI_VAR_FTP_OUTPUT_FILE_PATH)) {
 			String ftpFilePath = "";
 			if(StringUtils.isBlank(configInfoVO.getConfigFileDirPath()) || configInfoVO.getConfigFileDirPath().length() == 1) {
-				ftpFilePath.concat(configInfoVO.getConfigFileName());
+				ftpFilePath = ftpFilePath.concat(configInfoVO.getConfigFileName());
 			}else {
 				ftpFilePath = configInfoVO.getConfigFileDirPath().concat(configInfoVO.getConfigFileName());
 			}
