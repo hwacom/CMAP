@@ -106,6 +106,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
     public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
     public static String SHOW_MENU_ITEM_BK_LOGIN_INFO;						 // 後台管理 > 登入紀錄查詢
+    public static String SHOW_MENU_ITEM_BK_INVENTORY;						 // 後台管理 > 資產清冊查詢
     
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_NET_FLOW;              // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_VERSION_MAIN;          // 設定NET_FLOW查詢功能資料匯出CSV檔名格式

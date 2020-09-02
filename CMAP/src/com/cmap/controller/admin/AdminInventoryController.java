@@ -3,12 +3,10 @@ package com.cmap.controller.admin;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,29 +22,21 @@ import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
-import com.cmap.i18n.DatabaseMessageSourceBase;
 import com.cmap.security.SecurityUtil;
-import com.cmap.service.SysLoginInfoService;
-import com.cmap.service.vo.SysLoginInfoVO;
+import com.cmap.service.InventoryInfoService;
+import com.cmap.service.vo.InventoryInfoVO;
 import com.cmap.utils.DataExportUtils;
 import com.cmap.utils.impl.CsvExportUtils;
 
 @Controller
-@RequestMapping("/admin/loginInfo")
-public class AdminLoginInfoController extends BaseController {
+@RequestMapping("/admin/inventory")
+public class AdminInventoryController extends BaseController {
 	@Log
 	private static Logger log;
 
 	@Autowired
-	private SysLoginInfoService sysLoginInfoService;
+	private InventoryInfoService inventoryInfoService;
 
-	@Autowired
-	private DatabaseMessageSourceBase messageSource;
-
-
-	//是否查詢條件為sensorId
-//	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
-	
 	/**
 	 * 初始化選單
 	 * @param model
@@ -75,17 +65,17 @@ public class AdminLoginInfoController extends BaseController {
 		} finally {
 			initMenu(model, request);
 		}
-		return "admin/admin_login_info";
+		return "admin/admin_inventory";
 	}
 
-	@RequestMapping(value = "getLoginInfoData.json", method = RequestMethod.POST)
-	public @ResponseBody DatatableResponse getLoginInfoData(
+	@RequestMapping(value = "getInventoryInfoData.json", method = RequestMethod.POST)
+	public @ResponseBody DatatableResponse getInventoryInfoData(
 			Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(name="queryDateBegin", required=true, defaultValue="") String queryDateBegin,
-			@RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
-			@RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
-			@RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
-			@RequestParam(name="queryUserAccount", required=false, defaultValue="") String queryUserAccount,
+			@RequestParam(name="queryProbe", required=false, defaultValue="") String queryProbe,
+			@RequestParam(name="queryDeviceName", required=false, defaultValue="") String queryDeviceName,
+			@RequestParam(name="queryDeviceType", required=false, defaultValue="") String queryDeviceType,
+			@RequestParam(name="queryBrand", required=false, defaultValue="") String queryBrand,
+			@RequestParam(name="queryModel", required=false, defaultValue="") String queryModel,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
 			@RequestParam(name="order[0][column]", required=false, defaultValue="") Integer orderColIdx,
@@ -93,18 +83,10 @@ public class AdminLoginInfoController extends BaseController {
 
 		long total = 0;
 		long filteredTotal = 0;
-		List<SysLoginInfoVO> dataList = new ArrayList<>();
+		List<InventoryInfoVO> dataList = new ArrayList<>();
 	    try {
-	        if (StringUtils.isBlank(queryDateBegin) || StringUtils.isBlank(queryDateEnd)) {
-	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("date", Locale.TAIWAN, null);
-	            return new DatatableResponse(new Long(0), new ArrayList<SysLoginInfoVO>(), new Long(0), msg);
-	        }
-	        if (StringUtils.isBlank(queryTimeBegin) || StringUtils.isBlank(queryTimeEnd)) {
-	            String msg = messageSource.getMessage("please.choose", Locale.TAIWAN, null) + messageSource.getMessage("time", Locale.TAIWAN, null);
-	            return new DatatableResponse(new Long(0), new ArrayList<SysLoginInfoVO>(), new Long(0), msg);
-	        }
 
-			dataList = doDataQuery(queryDateBegin, queryDateEnd, queryTimeBegin, queryTimeEnd, queryUserAccount, startNum,
+			dataList = doDataQuery(queryProbe, queryDeviceName, queryDeviceType, queryBrand, queryModel, startNum,
 					pageLength, orderColIdx, orderDirection);
 	        filteredTotal = dataList.size();
 	        total = dataList.size();
@@ -117,22 +99,21 @@ public class AdminLoginInfoController extends BaseController {
 		return new DatatableResponse(total, dataList, filteredTotal, null, "");
 	}
 
-	private List<SysLoginInfoVO> doDataQuery(String queryDateBegin, String queryDateEnd, String queryTimeBegin,
-			String queryTimeEnd, String queryUserAccount, Integer startNum, Integer pageLength, Integer orderColIdx,
+	private List<InventoryInfoVO> doDataQuery(String queryProbe, String queryDeviceName, String queryDeviceType,
+			String queryBrand, String queryModel, Integer startNum, Integer pageLength, Integer orderColIdx,
 			String orderDirection) throws ServiceLayerException {
 
-		SysLoginInfoVO sliVO = new SysLoginInfoVO();
-		sliVO.setQueryDateBegin(queryDateBegin);
-		sliVO.setQueryDateEnd(queryDateEnd);
-		sliVO.setQueryTimeBegin(queryTimeBegin);
-		sliVO.setQueryTimeEnd(queryTimeEnd);
-		sliVO.setQueryUserAccount(queryUserAccount);
-		sliVO.setStartNum(startNum);
-		sliVO.setPageLength(pageLength);
-		// sliVO.setOrderColumn("From_Date_Time");
-		sliVO.setOrderDirection(orderDirection);
+		InventoryInfoVO iiVO = new InventoryInfoVO();
+		iiVO.setQueryProbe(queryProbe);
+		iiVO.setQueryDeviceName(queryDeviceName);
+		iiVO.setQueryDeviceType(queryDeviceType);
+		iiVO.setQueryBrand(queryBrand);
+		iiVO.setQueryModel(queryModel);
+		iiVO.setStartNum(startNum);
+		iiVO.setPageLength(pageLength);
+		iiVO.setOrderDirection(orderDirection);
 
-		return sysLoginInfoService.findLoginInfo(sliVO);
+		return 	inventoryInfoService.findInventoryInfo(iiVO);
 
 	}
 	
@@ -154,11 +135,11 @@ public class AdminLoginInfoController extends BaseController {
 	@RequestMapping(value = "dataExport.json", method = RequestMethod.POST)
     public @ResponseBody AppResponse dataExport(
             Model model, HttpServletRequest request, HttpServletResponse response,
-            @RequestParam(name="queryDateBegin", required=true, defaultValue="") String queryDateBegin,
-            @RequestParam(name="queryDateEnd", required=false, defaultValue="") String queryDateEnd,
-            @RequestParam(name="queryTimeBegin", required=true, defaultValue="") String queryTimeBegin,
-            @RequestParam(name="queryTimeEnd", required=false, defaultValue="") String queryTimeEnd,
-			@RequestParam(name="queryUserAccount", required=false, defaultValue="") String queryUserAccount,
+            @RequestParam(name="queryProbe", required=false, defaultValue="") String queryProbe,
+			@RequestParam(name="queryDeviceName", required=false, defaultValue="") String queryDeviceName,
+			@RequestParam(name="queryDeviceType", required=false, defaultValue="") String queryDeviceType,
+			@RequestParam(name="queryBrand", required=false, defaultValue="") String queryBrand,
+			@RequestParam(name="queryModel", required=false, defaultValue="") String queryModel,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
             @RequestParam(name="order[0][column]", required=false, defaultValue="2") Integer orderColIdx,
@@ -169,13 +150,15 @@ public class AdminLoginInfoController extends BaseController {
 	        Integer queryStartNum = 0;
             Integer queryPageLength = getDataExportRecordCount(exportRecordCount);
 
-			List<SysLoginInfoVO> dataList = doDataQuery(queryDateBegin, queryDateEnd, queryTimeBegin, queryTimeEnd,
-					queryUserAccount, queryStartNum, queryPageLength, orderColIdx, orderDirection);
-
+			List<InventoryInfoVO> dataList = doDataQuery(queryProbe, queryDeviceName, queryDeviceType, queryBrand,
+					queryModel, queryStartNum, queryPageLength, orderColIdx, orderDirection);
+			
 	        if (dataList != null && !dataList.isEmpty()) {
-				String fileName = getFileName("LOGIN_INFO_[CurrentTime]");
-				String[] fieldNames = new String[] { "sessionId", "ipAddr", "account", "userName", "loginTimeStr", "logoutTimeStr" };
-				String[] columnsTitles = new String[] { "session id", "ip", "帳號", "使用者名稱", "登入時間", "登出時間" };
+				String fileName = getFileName("Inventory_Info_[CurrentTime]");
+				String[] fieldNames = new String[] { "deviceId", "probe", "group", "deviceName", "deviceIp",
+						"deviceType", "brand", "model", "systemVersion", "serialNumber", "manufactureDate" };
+				String[] columnsTitles = new String[] { "設備 ID", "所屬 Probe", "所屬群組", "設備名稱", "IP_Address", "設備類型",
+						"設備廠牌", "設備型號", "軟體版本", "序號", "出廠日期" };
 
 	            DataExportUtils export = new CsvExportUtils();
 	            String fileId = export.output2Web(response, fileName, true, dataList, fieldNames, columnsTitles);

@@ -831,13 +831,26 @@
 		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_LOGIN_INFO eq __SHOW__}">
 		                		<li class="subMenu-item">
 			                    	<a id="bk_login" href="${pageContext.request.contextPath}/admin/loginInfo">
-			                    	  <span data-feather="package"></span> 
+			                    	  <span data-feather="log-in"></span> 
 			                    	  	<span><spring:message code="func.sys.login.info" /></span>
 			                    	</a>
 			                    </li>
 		                	</c:if>
 		                	</sec:authorize>
 		                	<!-- [登入紀錄查詢] END -->
+		                	
+		                	<!-- [資產清冊查詢] END -->
+		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_INVENTORY eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_inventory" href="${pageContext.request.contextPath}/admin/inventory">
+			                    	  <span data-feather="package"></span> 
+			                    	  	<span><spring:message code="func.inventory" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	</sec:authorize>
+		                	<!-- [資產清冊查詢] END -->
 		                </ul>
 		            </li>
               	</c:if>
