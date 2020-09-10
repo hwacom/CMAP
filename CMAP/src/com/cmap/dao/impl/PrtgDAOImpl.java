@@ -65,7 +65,8 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
         if (StringUtils.isNotBlank(settingType)) {
             sb.append(" and purs.settingType = :settingType ");
         }
-        sb.append(" order by purs.settingType desc ");
+        // 2020-09-08 Alvin modified for the drop-down list of the sensor mode ordering
+        sb.append(" order by purs.prtgAccount asc, purs.settingType desc, cast(purs.parentNode as int) asc, purs.remark asc ");
 
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createQuery(sb.toString());

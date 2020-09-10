@@ -77,7 +77,7 @@
 					<input type="text" id="query_SenderIp" class="input-ip" style="width: 60%">
 				</div>
 				 -->
-				<div class="col-lg-2 offset-lg-1 group-field-other">
+	    	    <div class="col-lg-2 offset-lg-2" style="padding-top: 10px;">
 	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
 	    	    </div>
 			  </div>

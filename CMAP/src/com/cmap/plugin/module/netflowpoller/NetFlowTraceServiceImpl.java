@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -76,7 +78,7 @@ public class NetFlowTraceServiceImpl extends CommonServiceImpl implements NetFlo
 	}
 
 	@Override
-	public List<NetFlowTraceVO> findNetFlowRecordFromDB(NetFlowTraceVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField) throws ServiceLayerException {
+	public List<NetFlowTraceVO> findNetFlowRecordFromDB(NetFlowTraceVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField, Map<String, String> groupNameMap) throws ServiceLayerException {
 		List<NetFlowTraceVO> retList = new ArrayList<>();
 		try {
 			List<String> tableTitleField = dataPollerService.getFieldName(Env.SETTING_ID_OF_NET_FLOW_TRACE, DataPollerService.FIELD_TYPE_TARGET);
@@ -144,23 +146,14 @@ public class NetFlowTraceServiceImpl extends CommonServiceImpl implements NetFlo
 
 							} else if (oriName.equals("GroupId")) {
 								fValue = Objects.toString(data[dataIdx]);
-								
-								if(!isSensorSearchMode) {
-									if (hasGetDevice == false && device == null) {
-									    /*
-									     * 查詢條件已限制只能查一所學校，因此不需要每一筆查詢結果都再做一次學校查詢
-									     */
-									    device = deviceDAO.findDeviceListByGroupAndDeviceId(fValue, null);
-
-									    if (!hasGetDevice) {
-									        hasGetDevice = true;
-									    }
-									}
-									
-									if (device != null) {
-										BeanUtils.setProperty(vo, "groupName", device.getGroupName());
-									}
-								}
+								//  fValue此時根據isSensorSearchMode設定可能存放groupId或sensorId
+								// 使用fValue查表取得groupName或sensorName
+								String mappingName = groupNameMap.get(fValue);
+								// 查表有查到就填入name,沒查到就填入例外預設顯示字串
+								if (StringUtils.isNotBlank(mappingName))
+									BeanUtils.setProperty(vo, "groupName", mappingName);
+								else
+									BeanUtils.setProperty(vo, "groupName", Constants.NULL_DEFAULT_STR);
 							} else if (oriName.equals("SourceIP") || oriName.equals("DestinationIP")) {
 							    fValue = Objects.toString(data[dataIdx]);
 							    boolean ipInGroup = isSensorSearchMode ? false : chkIpInGroupSubnet(groupSubnet, fValue, Constants.IPV4);
@@ -175,24 +168,11 @@ public class NetFlowTraceServiceImpl extends CommonServiceImpl implements NetFlo
 
 								fValue = protocolName;
 
-							} else if(oriName.equals("SensorId")){
-								fValue = Objects.toString(data[dataIdx]);
-								
-								if(isSensorSearchMode) {
-									if (hasGetSensor == false && list == null) {
-										list = prtgDAO.findPrtgUserRightSettingBySettingValueAndType(fValue, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
-
-									    if (!hasGetSensor) {
-									    	hasGetSensor = true;
-									    }
-									}
-									
-									if (list != null && list.size()>0) {
-										BeanUtils.setProperty(vo, "groupName", list.get(0).getRemark());
-									}
-								}
-							}	else {							
-								fValue = Objects.toString(data[dataIdx]);
+							} else {
+								if (data[dataIdx] != null)
+									fValue = Objects.toString(data[dataIdx]);
+								else
+									fValue =  Constants.NULL_DEFAULT_STR; // NULL顯示預設字串
 							}
 							BeanUtils.setProperty(vo, fName, fValue);
 						}
@@ -361,7 +341,7 @@ public class NetFlowTraceServiceImpl extends CommonServiceImpl implements NetFlo
 				nfVO.setQueryDataId(dataId);
 				nfVO.setQueryGroupId(groupId);
 				nfVO.setQueryDateBegin(dateBegin);
-				List<NetFlowTraceVO> dataList = findNetFlowRecordFromDB(nfVO, null, null, null);
+				List<NetFlowTraceVO> dataList = findNetFlowRecordFromDB(nfVO, null, null, null, null);
 
 				if (dataList != null && !dataList.isEmpty()) {
 					retVO = dataList.get(0);

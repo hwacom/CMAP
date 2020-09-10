@@ -1142,7 +1142,7 @@ public class CommonServiceImpl implements CommonService {
             List<PrtgUserRightSetting> list = prtgDAO.findPrtgUserRightSetting(prtgAccount, Constants.PRTG_RIGHT_SETTING_TYPE_OF_SENSOR);
 
             if (list != null && !list.isEmpty()) {
-                retMap = new HashMap<>();
+                retMap = new LinkedHashMap<>();
 
                 String sensorId = null, sensorName = null;
                 List<String> excludeList = Env.PRTG_EXCLUDE_SENSOR_ID == null ? new ArrayList<>() : Env.PRTG_EXCLUDE_SENSOR_ID;
