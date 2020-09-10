@@ -1707,7 +1707,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 				String scriptInfoId = scriptInfo.getScriptInfoId();
                 String scriptCode = scriptInfo.getScriptCode();
-
+                
                 boolean doAlternativeProcess = false;   // 決定是否要跑替代方案腳本(目前 for IP封鎖 > MAC封鎖<替代>)
                 Map<String, Object> alternativeProcessParaMap = new HashMap<>();    // 紀錄替代方案腳本流程所需參數
 
@@ -1954,18 +1954,27 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case WRITE_SPECIFY_LOG:
                             try {
-                            	//針對[苗栗教網]IP封鎖流程 如果是特定model封鎖則封鎖原因待預設值
-                            	List<String> scriptList = new ArrayList<>();
-                            	// 若使用者為管理者，多查出中心端的IP控制腳本
-								if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-									scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-								}
-					            // 判斷當前執行的供裝是否為IP封鎖腳本
-                                if (scriptList.contains(scriptCode) && scriptInfo.getDeviceModel().equalsIgnoreCase(Env.DELIVERY_MAC_BLOCK_WITH_IP_DEVICE_MODEL)
-                                		&& StringUtils.isBlank(reason)) {
-                                	reason = "資安通報";
-                                }
-                                writeSpecifyLog(ciVO, scriptCode, varMapList, reason);
+                            	String scriptType = scriptInfo.getScriptType().getScriptTypeCode();
+                            	if(StringUtils.equalsAnyIgnoreCase(scriptType, ScriptType.PORT_.toString())
+                            			||StringUtils.equalsAnyIgnoreCase(scriptType, ScriptType.IP_.toString())
+                            			||StringUtils.equalsAnyIgnoreCase(scriptType, ScriptType.IP_CTR_.toString())
+                            			||StringUtils.equalsAnyIgnoreCase(scriptType, ScriptType.MAC_.toString())
+                            			||StringUtils.equalsAnyIgnoreCase(scriptType, ScriptType.BIND_.toString())) {
+                            		
+                            		//針對[苗栗教網]IP封鎖流程 如果是特定model封鎖則封鎖原因待預設值
+                                	List<String> scriptList = new ArrayList<>();
+                                	// 若使用者為管理者，多查出中心端的IP控制腳本
+    								if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
+    									scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
+    								}
+    					            // 判斷當前執行的供裝是否為IP封鎖腳本
+                                    if (scriptList.contains(scriptCode) && scriptInfo.getDeviceModel().equalsIgnoreCase(Env.DELIVERY_MAC_BLOCK_WITH_IP_DEVICE_MODEL)
+                                    		&& StringUtils.isBlank(reason)) {
+                                    	reason = "資安通報";
+                                    }
+                                    writeSpecifyLog(ciVO, scriptCode, varMapList, reason);
+                            	}
+                            	
                                 break;
 
                             } catch (Exception e) {

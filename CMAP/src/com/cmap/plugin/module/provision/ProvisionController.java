@@ -176,4 +176,48 @@ public class ProvisionController extends BaseController {
 
     return jsonString;
 	}
+	
+	/**
+	 * 呼叫 API 入口
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @param response
+	 * @param apiVmName
+	 * @return
+	 */
+	@CrossOrigin(maxAge = 3600)
+	@RequestMapping(value = "doConfigBackup.json", method = RequestMethod.POST, produces="application/json;charset=UTF-8")
+	public @ResponseBody String doConfigBackup(HttpServletRequest request, @RequestBody JsonNode jsonData) {
+
+		String jsonString = "";		
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> data = new HashMap<String, Object>();
+		
+		try {
+			// Step 1.
+			if(jsonData == null) {
+				data.put("infoMsg", "error");
+				data.put("errMsg", "參數不正確!!");
+				jsonString = mapper.writeValueAsString(data);
+	            return jsonString;
+			}
+			
+			data = provisionApiService.doApiConfigBackup(jsonData, SecurityUtil.getIpAddr(request));
+			jsonString = mapper.writeValueAsString(data);
+			
+	    } catch (Exception e) {
+            log.error(e.toString(), e);
+            data.put("infoMsg", "error");
+			data.put("errMsg", e.toString());
+            try {
+				jsonString = mapper.writeValueAsString(data);
+			} catch (JsonProcessingException e1) {
+				//
+			}
+            return jsonString;
+	    }
+
+	    return jsonString;
+	}
 }

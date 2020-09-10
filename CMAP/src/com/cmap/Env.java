@@ -28,6 +28,10 @@ public class Env {
 	public static String LDAP_URL;
 	public static String LDAP_DOMAIN;
 	
+	//分散式架構開關: 針對批次處理
+	public static String DISTRIBUTED_FLAG;
+	public static List<String> DISTRIBUTED_GROUP_ID = new ArrayList();
+	
 	/**
 	 * 設定MENU TREE功能是否顯示
 	 */
@@ -102,6 +106,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_BK_SYS_JOB;                          // 後台管理 > 排程設定維護
     public static String SHOW_MENU_ITEM_BK_SYS_LOG;                          // 後台管理 > 系統紀錄查詢
     public static String SHOW_MENU_ITEM_BK_LOGIN_INFO;						 // 後台管理 > 登入紀錄查詢
+    public static String SHOW_MENU_ITEM_BK_INVENTORY;						 // 後台管理 > 資產清冊查詢
     
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_NET_FLOW;              // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
     public static String EXPORT_DATA_CSV_FILE_NAME_OF_VERSION_MAIN;          // 設定NET_FLOW查詢功能資料匯出CSV檔名格式
@@ -148,17 +153,6 @@ public class Env {
 
 	public static String ENABLE_LOG_USER_OPERATIONS;						 // 設定是否啟用USER操作紀錄到DB
 	public static String ENABLE_SECONDARY_DB;								 // 設定是否啟用第二台DB
-
-	public static List<String> SCRIPT_CODE_OF_IP_OPEN = new ArrayList<>();     // 設定IP開通的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_IP_BLOCK = new ArrayList<>();    // 設定IP封鎖的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_PORT_OPEN = new ArrayList<>();   // 設定PORT開通的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_PORT_BLOCK = new ArrayList<>();  // 設定PORT封鎖的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_MAC_OPEN = new ArrayList<>();    // 設定MAC開通的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_MAC_BLOCK = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_IP_MAC_BIND = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
-	public static List<String> SCRIPT_CODE_OF_IP_MAC_UNBIND = new ArrayList<>();   // 設定MAC封鎖的腳本代碼
-	
-	
 	
 	public static String KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;              // 設定IP開通/封鎖的IP_ADDRESS變數名稱
 	public static String KEY_VAL_OF_PORT_ID_WITH_PORT_OPEN_BLOCK;            // 設定PORT開通/封鎖的PORT_ID變數名稱

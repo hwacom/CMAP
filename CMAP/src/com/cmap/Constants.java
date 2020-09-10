@@ -128,6 +128,7 @@ public class Constants {
 	public static final String QUARTZ_PARA_JOB_FILE_OPERATION_SETTING_ID = "jobFileOperationSettingId";
 	public static final String QUARTZ_PARA_MAIL_LIST_SETTING_ID = "jobMailListSettingId";
 	public static final String QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID = "jobIpMacPortMappingPollerGroupId";
+	public static final String QUARTZ_PARA_DISTRIBUTED_GROUP_ID = "distributedGroupId";
 
 	public static final String PARA_IP_ADDRESS = "IP_ADDRESS";
 

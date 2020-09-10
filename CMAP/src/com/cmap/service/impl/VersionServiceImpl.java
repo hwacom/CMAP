@@ -785,7 +785,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	}
 
 	@Override
-	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger) {
+	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName) {
 		ProvisionServiceVO masterVO = new ProvisionServiceVO();
 		VersionServiceVO retVO = new VersionServiceVO();
 		final int totalCount = deviceListIDs.size();
@@ -798,7 +798,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		try {
 			masterVO.setLogMasterId(UUID.randomUUID().toString());
 			masterVO.setBeginTime(new Date());
-			masterVO.setUserName(jobTrigger ? Env.USER_NAME_JOB : SecurityUtil.getSecurityUser().getUsername());
+			masterVO.setUserName(jobTrigger ? Env.USER_NAME_JOB : (StringUtils.isBlank(triggerName)?SecurityUtil.getSecurityUser().getUsername():triggerName));
 
 			StepServiceVO ssVO;
 			for (String deviceListId : deviceListIDs) {

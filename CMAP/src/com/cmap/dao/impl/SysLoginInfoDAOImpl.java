@@ -87,7 +87,7 @@ public class SysLoginInfoDAOImpl extends BaseDaoHibernate implements SysLoginInf
         }
 		
 		if (StringUtils.isNotBlank(vo.getQueryUserAccount())) {
-			sb.append(" and sli.account in (:userAccount) ");
+			q.setParameter("userAccount", vo.getQueryUserAccount());
 		}
 
 		if (vo.getStartNum() != null && vo.getPageLength() != null) {
