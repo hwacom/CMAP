@@ -191,7 +191,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
             	brVO.setIpAddress(varMap.get(ipAddressVarKey));
             }
             if (varMap.containsKey(macAddressVarKey)) {
-				brVO.setPort(varMap.get(macAddressVarKey));
+				brVO.setMacAddress(varMap.get(macAddressVarKey));
 			}
             if(varMap.containsKey(portIdVarKey)) {
             	brVO.setPort(varMap.get(portIdVarKey));
