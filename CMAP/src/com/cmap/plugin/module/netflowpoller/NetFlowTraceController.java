@@ -49,16 +49,15 @@ public class NetFlowTraceController extends BaseController {
 
 	//是否查詢條件為sensorId
 	private boolean isSensorSearchMode = StringUtils.equalsIgnoreCase(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR, Constants.DATA_Y);
-	
+	// initMenu取得後除了下拉選單使用外也會提供給Service作為ID轉換Name查表使用
+	private Map<String, String> groupListMap = null;
+	private Map<String, String> sensorListMap = null;
 	/**
 	 * 初始化選單
 	 * @param model
 	 * @param request
 	 */
-	private void initMenu(Model model, HttpServletRequest request) {
-		Map<String, String> groupListMap = null;
-		Map<String, String> sensorListMap = null;
-		
+	private void initMenu(Model model, HttpServletRequest request) {		
 		try {
 			if(isSensorSearchMode) {
 				if(StringUtils.isBlank(Env.DEFAULT_DEVICE_ID_FOR_NET_FLOW)) {
@@ -423,7 +422,10 @@ public class NetFlowTraceController extends BaseController {
 	             * Option 2. 走 DB 模式查詢
 	             */
 	            List<NetFlowTraceVO> dataList = new ArrayList<>();
-	            dataList = netFlowTraceService.findNetFlowRecordFromDB(nfVO, startNum, pageLength, targetFieldList);
+	            if(isSensorSearchMode)
+	            	dataList = netFlowTraceService.findNetFlowRecordFromDB(nfVO, startNum, pageLength, targetFieldList, sensorListMap);
+	            else
+	            	dataList = netFlowTraceService.findNetFlowRecordFromDB(nfVO, startNum, pageLength, targetFieldList, groupListMap);
 	            retVO.setMatchedList(dataList);
 	        }
 	    } catch (ServiceLayerException sle) {

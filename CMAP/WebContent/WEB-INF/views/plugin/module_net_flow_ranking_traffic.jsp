@@ -36,16 +36,6 @@
                         <form:options items="${groupList}" />
                     </form:select>
 	    	    </div>
-	    	    <div class="col-lg-2 offset-lg-5" style="padding-top: 10px;">
-	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
-	    	    		<spring:message code="btn.query" />
-	    	    	</button>
-	    	    </div>
-	    	    <div class="col-lg-2" style="padding-top: 10px;">
-	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
-	    	    		<spring:message code="btn.export" />
-	    	    	</button>
-	    	    </div>
 	    	  </div>
 	    	  <div class="form-group row">
 	    	  	 <div class="col-lg-4 group-field-other">
@@ -54,19 +44,29 @@
 	    	    	<span class="font-weight-bold center" style="width: 5%">~</span>
 	    	    	<input type="date" id="queryDateEnd"  class="input-date-end"  style="width: 35%">
 	    	    </div>
-	    	    <div class="col-lg-2 offset-lg-2 action-btn-bar-style" align="center">
+	    	    <div class="col-lg-1 action-btn-bar-style" align="center">
 	    	    	<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" id="btn_1d_web">
 	    	    		<spring:message code="btn.1.day" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    <div class="col-lg-1 action-btn-bar-style" align="center">
 	    	    	<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" id="btn_3d_web">
 	    	    		<spring:message code="btn.3.day" />
 	    	    	</button>
 	    	    </div>
-	    	    <div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    <div class="col-lg-1 action-btn-bar-style" align="center">
 	    	    	<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" id="btn_7d_web">
 	    	    		<spring:message code="btn.7.day" />
+	    	    	</button>
+	    	    </div>
+	    	    <div class="offset-lg-1 col-lg-2"  style="padding-top: 10px;">
+	    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
+	    	    		<spring:message code="btn.query" />
+	    	    	</button>
+	    	    </div>
+	    	    <div class="col-lg-2 " style="padding-top: 10px;">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
+	    	    		<spring:message code="btn.export" />
 	    	    	</button>
 	    	    </div>
         	  </div>

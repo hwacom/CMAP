@@ -1,6 +1,7 @@
 package com.cmap.plugin.module.netflowpoller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cmap.exception.ServiceLayerException;
 
@@ -16,15 +17,16 @@ public interface NetFlowTraceService {
 	public long countNetFlowRecordFromDB(NetFlowTraceVO nfVO, List<String> searchLikeField) throws ServiceLayerException;
 
 	/**
-	 * 查找符合條件資料 From DB
+	 * 查找符合條件資料 From DB (SensorSearchMode時groupNameMap會放SensorName)
 	 * @param nfVO
 	 * @param startRow
 	 * @param pageLength
 	 * @param searchLikeField
+	 *  @param groupNameMap
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public List<NetFlowTraceVO> findNetFlowRecordFromDB(NetFlowTraceVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField) throws ServiceLayerException;
+	public List<NetFlowTraceVO> findNetFlowRecordFromDB(NetFlowTraceVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField, Map<String, String> groupNameMap) throws ServiceLayerException;
 
 	/**
 	 * 查找符合條件資料 From File
