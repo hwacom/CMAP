@@ -319,7 +319,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                             /*
                              * Step 4-1. 呼叫供裝模組，登入設備取得 cluster status 資料
                              */
-                            ScriptServiceVO clusterStatusScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+                            ScriptServiceVO clusterStatusScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
                                     ScriptType.CLUSTER_STATUS.toString(), Constants.DATA_STAR_SYMBOL);
 
                             if (clusterStatusScriptVO == null) {
@@ -397,7 +397,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
                         /*
                          * Step 5. 呼叫供裝模組，登入設備做 cluster migrate
                          */
-                        ScriptServiceVO clusterMigrateScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+                        ScriptServiceVO clusterMigrateScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
                                 ScriptType.CLUSTER_MIGRATE.toString(), Constants.DATA_STAR_SYMBOL);
 
                         if (clusterMigrateScriptVO == null) {
@@ -682,7 +682,7 @@ public class ClusterMigrateServiceImpl extends CommonServiceImpl implements Clus
             /*
              * Step 1. 呼叫供裝模組，登入設備取得 cluster status 資料
              */
-            ScriptServiceVO serviceRestartScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+            ScriptServiceVO serviceRestartScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
                     ScriptType.SERVICE_RESTART.toString(), Constants.DATA_STAR_SYMBOL);
 
             if (serviceRestartScriptVO == null) {

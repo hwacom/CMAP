@@ -41,8 +41,8 @@ public class VersionServiceVO extends CommonServiceVO {
 	private String groupId;
 	private String groupName;
 	private String deviceId;
+	private String deviceModel;
 	private String deviceName;
-	private String systemVersion;
 	private String configType;
 	private String configVersion;
 	private String fileFullName;
@@ -51,8 +51,7 @@ public class VersionServiceVO extends CommonServiceVO {
 	private String configFileDirPath;
 	private String remoteFileDirPath;
 	private String deviceListId;
-	private String createYyyyMMdd;
-	private String deviceModel;
+	private String createYyyyMMdd;	
 
 	private boolean isAdmin;
 	private boolean checkEnableCurrentDateSetting;
@@ -244,12 +243,6 @@ public class VersionServiceVO extends CommonServiceVO {
 	}
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
-	}
-	public String getSystemVersion() {
-		return systemVersion;
-	}
-	public void setSystemVersion(String systemVersion) {
-		this.systemVersion = systemVersion;
 	}
 	public String getConfigType() {
 		return configType;

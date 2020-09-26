@@ -39,7 +39,6 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	private String scriptName;
 	private String scriptTypeId;
 	private String scriptTypeName;
-	private String systemVersion;
 	private String deviceModel;
 	private String actionScript;
 	private String actionScriptVariable;
@@ -174,12 +173,6 @@ public class DeliveryServiceVO extends CommonServiceVO {
 	}
 	public void setScriptTypeName(String scriptTypeName) {
 		this.scriptTypeName = scriptTypeName;
-	}
-	public String getSystemVersion() {
-		return systemVersion;
-	}
-	public void setSystemVersion(String systemVersion) {
-		this.systemVersion = systemVersion;
 	}
 	public String getActionScript() {
 		return actionScript;

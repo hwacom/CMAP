@@ -48,7 +48,7 @@ public interface ScriptService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public ScriptServiceVO findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String deviceModel);
+	public ScriptServiceVO findDefaultScriptInfoByScriptTypeAndDeviceModel(String scriptType, String deviceModel);
 
 	/**
 	 * 依查詢條件查詢符合的資料筆數

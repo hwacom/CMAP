@@ -17,11 +17,11 @@ public interface ScriptInfoDAO {
 	/**
 	 * 查找[腳本類別 + 設備系統版本]對應的預設腳本資訊
 	 * @param scriptType
-	 * @param systemVersion
+	 * @param deviceModel
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public ScriptInfo findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String systemVersion) throws ServiceLayerException;
+	public ScriptInfo findDefaultScriptInfoByScriptTypeAndDeviceModel(String scriptType, String deviceModel) throws ServiceLayerException;
 
 	void saveScriptInfo(ScriptInfo model);
 

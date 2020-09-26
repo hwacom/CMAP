@@ -6,5 +6,5 @@ import com.cmap.service.vo.ConfigVO;
 public interface ConfigService {
 
 	public ConfigVO findConfigContentSetting(
-			ConfigVO configVO, String settingType, String systemVersion, String deviceNameLike, String deviceListId) throws ServiceLayerException;
+			ConfigVO configVO, String settingType, String deviceModel, String deviceNameLike, String deviceListId) throws ServiceLayerException;
 }

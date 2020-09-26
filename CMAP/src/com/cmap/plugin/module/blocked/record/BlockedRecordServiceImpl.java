@@ -562,7 +562,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
 								nowbrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
 								nowbrVO.setRemark("acl封鎖同步");
 								
-								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ACL", device.getDeviceModel());
+								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(ScriptType.IP_BLOCK+"_ACL", device.getDeviceModel());
 								if(info != null) {
 									nowbrVO.setScriptCode(info.getScriptCode());
 									nowbrVO.setScriptName(info.getScriptName());
@@ -573,7 +573,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
 								
 							}else {
 								if(StringUtils.isBlank(nowbrVO.getScriptCode())) {
-									info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ACL", device.getDeviceModel());
+									info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(ScriptType.IP_BLOCK+"_ACL", device.getDeviceModel());
 									if(info != null) {
 										nowbrVO.setScriptCode(info.getScriptCode());
 										nowbrVO.setScriptName(info.getScriptName());
@@ -598,7 +598,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
 							if(StringUtils.isBlank(nowbrVO.getBlockBy())) {
 								nowbrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
 								nowbrVO.setRemark("arp封鎖同步");
-								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ARP", device.getDeviceModel());
+								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(ScriptType.IP_BLOCK+"_ARP", device.getDeviceModel());
 								if(info != null) {
 									nowbrVO.setScriptCode(info.getScriptCode());
 									nowbrVO.setScriptName(info.getScriptName());
@@ -608,7 +608,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
 								updateList.add(nowbrVO);
 							}else {				
 								if(StringUtils.isBlank(nowbrVO.getScriptCode())) {
-									info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.IP_BLOCK+"_ARP", device.getDeviceModel());
+									info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(ScriptType.IP_BLOCK+"_ARP", device.getDeviceModel());
 									if(info != null) {
 										nowbrVO.setScriptCode(info.getScriptCode());
 										nowbrVO.setScriptName(info.getScriptName());
@@ -712,7 +712,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
 								nowbrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
 								nowbrVO.setRemark("Port封鎖同步");
 								
-								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.PORT_BLOCK.toString(), device.getDeviceModel());
+								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(ScriptType.PORT_BLOCK.toString(), device.getDeviceModel());
 								if(info != null) {
 									nowbrVO.setScriptCode(info.getScriptCode());
 									nowbrVO.setScriptName(info.getScriptName());
@@ -817,7 +817,7 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
 								nowbrVO.setBlockBy(Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME != null ? Env.DELIVERY_SYNC_SWITCH_RECORD_ACTION_NAME : "SYSADMIN");
 								nowbrVO.setRemark("Mac封鎖同步");
 								
-								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(ScriptType.MAC_BLOCK.toString(), device.getDeviceModel());
+								info = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(ScriptType.MAC_BLOCK.toString(), device.getDeviceModel());
 								if(info != null) {
 									nowbrVO.setScriptCode(info.getScriptCode());
 									nowbrVO.setScriptName(info.getScriptName());

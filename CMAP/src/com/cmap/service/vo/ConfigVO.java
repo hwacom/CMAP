@@ -7,7 +7,6 @@ public class ConfigVO {
 	private boolean hasPositiveSetting = false;
 
 	private String settingType;
-	private String systemVersion;
 	private String deviceNameLike;
 	private String deviceListId;
 	private Integer contentLayer;
@@ -24,12 +23,6 @@ public class ConfigVO {
 	}
 	public void setSettingType(String settingType) {
 		this.settingType = settingType;
-	}
-	public String getSystemVersion() {
-		return systemVersion;
-	}
-	public void setSystemVersion(String systemVersion) {
-		this.systemVersion = systemVersion;
 	}
 	public String getDeviceNameLike() {
 		return deviceNameLike;

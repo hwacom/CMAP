@@ -25,7 +25,6 @@ public class ScriptServiceVO extends CommonServiceVO {
 	private String repeatFlag;
 	private String scriptDescription;
 	private String scriptTypeName;
-	private String systemVersion;
 	private String scriptMode;
 	private String deviceModel;
 	private String scriptSleepTime;
@@ -146,12 +145,6 @@ public class ScriptServiceVO extends CommonServiceVO {
 	}
 	public void setScriptTypeName(String scriptTypeName) {
 		this.scriptTypeName = scriptTypeName;
-	}
-	public String getSystemVersion() {
-		return systemVersion;
-	}
-	public void setSystemVersion(String systemVersion) {
-		this.systemVersion = systemVersion;
 	}
 	public String getScriptMode() {
 		return scriptMode;

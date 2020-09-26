@@ -164,12 +164,8 @@ function findBlockedPortRecordData(statusFlag) {
 					ajaxErrorHandler();
 				}
 			},
-			"order" : [[6 , 'desc' ]],
+			"order" : [[5 , 'desc' ]],
 			"pageLength" : 100,
-			/*
-			"initComplete": function(settings, json){
-            },
-            */
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				$("div.dataTables_length").parent().removeClass('col-sm-12');
@@ -204,20 +200,18 @@ function findBlockedPortRecordData(statusFlag) {
 				$('td:eq(0)', row).attr('data-field', 'action');
 				$('td:eq(1)', row).attr('data-field', 'seq');
 				$('td:eq(2)', row).attr('data-field', 'groupName');
-				$('td:eq(3)', row).attr('data-field', 'deviceName');
-				$('td:eq(4)', row).attr('data-field', 'port');
-				$('td:eq(5)', row).attr('data-field', 'status');
-				$('td:eq(6)', row).attr('data-field', 'blockTime');
-				$('td:eq(7)', row).attr('data-field', 'openTime');
-				$('td:eq(8)', row).attr('data-field', 'blockReason');
-				$('td:eq(9)', row).attr('data-field', 'openReason');
-				$('td:eq(10)', row).attr('data-field', 'blockBy');
-				$('td:eq(11)', row).attr('data-field', 'openBy');
+				$('td:eq(3)', row).attr('data-field', 'port');
+				$('td:eq(4)', row).attr('data-field', 'status');
+				$('td:eq(5)', row).attr('data-field', 'blockTime');
+				$('td:eq(6)', row).attr('data-field', 'openTime');
+				$('td:eq(7)', row).attr('data-field', 'blockReason');
+				$('td:eq(8)', row).attr('data-field', 'openReason');
+				$('td:eq(9)', row).attr('data-field', 'blockBy');
+				$('td:eq(10)', row).attr('data-field', 'openBy');
 			},
 			"columns" : [
 				{},{},
 				{ "data" : "groupName" , "className" : "left" },
-				{ "data" : "deviceName" , "className" : "left" },
 				{ "data" : "port" , "className" : "center" },
 				{ "data" : "statusFlag" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
@@ -248,7 +242,7 @@ function findBlockedPortRecordData(statusFlag) {
 						   	}
 				},
 				{
-					"targets" : [8],
+					"targets" : [7],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,
@@ -262,7 +256,7 @@ function findBlockedPortRecordData(statusFlag) {
 				}
 				,
 				{
-					"targets" : [9],
+					"targets" : [8],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,

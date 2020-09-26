@@ -601,7 +601,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 					final String userName = Objects.toString(entity[5], "(未知)");
 					final String groupName = Objects.toString(entity[6], "(未知)");
 					final String deviceName = Objects.toString(entity[7], "(未知)");
-					final String systemVersion = Objects.toString(entity[8], "(未知)");
+					final String deviceModel = Objects.toString(entity[8], "(未知)");
 					final String scriptName = Objects.toString(entity[9], "(未知)");
 					final String reason = Objects.toString(entity[10], "");
 					final String result = Objects.toString(entity[11], "(未知)");
@@ -614,7 +614,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 					vo.setCreateBy(userName);
 					vo.setGroupName(groupName);
 					vo.setDeviceName(deviceName);
-					vo.setSystemVersion(systemVersion);
+					vo.setDeviceModel(deviceModel);
 					vo.setScriptName(scriptName);
 					vo.setDeliveryReason(reason);
 					vo.setDeliveryResult(result);

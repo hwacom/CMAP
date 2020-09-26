@@ -85,7 +85,6 @@
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="deviceName"><spring:message code="device.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="port"><spring:message code="port.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
@@ -104,33 +103,6 @@
   </div>
 
 </section>
-
-<!-- Modal [View] start -->
-<div class="modal fade" id="viewScriptModal" tabindex="-1" role="dialog" aria-labelledby="viewScriptModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-mid" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="viewScriptModalLabel"><span id="msgModal_title"><spring:message code="script.content.preview" /></span></h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-     	<div class="form-group row">
-        	<label for="viewScriptModal_scriptName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="script.name" /> :</label>
-    		<input type="text" class="form-control form-control-sm col-md-10 col-sm-12" id="viewScriptModal_scriptName" readonly>
-        </div>
-        <div class="form-group row">
-        	<label for="viewScriptModal_scriptContent" class="col-md-2 col-sm-12 col-form-label"><spring:message code="script.content" /> :</label>
-        	<div class="form-control form-control-sm col-md-10 col-sm-12 font script" id="viewScriptModal_scriptContent"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal [View] end -->
 
 <!-- Modal [Step] start -->
 <div class="modal fade" id="stepModal" tabindex="-1" role="dialog" aria-labelledby="stepModalLabel" aria-hidden="true">

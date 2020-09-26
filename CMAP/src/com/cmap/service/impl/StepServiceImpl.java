@@ -2684,7 +2684,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 */
 	@Override
     public List<String> processConfigContentSetting(ConfigVO configVO, String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException {
-		final String systemVersion = configInfoVO.getSystemVersion();
+		final String deviceModel = configInfoVO.getDeviceModel();
 		final String deviceName = configInfoVO.getDeviceEngName();
 		final String deviceListId = configInfoVO.getDeviceListId();
 
@@ -2695,7 +2695,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		try {
 			// Step 1. 取得設定
 		    if (configVO == null) {
-		        configVO = configService.findConfigContentSetting(null, settingType, systemVersion, deviceName, deviceListId);
+		        configVO = configService.findConfigContentSetting(null, settingType, deviceModel, deviceName, deviceListId);
 		    }
 
 			settings = configVO.getConfigVOList();

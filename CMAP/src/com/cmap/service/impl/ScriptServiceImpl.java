@@ -61,7 +61,6 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 	public List<ScriptServiceVO> loadDefaultScript(String deviceListId, ScriptType scriptType) throws ServiceLayerException {
 		
 		DeviceList device = null;
-		List<ScriptInfo> list =  new ArrayList<>();
 		if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)) {
 			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
 		}
@@ -94,7 +93,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
     public ScriptInfo loadDefaultScriptInfo(String deviceModel, String scriptType, String undoFlag)throws ServiceLayerException {
         List<ScriptInfo> retEntity = new ArrayList<>();
 
-        ScriptServiceVO vo = findDefaultScriptInfoByScriptTypeAndSystemVersion(scriptType, deviceModel);
+        ScriptServiceVO vo = findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, deviceModel);
     	if(vo != null) {
     		ScriptInfo scriptInfo = new ScriptInfo();
     		BeanUtils.copyProperties(vo, scriptInfo);
@@ -125,14 +124,14 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
     }
 
 	@Override
-	public ScriptServiceVO findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String deviceModel) {
+	public ScriptServiceVO findDefaultScriptInfoByScriptTypeAndDeviceModel(String scriptType, String deviceModel) {
 		ScriptServiceVO retVO = null;
 		try {
-			ScriptInfo scriptInfo = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndSystemVersion(scriptType, deviceModel);
+			ScriptInfo scriptInfo = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, deviceModel);
 
 			if (scriptInfo == null) {
 				if (!StringUtils.equals(deviceModel, Constants.DATA_STAR_SYMBOL)) {
-					return findDefaultScriptInfoByScriptTypeAndSystemVersion(scriptType, Constants.DATA_STAR_SYMBOL);
+					return findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, Constants.DATA_STAR_SYMBOL);
 				}
 
 			} else {
