@@ -36,7 +36,6 @@ import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.inject.internal.Strings;
 
 @Controller
 @RequestMapping("/plugin/module/blockedRecord")
@@ -664,7 +663,10 @@ public class BlockedRecordController extends BaseController {
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_IP_MAC_BINDING:
 					brVO.setOrderColumn(UI_IP_MAC_BOUND_RECORD_COLUMNS[orderColIdx]);
 					brVO.setQueryBlockType(BlockType.BIND.toString());
-					break;					
+					break;
+				
+				default:
+					break;
 			}
             
             brVO.setSearchValue(searchValue);

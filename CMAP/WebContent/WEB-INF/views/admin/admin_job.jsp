@@ -332,6 +332,21 @@
 	            </div>
 	            <!-- [END]IP/MAC/Port Poller -->
 	            
+	            <!-- E1電路設定同步 -->
+	            <div id="sec_circuitSettingSync" style="display: none">
+		            <div class="form-group row">
+		            	<label for="inputGroupListIds" class="col-md-2 col-sm-3 col-form-label">Group_ID<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-4 col-sm-3">
+		            		<textarea rows="5" class="form-control form-control-sm" id="inputE1GroupIds" name="inputE1GroupIds" placeholder="(1行1筆資料)"></textarea>
+		                </div>
+		                <label for="inputDeviceListIds" class="col-md-2 col-sm-3 col-form-label">Device_ID<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-4 col-sm-3">
+		            		<textarea rows="5" class="form-control form-control-sm" id="inputE1DeviceIds" name="inputE1DeviceIds" placeholder="(1行1筆資料)"></textarea>
+		                </div>
+		            </div>
+	            </div>
+	            <!-- [END]E1電路設定同步 -->
+	            
 	            <input type="hidden" id="jobKeyName" name="jobKeyName">
 	            <input type="hidden" id="jobKeyGroup" name="jobKeyGroup">
 	            
@@ -500,6 +515,23 @@
        	  	</div>
        	  	<!-- [END]IP/MAC/Port Poller -->
             
+            <!-- E1電路設定同步 -->
+       	  	<div id="sec_detail_circuitSettingSync" style="display: none">
+	            <div class="form-group row">
+	            	<label for="viewDetailGroupIds" class="col-md-2 col-sm-3 col-form-label">Group_ID:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<textarea rows="5" class="form-control form-control-sm" id="viewDetailGroupIds" readonly></textarea>
+	                </div>
+	            </div>
+	            <div class="form-group row">
+	                <label for="viewDetailDeviceIds" class="col-md-2 col-sm-3 col-form-label">Device_ID:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<textarea rows="5" class="form-control form-control-sm" id="viewDetailDeviceIds" readonly></textarea>
+	                </div>
+	            </div>
+       	  	</div>
+       	  	<!-- [END]E1電路設定同步 -->
+       	  	
           </div>
 		</div>
 		<div class="modal-footer">

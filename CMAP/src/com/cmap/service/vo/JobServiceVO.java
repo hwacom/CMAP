@@ -30,7 +30,9 @@ public class JobServiceVO extends CommonServiceVO {
 	private String inputLocalFileOperationSettingId;
 	private String inputMailSenderSettingId;
 	private String inputIpMacPortMappingPollerGroupId;
-
+	private List<String> inputE1GroupIds = new ArrayList<>();
+	private List<String> inputE1DeviceIds = new ArrayList<>();
+	
 	private List<JobServiceVO> jobKeySet = new ArrayList<>();
 	private String jobKeyName;
 	private String jobKeyGroup;
@@ -469,5 +471,17 @@ public class JobServiceVO extends CommonServiceVO {
 	}
 	public void setIpMacPortMappingPollerGroupId(String ipMacPortMappingPollerGroupId) {
 		this.ipMacPortMappingPollerGroupId = ipMacPortMappingPollerGroupId;
+	}
+	public List<String> getInputE1GroupIds() {
+		return inputE1GroupIds;
+	}
+	public void setInputE1GroupIds(List<String> inputE1GroupIds) {
+		this.inputE1GroupIds = inputE1GroupIds;
+	}
+	public List<String> getInputE1DeviceIds() {
+		return inputE1DeviceIds;
+	}
+	public void setInputE1DeviceIds(List<String> inputE1DeviceIds) {
+		this.inputE1DeviceIds = inputE1DeviceIds;
 	}
 }

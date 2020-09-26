@@ -88,8 +88,6 @@
 	<script src="${pageContext.request.contextPath}/resources/js/cleave/cleave.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/modernizr/modernizr-custom.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/FileSaver/FileSaver.min.js"></script>
-	<!-- D3 -->
-	<script charset="utf-8" type="text/javascript" src="${pageContext.request.contextPath}/resources/D3/d3.min.js"></script>
 	<!-- ChartJS -->
 	<script src="${pageContext.request.contextPath}/resources/js/chart/Chart.bundle.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/chart/utils.js"></script>
@@ -215,7 +213,6 @@
 	                    <!-- [DASHBOARD] END -->
  
 	                    <!-- [拓樸圖] START -->
-<!--				        
 	                     <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
 				        	<li class="subMenu-item">
 		                    	<a id="mp_topography" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/topography')">
@@ -224,18 +221,7 @@
 		                    	</a>
 		                    </li>
 				        </c:if>
--->
 				        <!-- [拓樸圖] END -->
-				        <!-- [拓樸圖] START -->
-			            <c:if test="${Env.SHOW_MENU_ITEM_PRTG_TOPOGRAPHY eq __SHOW__}">
-	                		<li class="subMenu-item">
-				                <a id="cm_topography" href="${pageContext.request.contextPath}/topography">
-				                  <span data-feather="git-merge"></span>
-	                    	  	<span><spring:message code="func.prtg.topography" /></span>
-				                </a>
-				            </li>
-	                	</c:if>
-		                <!-- [拓樸圖] END -->
 		                
 				        <!-- [流量統計] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS eq __SHOW__}">
@@ -435,6 +421,17 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [設備roop查詢] END -->
+	                    
+	                    <!-- [vlan切換] START -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_VLAN_SWITCH eq __SHOW__}">
+		                    <li class="subMenu-item">
+		                    	<a id="mp_vlanSwitch" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/vlanSwitch')">
+		                    	  <span data-feather="chevrons-right"></span>
+		                    	  	<span><spring:message code="func.plugin.vlan.switch" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [vlan切換] END -->
 	                </ul>
 		          </li>
 	          </c:if>

@@ -94,8 +94,12 @@ public class LogServiceImpl implements LogService {
 
 			if (lsVO != null) {
 				BeanUtils.copyProperties(lsVO, daovo);
+				
+				if(lsVO.getJobClassName() != null) {
+					daovo.setQueryJobClassName(lsVO.getJobClassName());
+				}
 			}
-
+			
 			retCount = sysJobLogDAO.countSysJobLogByDAOVO(daovo);
 
 		} catch (Exception e) {
@@ -115,11 +119,15 @@ public class LogServiceImpl implements LogService {
 
 			if (lsVO != null) {
 				BeanUtils.copyProperties(lsVO, daovo);
+				
+				if(lsVO.getJobClassName() != null) {
+					daovo.setQueryJobClassName(lsVO.getJobClassName());
+				}
 			}
-
+			
 			final Integer startRow = lsVO.getStartNum();
 			final Integer pageLength = lsVO.getPageLength();
-
+			
 			List<SysJobLog> entities = sysJobLogDAO.findSysJobLogByDAOVO(daovo, startRow, pageLength);
 
 			LogServiceVO vo;

@@ -243,12 +243,16 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 
 				retVO = deliveryService.doDelivery(Env.CONNECTION_MODE_OF_DELIVERY, dpVO, false, username, null, true);
 
-				log.info("provision " + key + " script actoin success!!");
+				log.debug("provision " + key + " script actoin success!!");
 				retVal = retVal.concat(key).concat(" ").concat(retVO.getRetMsg()).concat(System.lineSeparator());
 
-				log.info("for debug show =" + show);
 				if (show) {
 					showResult.add(String.join(",", retVO.getCmdOutputList()).replaceAll(Env.COMM_SEPARATE_SYMBOL, ""));
+					
+					if(StringUtils.equalsIgnoreCase(Env.ENABLE_CMD_LOG, Constants.DATA_Y)) {
+						log.debug("provision show =" + showResult);
+						log.debug("provision log =" + retVO.getProvisionLog());						
+					}					
 				}
 			}
 

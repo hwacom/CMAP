@@ -306,7 +306,7 @@ public class VersionController extends BaseController {
 	}
 
 	/**
-	 * [版本管理、備份、還原] >> 查詢按鈕共用入口方法
+	 * [版本管理] >> 查詢按鈕入口方法
 	 * @param model
 	 * @param request
 	 * @param response
@@ -352,18 +352,49 @@ public class VersionController extends BaseController {
 		VersionServiceVO vsVO;
 		try {
 			vsVO = new VersionServiceVO();
-			setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup1) ? "queryGroup1" : "queryGroup1List", queryGroup1);
+			vsVO.setQueryConfigType(queryConfigType);
+			
+//			setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup1) ? "queryGroup1" : "queryGroup1List", queryGroup1);
 			setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice1) ? "queryDevice1" : "queryDevice1List", queryGroup1, queryDevice1);
 
-			vsVO.setQueryDateBegin1(queryDateBegin1);
-			vsVO.setQueryDateEnd1(queryDateEnd1);
-			setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup2) ? "queryGroup2" : "queryGroup2List", queryGroup2);
-			setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice2) ? "queryDevice2" : "queryDevice2List", queryGroup2, queryDevice2);
-
-			vsVO.setQueryDateBegin2(queryDateBegin2);
-			vsVO.setQueryDateEnd2(queryDateEnd2);
-			vsVO.setQueryConfigType(queryConfigType);
+			if(StringUtils.isNotBlank(queryGroup2)) {				
+//				setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup2) ? "queryGroup2" : "queryGroup2List", queryGroup2);
+				setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice2) ? "queryDevice2" : "queryDevice2List", queryGroup2, queryDevice2);
+			}
+			
+			//沒有時間條件則合併設備清單條件
+			if (StringUtils.isBlank(queryDateBegin1) && StringUtils.isBlank(queryDateEnd1) 
+					&& StringUtils.isBlank(queryDateBegin2) && StringUtils.isBlank(queryDateEnd2)) {
+				List<String> deviceList = new ArrayList<>();
+				
+				if(StringUtils.isNotBlank(vsVO.getQueryDevice1())) {
+					deviceList.add(vsVO.getQueryDevice1());
+					vsVO.setQueryDevice1(null);
+				}
+				if(StringUtils.isNotBlank(vsVO.getQueryDevice2())) {
+					deviceList.add(vsVO.getQueryDevice2());
+					vsVO.setQueryDevice2(null);
+				}
+				if(vsVO.getQueryDevice1List() != null && !vsVO.getQueryDevice1List().isEmpty()) {
+					deviceList.addAll(vsVO.getQueryDevice1List());
+					vsVO.setQueryDevice1List(null);
+				}
+				if(vsVO.getQueryDevice2List() != null && !vsVO.getQueryDevice2List().isEmpty()) {
+					deviceList.addAll(vsVO.getQueryDevice2List());
+					vsVO.setQueryDevice2List(null);
+				}
+				
+				vsVO.setQueryDevice1List(deviceList);
+			}
+			
 			vsVO.setQueryNewChkbox(queryNewChkbox);
+			if (!queryNewChkbox) {//包含舊版本
+				vsVO.setQueryDateBegin1(queryDateBegin1);
+				vsVO.setQueryDateEnd1(queryDateEnd1);
+				vsVO.setQueryDateBegin2(queryDateBegin2);
+				vsVO.setQueryDateEnd2(queryDateEnd2);
+			}
+			
 			vsVO.setStartNum(startNum);
 			vsVO.setPageLength(pageLength);
 			vsVO.setSearchValue(searchValue);
@@ -373,8 +404,8 @@ public class VersionController extends BaseController {
 			/*
 			 * 底下兩個參數用來後續查找使用者所有有權限的群組和設備筆數
 			 */
-			setQueryGroupList(request, vsVO, "allGroupList", null);
-			setQueryDeviceList(request, vsVO, "allDeviceList", null, null);
+//			setQueryGroupList(request, vsVO, "allGroupList", null);
+//			setQueryDeviceList(request, vsVO, "allDeviceList", null, null);
 
 			filterdTotal = versionService.countVersionInfo(vsVO);
 
@@ -384,7 +415,7 @@ public class VersionController extends BaseController {
 
 			if (!maxCountByDevice) {
 				total = versionService.countUserPermissionAllVersionInfo(
-						vsVO.getAllGroupList(), vsVO.getAllDeviceList(), vsVO.getQueryConfigType());
+						null, null, vsVO.getQueryConfigType());
 			} else {
 				total = vsVO.getAllDeviceList().size();
 			}
@@ -397,6 +428,20 @@ public class VersionController extends BaseController {
 		return new DatatableResponse(total, dataList, filterdTotal);
 	}
 
+	/**
+	 *  [備份、還原] >> 查詢按鈕共用入口方法
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param startNum
+	 * @param pageLength
+	 * @param queryGroup
+	 * @param queryDevice
+	 * @param searchValue
+	 * @param orderColIdx
+	 * @param orderDirection
+	 * @return
+	 */
 	@RequestMapping(value = "getDeviceListData.json", method = RequestMethod.POST)
 	public @ResponseBody DatatableResponse findDeviceListData(
 			Model model, HttpServletRequest request, HttpServletResponse response,
@@ -414,7 +459,7 @@ public class VersionController extends BaseController {
 		VersionServiceVO vsVO;
 		try {
 			vsVO = new VersionServiceVO();
-			setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup) ? "queryGroup" : "queryGroupList", queryGroup);
+//			setQueryGroupList(request, vsVO, StringUtils.isNotBlank(queryGroup) ? "queryGroup" : "queryGroupList", queryGroup);
 			setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice) ? "queryDevice" : "queryDeviceList", queryGroup, queryDevice);
 			
 			vsVO.setStartNum(startNum);
@@ -426,16 +471,8 @@ public class VersionController extends BaseController {
 			/*
 			 * 底下兩個參數用來後續查找使用者所有有權限的群組和設備筆數
 			 */
-			setQueryGroupList(request, vsVO, "allGroupList", null);
+//			setQueryGroupList(request, vsVO, "allGroupList", null);
 			setQueryDeviceList(request, vsVO, "allDeviceList", null, null);
-
-			try {
-			    boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
-			    vsVO.setAdmin(isAdmin);
-
-			} catch (NullPointerException npe) {
-			    vsVO.setAdmin(false);
-			}
 
 			filterdTotal = versionService.countDeviceList(vsVO);
 			
@@ -635,10 +672,7 @@ public class VersionController extends BaseController {
             @RequestParam(name="queryDateEnd2", required=false, defaultValue="") String queryDateEnd2,
             @RequestParam(name="queryConfigType", required=false, defaultValue="") String queryConfigType,
             @RequestParam(name="queryNewChkbox", required=false, defaultValue="true") boolean queryNewChkbox,
-            @RequestParam(name="maxCountByDevice", required=false, defaultValue="false") boolean maxCountByDevice,
-            @RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
-            @RequestParam(name="order[0][column]", required=false, defaultValue="6") Integer orderColIdx,
-            @RequestParam(name="order[0][dir]", required=false, defaultValue="desc") String orderDirection,
+            @RequestParam(name="searchValue", required=false, defaultValue="") String searchValue,
             @RequestParam(name="exportRecordCount", required=true, defaultValue="") String exportRecordCount) {
 
 	    List<VersionServiceVO> dataList = new ArrayList<>();
@@ -663,8 +697,6 @@ public class VersionController extends BaseController {
             vsVO.setStartNum(queryStartNum);
             vsVO.setPageLength(queryPageLength);
             vsVO.setSearchValue(searchValue);
-            vsVO.setOrderColumn(UI_MANAGE_TABLE_COLUMNS[orderColIdx]);
-            vsVO.setOrderDirection(orderDirection);
 
             /*
              * 底下兩個參數用來後續查找使用者所有有權限的群組和設備筆數

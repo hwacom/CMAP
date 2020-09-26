@@ -64,56 +64,25 @@
 	  </div>
 	</div>
 	
-	
-	<!-- 查詢結果TABLE區塊 -->
-	<div class="row">
-	  <div id="divBlockedPortRecord" class="col-sm-12 myTableSection" style="display:none;">
-	  	<div>
-			<span class="h6 font-weight-bold" style="color:#1C2269"><spring:message code="func.port.open.block.record" /></span>
-		</div>
-		<table id="resultTable_blockedPortRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
-		  <thead class="center">
-		    <tr>
-		      <th scope="col" nowrap="nowrap" data-field="action"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="deviceName"><spring:message code="device.name" /></th>
-			  <th scope="col" nowrap="nowrap" data-field="portName"><spring:message code="port.name" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
-		    </tr>
-		  </thead>
-		</table>
-	  </div>
-	</div>
-  
   
 	<!-- 查詢結果TABLE區塊 -->
 	<div class="row">
-	  <div id="divBlockedIpRecord" class="col-sm-12 myTableSection" style="display:none;">
+	  <div id="divBlockedRecord" class="col-sm-12 myTableSection" style="display:none;">
 	  	<div>
-			<span class="h6 font-weight-bold" style="color:#1C2269"><spring:message code="func.ip.open.block.record" /></span>
+			<span class="h6 font-weight-bold" style="color:#1C2269"><spring:message code="func.block.list.record" /></span>
 		</div>
-		<table id="resultTable_blockedIpRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
+		<table id="resultTable_blockedRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
 		  <thead class="center">
 		    <tr>
-		      <th scope="col" nowrap="nowrap" data-field="action"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="ipAddress"><spring:message code="ip.address" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="blockType"><spring:message code="block.rule" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="address"><spring:message code="ip.address" />/<br><spring:message code="mac.address" />/<br><spring:message code="port.name" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="ipDesc"><spring:message code="ip.remark" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="scriptName"><spring:message code="block.rule" /></th>
 		    </tr>
 		  </thead>
@@ -121,37 +90,8 @@
 	  </div>
 	</div>
   
-	<!-- 查詢結果TABLE區塊 -->
-	<div class="row">
-	  <div id="divBlockedMacRecord" class="col-sm-12 myTableSection" style="display:none;">
-		<div>
-			<span class="h6 font-weight-bold" style="color:#1C2269"><spring:message code="func.mac.open.block.record" /></span>
-		</div>
-		<table id="resultTable_blockedMacRecord" class="dataTable myTable table-striped table-hover table-sm table-responsive-sm nowrap" style="width:100%;">
-		  <thead class="center">
-		    <tr>
-		      <th scope="col" nowrap="nowrap" data-field="action"><spring:message code="action" />&nbsp;<input type="checkbox" id="checkAll" name="checkAll" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="macAddress"><spring:message code="mac.address" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
-		      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
-		    </tr>
-		  </thead>
-		</table>
-	  </div>
-	</div>
-	
   </div>
   
 </section>
 
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.block.list.record.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.switch.port.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.ip.open.block.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.mac.open.block.min.js"></script>

@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.cmap.AppResponse;
 import com.cmap.DatatableResponse;
+import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.controller.BaseController;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.LogService;
 import com.cmap.service.LogService.LogType;
@@ -29,7 +31,7 @@ import com.cmap.service.vo.LogServiceVO;
 
 @Controller
 @RequestMapping("/admin/log")
-public class AdminLogController {
+public class AdminLogController extends BaseController {
 	@Log
 	private static Logger log;
 
@@ -56,6 +58,8 @@ public class AdminLogController {
 			log.error(e.toString(), e);
 
 		} finally {
+			model.addAttribute("inputSchedType", getMenuItem(Env.MENU_CODE_OF_SCHED_TYPE, true));
+			
 			init(model, request);
 		}
 
@@ -109,6 +113,7 @@ public class AdminLogController {
 	@RequestMapping(value = "getJobLog.json", method = RequestMethod.POST)
 	public @ResponseBody DatatableResponse findJobLogData(
 			Model model, HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(name="className", required=false, defaultValue="") String className,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="100") Integer pageLength,
 			@RequestParam(name="search[value]", required=false, defaultValue="") String searchValue,
@@ -124,6 +129,10 @@ public class AdminLogController {
 			lsVO.setStartNum(startNum);
 			lsVO.setPageLength(pageLength);
 
+			if (StringUtils.isNotBlank(className)) {
+				lsVO.setJobClassName(Env.SCHED_TYPE_CLASS_MAPPING.get(className));
+			}
+			
 			if (StringUtils.isNotBlank(searchValue)) {
 				lsVO.setSearchValue(searchValue);
 			}

@@ -115,10 +115,16 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
                 vo.setGroupName(groupName);
                 vo.setDeviceId(deviceId);
                 vo.setBlockType(blockType);
-                vo.setIpAddress(ipAddress);
+                
+                if(StringUtils.isBlank(ibrVO.getQueryBlockType())) {
+                	vo.setAddress(Objects.toString(ipAddress, Objects.toString(macAddress, port)));
+                }else {
+                	vo.setIpAddress(ipAddress);                    
+                    vo.setMacAddress(macAddress);
+                    vo.setPort(port);
+                }
+                
                 vo.setIpDesc(ipDesc);
-                vo.setMacAddress(macAddress);
-                vo.setPort(port);
                 vo.setGlobalValue(globalValue);
                 vo.setStatusFlag(StringUtils.equals(statusFlag, Constants.STATUS_FLAG_BLOCK)
                         ? msgBlock

@@ -28,6 +28,10 @@ public class SysJobLogDAOImpl extends BaseDaoHibernate implements SysJobLogDAO {
 		.append(" from SysJobLog sjl ")
 		.append(" where 1=1 ");
 
+		if (StringUtils.isNotBlank(daovo.getQueryJobClassName())) {
+			sb.append(" and sjl.jobClassName = :jobClassName");
+		}
+		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 			sb.append(" and ( ")
 			.append("       sjl.schedName like :searchValue ")
@@ -55,6 +59,10 @@ public class SysJobLogDAOImpl extends BaseDaoHibernate implements SysJobLogDAO {
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		Query<?> q = session.createQuery(sb.toString());
 
+		if (StringUtils.isNotBlank(daovo.getQueryJobClassName())) {
+			q.setParameter("jobClassName", daovo.getQueryJobClassName());
+		}
+		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 			q.setParameter("searchValue", "%".concat(daovo.getSearchValue()).concat("%"));
 		}
@@ -68,6 +76,10 @@ public class SysJobLogDAOImpl extends BaseDaoHibernate implements SysJobLogDAO {
 		sb.append(" from SysJobLog sjl ")
 		.append(" where 1=1 ");
 
+		if (StringUtils.isNotBlank(daovo.getQueryJobClassName())) {
+			sb.append(" and sjl.jobClassName = :jobClassName");
+		}
+		
 		if (StringUtils.isNotBlank(daovo.getSearchValue())) {
 			sb.append(" and ( ")
 			.append("       sjl.schedName like :searchValue ")
@@ -102,6 +114,10 @@ public class SysJobLogDAOImpl extends BaseDaoHibernate implements SysJobLogDAO {
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		Query<?> q = session.createQuery(sb.toString());
 
+		if (StringUtils.isNotBlank(daovo.getQueryJobClassName())) {
+			q.setParameter("jobClassName", daovo.getQueryJobClassName());
+		}
+		
 		if (startRow != null && pageLength != null) {
 			q.setFirstResult(startRow);
 			q.setMaxResults(pageLength);

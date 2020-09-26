@@ -405,6 +405,24 @@ public class PrtgController extends BaseController {
 		}
 	}
 	
+	@RequestMapping(value = "getPrtgVlanSwitchUri", method = RequestMethod.POST)
+    public @ResponseBody AppResponse getPrtgVlanSwitchUri(Model model, HttpServletRequest request, HttpServletResponse response) {
+
+        try {
+            String loopSearchUrl = composePrtgUrl(request, Env.PRTG_DEFAULT_VLAN_SWITCH_URI);
+
+            AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "success");
+            app.putData("uri", loopSearchUrl);
+            return app;
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            return new AppResponse(super.getLineNumber(), e.getMessage());
+
+        } finally {
+        }
+    }
+	
 	@RequestMapping(value = "/index/login", method = RequestMethod.GET)
 	public String prtgIndexAndLogin(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -559,4 +577,15 @@ public class PrtgController extends BaseController {
 		}
 		return "prtg/abnormal_his";
 	}
+	
+	@RequestMapping(value = "/vlanSwitch", method = RequestMethod.GET)
+    public String prtgVlanSwitch(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            init(model);
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+        }
+        return "prtg/vlan_switch";
+    }
 }

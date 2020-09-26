@@ -408,7 +408,7 @@ public class CommonUtils {
 			if (otherObj instanceof List) {
 				((List<String>)otherObj)
 					.add(
-						scriptVO.getRemark()
+						Objects.toString(scriptVO.getRemark(), "")
 							.concat(Env.COMM_SEPARATE_SYMBOL)
 							.concat(
 								cutContent(
