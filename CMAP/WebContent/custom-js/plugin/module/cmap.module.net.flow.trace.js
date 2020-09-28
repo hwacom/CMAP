@@ -600,9 +600,6 @@ function findData(from) {
 					$(".myTableSection").hide();
 					alert(json.msg);
 				}
-				$("#resultTable_filter").find("input").prop("placeholder","(模糊查詢速度較慢)")
-		    	getTotalTraffic();
-		    	getTotalFilteredCount();
 				bindScrollEvent();
             },
 			"drawCallback" : function(settings) {
@@ -629,9 +626,9 @@ function findData(from) {
 				
 				startNum = pageLength; //初始查詢完成後startNum固定為pageLength大小
 				lastScrollYPos = $(".dataTables_scrollBody").prop("scrollTop");
-				//$("#resultTable_filter").find("input").prop("placeholder","(模糊查詢速度較慢)")
-				//getTotalTraffic();
-				//getTotalFilteredCount();
+				$("#resultTable_filter").find("input").prop("placeholder","(模糊查詢速度較慢)")
+				getTotalTraffic();
+				getTotalFilteredCount();
 				bindTrEvent();
 			},
 			"columns" : [
