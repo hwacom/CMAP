@@ -267,24 +267,10 @@ public class BaseController {
             if (StringUtils.isBlank(prtgAccount)) {
                 throw new ServiceLayerException("使用者權限錯誤!!");
             }
-
-            Map<String, Map<String, Map<String, String>>> groupDeviceMap = commonService.getUserGroupAndDeviceFullInfo(prtgAccount);
-
+            
             List<String> deviceList = new ArrayList<>();
-
-            if (StringUtils.isBlank(queryGroup)) {
-                //如果群組選擇ALL，則取出使用者有權限內的群組底下所有設備(Device)清單
-                for (Entry<String, Map<String, Map<String, String>>> groupEntry : groupDeviceMap.entrySet()) {
-                    for (Entry<String, Map<String, String>> deviceEntry : groupEntry.getValue().entrySet()) {
-                        deviceList.add(deviceEntry.getKey());
-                    }
-                }
-
-            } else {
-                //如果群組有選擇項目，則取出該群組底下使用者有權限的設備(Device)清單
-                for (Entry<String, Map<String, String>> deviceEntry : groupDeviceMap.get(queryGroup).entrySet()) {
-                    deviceList.add(deviceEntry.getKey());
-                }
+            for (Entry<String, String> deviceEntry : commonService.getUserDeviceList(prtgAccount, queryGroup).entrySet()) {
+                deviceList.add(deviceEntry.getKey());
             }
 
             new PropertyDescriptor(fieldName, obj.getClass()).getWriteMethod().invoke(obj, deviceList);

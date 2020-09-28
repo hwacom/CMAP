@@ -111,6 +111,7 @@ public class Constants {
 	public static final String QUARTZ_SCHED_TYPE_LOCAL_FILE_OPERATION = "localFileOperation";
 	public static final String QUARTZ_SCHED_TYPE_MAIL_SENDER = "mailSender";
 	public static final String QUARTZ_SCHED_TYPE_IP_MAC_PORT_MAPPING_POLLER = "ipMacPortMappingPoller";
+	public static final String QUARTZ_SCHED_TYPE_CIRCUIT_SETTING_SYNC = "circuitSettingSync";
 
 	public static final String QUARTZ_PARA_JSON_STR = "paraJsonStr";
 	public static final String QUARTZ_PARA_DEVICE_LIST_ID = "deviceListIds";

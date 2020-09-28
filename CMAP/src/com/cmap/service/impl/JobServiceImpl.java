@@ -246,7 +246,8 @@ public class JobServiceImpl implements JobService {
 					final String schedType = (String)jobDataMap.get(Constants.QUARTZ_PARA_SCHED_TYPE);
 					final String configType = (String)jobDataMap.get(Constants.QUARTZ_PARA_CONFIG_TYPE);
 
-					if (StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_BACKUP_CONFIG)) {
+					if (StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_BACKUP_CONFIG)
+							|| StringUtils.equals(schedType, Constants.QUARTZ_SCHED_TYPE_CIRCUIT_SETTING_SYNC)) {
 
 						final List<String> groupIds = (List<String>)jobDataMap.get(Constants.QUARTZ_PARA_GROUP_ID);
 						final List<String> deviceIds = (List<String>)jobDataMap.get(Constants.QUARTZ_PARA_DEVICE_ID);
@@ -418,6 +419,11 @@ public class JobServiceImpl implements JobService {
 			case Constants.QUARTZ_SCHED_TYPE_IP_MAC_PORT_MAPPING_POLLER:
 				jobDataMap.put(Constants.QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID, jsVO.getInputIpMacPortMappingPollerGroupId());
                 break;
+                
+			case Constants.QUARTZ_SCHED_TYPE_CIRCUIT_SETTING_SYNC:
+				jobDataMap.put(Constants.QUARTZ_PARA_GROUP_ID, mapper.writeValueAsString(jsVO.getInputE1GroupIds()));
+				jobDataMap.put(Constants.QUARTZ_PARA_DEVICE_ID, mapper.writeValueAsString(jsVO.getInputE1DeviceIds()));
+				break;
 		}
 
 		return jobDataMap;

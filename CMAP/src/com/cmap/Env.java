@@ -31,6 +31,7 @@ public class Env {
 	//分散式架構開關: 針對批次處理
 	public static String DISTRIBUTED_FLAG;
 	public static List<String> DISTRIBUTED_GROUP_ID = new ArrayList();
+	public static String DISTRIBUTED_CORE_IP;
 	
 	/**
 	 * 設定MENU TREE功能是否顯示
@@ -58,6 +59,7 @@ public class Env {
     public static String SHOW_MENU_ITEM_PLUGIN_WIFI_POLLER;		             // 監控平台 > Wifi查詢
     public static String SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER;		             // 監控平台 > IP異動紀錄查詢
     public static String SHOW_MENU_ITEM_PRTG_ABNORMAL_HIS;		             // 監控平台 > 異常歷史紀錄查詢
+    public static String SHOW_MENU_ITEM_VLAN_SWITCH;                        	// 監控平台 > vlan 切換
 
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
@@ -409,6 +411,7 @@ public class Env {
 	public static String PRTG_LOGOUT_URI;
 	public static String PRTG_DEFAULT_LOOP_SEARCH_URI;
 	public static String PRTG_DEFAULT_ABNORMAL_HIS_URI;
+	public static String PRTG_DEFAULT_VLAN_SWITCH_URI;
 	
 	public static String DEFAULT_INSERT_DB_FILE_DIR;
 	public static String DEFAULT_FILE_LINE_ENDING_SYMBOL;

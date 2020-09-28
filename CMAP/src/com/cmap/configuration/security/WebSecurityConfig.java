@@ -134,7 +134,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/userRight").permitAll()
 			.antMatchers("/admin/**").hasAnyRole("ADMIN")
 			.antMatchers("/i18n/reload").permitAll()
-			.antMatchers("/provision/**").permitAll()
+			.antMatchers("/provision/**").permitAll()									 // 供裝API呼叫入口
+			.antMatchers("/circuit/**").permitAll()									 // 電路供裝API呼叫入口
 			//TODO 待確認是否可移除
 			.antMatchers("/plugin/module/clustermigrate/setting/**").permitAll()         // 提供PRTG呼叫設定cluster migrate (Y190426, 同欣電子-POC)
 			.antMatchers("/plugin/module/clustermigrate/service/restart/**").permitAll() // 提供PRTG呼叫設定cluster migrate (Y190426, 同欣電子-POC)

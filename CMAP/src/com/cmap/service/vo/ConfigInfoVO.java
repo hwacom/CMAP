@@ -2,6 +2,7 @@ package com.cmap.service.vo;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.cmap.comm.enums.ConnectionMode;
 
 public class ConfigInfoVO implements Cloneable {
@@ -19,7 +20,6 @@ public class ConfigInfoVO implements Cloneable {
 	private List<String> configContentList = new ArrayList<>();
 	private String configFileName;
 	private String fileFullName;
-	private String systemVersion;
 	private String deviceModel;
 	private String configType;
 	private String deviceFlashConfigPath;  // 設備端要還原的版本組態檔路徑
@@ -110,14 +110,6 @@ public class ConfigInfoVO implements Cloneable {
 
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
-	}
-
-	public String getSystemVersion() {
-		return systemVersion;
-	}
-
-	public void setSystemVersion(String systemVersion) {
-		this.systemVersion = systemVersion;
 	}
 
 	public String getConfigType() {

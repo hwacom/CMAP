@@ -88,7 +88,8 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
           .append(" where 1=1 ")
           .append(" and purs.parentNode = dl.groupId ")
           .append(" and purs.settingValue = dl.deviceId ")
-          .append(" and purs.settingType = '").append(Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE).append("' ");
+          .append(" and purs.settingType = '").append(Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE).append("' ")
+          .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
         if (StringUtils.isNotBlank(prtgAccount)) {
             sb.append(" and purs.prtgAccount = :prtgAccount ");
@@ -113,7 +114,8 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
           .append("     ,DeviceList dl ")
           .append(" where 1=1 ")
           .append(" and purs.settingValue = dl.groupId ")
-          .append(" and purs.settingType = '").append(Constants.PRTG_RIGHT_SETTING_TYPE_OF_GROUP).append("' ");
+          .append(" and purs.settingType = '").append(Constants.PRTG_RIGHT_SETTING_TYPE_OF_GROUP).append("' ")
+          .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
         if (StringUtils.isNotBlank(prtgAccount)) {
             sb.append(" and purs.prtgAccount = :prtgAccount ");
@@ -139,7 +141,8 @@ public class PrtgDAOImpl extends BaseDaoHibernate implements PrtgDAO {
           .append(" where 1=1 ")
           .append(" and purs.parentNode = dl.groupId ")
           .append(" and purs.settingValue = dl.deviceId ")
-          .append(" and purs.settingType = '").append(Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE).append("' ");
+          .append(" and purs.settingType = '").append(Constants.PRTG_RIGHT_SETTING_TYPE_OF_DEVICE).append("' ")
+          .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
         if (StringUtils.isNotBlank(prtgAccount)) {
             sb.append(" and purs.prtgAccount = :prtgAccount ");

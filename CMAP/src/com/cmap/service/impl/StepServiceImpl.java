@@ -2,6 +2,7 @@ package com.cmap.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -36,6 +38,7 @@ import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
 import com.cmap.comm.enums.ScriptType;
 import com.cmap.comm.enums.Step;
+import com.cmap.configuration.hibernate.ConnectionFactory;
 import com.cmap.dao.BaseDAO;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
@@ -53,7 +56,6 @@ import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.blocked.record.BlockedRecordService;
 import com.cmap.plugin.module.ip.mapping.IpMappingDAO;
-import com.cmap.plugin.module.ip.mapping.ModuleArpTable;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ConfigService;
 import com.cmap.service.ProvisionService;
@@ -148,7 +150,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				deviceConfigBackupMode = loginInfo.getConfigBackupMode();
 			}
 		}catch(NullPointerException e) {
-			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就算了
+			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就跳過
 		}
 		
 		
@@ -785,7 +787,20 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		configInfoVO.setFtpPassword(Env.FTP_LOGIN_PASSWORD);
 		configInfoVO.setFtpUrl(Env.FTP_HOST_IP + ":" + Env.FTP_HOST_PORT);
 
-		configInfoVO.settFtpIP(Env.TFTP_HOST_IP);
+		String localTftpIP = null;
+		if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {							
+			Properties prop = new Properties();
+			final String propFileName = "distributed_setting.properties";
+			InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+			try {
+				prop.load(inputStream);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			localTftpIP = prop.getProperty("distributed.tftp.ip");
+		}
+		configInfoVO.settFtpIP(localTftpIP != null ? localTftpIP : Env.TFTP_HOST_IP);
 		configInfoVO.settFtpPort(Env.TFTP_HOST_PORT);
 
 		configInfoVO.setConnectionMode(connectionMode);
@@ -1000,6 +1015,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				} else {
 					// 版本內容不同
 					haveDiffVersion = true;
+					
 				}
 
 			} else {
@@ -1019,6 +1035,31 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						ciVO.setFileFullName(nowVersionTempFileName);
 
 						fileUtils.moveFiles(ciVO, sourceDirPath, targetDirPath);
+					}
+					
+					if (Env.TFTP_SERVER_AT_LOCAL) {
+						if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {//分散式架構要將備份檔丟回core server					
+							Properties prop = new Properties();
+							final String propFileName = "distributed_setting.properties";
+							InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+							prop.load(inputStream);
+							
+							if(!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), "core")){
+								ConfigInfoVO coreInfoVO = new ConfigInfoVO();
+								coreInfoVO.settFtpIP(Env.DISTRIBUTED_CORE_IP);
+								coreInfoVO.setFtpIP(Env.DISTRIBUTED_CORE_IP);
+								coreInfoVO.setFtpPort(ciVO.getFtpPort());
+								coreInfoVO.settFtpPort(ciVO.gettFtpPort());
+								
+								FileUtils coreFileUtils = null;								
+								coreFileUtils = connect2FileServer(coreFileUtils, _mode, coreInfoVO);								
+								String configFileName = new String(ciVO.getConfigFileName().getBytes("UTF-8"),"iso-8859-1");
+								coreFileUtils.uploadFiles(
+										configFileName,
+										IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8)
+										);
+							}
+						}
 					}
 
 				} else if (_mode == ConnectionMode.FTP) {
@@ -1182,6 +1223,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				}
 
 			}else {
+				String localTftpIP = null;
+				if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {							
+					Properties prop = new Properties();
+					final String propFileName = "distributed_setting.properties";
+					InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+					prop.load(inputStream);
+					localTftpIP = prop.getProperty("distributed.tftp.ip");
+				}
 				// Step1. 建立FileServer傳輸物件
 				switch (Env.FILE_TRANSFER_MODE) {
 					case FTP:
@@ -1194,7 +1243,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 					case TFTP:
 						fileUtils = new TFtpFileUtils();
-						_hostIp = Env.TFTP_HOST_IP;
+						_hostIp = localTftpIP != null ? localTftpIP : Env.TFTP_HOST_IP;
 						_hostPort = Env.TFTP_HOST_PORT;
 						break;
 				}
@@ -1708,9 +1757,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				String scriptInfoId = scriptInfo.getScriptInfoId();
                 String scriptCode = scriptInfo.getScriptCode();
                 
-                boolean doAlternativeProcess = false;   // 決定是否要跑替代方案腳本(目前 for IP封鎖 > MAC封鎖<替代>)
-                Map<String, Object> alternativeProcessParaMap = new HashMap<>();    // 紀錄替代方案腳本流程所需參數
-
 				List<ScriptServiceVO> scripts = null;       // 存放 Action 腳本指令
 				List<ScriptServiceVO> checkScripts = null;  // 存放 Check 腳本指令
 				ConfigInfoVO ciVO = null;					// 裝置相關設定資訊VO
@@ -1820,117 +1866,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							
 							
 						case CHECK_PROVISION_RESULT:
-						    /*
-						     * Y191115, Ken
-						     * 目前針對[苗栗教網]IP封鎖流程，可能發生 by IP封鎖無效，必須改採 by MAC封鎖
-						     * 因此需檢核 IP封鎖 的結果正不正常 >> 透過 Ping IP 來檢查
-						     */
 							try {
-							    // 判斷當前供裝是否為IP封鎖，是的話才做檢核
-							    // TODO:未來應該應用在所有供裝
-								//20200113, Owen 苗栗 Issue#60, #61 取消學校端(非admin)功能, 中心端(admin)皆封鎖MAC
-								List<String> scriptList = new ArrayList<>();
-								// 若使用者為管理者，多查出中心端的IP控制腳本
-								if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-									scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-								}
-							    if (scriptList.contains(scriptCode) && scriptInfo.getDeviceModel().equalsIgnoreCase(Env.DELIVERY_MAC_BLOCK_WITH_IP_DEVICE_MODEL))  {
-
-							        // 初始化檢核工具 >> IP供裝檢核採用 PingUtils
-//							        ProvisionUtils pingUtils = new PingUtils();
-
-							        // 定義IP封鎖腳本中「IP_Address」的變數名稱 for 待會取得此次封鎖的IP
-							        String ipAddressVarKey = Env.KEY_VAL_OF_IP_ADDR_WITH_IP_OPEN_BLOCK;
-
-							        // 要檢核的 IP
-							        String pingIp = null;
-
-							        /*
-							         * 迴圈跑供裝參數List
-							         * 目前[IP封鎖]一次只能封鎖1個IP，但還是先保留彈性 for 未來如果有要強化一次可封鎖多筆
-							         */
-//							        int totalPingTimes = 10;                     // 最大Ping嘗試次數(預設值)
-//							        long intervalOfPing = 1000;                  // Ping間隔時間(預設值)
-//							        int timesOfPing = 1;                         // Ping次數
-//							        int timesOfPingFailedContinuous = 0;         // 連續Ping失敗次數
-//							        int targetTimesOfPingFailedContinuous = 3;   // 連續Ping失敗次數目標值(預設值)
-//
-//							        // 若參數檔(sys_config_setting)有設定值，則以參數檔的數值為準
-//							        if (Env.PROVISION_CHECK_PARA_4_TOTAL_PING_TIMES != null) {
-//							            totalPingTimes = Env.PROVISION_CHECK_PARA_4_TOTAL_PING_TIMES;
-//							        }
-//							        if (Env.PROVISION_CHECK_PARA_4_INTERVAL_OF_PING != null) {
-//							            intervalOfPing = new Long(Env.PROVISION_CHECK_PARA_4_INTERVAL_OF_PING);
-//                                    }
-//							        if (Env.PROVISION_CHECK_PARA_4_TARGET_TIMES_OF_PING_FAILED_CONTINUOUS != null) {
-//							            targetTimesOfPingFailedContinuous = Env.PROVISION_CHECK_PARA_4_TARGET_TIMES_OF_PING_FAILED_CONTINUOUS;
-//                                    }
-
-//							        boolean stopPing = false;
-
-//							        Map<String, String> paraMap = null;
-							        List<String> ipList = new ArrayList<>();     // 紀錄 Ping 可通的 IP 清單，for 後續走替代方案時使用
-
-							        for (Map<String, String> varMap : varMapList) {
-							            pingIp = varMap.get(ipAddressVarKey);
-
-							            if (StringUtils.isBlank(pingIp)) {
-							                continue;
-							            }
-
-							            // 準備呼叫 PingUtils 所需參數
-//							            paraMap = new HashMap<>();
-//							            paraMap.put(Constants.PARA_IP_ADDRESS, pingIp);
-//
-//							            boolean pingResult = false;  // 每一次 Ping 的結果
-//							            boolean checkResult = false; // 紀錄此 IP 最終 Ping 結果 (true=不通，供裝成功；false=可通，須走替代方案)
-
-							            /*
-							             * 預設 Ping 失敗判斷邏輯 = 連續 Ping 不通達三次以上
-							             * 若其中發生 Ping 可通狀況，則歸零重新計算，必須「連續」Ping 不通達到目標值才認定真的不通
-							             * 最大嘗試 Ping 次數 = totalPingTimes
-							             * 兩次 Ping 間格時間  = intervalOfPing
-							             */
-//							            while (timesOfPing <= totalPingTimes && !stopPing) {
-//							                // 檢核此 IP 是否還 ping 的通
-//	                                        pingResult = pingUtils.doCheck(paraMap);
-//
-//	                                        if (!pingResult) {
-//	                                            timesOfPingFailedContinuous++; // Ping 失敗 >> 次數+1
-//
-//	                                            if (timesOfPingFailedContinuous >= targetTimesOfPingFailedContinuous) {
-//	                                                // 連續 Ping 失敗達目標值 >> 中止 Ping
-//	                                                stopPing = true;
-//	                                                checkResult = true;
-//	                                            }
-//
-//	                                        } else {
-//	                                            // Ping 成功 >> 次數歸零
-//	                                            timesOfPingFailedContinuous = 0;
-//	                                        }
-//
-//	                                        try {
-//	                                            Thread.sleep(intervalOfPing);
-//	                                        } catch (InterruptedException ie) {
-//                                                log.error(ie.toString(), ie);
-//                                            }
-//
-//	                                        timesOfPing++;
-//							            }
-
-//							            if (!checkResult) {
-							                // IP 最終還是 Ping 的通，記錄下 IP for 後續替代方案使用
-							                ipList.add(pingIp);
-							                doAlternativeProcess = true;   // 檢核多筆 IP Ping 結果，只要有其中1筆 Ping 可通就必須走替代方案
-//							            }
-							        }
-
-							        if (doAlternativeProcess && ipList != null && !ipList.isEmpty()) {
-							            // 將需要走替代方案的 IP 清單記錄到 MAP for 後續流程使用
-							            alternativeProcessParaMap.put(Constants.PARA_IP_ADDRESS, ipList);
-							        }
-							    }
-
+							    
 								break;
 
 							} catch (Exception e) {
@@ -1985,189 +1922,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                             }
 
 						case DO_SPECIFIED_ALTERNATIVE_ACTION:
-						    //TODO
 						    try {
-						        // 先判斷是否有要走替代方案
-						        if (doAlternativeProcess) {
-						        	//20200113, Owen 苗栗 Issue#60, #61 取消學校端(非admin)功能, 中心端(admin)皆封鎖MAC
-									List<String> scriptList = new ArrayList<>();
-									// 若使用者為管理者，多查出中心端的IP控制腳本
-									if (Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN != null) {
-										scriptList.addAll(Env.DELIVERY_IP_OPEN_BLOCK_SCRIPT_CODE_4_ADMIN);
-									}
-						            // 判斷當前執行的供裝是否為IP封鎖腳本
-	                                if (scriptList.contains(scriptCode) && scriptInfo.getDeviceModel().equalsIgnoreCase(Env.DELIVERY_MAC_BLOCK_WITH_IP_DEVICE_MODEL)) {
-
-	                                	//scriptType == 1 封鎖， 2 開通
-	                                	String scriptTypeName = scriptInfo.getUndoScriptCode() == null ?"開通":"封鎖";
-	                                	
-	                                    // 取出需要走替代方案的 IP 清單
-	                                    List<String> ipList = (List<String>)alternativeProcessParaMap.get(Constants.PARA_IP_ADDRESS);
-
-	                                    // 查找此次供裝設備是哪個GroupID
-	                                    String groupId = null;
-	                                    DeviceList dlEntity = deviceDAO.findDeviceListByDeviceListId(deviceListId);
-
-	                                    if (dlEntity != null) {
-	                                    	groupId = dlEntity.getGroupId();
-	
-		                                    // 查找[MAC]腳本
-	                                        ScriptInfo macBlockScriptInfo = null;
-	                                        try {
-	                                            macBlockScriptInfo = scriptService.loadDefaultScriptInfo(dlEntity.getDeviceModel(), ScriptType.MAC_.toString(), scriptInfo.getUndoScriptCode());
-	
-	                                        } catch (Exception e) {
-	                                            log.error(e.toString(), e);
-	                                        }
-	
-	                                        if (macBlockScriptInfo == null) {
-	                                            // 查不到預設[MAC]腳本無法執行後續流程
-	                                        	log.error("[IP"+scriptTypeName+"]欲一併執行[MAC"+scriptTypeName+"]時失敗 >> 查無預設[MAC"+scriptTypeName+"]腳本");
-	                                            throw new ServiceLayerException("[IP"+scriptTypeName+"]欲一併執行[MAC"+scriptTypeName+"]時失敗 >> 查無預設[MAC"+scriptTypeName+"]腳本");
-	                                        }
-	
-		                                    List<ModuleArpTable> arpTableList = null;
-		                                    Map<String, String> macBlockVarMap = null;
-		                                    List<Map<String, String>> macBlockVarMapList = null;
-		                                    String macAddr = null;
-	
-		                                    List<String> ipNotExistInArpTableList = null;      // 紀錄 IP 不存在於 ARP_TABLE 的清單
-		                                    List<String> ipExecuteMacBlockFailedList = null;   // 紀錄 IP 在執行 MAC 封鎖時失敗的清單
-	
-		                                    // 迴圈跑 IP 清單，執行替代方案流程
-		                                    for (String ip : ipList) {
-		                                        /*
-		                                         * Step 1. 查找要封裝的IP是否存在於ARP_TABLE，不存在則結束並提示訊息
-		                                         * [資料表: module_arp_table]
-		                                         */
-		                                        arpTableList = ipMappingDAO.findModuleArpTable(groupId, null, ip, 1);
-	
-		                                        // 若 IP 不存在於 ARP_TABLE 內，則註記此 IP 供裝失敗
-		                                        if (arpTableList == null || (arpTableList != null && arpTableList.isEmpty())) {
-		                                            // 記錄下哪一筆IP不存在於ARP_TABLE
-		                                            log.error("[IP"+scriptTypeName+"]欲一併執行[MAC"+scriptTypeName+"]時失敗 >> IP不存在於ARP_TABLE (GroupId: " + groupId + ", IP: " + ip + ")");
-	
-		                                            if (ipNotExistInArpTableList == null) {
-		                                                ipNotExistInArpTableList = new ArrayList<>();
-		                                            }
-	
-		                                            ipNotExistInArpTableList.add(ip);
-	
-		                                            // 繼續執行下一筆
-		                                            continue;
-		                                        }
-	
-		                                        /*
-		                                         * Step 2. IP存在，取得對應的MAC並執行MAC封鎖供裝
-		                                         */
-		                                        macAddr = arpTableList.get(0).getMacAddr();
-	
-	                                            //TODO
-		                                        // 準備[MAC]所需參數
-		                                        String paraNameOfMac = Env.KEY_VAL_OF_MAC_ADDR_WITH_MAC_OPEN_BLOCK;
-	
-		                                        macBlockVarMap = new HashMap<>();
-		                                        macBlockVarMap.put(paraNameOfMac, macAddr);
-	
-		                                        macBlockVarMapList = new ArrayList<>();
-		                                        macBlockVarMapList.add(macBlockVarMap);
-	
-		                                        ProvisionServiceVO subMasterVO = new ProvisionServiceVO();
-		                                        StepServiceVO subProcessVO = null;
-		                                        boolean macBlockSuccess = true;
-		                                        String subReason = "[IP"+scriptTypeName+"]後一併執行[MAC"+scriptTypeName+"] [IP: " + ip + "]";
-		                                        try {
-		                                        	subMasterVO.setLogMasterId(UUID.randomUUID().toString());
-		                                        	subMasterVO.setBeginTime(new Date());
-		                                        	subMasterVO.setUserName(sysTrigger ? triggerBy : SecurityUtil.getSecurityUser().getUsername());
-		                                            
-		                                            // 呼叫執行[MAC]腳本
-		                                            subProcessVO = doScript(
-					                                                    connectionMode,
-					                                                    deviceListId,
-					                                                    deviceInfo,
-					                                                    macBlockScriptInfo,    // 替換成[MAC]的Script_Info
-					                                                    macBlockVarMapList,    // 替換成[MAC]的腳本參數
-					                                                    sysTrigger,
-					                                                    triggerBy,
-					                                                    triggerRemark,
-					                                                    subReason);
-		                                            
-		                                            subMasterVO.getDetailVO().addAll(subProcessVO.getPsVO().getDetailVO());
-	
-		                                        } catch (Exception e) {
-		                                            log.error("[IP"+scriptTypeName+"]後一併執行[MAC"+scriptTypeName+"] 時失敗 >> " + e.toString());
-		                                            log.error(e.toString(), e);
-	
-	                                                if (ipExecuteMacBlockFailedList == null) {
-	                                                    ipExecuteMacBlockFailedList = new ArrayList<>();
-	                                                }
-	
-	                                                ipExecuteMacBlockFailedList.add(ip);
-	                                                macBlockSuccess = false;
-		                                        }
-		                                        
-		                                        if (subProcessVO == null || (subProcessVO != null && !subProcessVO.isSuccess())) {
-		                                        	macBlockSuccess = false;
-		                                        }
-		                                        
-		                                        String msg = "";
-		                                        String[] args = null;
-	                                            if (macBlockSuccess) {
-	                                                msg = "供裝成功";
-	                                            } else {
-	                                                msg = "供裝失敗";
-	                                            }
-		                                        
-		                                        subMasterVO.setEndTime(new Date());
-		                                        subMasterVO.setResult(CommonUtils.converMsg(msg, args));
-		                                        subMasterVO.setReason(subReason);
-		                                        provisionService.insertProvisionLog(subMasterVO);
-		                                    }
-	
-		                                    // 若有紀錄執行失敗的 IP 清單，則於此組合錯誤訊息
-		                                    StringBuffer errorMsg = null;
-		                                    if (ipNotExistInArpTableList != null || ipExecuteMacBlockFailedList != null) {
-		                                        errorMsg = new StringBuffer();
-		                                        int idx = 1;
-	
-		                                        if (ipNotExistInArpTableList != null && !ipNotExistInArpTableList.isEmpty()) {
-		                                            errorMsg.append("[IP"+scriptTypeName+"]後一併執行[MAC"+scriptTypeName+"]時失敗 >> IP不存在於ARP_TABLE")
-		                                                    .append("<br>");
-	
-		                                            for (String ip : ipNotExistInArpTableList) {
-		                                                errorMsg.append("IP<").append(idx).append(">: ").append(ip).append("<br>");
-		                                                idx++;
-		                                            }
-		                                        }
-	
-		                                        if (ipExecuteMacBlockFailedList != null && !ipExecuteMacBlockFailedList.isEmpty()) {
-	                                                errorMsg.append("[IP"+scriptTypeName+"]後一併執行[MAC"+scriptTypeName+"] >> [MAC"+scriptTypeName+"]供裝失敗")
-	                                                        .append("<br>");
-	
-	                                                for (String ip : ipExecuteMacBlockFailedList) {
-	                                                    errorMsg.append("IP<").append(idx).append(">: ").append(ip).append("<br>");
-	                                                    idx++;
-	                                                }
-	                                            }
-		                                    }
-
-	                                    // 若錯誤訊息不為空，則拋出Exception
-//	                                    if (errorMsg != null) {
-//	                                        throw new ServiceLayerException(errorMsg.toString());
-//	                                    }
-	                                    }
-	                                }
-						        }
-
+						        
                                 break;
 
-                            } catch (ServiceLayerException sle) {
-                            	// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
-								stopRetry = true;
-                                log.error(sle.toString(), sle);
-                                throw sle;
-                            	
                             } catch (Exception e) {
                             	// 執行到此步驟時，前面對設備的供裝流程已經跑完，因此到此執行失敗時就不再進行retry，否則會對設備做多次供裝
 								stopRetry = true;
@@ -2273,7 +2031,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	    /*
 	     * 此Method不讀取腳本資料，由前端呼叫功能準備好要執行的指令(cmdList)依序執行
 	     */
-	    StepServiceVO processVO = new StepServiceVO();
+		StepServiceVO processVO = new StepServiceVO();
 
         ProvisionServiceVO psMasterVO = new ProvisionServiceVO();
         ProvisionServiceVO psDetailVO = new ProvisionServiceVO();
@@ -2285,7 +2043,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         final int RETRY_TIMES = StringUtils.isNotBlank(Env.RETRY_TIMES) ? Integer.parseInt(Env.RETRY_TIMES) : 1;
         // 紀錄當前執行回合數
         int round = 1;
-
+        
         /*
          * Provision_Log_Master & Step => for 後續寫入供裝紀錄table使用
          */
@@ -2303,7 +2061,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
         processVO.setActionBy(userName);
         processVO.setActionFromIp(userIp);
         processVO.setBeginTime(new Date());
-
+        
         ConnectUtils connectUtils = null;           // 連線裝置物件
         List<String> outputList = null;
 
@@ -2926,7 +2684,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 */
 	@Override
     public List<String> processConfigContentSetting(ConfigVO configVO, String settingType, ConfigInfoVO configInfoVO) throws ServiceLayerException {
-		final String systemVersion = configInfoVO.getSystemVersion();
+		final String deviceModel = configInfoVO.getDeviceModel();
 		final String deviceName = configInfoVO.getDeviceEngName();
 		final String deviceListId = configInfoVO.getDeviceListId();
 
@@ -2937,7 +2695,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		try {
 			// Step 1. 取得設定
 		    if (configVO == null) {
-		        configVO = configService.findConfigContentSetting(null, settingType, systemVersion, deviceName, deviceListId);
+		        configVO = configService.findConfigContentSetting(null, settingType, deviceModel, deviceName, deviceListId);
 		    }
 
 			settings = configVO.getConfigVOList();

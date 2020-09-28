@@ -42,16 +42,17 @@ public class JobUploadBackupConfigFile2FTP extends BaseJobImpl implements BaseJo
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		JobDataMap jMap = context.getJobDetail().getJobDataMap();
 		boolean actionFlag = true;
+		String localTftpIP = null;
 		
 		try {
 			if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
 				String disGroupId = jMap.getString(Constants.QUARTZ_PARA_DISTRIBUTED_GROUP_ID);
 				
 				Properties prop = new Properties();
-				final String propFileName = "application.properties";
+				final String propFileName = "distributed_setting.properties";
 				InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
 				prop.load(inputStream);
-				
+				localTftpIP = prop.getProperty("distributed.tftp.ip");
 				if(!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), disGroupId)){
 					actionFlag = false;
 				}
@@ -92,7 +93,7 @@ public class JobUploadBackupConfigFile2FTP extends BaseJobImpl implements BaseJo
 					stepService = (StepService)ApplicationContextUtil.getBean("stepService");
 
 					ConfigInfoVO ciVO = new ConfigInfoVO();
-					ciVO.settFtpIP(Env.TFTP_HOST_IP);
+					ciVO.settFtpIP(localTftpIP != null? localTftpIP : Env.FTP_HOST_IP);
 					ciVO.settFtpPort(Env.TFTP_HOST_PORT);
 					ciVO.setFtpIP(Env.FTP_HOST_IP);
 					ciVO.setFtpPort(Env.FTP_HOST_PORT);

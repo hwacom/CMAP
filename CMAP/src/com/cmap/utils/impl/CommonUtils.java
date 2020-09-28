@@ -57,7 +57,7 @@ public class CommonUtils {
 		}
 		// 裝置名稱: [Device_Name]
 		if (fileName.indexOf(Constants.DIR_PATH_DEVICE_SYSTEM) != -1) {
-			fileName = StringUtils.replace(fileName, Constants.DIR_PATH_DEVICE_SYSTEM, vo.getSystemVersion());
+			fileName = StringUtils.replace(fileName, Constants.DIR_PATH_DEVICE_SYSTEM, vo.getDeviceModel());
 		}
 		// 組態檔類別: running/startup
 		if (fileName.indexOf(Constants.DIR_PATH_CONFIG_TYPE) != -1) {
@@ -408,7 +408,7 @@ public class CommonUtils {
 			if (otherObj instanceof List) {
 				((List<String>)otherObj)
 					.add(
-						scriptVO.getRemark()
+						Objects.toString(scriptVO.getRemark(), "")
 							.concat(Env.COMM_SEPARATE_SYMBOL)
 							.concat(
 								cutContent(

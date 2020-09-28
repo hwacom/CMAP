@@ -10,11 +10,18 @@
       <div class="col-12 search-bar">
 		<div class="container-fluid">
       	  <div class="form-group row">
-			<div class="col-lg-2" style="padding-top: 5px;">
-    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchErrorLog_web"><spring:message code="btn.sys.error.log" /></button>
+      	  	<div class="col-lg-4 group-field-other">
+    	    	<span class="font-weight-bold" style="width: 20%"><spring:message code="schedule" /><spring:message code="type" /></span>
+    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="inputSchedType" id="inputSchedType">
+                 	<form:option value="" label="=== ALL  ===" />
+                 	<form:options items="${inputSchedType}" />
+              	</form:select>
     	    </div>
     	    <div class="col-lg-2" style="padding-top: 5px;">
     	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchJobLog_web"><spring:message code="btn.sys.job.log" /></button>
+    	    </div>
+			<div class="col-lg-2" style="padding-top: 5px;">
+    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchErrorLog_web"><spring:message code="btn.sys.error.log" /></button>
     	    </div>
       	  </div>
       	</div>
@@ -42,14 +49,21 @@
 	  <div class="col-sm-12 collapse" id="collapseExample" style="padding-top: 10px">
 		  <div class="card card-body">
 		  	<div class="col-12">
+			  	<div class="col-lg-4 group-field-other">
+	    	    	<span class="font-weight-bold" style="width: 20%"><spring:message code="schedule" /><spring:message code="type" /></span>
+	    	    	<form:select class="selectpicker" data-live-search="true" data-width="75%" path="inputSchedType" id="inputSchedType">
+	                 	<form:option value="" label="=== ALL  ===" />
+	                 	<form:options items="${inputSchedType}" />
+	              	</form:select>
+	    	    </div>
 			  <div class="form-group row">
 	    	    <div class="col-sm-12">
-			      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchErrorLog_mobile">SYS_ERROR_LOG</button>
+			      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchJobLog_mobile"><spring:message code="btn.sys.job.log" /></button>
 			    </div>
 			  </div>
 			  <div class="form-group row">
 	    	    <div class="col-sm-12">
-			      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchJobLog_mobile">SYS_JOB_LOG</button>
+			      <button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearchErrorLog_mobile"><spring:message code="btn.sys.error.log" /></button>
 			    </div>
 			  </div>
 		  	</div>

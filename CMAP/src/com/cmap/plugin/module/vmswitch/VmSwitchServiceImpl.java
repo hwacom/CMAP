@@ -180,7 +180,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 
             try {
                 ConfigInfoVO configInfoVO = new ConfigInfoVO();
-                configInfoVO.setSystemVersion(Constants.DATA_STAR_SYMBOL);
+                configInfoVO.setDeviceModel(Constants.DATA_STAR_SYMBOL);
                 configInfoVO.setDeviceEngName(_IS_EPDG_ ? "ePDG" : "HeNBGW");
                 configInfoVO.setDeviceListId(deviceListId);
                 configInfoVO.setConfigContentList(vmSwitchVO.getOriConfigList());
@@ -814,7 +814,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
                 throw new ServiceLayerException("查詢不到 VM ESXi 主機表設定 >> ModuleVmEsxiSetting");
             }
 
-            ScriptServiceVO vmShutdownPortScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+            ScriptServiceVO vmShutdownPortScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
                     ScriptType.VM_SHUTDOWN_PORT.toString(), Constants.DATA_STAR_SYMBOL);
 
             if (vmShutdownPortScriptVO == null) {
@@ -892,7 +892,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	        /*
 	         * Step 4-2-1. 迴圈執行多台 ESXi 主機備援切換動作
 	         */
-	        ScriptServiceVO vmInfoScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+	        ScriptServiceVO vmInfoScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
 	                ScriptType.VM_INFO.toString(), Constants.DATA_STAR_SYMBOL);
 
 	        if (vmInfoScriptVO == null) {
@@ -902,7 +902,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	            throw new ServiceLayerException("查詢不到預設腳本 for 查詢VM ID >> scriptType: " + ScriptType.VM_INFO);
 	        }
 
-	        ScriptServiceVO powerOffScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+	        ScriptServiceVO powerOffScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
 	                ScriptType.VM_POWER_OFF.toString(), Constants.DATA_STAR_SYMBOL);
 
 	        if (powerOffScriptVO == null) {
@@ -1392,7 +1392,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             /*
              * Step 1. 查詢預設腳本 for VM show subscribers
              */
-            ScriptServiceVO vmSubScriberScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndSystemVersion(
+            ScriptServiceVO vmSubScriberScriptVO = scriptService.findDefaultScriptInfoByScriptTypeAndDeviceModel(
                     ScriptType.VM_SUBSCRIBERS.toString(), Constants.DATA_STAR_SYMBOL);
 
             if (vmSubScriberScriptVO == null) {

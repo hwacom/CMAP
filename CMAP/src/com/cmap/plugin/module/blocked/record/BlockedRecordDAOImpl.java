@@ -69,7 +69,7 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
               .append("       mids.ip_Desc like :searchValue ")
               .append("     ) ");
         }
-
+		
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createNativeQuery(sb.toString());
 
@@ -176,12 +176,12 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
 	            .append("       mids.ip_Desc like :searchValue ")
 	            .append("     ) ");
         }
-        if (StringUtils.isNotBlank(ibrVO.getOrderColumn())) {
-            sb.append(" order by ").append(ibrVO.getOrderColumn()).append(" ").append(ibrVO.getOrderDirection());
-
-        } else {
-            sb.append(" order by mbl.block_Time desc ");
-        }
+        
+		if (StringUtils.isNotBlank(ibrVO.getOrderColumn())) {
+			sb.append(" order by ").append(ibrVO.getOrderColumn()).append(" ").append(ibrVO.getOrderDirection());
+		} else {
+			sb.append(" order by mbl.block_type, mbl.block_time desc ");
+		}
 		
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
         Query<?> q = session.createNativeQuery(sb.toString());

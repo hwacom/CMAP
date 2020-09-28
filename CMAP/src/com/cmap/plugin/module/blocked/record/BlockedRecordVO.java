@@ -25,6 +25,8 @@ public class BlockedRecordVO extends CommonServiceVO {
     private String groupId;
     private String deviceId;
     private String blockType;
+    //封鎖清單用( 整合 ipAddress/macAddress/port 資訊)
+    private String address;
     private String ipAddress;
     private String ipDesc;
     private String macAddress;
@@ -183,6 +185,14 @@ public class BlockedRecordVO extends CommonServiceVO {
 
 	public void setBlockType(String blockType) {
 		this.blockType = blockType;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public String getIpAddress() {

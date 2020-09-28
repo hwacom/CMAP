@@ -29,88 +29,80 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	@Override
 	public long countConfigVersionInfoByDAOVO(ConfigVersionInfoDAOVO cviDAOVO) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select count(distinct cvi.version_id) from ( ")
-		  .append("   select cvi_1.* ")
-		  .append("   from Config_Version_Info cvi_1 ")
-		  .append("   where 1=1 ")
-		  .append("   and cvi_1.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup1())) {
-			sb.append(" and cvi_1.group_Id = :groupId_1 ");
-		} else {
-			sb.append(" and cvi_1.group_Id in (:groupId_1) ");
-		}
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
-			sb.append(" and cvi_1.device_Id = :deviceId_1 ");
-		} else {
-			sb.append(" and cvi_1.device_Id in (:deviceId_1) ");
-		}
-
+		sb.append("select count(*) ")
+		  .append("   from ConfigVersionInfo cvi")
+		  .append("      left join DeviceList dl on cvi.deviceId = dl.deviceId ")
+		  .append(" where 1 = 1 ")
+		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-			sb.append(" and cvi_1.config_Type = :configType ");
+			sb.append("	and cvi.configType = :configType ");
 		}
-
+		  
+		sb.append(" and ((cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     SELECT vi_1.deviceId, vi_1.createTime FROM ConfigVersionInfo vi_1");
+		
+		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+          sb.append(" where vi_1.deviceId = :deviceId1 ");
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+          sb.append(" where vi_1.deviceId in (:deviceId1) ");
+        }
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
-			sb.append(" and cvi_1.create_Time >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
+			sb.append("	and vi_1.createTime >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
 		}
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
-			sb.append(" and cvi_1.create_Time < DATE_ADD(:endDate_1, INTERVAL 1 DAY) ");
+			sb.append("	and vi_1.createTime < DATE_FORMAT(:endDate_1, '%Y-%m-%d') ");
 		}
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-			sb.append(" union ( ")
-			  .append("   select cvi_2.* from Config_Version_Info cvi_2 ")
-			  .append("   where 1=1 ")
-			  .append("   and cvi_2.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-			  .append("   and cvi_2.group_Id = :groupId_2 ");
-
+		sb.append(" )");
+		
+		//選擇兩組條件
+  		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) || (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty())) {
+  			sb.append(" or (cvi.deviceId, cvi.createTime) IN ( ")
+			  .append("     SELECT vi_2.deviceId, vi_2.createTime FROM ConfigVersionInfo vi_2");
+			
 			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2())) {
-				sb.append(" and cvi_2.device_Id = :deviceId_2 ");
-			} else {
-				sb.append(" and cvi_2.device_Id in (:deviceId_2) ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-				sb.append(" and cvi_2.config_Type = :configType ");
-			}
+	          sb.append(" where vi_2.deviceId = :deviceId2 ");
+	        } else if (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty()) {
+	          sb.append(" where vi_2.deviceId in (:deviceId2) ");
+	        }
+			
 			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-				sb.append(" and cvi_2.create_Time >= DATE_FORMAT(:beginDate_2, '%Y-%m-%d') ");
+				sb.append("	and vi_2.createTime >= DATE_FORMAT(:beginDate_2, '%Y-%m-%d') ");
 			}
 			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-				sb.append(" and cvi_2.create_Time < DATE_ADD(:endDate_2, INTERVAL 1 DAY) ");
+				sb.append("	and vi_2.createTime < DATE_FORMAT(:endDate_2, '%Y-%m-%d') ");
 			}
-			sb.append(" ) ");
+			sb.append(" )");
 		}
-		sb.append(" ) cvi ")
-		  .append("  ,Device_List dl ")
-		  .append("  where 1 = 1 ")
-		  .append("  and cvi.group_id = dl.group_id ")
-		  .append("  and cvi.device_id = dl.device_id ")
-		  .append("  and dl.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
+		
+		sb.append(" )");
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 			sb.append(" and ( ")
-			  .append("       cvi.group_name like :searchValue ")
+			  .append("       cvi.groupName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_name like :searchValue ")
+			  .append("       cvi.deviceName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_model like :searchValue ")
+			  .append("       cvi.deviceModel like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.config_version like :searchValue ")
-			  .append("		  or ")
-			  .append("       cvi.config_type like :searchValue ")
+			  .append("       cvi.configVersion like :searchValue ")
 			  .append("     ) ");
 		}
-
+		
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createNativeQuery(sb.toString());
-
-	    q.setParameter("groupId_1", StringUtils.isNotBlank(cviDAOVO.getQueryGroup1()) ? cviDAOVO.getQueryGroup1() : cviDAOVO.getQueryGroup1List());
-	    q.setParameter("deviceId_1", StringUtils.isNotBlank(cviDAOVO.getQueryDevice1()) ? cviDAOVO.getQueryDevice1() : cviDAOVO.getQueryDevice1List());
+	    Query<?> q = session.createQuery(sb.toString());
 
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
 	    	q.setParameter("configType", cviDAOVO.getQueryConfigType());
 		}
+	    
+        if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+            q.setParameter("deviceId1", cviDAOVO.getQueryDevice1());
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+            q.setParameterList("deviceId1", cviDAOVO.getQueryDevice1List());
+        }
 
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
 	    	q.setParameter("beginDate_1", cviDAOVO.getQueryDateBegin1());
@@ -118,19 +110,23 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
 	    	q.setParameter("endDate_1", cviDAOVO.getQueryDateEnd1());
 	    }
+	    
+	    //選擇兩組條件
+  		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) || (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty())) {
+  			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2())) {
+  	            q.setParameter("deviceId2", cviDAOVO.getQueryDevice2());
+  	        } else if (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty()) {
+  	            q.setParameterList("deviceId2", cviDAOVO.getQueryDevice2List());
+  	        }
 
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-	    	q.setParameter("groupId_2", cviDAOVO.getQueryGroup2());
-	    	q.setParameter("deviceId_2", StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) ? cviDAOVO.getQueryDevice2() : cviDAOVO.getQueryDevice2List());
-
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-		    	q.setParameter("beginDate_2", cviDAOVO.getQueryDateBegin2());
-		    }
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-		    	q.setParameter("endDate_2", cviDAOVO.getQueryDateEnd2());
-		    }
-	    }
-
+  		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
+  		    	q.setParameter("beginDate_2", cviDAOVO.getQueryDateBegin2());
+  		    }
+  		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
+  		    	q.setParameter("endDate_2", cviDAOVO.getQueryDateEnd2());
+  		    }
+  		}
+  		
 	    if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(cviDAOVO.getSearchValue()).concat("%"));
 	    }
@@ -141,136 +137,52 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	@Override
 	public long countConfigVersionInfoByDAOVO4New(ConfigVersionInfoDAOVO cviDAOVO) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select count(distinct cvi.version_id) from ( ")
-		  .append("   select cvi_1.* ")
-		  .append("   from Config_Version_Info cvi_1 ")
-		  .append("   where 1 = 1 ")
-		  .append("   and (cvi_1.config_version, cvi_1.group_id, cvi_1.device_id, cvi_1.config_Type) ")
-		  .append("   in ( ")
-		  .append("         select max(cvi_11.config_version), cvi_11.group_id, cvi_11.device_id, cvi_11.config_Type ")
-		  .append("         from Config_Version_Info cvi_11 ")
-		  .append("         where 1 = 1 ")
-		  .append("         and (cvi_11.create_time, cvi_11.group_id, cvi_11.device_id, cvi_11.config_Type) ")
-		  .append("         in ( ")
-		  .append("               select max(cvi_12.create_time), cvi_12.group_id, cvi_12.device_id, cvi_12.config_Type ")
-		  .append("               from Config_Version_Info cvi_12 ")
-		  .append("               where 1 = 1 ")
-		  .append("               and cvi_12.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup1())) {
-			sb.append("           and cvi_12.group_Id = :groupId_1 ");
-		} else {
-			sb.append("           and cvi_12.group_Id in (:groupId_1) ");
-		}
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
-			sb.append("           and cvi_12.device_Id = :deviceId_1 ");
-		} else {
-			sb.append("           and cvi_12.device_Id in (:deviceId_1) ");
-		}
-
+		sb.append("select count(*) ")
+		  .append("   from ConfigVersionInfo cvi")
+		  .append("      left join DeviceList dl on cvi.deviceId = dl.deviceId ")
+		  .append(" where 1 = 1 ")
+		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-			sb.append(" 		  and cvi_12.config_Type = :configType ");
+			sb.append("	and cvi.config_Type = :configType ");
 		}
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
-			sb.append("           and cvi_12.create_Time >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
-		}
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
-			sb.append("           and cvi_12.create_Time < DATE_ADD(:endDate_1, INTERVAL 1 DAY) ");
-		}
-
-		sb.append("               group by cvi_12.group_id, cvi_12.device_id, cvi_12.config_Type ")
-		  .append("         ) ")
-		  .append("         group by cvi_11.config_version, cvi_11.group_id, cvi_11.device_id, cvi_11.config_Type ")
-		  .append("    ) ");
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-			sb.append(" union ( ")
-			  .append("   select cvi_2.* from Config_Version_Info cvi_2 ")
-			  .append("   where 1 = 1 ")
-			  .append("   and (cvi_2.config_version, cvi_2.group_id, cvi_2.device_id, cvi_2.config_Type) ")
-			  .append("   in ( ")
-			  .append("         select max(cvi_21.config_version), cvi_21.group_id, cvi_21.device_id, cvi_21.config_Type ")
-			  .append("         from Config_Version_Info cvi_21 ")
-			  .append("         where 1 = 1 ")
-			  .append("         and (cvi_21.create_time, cvi_21.group_id, cvi_21.device_id, cvi_21.config_Type) ")
-			  .append("         in ( ")
-			  .append("               select max(cvi_22.create_time), cvi_22.group_id, cvi_22.device_id, cvi_22.config_Type ")
-			  .append("               from Config_Version_Info cvi_22 ")
-			  .append("               where 1 = 1 ")
-			  .append("               and cvi_22.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-			  .append("               and cvi_22.group_Id = :groupId_2 ");
-
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2())) {
-				sb.append("           and cvi_22.device_Id = :deviceId_2 ");
-			} else {
-				sb.append("           and cvi_22.device_Id in (:deviceId_2) ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-				sb.append(" 		  and cvi_22.config_Type = :configType ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-				sb.append("           and cvi_22.create_Time >= DATE_FORMAT(:beginDate_2, '%Y-%m-%d') ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-				sb.append("           and cvi_22.create_Time < DATE_ADD(:endDate_2, INTERVAL 1 DAY) ");
-			}
-			sb.append("               group by cvi_22.group_id, cvi_22.device_id, cvi_22.config_Type ")
-			  .append("         ) ")
-			  .append("         group by cvi_21.config_version, cvi_21.group_id, cvi_21.device_id, cvi_21.config_Type ")
-			  .append("    ) ")
-			  .append(" ) ");
-		}
-		sb.append(" ) cvi ")
-		  .append("  ,Device_List dl ")
-		  .append("  where 1 = 1 ")
-		  .append("  and cvi.group_id = dl.group_id ")
-		  .append("  and cvi.device_id = dl.device_id ")
-		  .append("  and dl.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
+		  
+		sb.append(" and (cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 ");
+		
+		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+          sb.append(" where vi_1.deviceId = :deviceId1 ");
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+          sb.append(" where vi_1.deviceId in (:deviceId1) ");
+        }
+		
+		sb.append(" GROUP BY vi_1.deviceId)");
+				
 		if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 			sb.append(" and ( ")
-			  .append("       cvi.group_name like :searchValue ")
+			  .append("       cvi.groupName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_name like :searchValue ")
+			  .append("       cvi.deviceName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_model like :searchValue ")
+			  .append("       cvi.deviceModel like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.config_version like :searchValue ")
-			  .append("       or ")
-			  .append("       cvi.config_type like :searchValue ")
+			  .append("       cvi.configVersion like :searchValue ")
 			  .append("     ) ");
 		}
-
+		
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createNativeQuery(sb.toString());
-
-	    q.setParameter("groupId_1", StringUtils.isNotBlank(cviDAOVO.getQueryGroup1()) ? cviDAOVO.getQueryGroup1() : cviDAOVO.getQueryGroup1List());
-	    q.setParameter("deviceId_1", StringUtils.isNotBlank(cviDAOVO.getQueryDevice1()) ? cviDAOVO.getQueryDevice1() : cviDAOVO.getQueryDevice1List());
+	    Query<?> q = session.createQuery(sb.toString());
 
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
 	    	q.setParameter("configType", cviDAOVO.getQueryConfigType());
 		}
-
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
-	    	q.setParameter("beginDate_1", cviDAOVO.getQueryDateBegin1());
-	    }
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
-	    	q.setParameter("endDate_1", cviDAOVO.getQueryDateEnd1());
-	    }
-
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-	    	q.setParameter("groupId_2", cviDAOVO.getQueryGroup2());
-	    	q.setParameter("deviceId_2", StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) ? cviDAOVO.getQueryDevice2() : cviDAOVO.getQueryDevice2List());
-
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-		    	q.setParameter("beginDate_2", cviDAOVO.getQueryDateBegin2());
-		    }
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-		    	q.setParameter("endDate_2", cviDAOVO.getQueryDateEnd2());
-		    }
-	    }
+	    
+        if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+            q.setParameter("deviceId1", cviDAOVO.getQueryDevice1());
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+            q.setParameterList("deviceId1", cviDAOVO.getQueryDevice1List());
+        }
 
 	    if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(cviDAOVO.getSearchValue()).concat("%"));
@@ -282,144 +194,118 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	@Override
 	public List<Object[]> findConfigVersionInfoByDAOVO(ConfigVersionInfoDAOVO cviDAOVO, Integer startRow, Integer pageLength) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select distinct ")
-		  .append(composeSelectStr(Constants.NATIVE_FIELD_NAME_FOR_VERSION, "cvi"))
+		sb.append(" select ")
+		  .append(composeSelectStr(Constants.HQL_FIELD_NAME_FOR_VERSION, "cvi"))
 		  .append(", ")
-		  .append(composeSelectStr(Constants.NATIVE_FIELD_NAME_FOR_DEVICE, "dl"))
-		  .append(" from ( ")
-		  .append("   select cvi_1.* ")
-		  .append("   from Config_Version_Info cvi_1 ")
-		  .append("   where 1=1 ")
-		  .append("   and cvi_1.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-		/*
-	     * 每日排程異地備份所有組態檔，不帶以下條件
-	     */
-		if (!cviDAOVO.isJobTrigger()) {
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup1())) {
-				sb.append(" and cvi_1.group_Id = :groupId_1 ");
-			} else if (cviDAOVO.getQueryGroup1List() != null && !cviDAOVO.getQueryGroup1List().isEmpty()) {
-				sb.append(" and cvi_1.group_Id in (:groupId_1) ");
-			}
-
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
-				sb.append(" and cvi_1.device_Id = :deviceId_1 ");
-			} else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
-				sb.append(" and cvi_1.device_Id in (:deviceId_1) ");
-			}
-		}
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryVersionId())) {
-			sb.append(" and cvi_1.version_id = :versionId ");
-		}
+		  .append(composeSelectStr(Constants.HQL_FIELD_NAME_FOR_DEVICE, "dl"))
+		  .append("   from ConfigVersionInfo cvi")
+		  .append("      left join DeviceList dl on cvi.deviceId = dl.deviceId ")
+		  .append(" where 1 = 1 ")
+		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-			sb.append(" and cvi_1.config_Type = :configType ");
+			sb.append("	and cvi.configType = :configType ");
 		}
+		  
+		sb.append(" and ((cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     SELECT vi_1.deviceId, vi_1.createTime FROM ConfigVersionInfo vi_1");
+		
+		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+	        sb.append(" where vi_1.deviceId = :deviceId1 ");
+	    } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+	        sb.append(" where vi_1.deviceId in (:deviceId1) ");
+	    }
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
-			sb.append(" and cvi_1.create_Time >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
+			sb.append("	and vi_1.createTime >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
 		}
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
-			sb.append(" and cvi_1.create_Time < DATE_ADD(:endDate_1, INTERVAL 1 DAY) ");
+			sb.append("	and vi_1.createTime < DATE_FORMAT(:endDate_1, '%Y-%m-%d') ");
 		}
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-			sb.append(" union ( ")
-			  .append("   select cvi_2.* ")
-			  .append("   from Config_Version_Info cvi_2 ")
-			  .append("   where 1=1 ")
-			  .append("   and cvi_2.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-			  .append("   and cvi_2.group_id = :groupId_2 ");
-
+		sb.append(" )");
+		
+		//選擇兩組條件
+  		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) || (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty())) {
+  			sb.append(" or (cvi.deviceId, cvi.createTime) IN ( ")
+			  .append("     SELECT vi_2.deviceId, vi_2.createTime FROM ConfigVersionInfo vi_2");
+			
 			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2())) {
-				sb.append(" and cvi_2.device_Id = :deviceId_2 ");
-			} else if (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty()) {
-				sb.append(" and cvi_2.device_Id in (:deviceId_2) ");
-			}
-
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-				sb.append(" and cvi_2.config_Type = :configType ");
-			}
-
+	          sb.append(" where vi_2.deviceId = :deviceId2 ");
+	        } else if (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty()) {
+	          sb.append(" where vi_2.deviceId in (:deviceId2) ");
+	        }
+			
 			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-				sb.append(" and cvi_2.create_Time >= DATE_FORMAT(:beginDate_2, '%Y-%m-%d') ");
+				sb.append("	and vi_2.createTime >= DATE_FORMAT(:beginDate_2, '%Y-%m-%d') ");
 			}
 			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-				sb.append(" and cvi_2.create_Time < DATE_ADD(:endDate_2, INTERVAL 1 DAY) ");
+				sb.append("	and vi_2.createTime < DATE_FORMAT(:endDate_2, '%Y-%m-%d') ");
 			}
-			sb.append(" ) ");
+			sb.append(" )");
 		}
-		sb.append(" ) cvi ")
-		  .append("  ,Device_List dl ")
-		  .append("  where 1 = 1 ")
-		  .append("  and cvi.group_id = dl.group_id ")
-		  .append("  and cvi.device_id = dl.device_id ")
-		  .append("  and dl.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDeviceListId())) {
-			sb.append(" and dl.device_list_id = :deviceListId ");
-		}
+		
+		sb.append(" )");
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 			sb.append(" and ( ")
-			  .append("       cvi.group_name like :searchValue ")
+			  .append("       dl.groupName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_name like :searchValue ")
+			  .append("       dl.deviceName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_model like :searchValue ")
+			  .append("       dl.deviceModel like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.config_version like :searchValue ")
-			  .append("       or ")
-			  .append("       cvi.config_type like :searchValue ")
+			  .append("       cvi.configVersion like :searchValue ")
 			  .append("     ) ");
 		}
+			
 		if (StringUtils.isNotBlank(cviDAOVO.getOrderColumn())) {
 			sb.append(" order by cvi.").append(cviDAOVO.getOrderColumn()).append(" ").append(cviDAOVO.getOrderDirection());
 
 		} else {
-			sb.append(" order by cvi.create_Time desc, cvi.group_Name asc, cvi.device_Name asc ");
+			sb.append(" order by cvi.createTime desc, cvi.groupName asc, cvi.deviceName asc ");
 		}
-
+			
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createNativeQuery(sb.toString());
+	    Query<?> q = session.createQuery(sb.toString());
 
-	    /*
-	     * 每日排程異地備份所有組態檔，不帶以下條件
-	     */
-	    if (!cviDAOVO.isJobTrigger()) {
-	    	if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup1()) || (cviDAOVO.getQueryGroup1List() != null && !cviDAOVO.getQueryGroup1List().isEmpty())) {
-	    		q.setParameter("groupId_1", StringUtils.isNotBlank(cviDAOVO.getQueryGroup1()) ? cviDAOVO.getQueryGroup1() : cviDAOVO.getQueryGroup1List());
-	    	}
-	    	if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1()) || (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty())) {
-	    		q.setParameter("deviceId_1", StringUtils.isNotBlank(cviDAOVO.getQueryDevice1()) ? cviDAOVO.getQueryDevice1() : cviDAOVO.getQueryDevice1List());
-	    	}
-	    }
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryVersionId())) {
-			q.setParameter("versionId", cviDAOVO.getQueryVersionId());
-		}
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDeviceListId())) {
-	    	q.setParameter("deviceListId", cviDAOVO.getQueryDeviceListId());
-		}
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
 	    	q.setParameter("configType", cviDAOVO.getQueryConfigType());
 		}
+	    
+        if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+            q.setParameter("deviceId1", cviDAOVO.getQueryDevice1());
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+            q.setParameterList("deviceId1", cviDAOVO.getQueryDevice1List());
+        }
+
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
 	    	q.setParameter("beginDate_1", cviDAOVO.getQueryDateBegin1());
 	    }
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
 	    	q.setParameter("endDate_1", cviDAOVO.getQueryDateEnd1());
 	    }
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-	    	q.setParameter("groupId_2", cviDAOVO.getQueryGroup2());
-	    	if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) || (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty())) {
-	    		q.setParameter("deviceId_2", StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) ? cviDAOVO.getQueryDevice2() : cviDAOVO.getQueryDevice2List());
-	    	}
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-		    	q.setParameter("beginDate_2", cviDAOVO.getQueryDateBegin2());
-		    }
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-		    	q.setParameter("endDate_2", cviDAOVO.getQueryDateEnd2());
-		    }
-	    }
+	    
+	    //選擇兩組條件
+  		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) || (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty())) {
+  			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2())) {
+  	            q.setParameter("deviceId2", cviDAOVO.getQueryDevice2());
+  	        } else if (cviDAOVO.getQueryDevice2List() != null && !cviDAOVO.getQueryDevice2List().isEmpty()) {
+  	            q.setParameterList("deviceId2", cviDAOVO.getQueryDevice2List());
+  	        }
+
+  		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
+  		    	q.setParameter("beginDate_2", cviDAOVO.getQueryDateBegin2());
+  		    }
+  		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
+  		    	q.setParameter("endDate_2", cviDAOVO.getQueryDateEnd2());
+  		    }
+  		}
+  		
 	    if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(cviDAOVO.getSearchValue()).concat("%"));
 	    }
+	    
 	    if (startRow != null && pageLength != null) {
 	    	q.setFirstResult(startRow);
 		    q.setMaxResults(pageLength);
@@ -434,157 +320,62 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 	public List<Object[]> findConfigVersionInfoByDAOVO4New(ConfigVersionInfoDAOVO cviDAOVO, Integer startRow,
 			Integer pageLength) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(" select distinct ")
-		  .append(composeSelectStr(Constants.NATIVE_FIELD_NAME_FOR_VERSION, "cvi"))
+		sb.append("select ")
+		  .append(composeSelectStr(Constants.HQL_FIELD_NAME_FOR_VERSION, "cvi"))
 		  .append(", ")
-		  .append(composeSelectStr(Constants.NATIVE_FIELD_NAME_FOR_DEVICE, "dl"))
-		  .append(" from ( ")
-		  .append("   select cvi_1.* ")
-		  .append("   from Config_Version_Info cvi_1 ")
-		  .append("   where 1 = 1 ")
-		  .append("   and (cvi_1.config_version, cvi_1.group_id, cvi_1.device_id, cvi_1.config_Type) ")
-		  .append("   in ( ")
-		  .append("         select max(cvi_11.config_version), cvi_11.group_id, cvi_11.device_id, cvi_11.config_Type ")
-		  .append("         from Config_Version_Info cvi_11 ")
-		  .append("         where 1 = 1 ")
-		  .append("         and (cvi_11.create_time, cvi_11.group_id, cvi_11.device_id, cvi_11.config_Type) ")
-		  .append("         in ( ")
-		  .append("               select max(cvi_12.create_time), cvi_12.group_id, cvi_12.device_id, cvi_12.config_Type ")
-		  .append("               from Config_Version_Info cvi_12 ")
-		  .append("               where 1 = 1 ")
-		  .append("               and cvi_12.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-		/*
-	     * 每日排程異地備份所有組態檔，不帶以下條件
-	     */
-		if (!cviDAOVO.isJobTrigger()) {
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup1())) {
-				sb.append("           and cvi_12.group_Id = :groupId_1 ");
-			} else {
-				sb.append("           and cvi_12.group_Id in (:groupId_1) ");
-			}
-
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
-				sb.append("           and cvi_12.device_Id = :deviceId_1 ");
-			} else {
-				sb.append("           and cvi_12.device_Id in (:deviceId_1) ");
-			}
-		}
-
+		  .append(composeSelectStr(Constants.HQL_FIELD_NAME_FOR_DEVICE, "dl"))
+		  .append("   from ConfigVersionInfo cvi")
+		  .append("      left join DeviceList dl on cvi.deviceId = dl.deviceId ")
+		  .append(" where 1 = 1 ")
+		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-			sb.append(" 		  and cvi_12.config_Type = :configType ");
+			sb.append("	and cvi.configType = :configType ");
 		}
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
-			sb.append("           and cvi_12.create_Time >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
-		}
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
-			sb.append("           and cvi_12.create_Time < DATE_ADD(:endDate_1, INTERVAL 1 DAY) ");
-		}
-
-		sb.append("               group by cvi_12.group_id, cvi_12.device_id, cvi_12.config_Type ")
-		  .append("         ) ")
-		  .append("         group by cvi_11.config_version, cvi_11.group_id, cvi_11.device_id, cvi_11.config_Type ")
-		  .append("    ) ");
-
-		if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-			sb.append(" union ( ")
-			  .append("   select cvi_2.* ")
-			  .append("   from Config_Version_Info cvi_2 ")
-			  .append("   where 1 = 1 ")
-			  .append("   and (cvi_2.config_version, cvi_2.group_id, cvi_2.device_id, cvi_2.config_Type) ")
-			  .append("   in ( ")
-			  .append("         select max(cvi_21.config_version), cvi_21.group_id, cvi_21.device_id, cvi_21.config_Type ")
-			  .append("         from Config_Version_Info cvi_21 ")
-			  .append("         where 1 = 1 ")
-			  .append("         and (cvi_21.create_time, cvi_21.group_id, cvi_21.device_id, cvi_21.config_Type) ")
-			  .append("         in ( ")
-			  .append("               select max(cvi_22.create_time), cvi_22.group_id, cvi_22.device_id, cvi_22.config_Type ")
-			  .append("               from Config_Version_Info cvi_22 ")
-			  .append("               where 1 = 1 ")
-			  .append("               and cvi_22.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-			  .append("               and cvi_22.group_Id = :groupId_2 ");
-
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice2())) {
-				sb.append("           and cvi_22.device_Id = :deviceId_2 ");
-			} else {
-				sb.append("           and cvi_22.device_Id in (:deviceId_2) ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-				sb.append(" 		  and cvi_22.config_Type = :configType ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-				sb.append("           and cvi_22.create_Time >= DATE_FORMAT(:beginDate_2, '%Y-%m-%d') ");
-			}
-			if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-				sb.append("           and cvi_22.create_Time < DATE_ADD(:endDate_2, INTERVAL 1 DAY) ");
-			}
-			sb.append("               group by cvi_22.group_id, cvi_22.device_id, cvi_22.config_Type ")
-			  .append("         ) ")
-			  .append("         group by cvi_21.config_version, cvi_21.group_id, cvi_21.device_id, cvi_21.config_Type ")
-			  .append("    ) ")
-			  .append(" ) ");
-		}
-		sb.append(" ) cvi ")
-		  .append("  ,Device_List dl ")
-		  .append("  where 1 = 1 ")
-		  .append("  and cvi.group_id = dl.group_id ")
-		  .append("  and cvi.device_id = dl.device_id ")
-		  .append("  and dl.delete_flag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
+		  
+		sb.append(" and (cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 ");
+		
+		if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+          sb.append(" where vi_1.deviceId = :deviceId1 ");
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+          sb.append(" where vi_1.deviceId in (:deviceId1) ");
+        }
+		
+		sb.append(" GROUP BY vi_1.deviceId)");
+				
 		if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 			sb.append(" and ( ")
-			  .append("       cvi.group_name like :searchValue ")
+			  .append("       dl.groupName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_name like :searchValue ")
+			  .append("       dl.deviceName like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.device_model like :searchValue ")
+			  .append("       dl.deviceModel like :searchValue ")
 			  .append("       or ")
-			  .append("       cvi.config_version like :searchValue ")
-			  .append("       or ")
-			  .append("       cvi.config_type like :searchValue ")
+			  .append("       cvi.configVersion like :searchValue ")
 			  .append("     ) ");
 		}
-
+		
 		if (StringUtils.isNotBlank(cviDAOVO.getOrderColumn())) {
 			sb.append(" order by cvi.").append(cviDAOVO.getOrderColumn()).append(" ").append(cviDAOVO.getOrderDirection());
 
 		} else {
-			sb.append(" order by cvi.create_Time desc, cvi.group_Name asc, cvi.device_Name asc, cvi.config_Type asc ");
+			sb.append(" order by cvi.createTime desc, cvi.groupName asc, cvi.deviceName asc ");
 		}
-
+		
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createNativeQuery(sb.toString());
-
-	    /*
-	     * 每日排程異地備份所有組態檔，不帶以下條件
-	     */
-		if (!cviDAOVO.isJobTrigger()) {
-			q.setParameter("groupId_1", StringUtils.isNotBlank(cviDAOVO.getQueryGroup1()) ? cviDAOVO.getQueryGroup1() : cviDAOVO.getQueryGroup1List());
-		    q.setParameter("deviceId_1", StringUtils.isNotBlank(cviDAOVO.getQueryDevice1()) ? cviDAOVO.getQueryDevice1() : cviDAOVO.getQueryDevice1List());
-		}
+	    Query<?> q = session.createQuery(sb.toString());
 
 	    if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
 	    	q.setParameter("configType", cviDAOVO.getQueryConfigType());
-	    }
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin1())) {
-	    	q.setParameter("beginDate_1", cviDAOVO.getQueryDateBegin1());
-	    }
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd1())) {
-	    	q.setParameter("endDate_1", cviDAOVO.getQueryDateEnd1());
-	    }
-
-	    if (StringUtils.isNotBlank(cviDAOVO.getQueryGroup2())) {
-	    	q.setParameter("groupId_2", cviDAOVO.getQueryGroup2());
-	    	q.setParameter("deviceId_2", StringUtils.isNotBlank(cviDAOVO.getQueryDevice2()) ? cviDAOVO.getQueryDevice2() : cviDAOVO.getQueryDevice2List());
-
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateBegin2())) {
-		    	q.setParameter("beginDate_2", cviDAOVO.getQueryDateBegin2());
-		    }
-		    if (StringUtils.isNotBlank(cviDAOVO.getQueryDateEnd2())) {
-		    	q.setParameter("endDate_2", cviDAOVO.getQueryDateEnd2());
-		    }
-	    }
+		}
+	    
+        if (StringUtils.isNotBlank(cviDAOVO.getQueryDevice1())) {
+            q.setParameter("deviceId1", cviDAOVO.getQueryDevice1());
+        } else if (cviDAOVO.getQueryDevice1List() != null && !cviDAOVO.getQueryDevice1List().isEmpty()) {
+            q.setParameterList("deviceId1", cviDAOVO.getQueryDevice1List());
+        }
 
 	    if (StringUtils.isNotBlank(cviDAOVO.getSearchValue())) {
 	    	q.setParameter("searchValue", "%".concat(cviDAOVO.getSearchValue()).concat("%"));
@@ -749,4 +540,5 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 
         return (ConfigVersionDiffLog)q.uniqueResult();
     }
+
 }

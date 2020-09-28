@@ -216,7 +216,7 @@ public class ScriptInfoDAOImpl extends BaseDaoHibernate implements ScriptInfoDAO
 	}
 	
 	@Override
-	public ScriptInfo findDefaultScriptInfoByScriptTypeAndSystemVersion(String scriptType, String deviceModel) throws ServiceLayerException {
+	public ScriptInfo findDefaultScriptInfoByScriptTypeAndDeviceModel(String scriptType, String deviceModel) throws ServiceLayerException {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select si ")
 		  .append(" from ScriptInfo si ")

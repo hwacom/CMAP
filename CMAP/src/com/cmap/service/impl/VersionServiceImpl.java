@@ -2,6 +2,7 @@ package com.cmap.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -9,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -28,6 +30,7 @@ import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
+import com.cmap.configuration.hibernate.ConnectionFactory;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ScriptDefaultMappingDAO;
@@ -88,7 +91,6 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		ConfigVersionInfoDAOVO cviDAOVO;
 		try {
 			cviDAOVO = new ConfigVersionInfoDAOVO();
-			cviDAOVO.setQueryGroup1List(groupList);
 			cviDAOVO.setQueryDevice1List(deviceList);
 			cviDAOVO.setQueryConfigType(configType);
 
@@ -112,11 +114,21 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		try {
 			cviDAOVO = transServiceVO2ConfigVersionInfoDAOVO(vsVO);
 
-			if (vsVO.isQueryNewChkbox()) {
-				retCount = configDAO.countConfigVersionInfoByDAOVO4New(cviDAOVO);
-			} else {
-				retCount = configDAO.countConfigVersionInfoByDAOVO(cviDAOVO);
-			}
+			int queryTimes = (cviDAOVO.getQueryDevice1List().size()/2000) + ((cviDAOVO.getQueryDevice1List().size() % 2000 != 0)? 1 : 0 );
+			List<String> deviceList = cviDAOVO.getQueryDevice1List();
+			for(int i = 1; i <= queryTimes; i++) {
+				if(i != queryTimes) {
+					cviDAOVO.setQueryDevice1List(deviceList.subList(0, 2000));
+					deviceList = deviceList.subList(2001, deviceList.size());
+				}else {
+					cviDAOVO.setQueryDevice1List(deviceList);
+				}
+				if (vsVO.isQueryNewChkbox()) {
+					retCount += configDAO.countConfigVersionInfoByDAOVO4New(cviDAOVO);
+				} else {
+					retCount += configDAO.countConfigVersionInfoByDAOVO(cviDAOVO);
+				}
+			}			
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -132,9 +144,18 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		DeviceDAOVO dlDAOVO;
 		try {
 			dlDAOVO = transServiceVO2DeviceDAOVO(vsVO);
-			dlDAOVO.setAdmin(vsVO.isAdmin());
-
-			retCount = deviceDAO.countDeviceListAndLastestVersionByDAOVO(dlDAOVO);
+			
+			int queryTimes = (dlDAOVO.getQueryDeviceList().size()/2000) + ((dlDAOVO.getQueryDeviceList().size() % 2000 != 0)? 1 : 0 );
+			List<String> deviceList = dlDAOVO.getQueryDeviceList();
+			for(int i = 1; i <= queryTimes; i++) {
+				if(i != queryTimes) {
+					dlDAOVO.setQueryDeviceList(deviceList.subList(0, 2000));
+					deviceList = deviceList.subList(2001, deviceList.size());
+				}else {
+					dlDAOVO.setQueryDeviceList(deviceList);
+				}
+				retCount += deviceDAO.countDeviceListAndLastestVersionByDAOVO(dlDAOVO);
+			}
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -150,15 +171,25 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	@Override
 	public List<VersionServiceVO> findVersionInfo(VersionServiceVO vsVO, Integer startRow, Integer pageLength) throws ServiceLayerException {
 		List<VersionServiceVO> retList = new ArrayList<>();
-		List<Object[]> modelList;
+		List<Object[]> modelList = new ArrayList<>();
 		ConfigVersionInfoDAOVO cviDAOVO;
 		try {
 			cviDAOVO = transServiceVO2ConfigVersionInfoDAOVO(vsVO);
 
-			if (vsVO.isQueryNewChkbox()) {
-				modelList = configDAO.findConfigVersionInfoByDAOVO4New(cviDAOVO, startRow, pageLength);
-			} else {
-				modelList = configDAO.findConfigVersionInfoByDAOVO(cviDAOVO, startRow, pageLength);
+			int queryTimes = (cviDAOVO.getQueryDevice1List().size()/2000) + ((cviDAOVO.getQueryDevice1List().size() % 2000 != 0)? 1 : 0 );
+			List<String> deviceList = cviDAOVO.getQueryDevice1List();
+			for(int i = 1; i <= queryTimes; i++) {
+				if(i != queryTimes) {
+					cviDAOVO.setQueryDevice1List(deviceList.subList(0, 2000));
+					deviceList = deviceList.subList(2001, deviceList.size());
+				}else {
+					cviDAOVO.setQueryDevice1List(deviceList);
+				}
+				if (vsVO.isQueryNewChkbox()) {
+					modelList.addAll(configDAO.findConfigVersionInfoByDAOVO4New(cviDAOVO, startRow, pageLength));
+				} else {
+					modelList.addAll(configDAO.findConfigVersionInfoByDAOVO(cviDAOVO, startRow, pageLength));
+				}
 			}
 
 			if (modelList != null && !modelList.isEmpty()) {
@@ -175,14 +206,23 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	@Override
 	public List<VersionServiceVO> findDeviceList(VersionServiceVO vsVO, Integer startRow, Integer pageLength) throws ServiceLayerException {
 		List<VersionServiceVO> retList = new ArrayList<>();
-		List<Object[]> modelList;
+		List<Object[]> modelList = new ArrayList<>();
 		DeviceDAOVO dlDAOVO;
 		try {
 			dlDAOVO = transServiceVO2DeviceDAOVO(vsVO);
-			dlDAOVO.setAdmin(vsVO.isAdmin());
-
-			modelList = deviceDAO.findDeviceListAndLastestVersionByDAOVO(dlDAOVO, startRow, pageLength);
-
+			
+			int queryTimes = (dlDAOVO.getQueryDeviceList().size()/2000) + ((dlDAOVO.getQueryDeviceList().size() % 2000 != 0)? 1 : 0 );
+			List<String> deviceList = dlDAOVO.getQueryDeviceList();
+			for(int i = 1; i <= queryTimes; i++) {
+				if(i != queryTimes) {
+					dlDAOVO.setQueryDeviceList(deviceList.subList(0, 2000));
+					deviceList = deviceList.subList(2001, deviceList.size());
+				}else {
+					dlDAOVO.setQueryDeviceList(deviceList);
+				}
+				modelList.addAll(deviceDAO.findDeviceListAndLastestVersionByDAOVO(dlDAOVO, startRow, pageLength));
+			}
+			
 			if (modelList != null && !modelList.isEmpty()) {
 				retList = transModel2ServiceVO4Device(modelList);
 			}
@@ -375,7 +415,14 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				}
 
 			}else {
-
+				String localTftpIP = null;
+				if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {							
+					Properties prop = new Properties();
+					final String propFileName = "distributed_setting.properties";
+					InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+					prop.load(inputStream);
+					localTftpIP = prop.getProperty("distributed.tftp.ip");
+				}
 				// Step1. 建立FileServer傳輸物件
 				switch (Env.FILE_TRANSFER_MODE) {
 					case FTP:
@@ -388,7 +435,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 					case TFTP:
 						fileUtils = new TFtpFileUtils();
-						_hostIp = Env.TFTP_HOST_IP;
+						_hostIp = localTftpIP != null ? localTftpIP : Env.TFTP_HOST_IP;
 						_hostPort = Env.TFTP_HOST_PORT;
 						break;
 				}
@@ -603,6 +650,16 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 					}else {
 						log.debug("for bedug Step1. 建立FileServer傳輸物件");
 						// Step1. 建立FileServer傳輸物件
+						
+						String localTftpIP = null;
+						if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {							
+							Properties prop = new Properties();
+							final String propFileName = "distributed_setting.properties";
+							InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+							prop.load(inputStream);
+							localTftpIP = prop.getProperty("distributed.tftp.ip");
+						}
+						
 						switch (Env.FILE_TRANSFER_MODE) {
 						case FTP:
 							fileUtils = new FtpFileUtils();
@@ -614,7 +671,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 						case TFTP:
 							fileUtils = new TFtpFileUtils();
-							_hostIp = Env.TFTP_HOST_IP;
+							_hostIp = localTftpIP != null? localTftpIP : Env.TFTP_HOST_IP ;
 							_hostPort = Env.TFTP_HOST_PORT;
 							break;
 						}

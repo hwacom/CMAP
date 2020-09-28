@@ -126,6 +126,9 @@ function jobAction(action) {
 					$("#inputMailSenderSettingId").val(resp.data.inputMailSenderSettingId);
 					$("#inputIpMacPortMappingPollerGroupId").val(resp.data.inputIpMacPortMappingPollerGroupId);
 					
+					$("#inputE1GroupIds").val(resp.data.inputGroupIds);
+					$("#inputE1DeviceIds").val(resp.data.inputDeviceIds);
+					
 					$("#inputMisFirePolicy option").filter(function() {
 					    return $(this).val() == resp.data.inputMisFirePolicy; 
 					}).prop('selected', true);

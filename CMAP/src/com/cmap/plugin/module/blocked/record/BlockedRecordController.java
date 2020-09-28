@@ -36,7 +36,6 @@ import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.DeliveryServiceVO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.inject.internal.Strings;
 
 @Controller
 @RequestMapping("/plugin/module/blockedRecord")
@@ -44,7 +43,7 @@ public class BlockedRecordController extends BaseController {
 	@Log
 	private static Logger log;
 
-	private static final String[] UI_SEARCH_BY_SCRIPT_COLUMNS = new String[] {"","","scriptName","scriptType.scriptTypeName","systemVersion","","","",""};
+	private static final String[] UI_SEARCH_BY_SCRIPT_COLUMNS = new String[] {"","","scriptName","scriptType.scriptTypeName","deviceModel","","","",""};
 	private static final String[] UI_BLOCKED_IP_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbl.ip_Address","mids.ip_Desc","mbl.status_Flag","mbl.block_Time","mbl.block_Reason","mbl.block_By","mbl.open_Time","mbl.open_Reason","mbl.open_By"};
 	private static final String[] UI_BLOCKED_PORT_RECORD_COLUMNS = new String[] {"","","dl.group_Name","dl.device_Name","mbl.port_Id","mbl.status_Flag","mbl.block_Time","mbl.block_Reason","mbl.block_By","mbl.open_Time","mbl.open_Reason","mbl.open_By"};
 	private static final String[] UI_BLOCKED_MAC_RECORD_COLUMNS = new String[] {"","","dl.group_Name","mbl.mac_Address","mbl.status_Flag","mbl.block_Time","mbl.block_Reason","mbl.block_By","mbl.open_Time","mbl.open_Reason","mbl.open_By"};
@@ -664,7 +663,10 @@ public class BlockedRecordController extends BaseController {
 				case Constants.DELIVERY_ONLY_SCRIPT_OF_IP_MAC_BINDING:
 					brVO.setOrderColumn(UI_IP_MAC_BOUND_RECORD_COLUMNS[orderColIdx]);
 					brVO.setQueryBlockType(BlockType.BIND.toString());
-					break;					
+					break;
+				
+				default:
+					break;
 			}
             
             brVO.setSearchValue(searchValue);

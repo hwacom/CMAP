@@ -15,16 +15,24 @@ $(document).ready(function() {
     });
 	
     $('#btnSearchJobLog_web').click(function (e) {
-    	findJobLogData('WEB');
+    	findJobLogData('WEB', '');
     });
-  	
+    
+    $('#btnSearchJobBackupConfigLog_web').click(function (e) {
+    	findJobLogData('WEB', 'BackupConfig');
+    });
+    
   	//查詢按鈕(Mobile)點擊事件
     $('#btnSearchErrorLog_mobile').click(function (e) {
     	findErrorLogData('MOBILE');
     });
   	
     $('#btnSearchJobLog_mobile').click(function (e) {
-    	findJobLogData('MOBILE');
+    	findJobLogData('MOBILE', '');
+    });
+    
+    $('#btnSearchJobBackupConfigLog_mobile').click(function (e) {
+    	findJobLogData('MOBILE', 'BackupConfig');
     });
 });
 
@@ -180,7 +188,7 @@ function findErrorLogData(from) {
 	}
 }
 
-function findJobLogData(from) {
+function findJobLogData(from, className) {
 	$("#queryFrom").val(from);
 	
 	if (from == "MOBILE") {
@@ -215,7 +223,11 @@ function findJobLogData(from) {
 			"ajax" : {
 				"url" : _ctx + "/admin/log/getJobLog.json",
 				"type" : "POST",
-				"data" : function ( d ) {},
+				"data" : function ( d ) {
+					d.className = $("#inputSchedType").val();
+					
+					return d;
+				},
 				"beforeSend" : function() {
 					showProcessing();
 				},

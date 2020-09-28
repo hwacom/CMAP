@@ -47,7 +47,7 @@ public interface ConfigDAO extends BaseDAO {
 
 	public void insertConfigVersionInfo(ConfigVersionInfo configVersionInfo);
 
-	public List<ConfigContentSetting> findConfigContentSetting(String settingType, String systemVersion,
+	public List<ConfigContentSetting> findConfigContentSetting(String settingType, String deviceModel,
 	        String deviceNameLike, String deviceListId);
 
 	public ConfigVersionDiffLog findConfigVersionDiffLogById(String diffLogId);

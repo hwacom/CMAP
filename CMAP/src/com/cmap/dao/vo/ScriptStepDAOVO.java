@@ -18,7 +18,7 @@ public class ScriptStepDAOVO extends CommonDAOVO {
 	private String repeatFlag;
 	private String scriptDescription;
 	private String scriptTypeName;
-	private String systemVersion;
+	private String deviceModel;
 	private String scriptMode;
 	private String scriptSleepTime;
 	
@@ -117,11 +117,11 @@ public class ScriptStepDAOVO extends CommonDAOVO {
 	public void setScriptTypeName(String scriptTypeName) {
 		this.scriptTypeName = scriptTypeName;
 	}
-	public String getSystemVersion() {
-		return systemVersion;
+	public String getDeviceModel() {
+		return deviceModel;
 	}
-	public void setSystemVersion(String systemVersion) {
-		this.systemVersion = systemVersion;
+	public void setDeviceModel(String deviceModel) {
+		this.deviceModel = deviceModel;
 	}
 	public String getScriptMode() {
 		return scriptMode;

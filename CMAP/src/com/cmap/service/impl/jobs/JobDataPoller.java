@@ -43,7 +43,7 @@ public class JobDataPoller extends BaseJobImpl implements BaseJobService {
 				String disGroupId = jMap.getString(Constants.QUARTZ_PARA_DISTRIBUTED_GROUP_ID);
 				
 				Properties prop = new Properties();
-				final String propFileName = "application.properties";
+				final String propFileName = "distributed_setting.properties";
 				InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
 				prop.load(inputStream);
 				

@@ -86,199 +86,6 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	}
 
 	@Override
-	public long countDeviceListAndLastestVersionByDAOVO(DeviceDAOVO dlDAOVO) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(" select count(distinct dl.DEVICE_LIST_ID) ")
-		  .append("   from Device_List dl ")
-		  .append("   left join ( ")
-		  .append("     select cvi_0.* ")
-		  .append("     from Config_Version_Info cvi_0 ")
-		  .append("     where 1 = 1 ")
-		  .append("     and (cvi_0.GROUP_ID, cvi_0.DEVICE_ID,cvi_0.VERSION_ID) ")
-		  .append("     in ")
-		  .append("     ( ")
-		  .append("       select cvi_1.GROUP_ID, cvi_1.DEVICE_ID, max(cvi_1.VERSION_ID) ")
-		  .append("       from Config_Version_Info cvi_1 ")
-		  .append("       where 1 = 1 ")
-		  .append("       and (cvi_1.GROUP_ID, cvi_1.DEVICE_ID, cvi_1.CREATE_TIME) ")
-		  .append("       in ")
-		  .append("       ( ")
-		  .append("         select cvi_2.GROUP_ID, cvi_2.DEVICE_ID, max(cvi_2.CREATE_TIME) ")
-		  .append("         from Config_Version_Info cvi_2 ")
-		  .append("         where 1 = 1 ")
-		  .append("         and cvi_2.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-            sb.append("    and cvi_2.GROUP_ID = :groupId ");
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            sb.append("     and cvi_2.GROUP_ID in (:groupId) ");
-        }
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-            sb.append("     and cvi_1.DEVICE_ID = :deviceId ");
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            sb.append("     and cvi_1.DEVICE_ID in (:deviceId) ");
-        }
-
-		sb.append("         group BY cvi_2.GROUP_ID, cvi_2.DEVICE_ID ")
-		  .append("       ) ")
-		  .append("       group by cvi_1.GROUP_ID, cvi_1.DEVICE_ID ")
-		  .append("     ) ")
-		  .append("   ) cvi ")
-		  .append("   on dl.GROUP_ID = cvi.GROUP_ID ")
-		  .append("   and dl.DEVICE_ID = cvi.DEVICE_ID ")
-		  .append("   where 1 = 1 ")
-		  .append("   and dl.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-            sb.append(" and dl.GROUP_ID = :groupId ");
-        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
-            sb.append(" and dl.GROUP_ID in (:groupId) ");
-        }
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-            sb.append(" and dl.DEVICE_ID = :deviceId ");
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            sb.append(" and dl.DEVICE_ID in (:deviceId) ");
-        }
-
-		if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
-			sb.append(" and ( ")
-			  .append("       dl.GROUP_NAME like :searchValue ")
-			  .append("       or ")
-			  .append("       dl.DEVICE_NAME like :searchValue ")
-			  .append("       or ")
-			  .append("       dl.DEVICE_MODEL like :searchValue ")
-			  .append("       or ")
-			  .append("       cvi.CONFIG_VERSION like :searchValue ")
-			  .append("     ) ");
-		}
-
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createNativeQuery(sb.toString());
-
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-            q.setParameter("groupId", dlDAOVO.getQueryGroup());
-        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
-            q.setParameterList("groupId", dlDAOVO.getQueryGroupList());
-        }
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-            q.setParameter("deviceId", dlDAOVO.getQueryDevice());
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            q.setParameterList("deviceId", dlDAOVO.getQueryDeviceList());
-        }
-
-	    if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
-	    	q.setParameter("searchValue", "%".concat(dlDAOVO.getSearchValue()).concat("%"));
-	    }
-
-	    return DataAccessUtils.longResult(q.list());
-	}
-
-	@Override
-	public List<Object[]> findDeviceListAndLastestVersionByDAOVO(DeviceDAOVO dlDAOVO, Integer startRow, Integer pageLength) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(" select distinct ")
-		  .append(composeSelectStr(Constants.NATIVE_FIELD_NAME_FOR_DEVICE_2, "dl"))
-		  .append(", ")
-		  .append(composeSelectStr(Constants.NATIVE_FIELD_NAME_FOR_VERSION_2, "cvi"))
-		  .append(" from Device_List dl ")
-		  .append(" left join ( ")
-		  .append("     select cvi_0.* ")
-		  .append("     from Config_Version_Info cvi_0 ")
-		  .append("     where 1 = 1 ")
-		  .append("     and (cvi_0.GROUP_ID, cvi_0.DEVICE_ID,cvi_0.VERSION_ID) ")
-		  .append("     in ")
-		  .append("     ( ")
-		  .append("       select cvi_1.GROUP_ID, cvi_1.DEVICE_ID, max(cvi_1.VERSION_ID) ")
-		  .append("   	  from Config_Version_Info cvi_1 ")
-		  .append("   	  where 1 = 1 ")
-		  .append("   	  and (cvi_1.GROUP_ID, cvi_1.DEVICE_ID, cvi_1.CREATE_TIME) ")
-		  .append("   	  in ")
-		  .append("   	  ( ")
-		  .append("     	select cvi_2.GROUP_ID, cvi_2.DEVICE_ID, max(cvi_2.CREATE_TIME) ")
-		  .append("     	from Config_Version_Info cvi_2 ")
-		  .append("     	where 1 = 1 ")
-		  .append("     	and cvi_2.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-            sb.append("    and cvi_2.GROUP_ID = :groupId ");
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            sb.append("     and cvi_2.GROUP_ID in (:groupId) ");
-        }
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-            sb.append("     and cvi_1.DEVICE_ID = :deviceId ");
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            sb.append("     and cvi_1.DEVICE_ID in (:deviceId) ");
-        }
-
-		sb.append("     	group BY cvi_2.GROUP_ID, cvi_2.DEVICE_ID ")
-		  .append("   	  ) ")
-		  .append("       group by cvi_1.GROUP_ID, cvi_1.DEVICE_ID ")
-		  .append("     ) ")
-		  .append(" ) cvi ")
-		  .append(" on dl.GROUP_ID = cvi.GROUP_ID ")
-		  .append(" and dl.DEVICE_ID = cvi.DEVICE_ID ")
-		  .append(" where 1 = 1 ")
-		  .append(" and dl.DELETE_FLAG = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
-
-	    if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-            sb.append(" and dl.GROUP_ID = :groupId ");
-        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
-            sb.append(" and dl.GROUP_ID in (:groupId) ");
-        }
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-            sb.append(" and dl.DEVICE_ID = :deviceId ");
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            sb.append(" and dl.DEVICE_ID in (:deviceId) ");
-        }
-
-		if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
-			sb.append(" and ( ")
-			  .append("       dl.GROUP_NAME like :searchValue ")
-			  .append("       or ")
-			  .append("       dl.DEVICE_NAME like :searchValue ")
-			  .append("       or ")
-			  .append("       dl.DEVICE_MODEL like :searchValue ")
-			  .append("       or ")
-			  .append("       cvi.CONFIG_VERSION like :searchValue ")
-			  .append("     ) ");
-		}
-
-		if (StringUtils.isNotBlank(dlDAOVO.getOrderColumn())) {
-			sb.append(" order by ").append(dlDAOVO.getOrderColumn()).append(" ").append(dlDAOVO.getOrderDirection());
-
-		} else {
-			sb.append(" order by dl.GROUP_NAME asc, dl.DEVICE_NAME asc ");
-		}
-
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createNativeQuery(sb.toString());
-
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryGroup())) {
-            q.setParameter("groupId", dlDAOVO.getQueryGroup());
-        } else if (dlDAOVO.getQueryGroupList() != null && !dlDAOVO.getQueryGroupList().isEmpty()) {
-            q.setParameterList("groupId", dlDAOVO.getQueryGroupList());
-        }
-        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
-            q.setParameter("deviceId", dlDAOVO.getQueryDevice());
-        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
-            q.setParameterList("deviceId", dlDAOVO.getQueryDeviceList());
-        }
-
-	    if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
-	    	q.setParameter("searchValue", "%".concat(dlDAOVO.getSearchValue()).concat("%"));
-	    }
-
-	    if (startRow != null && pageLength != null) {
-	    	q.setFirstResult(startRow);
-		    q.setMaxResults(pageLength);
-	    }
-
-	    List<Object[]> retList = (List<Object[]>)q.list();
-
-		return transObjList2ModelList4Device(retList);
-	}
-
-	@Override
 	public void saveOrUpdateDeviceListByModel(List<DeviceList> entityList) {
 		for (DeviceList entity : entityList) {
 			getHibernateTemplate().saveOrUpdate(entity);
@@ -564,4 +371,113 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
         }
         return (List<DeviceList>)q.list();
     }
+    
+
+	@Override
+	public long countDeviceListAndLastestVersionByDAOVO(DeviceDAOVO dlDAOVO) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select count(*)")
+		  .append("   from DeviceList dl ")
+		  .append("      left join ConfigVersionInfo cvi on cvi.deviceId = dl.deviceId")
+		  .append(" where 1 = 1 ")
+		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and (cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 GROUP BY vi_1.deviceId)");
+		
+		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+          sb.append(" and dl.deviceId = :deviceId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+          sb.append(" and dl.deviceId in (:deviceId) ");
+        }
+		
+		if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
+			sb.append(" and ( ")
+			  .append("       dl.groupName like :searchValue ")
+			  .append("       or ")
+			  .append("       dl.deviceName like :searchValue ")
+			  .append("       or ")
+			  .append("       dl.deviceModel like :searchValue ")
+			  .append("       or ")
+			  .append("       cvi.configVersion like :searchValue ")
+			  .append("     ) ");
+		}
+
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            q.setParameter("deviceId", dlDAOVO.getQueryDevice());
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            q.setParameterList("deviceId", dlDAOVO.getQueryDeviceList());
+        }
+
+	    if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
+	    	q.setParameter("searchValue", "%".concat(dlDAOVO.getSearchValue()).concat("%"));
+	    }
+
+	    return DataAccessUtils.longResult(q.list());
+	}
+
+	@Override
+	public List<Object[]> findDeviceListAndLastestVersionByDAOVO(DeviceDAOVO dlDAOVO, Integer startRow, Integer pageLength) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select" + composeSelectStr(Constants.HQL_FIELD_NAME_FOR_DEVICE_2, "dl"))
+		  .append(", ")
+		  .append(composeSelectStr(Constants.HQL_FIELD_NAME_FOR_VERSION_2, "cvi"))
+		  .append("   from DeviceList dl ")
+		  .append("      left join ConfigVersionInfo cvi on cvi.deviceId = dl.deviceId")
+		  .append(" where 1 = 1 ")
+		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" and (cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 GROUP BY vi_1.deviceId)");
+		
+		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+          sb.append(" and dl.deviceId = :deviceId ");
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+          sb.append(" and dl.deviceId in (:deviceId) ");
+        }
+		
+		if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
+			sb.append(" and ( ")
+			  .append("       dl.groupName like :searchValue ")
+			  .append("       or ")
+			  .append("       dl.deviceName like :searchValue ")
+			  .append("       or ")
+			  .append("       dl.deviceModel like :searchValue ")
+			  .append("       or ")
+			  .append("       cvi.configVersion like :searchValue ")
+			  .append("     ) ");
+		}
+
+		if (StringUtils.isNotBlank(dlDAOVO.getOrderColumn())) {
+			sb.append(" order by ").append(dlDAOVO.getOrderColumn()).append(" ").append(dlDAOVO.getOrderDirection());
+
+		} else {
+			sb.append(" order by dl.groupName asc, dl.deviceName asc ");
+		}
+
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+
+        if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+            q.setParameter("deviceId", dlDAOVO.getQueryDevice());
+        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+            q.setParameterList("deviceId", dlDAOVO.getQueryDeviceList());
+        }
+
+	    if (StringUtils.isNotBlank(dlDAOVO.getSearchValue())) {
+	    	q.setParameter("searchValue", "%".concat(dlDAOVO.getSearchValue()).concat("%"));
+	    }
+
+	    if (startRow != null && pageLength != null) {
+	    	q.setFirstResult(startRow);
+		    q.setMaxResults(pageLength);
+	    }
+
+	    List<Object[]> retList = (List<Object[]>)q.list();
+
+		return transObjList2ModelList4Device(retList);
+	}
 }
