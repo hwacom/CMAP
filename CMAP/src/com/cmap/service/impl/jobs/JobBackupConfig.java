@@ -64,12 +64,12 @@ public class JobBackupConfig extends BaseJobImpl implements BaseJobService {
 				
 				if(!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), disGroupId)){
 					actionFlag = false;
-					log.info("for debug action flag is false!!");
+					log.debug("for debug action flag is false!!");
 				}
 			}
 			
 			if(actionFlag) {
-				log.info("for debug action start!!");
+				log.debug("for debug action start!!");
 				ObjectMapper mapper = new ObjectMapper();
 				groupIds = mapper.readValue(groupId, new TypeReference<List<String>>(){});
 				deviceIds = mapper.readValue(deviceId, new TypeReference<List<String>>(){});
@@ -97,7 +97,7 @@ public class JobBackupConfig extends BaseJobImpl implements BaseJobService {
 
 		} finally {
 			if(actionFlag) {
-				log.info("for debug action log start!!");
+				log.debug("for debug action log start!!");
 				Timestamp endTime = new Timestamp((new Date()).getTime());
 
 				super.insertSysJobLog(JOB_ID, context, vsVO.getJobExcuteResult(), vsVO.getJobExcuteResultRecords(), startTime, endTime, vsVO.getJobExcuteRemark());

@@ -694,7 +694,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 								fileDir = date_yyyyMMdd.concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(fileDir);
 							}
 						}
-						log.info("for bedug fileDir = " + fileDir);
+						log.debug("for debug fileDir = " + fileDir);
 						fileUtils.changeDir(fileDir, false);
 
 						// Step4. 下載指定的Config落地檔

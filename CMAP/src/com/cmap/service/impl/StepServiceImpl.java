@@ -417,7 +417,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case UPLOAD_FILE_SERVER:
 							try {
-								upload2FTP(fileUtils, outputVOList);
+								upload2FTP(fileUtils, outputVOList, fileServerMode);
 								break;
 
 							} catch (Exception e) {
@@ -623,7 +623,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							break;
 
 						case UPLOAD_FILE_SERVER:
-							upload2FTP(fileUtils, outputVOList);
+							upload2FTP(fileUtils, outputVOList, uploadMode);
 							break;
 
 						case CLOSE_FILE_SERVER_CONNECTION:
@@ -1053,11 +1053,19 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								
 								FileUtils coreFileUtils = null;								
 								coreFileUtils = connect2FileServer(coreFileUtils, _mode, coreInfoVO);								
-								String configFileName = new String(ciVO.getConfigFileName().getBytes("UTF-8"),"iso-8859-1");
-								coreFileUtils.uploadFiles(
-										configFileName,
-										IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8)
-										);
+								String configFileName = ciVO.getConfigFileDirPath().concat(nowVersionFileName);
+								
+								String targetFileName;
+								List<String> cList = new ArrayList<>();
+								if(StringUtils.isBlank(ciVO.getConfigFileDirPath()) || ciVO.getConfigFileDirPath().length() == 1) {
+									targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(nowVersionFileName);
+								}else {
+									targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(nowVersionFileName);
+								}
+								//read file into stream, try-with-resources
+								targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+								cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);								
+								coreFileUtils.uploadFiles(configFileName, IOUtils.toInputStream(String.join("\r\n", cList)));
 							}
 						}
 					}
@@ -1596,30 +1604,36 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @param ciVOList
 	 * @throws Exception
 	 */
-	private void upload2FTP(FileUtils ftpUtils, List<ConfigInfoVO> ciVOList) throws Exception {
+	private void upload2FTP(FileUtils ftpUtils, List<ConfigInfoVO> ciVOList, ConnectionMode _mode) throws Exception {
 
-		String remoteFileDirPath = "";
+		String dirPath = "";
 		if (ciVOList != null && !ciVOList.isEmpty()) {
 			// 8-4. 上傳檔案
-			for (ConfigInfoVO ciVO : ciVOList) {
-				remoteFileDirPath = ciVO.getRemoteFileDirPath();
-
-				if (Env.ENABLE_REMOTE_BACKUP_USE_TODAY_ROOT_DIR) {
-					SimpleDateFormat sdf = new SimpleDateFormat(Env.DIR_PATH_OF_CURRENT_DATE_FORMAT);
-					remoteFileDirPath = sdf.format(new Date()).concat(Env.FTP_DIR_SEPARATE_SYMBOL).concat(remoteFileDirPath);
-				}
-
-				// 8-3. 移動作業目錄至指定的裝置
-				ftpUtils.changeDir(remoteFileDirPath, true);
+			for (ConfigInfoVO ciVO : ciVOList) {	
+				dirPath = ciVO.getConfigFileDirPath();
 
 				String configFileName = new String(ciVO.getConfigFileName().getBytes("UTF-8"),"iso-8859-1");
+				
+				// 8-3. 移動作業目錄至指定的裝置
+				switch (_mode) {
+				case FTP:
+					// By FTP
+					ftpUtils.changeDir(dirPath, true);
+					break;
 
-				ftpUtils.uploadFiles(
-						configFileName,
-						IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8)
-						);
+				case TFTP:
+					// By TFTP
+					configFileName = ciVO.getConfigFileDirPath().concat(configFileName);
+
+				default:
+					break;
+				}
+
+				ftpUtils.uploadFiles(configFileName,
+						IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8));
 			}
 		}
+		
 	}
 
 	/**
