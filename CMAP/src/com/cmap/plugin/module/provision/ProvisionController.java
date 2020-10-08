@@ -187,7 +187,7 @@ public class ProvisionController extends BaseController {
 	 * @return
 	 */
 	@CrossOrigin(maxAge = 3600)
-	@RequestMapping(value = "doConfigBackup.json", method = RequestMethod.POST, produces="application/json;charset=UTF-8")
+	@RequestMapping(value = "doConfigBackup", method = RequestMethod.POST, produces="application/json;charset=UTF-8")
 	public @ResponseBody String doConfigBackup(HttpServletRequest request, @RequestBody JsonNode jsonData) {
 
 		String jsonString = "";		

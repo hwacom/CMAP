@@ -25,6 +25,7 @@ import com.cmap.model.ProvisionLogDevice;
 import com.cmap.model.ProvisionLogMaster;
 import com.cmap.model.ProvisionLogRetry;
 import com.cmap.model.ProvisionLogStep;
+import com.cmap.security.SecurityUtil;
 import com.cmap.service.ProvisionService;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.ProvisionAccessLogVO;
@@ -86,7 +87,9 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 
 			if (masterVO != null) {
 				final String logMasterId = UUID.randomUUID().toString();
+				final String triggerName = masterVO.getTriggerName();					
 				final String userName = masterVO.getUserName();
+				final String userIp = masterVO.getUserIp();
 
 				/*
 				 * Convert ProvisionLogMaster entity
@@ -98,7 +101,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 				masterEntity.setLogMasterId(logMasterId);
 				masterEntity.setSpendTimeInSeconds(
 						CommonUtils.calculateSpendTime(masterVO.getBeginTime(), masterVO.getEndTime()));
-				masterEntity.setCreateBy(userName);
+				masterEntity.setCreateBy(StringUtils.isBlank(triggerName)?userName : triggerName ); //RESTAPI呼叫會帶入triggerName, 手動呼叫只能參考userName
 				masterEntity.setCreateTime(new Timestamp((new Date()).getTime()));
 
 				detailEntities = new ArrayList<>();
@@ -119,11 +122,13 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 					BeanUtils.copyProperties(detailVO, detailEntity);
 					detailEntity.setProvisionLogMaster(masterEntity);
 					detailEntity.setLogDetailId(logDetailId);
+					detailEntity.setUserName(userName);
+					detailEntity.setUserIp(userIp);
 					detailEntity.setSpendTimeInSeconds(
 							CommonUtils.calculateSpendTime(detailVO.getBeginTime(), detailVO.getEndTime()));
 					detailEntity.setBeginTime(new Timestamp(detailVO.getBeginTime().getTime()));
 					detailEntity.setEndTime(new Timestamp(detailVO.getEndTime().getTime()));
-					detailEntity.setCreateBy(userName);
+					detailEntity.setCreateBy(StringUtils.isBlank(triggerName)?userName : triggerName);
 					detailEntity.setCreateTime(new Timestamp((new Date()).getTime()));
 					detailEntities.add(detailEntity);
 
@@ -145,7 +150,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 									CommonUtils.calculateSpendTime(stepVO.getBeginTime(), stepVO.getEndTime()));
 							stepEntity.setBeginTime(new Timestamp(stepVO.getBeginTime().getTime()));
 							stepEntity.setEndTime(new Timestamp(stepVO.getEndTime().getTime()));
-							stepEntity.setCreateBy(userName);
+							stepEntity.setCreateBy(StringUtils.isBlank(triggerName)?userName : triggerName);
 							stepEntity.setCreateTime(new Timestamp((new Date()).getTime()));
 
 							if (StringUtils.isBlank(stepEntity.getScriptCode())) {
@@ -176,7 +181,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 									}
 									deviceEntity.setDeviceList(deviceListEntity);
 
-									deviceEntity.setCreateBy(userName);
+									deviceEntity.setCreateBy(StringUtils.isBlank(triggerName)?userName : triggerName);
 									deviceEntity.setCreateTime(new Timestamp((new Date()).getTime()));
 
 									deviceEntities.add(deviceEntity);
@@ -194,7 +199,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 									BeanUtils.copyProperties(retryVO, retryEntity);
 									retryEntity.setLogRetryId(UUID.randomUUID().toString());
 									retryEntity.setProvisionLogStep(stepEntity);
-									retryEntity.setCreateBy(userName);
+									retryEntity.setCreateBy(StringUtils.isBlank(triggerName)?userName : triggerName);
 									retryEntity.setCreateTime(new Timestamp((new Date()).getTime()));
 									retryEntities.add(retryEntity);
 								}

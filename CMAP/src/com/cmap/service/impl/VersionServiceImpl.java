@@ -920,6 +920,88 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 		return retVO;
 	}
+	
+	@Override
+	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName, String deviceUsername, String deviceIp) {
+		ProvisionServiceVO masterVO = new ProvisionServiceVO();
+		VersionServiceVO retVO = new VersionServiceVO();
+		final int totalCount = deviceListIDs.size();
+		retVO.setJobExcuteResultRecords(Integer.toString(totalCount));
+
+		int successCount = 0;
+		int errorCount = 0;
+		int noDiffCount = 0;
+
+		try {
+			masterVO.setLogMasterId(UUID.randomUUID().toString());
+			masterVO.setBeginTime(new Date());
+			// masterVO的userName和userIp會紀錄進provision_log_detail
+			masterVO.setUserName(jobTrigger ? Env.USER_NAME_JOB : (StringUtils.isBlank(deviceUsername)?SecurityUtil.getSecurityUser().getUsername():deviceUsername));
+			masterVO.setUserIp(deviceIp);
+			masterVO.setTriggerName(triggerName); //provision_log_detail.create_by參考此項
+			StepServiceVO ssVO;
+			for (String deviceListId : deviceListIDs) {
+				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
+
+				masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
+
+				successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
+				errorCount += !ssVO.isSuccess() ? 1 : 0;
+				noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
+
+				//log.info(ssVO.toString());
+			}
+
+			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
+				retVO.setJobExcuteResult(BaseJobImpl.Result.SUCCESS);
+			} else if (errorCount == deviceListIDs.size()) {
+				retVO.setJobExcuteResult(BaseJobImpl.Result.FAILED);
+			} else {
+				retVO.setJobExcuteResult(BaseJobImpl.Result.PARTIAL_SUCCESS);
+			}
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			masterVO.setMessage(e.toString());
+		}
+
+		String msg = "";
+		String[] args = null;
+		if (totalCount == 1) {
+			if (successCount == 1) {
+				msg = "備份成功";
+
+			} else if (errorCount == 1) {
+				msg = "備份失敗";
+
+			} else if (noDiffCount == 1) {
+				msg = "版本無差異";
+			}
+
+		} else {
+			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆";
+			args = new String[] {
+					String.valueOf(totalCount),
+					String.valueOf(successCount),
+					String.valueOf(errorCount),
+					String.valueOf(noDiffCount)
+			};
+		}
+
+		masterVO.setEndTime(new Date());
+		masterVO.setResult(CommonUtils.converMsg(msg, args));
+
+		try {
+			provisionService.insertProvisionLog(masterVO);
+		} catch (ServiceLayerException e) {
+			log.error(e.toString(), e);
+		}
+
+		retVO.setRetMsg(CommonUtils.converMsg(msg, args));
+		retVO.setJobExcuteRemark(retVO.getRetMsg());
+
+		return retVO;
+	}
 
 	@Override
 	public VersionServiceVO restoreConfig(RestoreMethod restoreMethod, String restoreType, VersionServiceVO vsVO, String triggerBy, String reason) throws ServiceLayerException {
