@@ -37,7 +37,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 		if (telnet == null) {
 			telnet = new TelnetClient();
 			telnet.setConnectTimeout(Env.TELNET_CONNECT_TIME_OUT);
-			telnet.setDefaultTimeout(Env.TELNET_DEFAULT_TIME_OUT);
+			telnet.setDefaultTimeout(Env.TELNET_DEFAULT_TIME_OUT);			
 		}
 	}
 
@@ -66,7 +66,8 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 					ipAddress,
 					port == null ? Env.TELNET_DEFAULT_PORT : port);
 			log.info("Telnet connect success! >>> [ " + ipAddress + ":" + port + " ]");
-
+			telnet.setSoTimeout(Env.TELNET_DEFAULT_TIME_OUT);
+			
 			in = telnet.getInputStream();
 			out = new PrintStream(telnet.getOutputStream());
 		}
@@ -78,29 +79,24 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO) throws Exception {
 		String output = "";
 		
-		Thread.sleep(1000);
-		output = readUntil(Arrays.asList(":"));
+		output = readUntil(Arrays.asList(":"), 0);
 		
-		if(StringUtils.isNotBlank(output)) {
-			log.debug("for debug output = " + output);
-			
-			if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//直接輸入密碼
+		if(StringUtils.isNotBlank(output)) {			
+			if(output.toLowerCase().indexOf(Env.TELNET_LOGIN_PASSWORD_TEXT) > -1) {//直接輸入密碼
 				write(password);
 			}else {
 				log.debug("for debug login account & password!");
 				write(account);
-				Thread.sleep(1000);
+				Thread.sleep(500);
 				write(password);
 			}
 			processLog.append(output);
 			
-			Thread.sleep(2000);
-			output = readUntil(Env.TELNET_LOGIN_SUCCESS_TEXT);
+			output = readUntil(Env.TELNET_LOGIN_SUCCESS_TEXT, 1000);
 			
 			if(StringUtils.isNotBlank(output)) {
 				boolean actionFlag = false;
 				
-				log.debug("for debug output = " + output);
 				for(String text:Env.TELNET_LOGIN_SUCCESS_TEXT) {
 					if(output.toLowerCase().endsWith(text)) {
 						actionFlag = true;
@@ -108,29 +104,30 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 				}
 				
 				if(!actionFlag) {
-					throw new Exception("Login info incorrect!!");
+					log.info("for debug output:" + output);
+					throw new Exception("Login info incorrect!!");					
 				}
 				
+				actionFlag = false;
 				for(String text : Env.TELNET_LOGIN_ENABLE_TEXT) { //判斷是否包含需要enable字元
 					if(output.toLowerCase().endsWith(text)) {
 						actionFlag = true;
-						log.info("telnet login need enable");
+						log.debug("telnet login need enable");
 						break;
 					}
 				}
 				
 				if(actionFlag) {
 					write("enable");
-					output = readUntil(Arrays.asList(":"));
+					output = readUntil(Arrays.asList(":"), 1000);
 					
-					if(StringUtils.isNotBlank(output)) {
-						log.debug("for debug output = " + output);
-						
-						if(output.toLowerCase().endsWith(Env.TELNET_LOGIN_PASSWORD_TEXT)) {//enable 直接輸入密碼
+					if(StringUtils.isNotBlank(output)) {						
+						if(output.toLowerCase().indexOf(Env.TELNET_LOGIN_PASSWORD_TEXT) > -1) {//enable 直接輸入密碼
 							write(enable);
 						}else { //enable需要輸入帳號
+							log.debug("for debug enable account & password!");
 							write(account);
-							Thread.sleep(1000);
+							Thread.sleep(500);
 							write(enable);
 						}
 						
@@ -158,7 +155,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 		}
 	}
 
-	private String readUntil(List<String> pattern) throws Exception {
+	private String readUntil(List<String> pattern, long waitTime) throws Exception {
 		StringBuffer sb = new StringBuffer();
 		List<String> lastChars = new ArrayList<>();
 		try {
@@ -168,35 +165,63 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 					lastChars.add(text.substring(text.length()-1));
 				}
 			}
-			char ch = (char)in.read();
-
-			int runTime = 0;
-			while (true) {
-				sb.append(ch);
-				
-				if (lastChars.contains(String.valueOf(ch))) {
-					log.debug("for debug lastChars = " + lastChars.toString() + ";sb = " + sb.toString());
-					for(String text:pattern) {
-						if (Strings.toUpperCase(sb.toString().trim()).endsWith(Strings.toUpperCase(text))) {
-							return sb.toString();
-						}
-					}					
+			if(waitTime > 0) {
+				Thread.sleep(waitTime);
+			}			
+//			char ch =(char)in.read();		
+			
+			//test1
+//			BufferedReader buffer = new BufferedReader(new InputStreamReader(in, "UTF-8"));			
+//			sb = new StringBuffer(buffer.lines().collect(Collectors.joining(StringUtils.LF)).trim());
+//			log.info(" for debug expectedTerminalSymbols = " + String.join(",", pattern) +", output = " + sb.toString());
+//			for(String text:pattern) {
+//				if (Strings.toUpperCase(sb.toString()).lastIndexOf(Strings.toUpperCase(text)) > -1) {
+//					return sb.toString();
+//				}
+//			}			
+//			log.info("for debug expectedTerminalSymbols = " + String.join(",", pattern) +", output = " + sb.toString());
+//			return "";
+					
+//			int runTime = 0;
+			int len;
+			
+			//test2
+			byte[] bytes = new byte[1024];	
+			while ((len = in.read(bytes)) != -1) {
+				sb.append(new String(bytes, 0, len,"UTF-8"));
+            }
+			
+			log.info(" for debug expectedTerminalSymbols = " + String.join(",", pattern) +", output = " + sb.toString());
+			for(String text:pattern) {
+				if (Strings.toUpperCase(sb.toString()).lastIndexOf(Strings.toUpperCase(text)) > -1) {
+					return sb.toString().trim();
 				}
-				
-				/*
-				if (ch >= Character.MAX_LOW_SURROGATE || ch <= Character.MIN_LOW_SURROGATE) {
-					return sb.toString();
-				}
-				*/
-				if (runTime > Env.TELNET_READ_UNTIL_MAX_RUNTIME) {
-					log.debug("for debug lastChars = " + lastChars.toString() + ";sb = " + sb.toString());
-					return sb.toString();
-				}
-
-				ch = (char)in.read();
-				
-				runTime++;
-			}
+			}			
+			log.info("readUntil error because expectedTerminalSymbols = " + String.join(",", pattern) +", output = " + sb.toString());
+			return "";
+			
+			//or
+//			while (true) {
+//				sb.append(ch);
+//				
+//				if (lastChars.contains(String.valueOf(ch))) {
+//					log.debug("for debug lastChars = " + lastChars.toString() + ";sb = " + sb.toString());
+//					for(String text:pattern) {
+//						if (Strings.toUpperCase(sb.toString().trim()).endsWith(Strings.toUpperCase(text))) {
+//							return sb.toString();
+//						}
+//					}					
+//				}
+//				
+//				if (runTime > Env.TELNET_READ_UNTIL_MAX_RUNTIME) {
+//					log.debug("for debug lastChars = " + lastChars.toString() + ";sb = " + sb.toString());
+//					return sb.toString();
+//				}
+//
+//				ch = (char)in.read(bytes);
+//				
+//				runTime++;
+//			}
 		} catch (SocketTimeoutException ste) {
 			return sb.toString();
 		} catch (Exception e) {
@@ -237,7 +262,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 					
 					Thread.sleep(StringUtils.isNotBlank(scriptVO.getScriptSleepTime())?Long.parseLong(scriptVO.getScriptSleepTime()):sleepTime); // 執行命令間格時間
 					
-					output = readUntil(expectedTerminalSymbols);
+					output = readUntil(expectedTerminalSymbols, 0);
 
 					if(StringUtils.isBlank(output)) {
 						throw new SocketTimeoutException("readUntil return is blank then no expectedTerminalSymbols!!");
