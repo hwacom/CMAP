@@ -9,6 +9,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmap.Constants;
 import com.cmap.annotation.Log;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.dao.vo.ProvisionLogDAOVO;
@@ -68,7 +69,7 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 			  .append("       or ")
 			  .append("       si.script_name like :searchValue ")
 			  .append("       or ")
-			  .append("       plm.remark like :searchValue ")
+			  .append("       plm.reason like :searchValue ")
 			  .append("     ) ");
 		}
 
@@ -105,7 +106,7 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 		  .append("   dl.device_name, ")		//index: 7
 		  .append("   dl.device_model, ")		//index: 8
 		  .append("   si.script_name, ")		//index: 9
-		  .append("   plm.reason, ")			//index: 10
+		  .append("   if(pld.create_by='"+Constants.SYSLOG_BK_TRIGGER_NAME+"', CONCAT('Configured by [', pld.user_name, '] on ', pld.user_ip), plm.reason), ")	//index: 10
 		  .append("   pls.result, ")			//index: 11
 		  .append("   pls.process_log ")		//index: 12
 		  .append(" from Provision_Log_Master plm ")
@@ -114,7 +115,6 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 		  .append("     ,Provision_Log_Device pldc ")
 		  .append("     ,Script_Info si ")
 		  .append("     ,Device_List dl ");
-
 		sb.append(" where 1=1 ")
 		  .append(" and plm.log_master_id = pld.log_master_id ")
 		  .append(" and pld.log_detail_id = pls.log_detail_id ")
@@ -147,7 +147,7 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 			  .append("       or ")
 			  .append("       si.script_name like :searchValue ")
 			  .append("       or ")
-			  .append("       plm.remark like :searchValue ")
+			  .append("       plm.reason like :searchValue ")
 			  .append("     ) ");
 		}
 

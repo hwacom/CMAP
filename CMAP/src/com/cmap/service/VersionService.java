@@ -109,6 +109,20 @@ public interface VersionService {
 	 */
 	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName)
 	        throws ServiceLayerException;
+	
+	/**
+	 * 備份流程方法(RESTAPI)
+	 * @param configType
+	 * @param deviceListIDs
+	 * @param jobTrigger
+	 * @param triggerName
+	 * 	@param deviceUsername
+	 * @param deviceIp
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName, String deviceUsername, String deviceIp)
+	        throws ServiceLayerException;
 
 	/**
 	 * 組態還原流程方法

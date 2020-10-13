@@ -24,6 +24,7 @@ public class ProvisionServiceVO extends CommonServiceVO {
 	private String userName;
 	private String userIp;
 	private String reason;
+	private String triggerName;
 
 	// Provision_Log_Step
 	private String scriptCode;
@@ -191,5 +192,11 @@ public class ProvisionServiceVO extends CommonServiceVO {
 	}
 	public void setDeviceInfoStr(String deviceInfoStr) {
 		this.deviceInfoStr = deviceInfoStr;
+	}
+	public String getTriggerName() {
+		return triggerName;
+	}
+	public void setTriggerName(String triggerName) {
+		this.triggerName = triggerName;
 	}
 }

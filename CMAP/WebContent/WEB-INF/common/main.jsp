@@ -344,6 +344,7 @@
  			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
 			            
 	                    <!-- [Net flow查詢] START -->
+<!-- 
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
 	                    	<li class="subMenu-item">
 		                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
@@ -352,6 +353,7 @@
 		                    	</a>
 		                    </li>
 	                    </c:if>
+ -->
 	                    <!-- [Net flow查詢] END -->
 	                    
 	                    <!-- [Net flow trace查詢] START -->

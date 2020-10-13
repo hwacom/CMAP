@@ -377,58 +377,59 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 	@Override
 	public Map<String, Object> doApiConfigBackup(JsonNode jsonData, String ip)  {
 		
-		String infoMsg = "success";
+		//String infoMsg = "success";
 		String errMsg = "";
 		Map<String, Object> data = new HashMap<String, Object>();
 		
 		try {
-			String username = jsonData.get("user").textValue();
+			// Step1.接收Json參數
+			String deviceUserName = jsonData.get("user").textValue();
 			String configType = jsonData.has("configType") ? jsonData.findValue("configType").asText() : null;
-			Iterator<JsonNode> ipIt = jsonData.get("deviceIp").iterator();
+			String deviceIp = jsonData.get("deviceIp").textValue();
 
-			if(StringUtils.isBlank(username) || ipIt == null || !ipIt.hasNext()) {
+			if(StringUtils.isBlank(deviceUserName) || StringUtils.isBlank(deviceIp)) {
 				data.put("infoMsg", "error");
 				data.put("errMsg", "參數不正確!!");
 	            return data;
 			}
-
-			String deviceIp = null;
-			List<String> deviceListIds = new ArrayList<>();
+			// Step2.使用傳入的設備IP查詢設備資料,非納管設備則視為例外
+			List<String> deviceListIds = new ArrayList<>(); //配合原有backupConfig規格封裝為deviceListIds(但其實一次只會放一個IP)
 			String deviceIds = null;
 			DeviceList dlEntity = null;
 			
 			VersionServiceVO retVO = null;
-			while (ipIt.hasNext()) {
-				deviceIp = ipIt.next().asText();				
-				
-				dlEntity = deviceDAO.findDeviceListByDeviceIp(deviceIp);
-				if (dlEntity == null) {
-					data.put("infoMsg", "error");
-					data.put("errMsg", "參數不正確!!");
-					return data;
-				}
-				deviceListIds.add(dlEntity.getDeviceListId());
-				deviceIds = deviceIds == null? dlEntity.getDeviceId() : deviceIds.concat(Env.COMM_SEPARATE_SYMBOL).concat(dlEntity.getDeviceId());
+			// 查device_list資料表
+			dlEntity = deviceDAO.findDeviceListByDeviceIp(deviceIp);
+			if (dlEntity == null) {
+				data.put("infoMsg", "error");
+				data.put("errMsg", "參數不正確!!");
+				return data;
 			}
-			
-			retVO = versionService.backupConfig(configType, deviceListIds, false, "API Trigger backup");
-			
+			log.info("deviceDAO.findDeviceListByDeviceIp done");
+			deviceListIds.add(dlEntity.getDeviceListId());
+			deviceIds = deviceIds == null? dlEntity.getDeviceId() : deviceIds.concat(Env.COMM_SEPARATE_SYMBOL).concat(dlEntity.getDeviceId());
+			// 傳入設備異動者資訊
+			retVO = versionService.backupConfig(configType, deviceListIds, false, Constants.SYSLOG_BK_TRIGGER_NAME, deviceUserName, deviceIp);
+			log.info("versionService.backupConfig done");
 			ProvisionApiAccessLog paal = new ProvisionApiAccessLog();
-			String checkHash = StringUtils.upperCase(EncryptUtils.getSha256(username.concat(new Date().toString())));
+			String checkHash = StringUtils.upperCase(EncryptUtils.getSha256(deviceUserName.concat(new Date().toString())));
 			paal.setCheckHash(checkHash);
-			paal.setUserIp(ip);
-			paal.setUserName(username);
-			paal.setActionIp(ip);
-			paal.setActionUser(username);
+			paal.setUserIp(ip); //呼叫API的來源ip
+			paal.setUserName( Constants.SYSLOG_BK_TRIGGER_NAME); //呼叫API的來源用戶
+			paal.setActionIp(deviceIp); //設備IP(from Json)
+			paal.setActionUser(deviceUserName); //設備設定檔異動時使用的帳號(from Json)
 			paal.setAccessTime(new Timestamp((new Date()).getTime()));
 			paal.setActionTime(new Timestamp((new Date()).getTime()));
 			paal.setAction("DONE");
 			paal.setDeviceIds(deviceIds);
 			paal.setScriptCode("");
 			paal.setVarKey("");
-			
+			log.info("ProvisionApiAccessLog.userName = " + Constants.SYSLOG_BK_TRIGGER_NAME);
+			log.info("ProvisionApiAccessLog.userIp = " + ip);
+			log.info("ProvisionApiAccessLog.actionUserName = " + deviceUserName);
+			log.info("ProvisionApiAccessLog.actionIp = " + deviceIp);
 			saveProvisionApiLog(paal);
-			
+			log.info("saveProvisionApiLog done");
 			// Step 2. 回傳JSON格式
 			data.put("infoMsg", retVO.getRetMsg());
 			data.put("errMsg", errMsg);

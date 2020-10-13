@@ -26,6 +26,7 @@ public class Constants {
 	public static final String UNKNOWN = "unknown";
 	public static final String EMPTY = "(EMPTY)";
 	public static final String NULL_DEFAULT_STR = "-";
+	public static final String SYSLOG_BK_TRIGGER_NAME = "SYSLOG_BACKUP";
 
 	public static final String VM_SWITCH_HOST_NAME = "vmSwitchHostName";
 
