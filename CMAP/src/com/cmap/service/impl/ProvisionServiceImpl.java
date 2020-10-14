@@ -123,7 +123,8 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 					detailEntity.setProvisionLogMaster(masterEntity);
 					detailEntity.setLogDetailId(logDetailId);
 					detailEntity.setUserName(userName);
-					detailEntity.setUserIp(userIp);
+					if(StringUtils.isNotBlank(userIp)) //只有RESTAPI參考的VersionService.backupConfig方法會填入userIp至傳入的masterVO(為了取得deviceIp)
+						detailEntity.setUserIp(userIp); //非RESTAPI會在stepService.doBackupStep階段填入
 					detailEntity.setSpendTimeInSeconds(
 							CommonUtils.calculateSpendTime(detailVO.getBeginTime(), detailVO.getEndTime()));
 					detailEntity.setBeginTime(new Timestamp(detailVO.getBeginTime().getTime()));

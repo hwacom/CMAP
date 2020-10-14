@@ -388,6 +388,8 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 			String deviceIp = jsonData.get("deviceIp").textValue();
 
 			if(StringUtils.isBlank(deviceUserName) || StringUtils.isBlank(deviceIp)) {
+				log.error("deviceDAO.findDeviceListByDeviceIp miss param, deviceIp[ "+deviceIp+"]");
+				log.error("deviceDAO.findDeviceListByDeviceIp miss param, deviceUserName[ "+deviceUserName+"]");
 				data.put("infoMsg", "error");
 				data.put("errMsg", "參數不正確!!");
 	            return data;
@@ -401,16 +403,17 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 			// 查device_list資料表
 			dlEntity = deviceDAO.findDeviceListByDeviceIp(deviceIp);
 			if (dlEntity == null) {
+				log.error("deviceDAO.findDeviceListByDeviceIp , deviceIp["+deviceIp+"] is not in device_list");
 				data.put("infoMsg", "error");
 				data.put("errMsg", "參數不正確!!");
 				return data;
 			}
-			log.info("deviceDAO.findDeviceListByDeviceIp done");
+			log.debug("deviceDAO.findDeviceListByDeviceIp done");
 			deviceListIds.add(dlEntity.getDeviceListId());
 			deviceIds = deviceIds == null? dlEntity.getDeviceId() : deviceIds.concat(Env.COMM_SEPARATE_SYMBOL).concat(dlEntity.getDeviceId());
 			// 傳入設備異動者資訊
 			retVO = versionService.backupConfig(configType, deviceListIds, false, Constants.SYSLOG_BK_TRIGGER_NAME, deviceUserName, deviceIp);
-			log.info("versionService.backupConfig done");
+			log.debug("versionService.backupConfig done");
 			ProvisionApiAccessLog paal = new ProvisionApiAccessLog();
 			String checkHash = StringUtils.upperCase(EncryptUtils.getSha256(deviceUserName.concat(new Date().toString())));
 			paal.setCheckHash(checkHash);
@@ -424,12 +427,12 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 			paal.setDeviceIds(deviceIds);
 			paal.setScriptCode("");
 			paal.setVarKey("");
-			log.info("ProvisionApiAccessLog.userName = " + Constants.SYSLOG_BK_TRIGGER_NAME);
-			log.info("ProvisionApiAccessLog.userIp = " + ip);
-			log.info("ProvisionApiAccessLog.actionUserName = " + deviceUserName);
-			log.info("ProvisionApiAccessLog.actionIp = " + deviceIp);
+			log.debug("ProvisionApiAccessLog.userName = " + Constants.SYSLOG_BK_TRIGGER_NAME);
+			log.debug("ProvisionApiAccessLog.userIp = " + ip);
+			log.debug("ProvisionApiAccessLog.actionUserName = " + deviceUserName);
+			log.debug("ProvisionApiAccessLog.actionIp = " + deviceIp);
 			saveProvisionApiLog(paal);
-			log.info("saveProvisionApiLog done");
+			log.debug("saveProvisionApiLog done");
 			// Step 2. 回傳JSON格式
 			data.put("infoMsg", retVO.getRetMsg());
 			data.put("errMsg", errMsg);
