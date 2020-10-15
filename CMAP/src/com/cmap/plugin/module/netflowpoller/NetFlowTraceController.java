@@ -170,7 +170,14 @@ public class NetFlowTraceController extends BaseController {
             	nfVO.setQuerySensorId(queryGroup);
             }else {
             	nfVO.setQueryGroupId(queryGroup);
-            }            
+            }
+            //查詢條件為空時不顯示總流量
+            if(StringUtils.isBlank(querySourceIp) && StringUtils.isBlank(querySourcePort) 
+            		&& StringUtils.isBlank(queryDestinationIp) && StringUtils.isBlank(queryDestinationPort) ) {
+            	AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "SUCCESS");
+                app.putData(Constants.APP_DATA_KEY_TTL_TRAFFIC, "");
+                return app;
+            }
             nfVO.setQuerySourceIp(querySourceIp);
             nfVO.setQuerySourcePort(querySourcePort);
             nfVO.setQueryDestinationIp(queryDestinationIp);

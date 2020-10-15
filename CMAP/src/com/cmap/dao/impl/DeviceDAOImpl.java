@@ -379,11 +379,11 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		sb.append("select count(*)")
 		  .append("   from DeviceList dl ")
 		  .append("      left join ConfigVersionInfo cvi on cvi.deviceId = dl.deviceId")
-		  .append(" where 1 = 1 ")
-		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-		  .append(" and (cvi.deviceId, cvi.createTime) IN ( ")
-		  .append("     SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 GROUP BY vi_1.deviceId)");
+		  .append(" 	 and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" 	 and (cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     	SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 GROUP BY vi_1.deviceId)")
+		  .append(" where 1 = 1 ")		  
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 		
 		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
           sb.append(" and dl.deviceId = :deviceId ");
@@ -427,11 +427,11 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		  .append(composeSelectStr(Constants.HQL_FIELD_NAME_FOR_VERSION_2, "cvi"))
 		  .append("   from DeviceList dl ")
 		  .append("      left join ConfigVersionInfo cvi on cvi.deviceId = dl.deviceId")
-		  .append(" where 1 = 1 ")
-		  .append(" and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
-		  .append(" and (cvi.deviceId, cvi.createTime) IN ( ")
-		  .append("     SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 GROUP BY vi_1.deviceId)");
+		  .append(" 	 and cvi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ")
+		  .append(" 	 and (cvi.deviceId, cvi.createTime) IN ( ")
+		  .append("     	SELECT vi_1.deviceId, MAX(vi_1.createTime) FROM ConfigVersionInfo vi_1 GROUP BY vi_1.deviceId)")
+		  .append(" where 1 = 1 ")		  
+		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 		
 		if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
           sb.append(" and dl.deviceId = :deviceId ");
