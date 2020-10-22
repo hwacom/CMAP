@@ -404,7 +404,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				//read file into stream, try-with-resources
 				try {
 					targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
-					log.info("version read all lines "+targetFileName);
+					log.debug("version read all lines "+targetFileName);
 					contentList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
 					
 					if (contentList == null || contentList.isEmpty()) {
@@ -725,13 +725,12 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						}
 
 					} else {
-						log.error("檔案取得異常，或取得檔案為空, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + targetFileName);
 						if (contentOriList.isEmpty()) {
 							contentOriList = new ArrayList<>();
-							log.debug("for debug contentOriList isEmpty!!" );
+							log.error("檔案1取得異常，或取得檔案為空, filepath = " + targetFileName);
 							retVO.setVersionOri(vsVO.getConfigVersion());
 						} else {
-							log.debug("for debug contentRevList isEmpty!!" );
+							log.error("檔案2取得異常，或取得檔案為空, filepath = " + targetFileName);
 							retVO.setVersionRev(vsVO.getConfigVersion());
 						}
 					}

@@ -41,12 +41,12 @@ public class UserServiceImpl implements UserService {
 	private PrtgService prtgService;
 	
 	@Override
-	public boolean checkUserCanAccess(HttpServletRequest request, String account, String[] roles) {
+	public boolean checkUserCanAccess(HttpServletRequest request, String account, String loginMode, String[] roles) {
 		boolean canAccess = false;
 		try {
-		    UserRightSetting userRight = userDAO.findUserRightSetting(account);
+		    UserRightSetting userRight = userDAO.findUserRightSetting(account, loginMode);
 
-		    log.debug("for debug userRight = " + (userRight!=null) + ", account = " + account);
+		    log.debug("for debug userRight = " + (userRight!=null) + ", account = " + account +", loginMode = " + loginMode);
 		    if(userRight != null) {
 		    	boolean isAdmin = StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false;
 		    	if(roles != null && !isAdmin) {
@@ -81,8 +81,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserRightSetting getUserRightSetting(String account) {
-		return userDAO.findUserRightSetting(account);
+	public UserRightSetting getUserRightSetting(String account, String loginMode) {
+		return userDAO.findUserRightSetting(account, loginMode);
 	}
 	
 	@Override
@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			UserRightSetting entity;
 			for (UserRightServiceVO urVO : urVOs) {
-				entity = userDAO.findUserRightSetting(urVO.getAccount());
+				entity = userDAO.findUserRightSetting(urVO.getAccount(), urVO.getLoginMode());
 
 				final String username = SecurityUtil.getSecurityUser().getUsername();
 				final Timestamp nowTimestamp = new Timestamp((new Date()).getTime());

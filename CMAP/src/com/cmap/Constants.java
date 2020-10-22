@@ -39,7 +39,7 @@ public class Constants {
 	public static final String LOGIN_AUTH_MODE_PRTG = "PRTG";
 	public static final String LOGIN_AUTH_MODE_LDAP = "LDAP";
 	public static final String LOGIN_AUTH_MODE_PRIME = "PRIME";
-	public static final String LOGIN_AUTH_MODE_DB = "DB";
+	public static final String LOGIN_AUTH_MODE_CM = "CM";
 
 	public static final String DELIVERY_ONLY_SCRIPT_OF_SWITCH_PORT = "SWITCH_PORT";
 	public static final String DELIVERY_ONLY_SCRIPT_OF_IP_OPEN_BLOCK = "IP_OPEN_BLOCK";

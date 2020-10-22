@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -43,26 +42,31 @@ public class LoginContoller extends BaseController {
 	
 	private String chkLoginPage(HttpServletRequest request) {
 	    HttpSession session = request.getSession();	   
-		
+		String uri = "";
 	    if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
-            return "redirect:/loginOIDC";
+	    	uri = "redirect:/loginOIDC";
 
         } else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
-            String preUrl = ObjectUtils.toString(session.getAttribute(Constants.PREVIOUS_URL), null);
-            
-            if (StringUtils.isBlank(preUrl) || StringUtils.equals(preUrl, "/") || StringUtils.equals(preUrl, "/login")) {
-            	
-            	return "redirect:/loginOIDC_NTPC";
-
-            } else {
-                return "redirect:" + preUrl;
-            }
+//            String preUrl = ObjectUtils.toString(session.getAttribute(Constants.PREVIOUS_URL), null);
+//            
+//            if (StringUtils.isBlank(preUrl) || StringUtils.equals(preUrl, "/") || StringUtils.equals(preUrl, "/login")) {
+//            	
+//            	return "redirect:/loginOIDC_NTPC";
+//
+//            } else {
+//                return "redirect:" + preUrl;
+//            }
+        	uri = "redirect:/loginOIDC_NTPC";
 
         } else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
-            return "redirect:/loginOIDC_CY";
+        	uri = "redirect:/loginOIDC_CY";
+            
         }else {
-            return "redirect:/login";
+        	uri = "redirect:/login";
         }
+	    
+	    log.info("redirect uri = " + uri);
+	    return uri;
 	}
 
 	/**
@@ -249,33 +253,38 @@ public class LoginContoller extends BaseController {
 			model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, loginError);
 			session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
 
-			if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
-				return "login_openid_mlc";
-			} else {
-				return "redirect:/login";
-			}
+			if (!Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
+	        	return chkLoginPage(request);
+	        }
+	        
+	        return "login_openid_mlc";
 
 		} else {
-			URI configurationEndpoint = null;
-			try {
-				configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
-
-			} catch (URISyntaxException e) {
-				log.error(e.toString(), e);
-
+			if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
+				URI configurationEndpoint = null;
 				try {
-					configurationEndpoint = new URI(Constants.OIDC_MLC_CONFIGURATION_ENDPOINT);
+					configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
 
-				} catch (URISyntaxException e1) {
-					log.error(e1.toString(), e1);
+				} catch (URISyntaxException e) {
+					log.error(e.toString(), e);
+
+					try {
+						configurationEndpoint = new URI(Constants.OIDC_MLC_CONFIGURATION_ENDPOINT);
+
+					} catch (URISyntaxException e1) {
+						log.error(e1.toString(), e1);
+					}
 				}
-			}
-			request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
+				request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
 
-			return "login_openid_mlc";
+				log.info("login with login_openid_mlc");
+				return "login_openid_mlc";
+			}else {
+				return chkLoginPage(request);
+			}			
 		}
 	}
-
+	
 	@RequestMapping(value = "loginOIDC_NTPC", method = {RequestMethod.GET, RequestMethod.POST})
     public String loginOIDC_NTPC_Page(
             HttpServletRequest request,
@@ -289,12 +298,13 @@ public class LoginContoller extends BaseController {
         LocaleContextHolder.getLocale();
 
         final String loginError = Objects.toString(session.getAttribute(Constants.MODEL_ATTR_LOGIN_ERROR), null);
-        if (StringUtils.isNotBlank(loginError)) {
-            model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, loginError);
-            session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
+        model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, loginError);
+        session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
+        
+        if (!Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
+        	return chkLoginPage(request);
         }
-
-        //TODO:先寫死for新北教網
+        
         return "login_openid_ntpc";
     }
 
@@ -311,14 +321,14 @@ public class LoginContoller extends BaseController {
 		LocaleContextHolder.getLocale();
 
 		final String loginError = Objects.toString(session.getAttribute(Constants.MODEL_ATTR_LOGIN_ERROR), null);
-		if (StringUtils.isNotBlank(loginError)) {
-			model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, loginError);
-			session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
-
-		} 
-
-		//TODO:先寫死
-		return "login_openid_cy";
+		model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, loginError);
+		session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
+		
+		if (!Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
+        	return chkLoginPage(request);
+        }
+        
+        return "login_openid_cy";
 	}
 	
 	@RequestMapping(value = "login/authByOIDC", method = {RequestMethod.GET, RequestMethod.POST})

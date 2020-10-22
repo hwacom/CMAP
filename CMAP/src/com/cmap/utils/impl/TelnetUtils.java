@@ -134,10 +134,10 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 					}
 				}
 			} else {
-				throw new Exception("Login incorrect!! telnet read login sucess text is empty!!");
+				throw new Exception(" Login incorrect!! >>> [ " + ciVO.getDeviceIp() + " ] telnet read login sucess text is empty!!");
 			}
 		} else {
-			throw new Exception("Login incorrect!! readUntil is empty!!");
+			throw new Exception(" Login incorrect!! >>> [ " + ciVO.getDeviceIp() + " ] readUntil is empty!!");
 		}
 
 		return false;

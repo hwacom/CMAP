@@ -108,12 +108,12 @@ public class BaseController {
 		}
 	}
 
-	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String userName) {
+	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String userName, String loginMode) {
         HttpSession session = request.getSession();
         PrtgServiceVO prtgVO = null;
         
         try {
-        	UserRightSetting userRight = userService.getUserRightSetting(userName);
+        	UserRightSetting userRight = userService.getUserRightSetting(userName, loginMode);
         	
         	if(userRight == null) {
 				throw new AuthenticateException("PRTG登入失敗 >> 取不到 使用者登入資訊 userName: " + userName + " )");
@@ -232,8 +232,8 @@ public class BaseController {
 		}
 	}
 
-	protected boolean checkUserCanOrNotAccess(HttpServletRequest request, String account, String[] roles) {
-		return userService.checkUserCanAccess(request, account, roles);
+	protected boolean checkUserCanOrNotAccess(HttpServletRequest request, String account, String loginMode, String[] roles) {
+		return userService.checkUserCanAccess(request, account, loginMode, roles);
 	}
 
 	protected void setQueryGroupList(HttpServletRequest request, Object obj, String fieldName, String queryGroup) throws Exception {

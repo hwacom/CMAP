@@ -360,10 +360,10 @@ public class OidcController extends BaseController {
         session.setAttribute(Constants.OIDC_EDU_INFO_JSON, root.toString());
         session.setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
 
-        boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles);
+        boolean canAccess = checkUserCanOrNotAccess(request, schoolId, Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI, roles);
 
         if (canAccess) {
-        	return loginAuthByPRTG(model, principal, request, schoolId);
+        	return loginAuthByPRTG(model, principal, request, schoolId, Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI);
 
         } else {
         	session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "無網路管理系統存取權限，請與系統管理員聯繫");

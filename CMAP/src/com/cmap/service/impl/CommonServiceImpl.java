@@ -1173,7 +1173,7 @@ public class CommonServiceImpl implements CommonService {
     	
 		try {	
 			if(StringUtils.isNotBlank(account)) {
-				UserRightSetting userRight = userDAO.findUserRightSetting(account);
+				UserRightSetting userRight = userDAO.findUserRightSetting(account, null);
 				PrtgAccountMapping mapping = prtgDAO.findPrtgAccountMappingByAccount(userRight.getUserGroup());
 
 				if(mapping != null) {

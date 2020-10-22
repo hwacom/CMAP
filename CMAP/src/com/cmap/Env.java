@@ -264,6 +264,7 @@ public class Env {
 	public static Boolean ENABLE_TEMP_FILE_RANDOM_CODE;
 	public static Boolean ENABLE_LOCAL_BACKUP_USE_TODAY_ROOT_DIR;
 	public static Boolean ENABLE_REMOTE_BACKUP_USE_TODAY_ROOT_DIR;
+	public static Boolean ENABLE_BACKUP_COMPARE_VERSION;
 
 	public static Integer HTTP_CONNECTION_TIME_OUT;
 	public static Integer HTTP_SOCKET_TIME_OUT;
@@ -579,7 +580,7 @@ public class Env {
 			Step.DEFINE_OUTPUT_FILE_NAME,
 			Step.SEND_COMMANDS,
 			Step.CLOSE_DEVICE_CONNECTION,
-			Step.CONNECT_FILE_SERVER_4_UPLOAD,
+//			Step.CONNECT_FILE_SERVER_4_UPLOAD,
 			Step.COMPARE_CONTENTS,
 			Step.ANALYZE_CONFIG_INFO,
 			Step.COMPOSE_OUTPUT_VO,

@@ -148,10 +148,10 @@ public class ConsumerController extends BaseController implements ServletConfigA
             session.setAttribute(Constants.OIDC_EMAIL, email);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-            boolean canAccess = checkUserCanOrNotAccess(request, schoolId, roles);
+            boolean canAccess = checkUserCanOrNotAccess(request, schoolId, Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI, roles);
 
             if (canAccess) {
-                return loginAuthByPRTG(model, principal, request, schoolId);
+                return loginAuthByPRTG(model, principal, request, schoolId, Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI);
 
             } else {
                 session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "無網路管理系統存取權限，請與系統管理員聯繫");
