@@ -192,6 +192,7 @@ public class BlockedRecordController extends BaseController {
             Map<String, Integer>recordPortMap = null;
             for (String listId : listIdArray) {
             	queryVO = new BlockedRecordVO();
+            	queryVO.setQueryBlockType(BlockType.BIND.toString());
             	queryVO.setQueryListId(listId);
                 
                 recordList = blockedRecordService.findModuleBlockedList(queryVO, null, null);
@@ -324,6 +325,7 @@ public class BlockedRecordController extends BaseController {
             List<BlockedRecordVO> recordList = null;
             for (String listId : listIdArray) {
             	queryVO = new BlockedRecordVO();
+            	queryVO.setQueryBlockType(BlockType.MAC.toString());
             	queryVO.setQueryListId(listId);
                 
                 recordList = blockedRecordService.findModuleBlockedList(queryVO, null, null);
@@ -428,6 +430,7 @@ public class BlockedRecordController extends BaseController {
             List<BlockedRecordVO> recordList = null;
             for (String listId : listIdArray) {
             	queryVO = new BlockedRecordVO();
+            	queryVO.setQueryBlockType(BlockType.PORT.toString());
             	queryVO.setQueryListId(listId);
                 
                 recordList = blockedRecordService.findModuleBlockedList(queryVO, null, null);
@@ -529,6 +532,7 @@ public class BlockedRecordController extends BaseController {
             List<BlockedRecordVO> recordList = null;
             for (String listId : listIdArray) {
             	queryVO = new BlockedRecordVO();
+            	queryVO.setQueryBlockType(BlockType.IP.toString());
             	queryVO.setQueryListId(listId);
                 
                 recordList = blockedRecordService.findModuleBlockedList(queryVO, null, null);
