@@ -207,8 +207,8 @@ public class FirewallController extends BaseController {
             Map<String, String> typeNameMap = new HashMap<>();
             typeNameMap.put(Constants.FIREWALL_LOG_TYPE_APP, typeNameApp);
             typeNameMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, typeNameForwarding);
-            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameSystem);
-            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameIntrusion);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameSystem);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameIntrusion);
             typeNameMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, typeNameWebFilter);
 
             /*
@@ -349,8 +349,8 @@ public class FirewallController extends BaseController {
             Map<String, String> typeNameMap = new HashMap<>();
             typeNameMap.put(Constants.FIREWALL_LOG_TYPE_APP, typeNameApp);
             typeNameMap.put(Constants.FIREWALL_LOG_TYPE_FORWARDING, typeNameForwarding);
-            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameSystem);
-            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameIntrusion);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_SYSTEM, typeNameSystem);
+            typeNameMap.put(Constants.FIREWALL_LOG_TYPE_INTRUSION, typeNameIntrusion);
             typeNameMap.put(Constants.FIREWALL_LOG_TYPE_WEBFILTER, typeNameWebFilter);
 
             /*
