@@ -49,12 +49,12 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 	public RequestBodyReaderAuthenticationFilter() {
 	}
 
-	private void loginAuthByCM(HttpServletRequest request, String username, String password) {
+	private void loginAuthByCM(HttpServletRequest request, String username, String password, String loginMode) {
 		try {
 			final String ipAddr = SecurityUtil.getIpAddr(request);
 			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
 			
-			UserRightSetting userRight = userService.getUserRightSetting(username);
+			UserRightSetting userRight = userService.getUserRightSetting(username, loginMode);
 			
 			if(userRight == null) {
 				throw new ServiceLayerException("使用者登入資訊錯誤!!");
@@ -128,7 +128,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		
 		boolean checkLDAP = Boolean.TRUE == request.getSession().getAttribute("LDAP_AUTH_RESULT");
 		if(!checkLDAP) {
-			loginAuthByCM(request, username, password);
+			loginAuthByCM(request, username, password, Constants.LOGIN_AUTH_MODE_CM);
 		}		
 		
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
@@ -150,7 +150,7 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
 
 			if (loginSuccess) {
-				UserRightSetting userRight = userService.getUserRightSetting(username);
+				UserRightSetting userRight = userService.getUserRightSetting(username, Constants.LOGIN_AUTH_MODE_LDAP);
 				
 				String userGroup = null;
 				if(userRight == null) {

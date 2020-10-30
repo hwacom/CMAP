@@ -126,8 +126,7 @@
 	            <div class="form-group row">
 	            	<label for="scriptContent" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.content" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
-	            		<textarea id="addScriptContent" name="input_var" style="width: 100%; resize: none;" rows="10" required="required" >
-    					</textarea>
+	            		<textarea id="addScriptContent" name="input_var" style="width: 100%; resize: none;" rows="10" required="required" ></textarea>
     				</div>
 	            </div>
 	            <div class="form-group row">
@@ -171,7 +170,7 @@
 	      	<!-- [START] Step.3 -->
 	      	<div id="step3_section" style="display: none;">
 	      		<div>
-	            	<h1 style="color:red; text-align:center;">請確認是否執行?</h1> 
+	            	<h1 style="color:red; text-align:center;">請確認是否儲存?</h1> 
 	            </div>
 	      	</div>
 	      	<!-- [END] Step.3 -->
@@ -186,7 +185,7 @@
 	      	<div class="col-1"></div>
 	      	<div class="col-2">
 	      		<button type="button" class="btn btn-success" id="btnStepGoNext" style="width: 100%;"><spring:message code="btn.step.next" /></button>
-	      		<button type="button" class="btn btn-success" id="btnStepGoFire" style="width: 100%;"><spring:message code="btn.delivery.confirm" /></button>
+	      		<button type="button" class="btn btn-success" id="btnStepGoFire" style="width: 100%;">確認儲存</button>
 	      	</div>
 	      	<div class="col-1"></div>
 	      	<div class="col-2">
@@ -217,13 +216,13 @@
         	<div class="card card-body">
         	  <div class="col-12">
 	           	<div class="form-group row">
-	            	<label for="addAccount" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.code" /><span class="pull-right" style="color: red;">＊ </span></label>
+	            	<label for="scriptTypeCode" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.code" /><span class="pull-right" style="color: red;">＊ </span></label>
 	            	<div class="col-md-10 col-sm-9">
 	            		<input type="text" class="form-control form-control-sm checkRequired" id="scriptTypeCode" name="scriptTypeCode" placeholder="<spring:message code="script.type.code" /> (EX:TMP_)" >
 	            	</div>
 	            </div>
 	            <div class="form-group row">
-	            	<label for="addUserName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.name" /></label>
+	            	<label for="scriptTypeName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="script.type.name" /></label>
 	            	<div class="col-md-10 col-sm-9">
 	                	<input type="text" class="form-control form-control-sm" id="scriptTypeName" name="scriptTypeName" placeholder="<spring:message code="script.type.name" />" >
 	                </div>

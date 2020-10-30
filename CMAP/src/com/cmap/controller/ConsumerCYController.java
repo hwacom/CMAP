@@ -144,11 +144,11 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             session.setAttribute(Constants.OIDC_USER_NAME, username);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
-            boolean canAccess = checkUserCanOrNotAccess(request, account, null);
+            boolean canAccess = checkUserCanOrNotAccess(request, account, Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI, null);
             log.info("CYController processReturn = canAccess:" + canAccess);
             
             if (canAccess) {
-                return loginAuthByPRTG(model, principal, request, account);
+                return loginAuthByPRTG(model, principal, request, account, Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI);
 
             } else {
                 session.setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "無網路管理系統存取權限，請與系統管理員聯繫");

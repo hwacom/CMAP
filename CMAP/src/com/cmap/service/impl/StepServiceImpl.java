@@ -984,8 +984,14 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				allVersionList.add(vsVOs);
 
 				VersionServiceVO compareRetVO = versionService.compareConfigFiles(vsVOs);
-
-				if (StringUtils.isBlank(compareRetVO.getDiffPos())) {
+				
+				if(compareRetVO.getDiffRetRevList() == null || compareRetVO.getDiffRetRevList().isEmpty()) {
+					throw new ServiceLayerException("本次檔案取得異常，或取得檔案為空, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + nowVersionVO.getFileFullName());
+				}
+				
+				log.info("compare version : "+Env.ENABLE_BACKUP_COMPARE_VERSION + ", diffPos isBlank = " + StringUtils.isBlank(compareRetVO.getDiffPos()));
+				
+				if (StringUtils.isBlank(compareRetVO.getDiffPos()) && Env.ENABLE_BACKUP_COMPARE_VERSION ) {
 					/*
 					 * 版本內容比對相同:
 					 * (1)若[Env.TFTP_SERVER_AT_LOCAL=true]，刪除本機已上傳的檔案;若為false則不處理(另外設定系統排程定期清整temp資料夾內檔案)
@@ -1015,7 +1021,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				} else {
 					// 版本內容不同
 					haveDiffVersion = true;
-					
+					log.info("compare haveDiffVersion : "+ haveDiffVersion);
 				}
 
 			} else {
@@ -1629,8 +1635,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					break;
 				}
 
-				ftpUtils.uploadFiles(configFileName,
-						IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8));
+				if(ciVO.getConfigContent().length() > 300) {
+					ftpUtils.uploadFiles(configFileName,
+							IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8));
+				}else {
+					log.info(" ConfigContent length = " + ciVO.getConfigContent().length() +", = "+ ciVO.getConfigContent());
+					throw new ServiceLayerException("本次檔案小於3K，請檢察檔案內容, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + configFileName);
+				}				
 			}
 		}
 		

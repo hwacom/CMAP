@@ -41,8 +41,8 @@ public class VersionController extends BaseController {
 	@Log
 	private static Logger log;
 
-	private static final String[] UI_MANAGE_TABLE_COLUMNS = new String[] {"","","group_Name","device_Name","device_Model","config_Type", "config_Version","create_Time"};
-	private static final String[] UI_BACKUP_TABLE_COLUMNS = new String[] {"","","dl.group_Name","dl.device_Name","dl.device_Model","cvi.config_Version","cvi.config_Type","cvi.create_Time"};
+	private static final String[] UI_MANAGE_TABLE_COLUMNS = new String[] {"","","groupName","deviceName","deviceModel","configType", "configVersion","createTime"};
+	private static final String[] UI_BACKUP_TABLE_COLUMNS = new String[] {"","","dl.groupName","dl.deviceName","dl.deviceModel","cvi.configVersion","cvi.configType","cvi.createTime"};
 
 	@Autowired
 	private VersionService versionService;

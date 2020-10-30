@@ -443,12 +443,12 @@ function goStep(num) {
 			$("#currentIndex").val(idx);
 			$("#showContentValue").val(window.sessionStorage.getItem("addScriptContentValue").split(",")[idx-1]);
 			
-			var varInput = $("input[name=input_var2]");
-			if (varInput.length > 0) {
-				$.each(varInput, function(key, input) {
-					input.value = "";
-				});
-			}
+//			var varInput = $("input[name=input_var2]");
+//			if (varInput.length > 0) {
+//				$.each(varInput, function(key, input) {
+//					input.value = "";
+//				});
+//			}
 			return ;
 		}
 	}

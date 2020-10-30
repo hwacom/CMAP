@@ -50,17 +50,25 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 	}
 
 	@Override
-	public UserRightSetting findUserRightSetting(String account) {
+	public UserRightSetting findUserRightSetting(String account, String loginMode) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from UserRightSetting urs ")
 		  .append(" where 1=1 ")
 		  .append(" and urs.account = :account ")
 		  .append(" and urs.deleteFlag  = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
+		if(StringUtils.isNotBlank(loginMode)) {
+			sb.append(" and urs.loginMode = :loginMode ");
+		}
+		
 	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 	    q.setParameter("account", account);
-
+	    
+	    if(StringUtils.isNotBlank(loginMode)) {
+	    	q.setParameter("loginMode", loginMode);
+		}
+	    
 	    return (UserRightSetting)q.uniqueResult();
 	}
 	
