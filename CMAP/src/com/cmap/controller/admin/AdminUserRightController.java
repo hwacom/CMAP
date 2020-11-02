@@ -137,8 +137,8 @@ public class AdminUserRightController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "getEnvConfig.json", method = RequestMethod.POST)
-	public @ResponseBody DatatableResponse getEnvConfig(
+	@RequestMapping(value = "getUserRightSetting", method = RequestMethod.POST)
+	public @ResponseBody DatatableResponse getUserRightSetting(
 			Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(name="start", required=false, defaultValue="0") Integer startNum,
 			@RequestParam(name="length", required=false, defaultValue="10") Integer pageLength,

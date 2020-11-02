@@ -342,7 +342,7 @@ function findData(from) {
 //	        	   $(row).children('td').eq(2).attr('content', data.settingRemark);
 //	        	},
 			"ajax" : {
-				"url" : _ctx + "/userRight/getEnvConfig.json",
+				"url" : _ctx + "/userRight/getUserRightSetting",
 				"type" : "POST",
 				"data" : function ( d ) {},
 				"dataSrc" : function (json) {
