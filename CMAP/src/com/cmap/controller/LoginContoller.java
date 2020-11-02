@@ -207,24 +207,25 @@ public class LoginContoller extends BaseController {
 				return "redirect:/loginOIDC";
 
 			}  else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI)) {
-				URI configurationEndpoint = null;
-				try {
-					configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
+//				URI configurationEndpoint = null;
+//				try {
+//					configurationEndpoint = new URI(Env.OIDC_CONFIGURATION_ENDPOINT);
+//
+//				} catch (URISyntaxException e) {
+//					log.error(e.toString(), e);
+//
+//					try {
+//						configurationEndpoint = new URI(Constants.OIDC_CY_CONFIGURATION_ENDPOINT);
+//
+//					} catch (URISyntaxException e1) {
+//						log.error(e1.toString(), e1);
+//					}
+//				}
+//				request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
+//
+//				return "redirect:/loginOIDC_CY";
 
-				} catch (URISyntaxException e) {
-					log.error(e.toString(), e);
-
-					try {
-						configurationEndpoint = new URI(Constants.OIDC_CY_CONFIGURATION_ENDPOINT);
-
-					} catch (URISyntaxException e1) {
-						log.error(e1.toString(), e1);
-					}
-				}
-				request.getSession().setAttribute(Constants.OIDC_CONFIGURATION_ENDPOINT, configurationEndpoint.toString());
-
-				return "redirect:/loginOIDC_CY";
-
+				return "login";
 			}  else if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
 
 //				return "redirect:/loginOIDC_NTPC";
