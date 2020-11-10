@@ -3,6 +3,7 @@ package com.cmap.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,6 +31,7 @@ import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
+import com.cmap.comm.enums.ScriptType;
 import com.cmap.configuration.hibernate.ConnectionFactory;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
@@ -397,20 +399,29 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				String targetFileName = null;
 				if(StringUtils.equals(vsVO.getConfigFileDirPath(), File.separator) || StringUtils.equals(vsVO.getConfigFileDirPath(), Env.FTP_DIR_SEPARATE_SYMBOL)) {
 					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(vsVO.getFileFullName());
+					log.debug("Debug check:if chk FTP_DIR_SEPARATE_SYMBOL => "+targetFileName);
 				}else {
 					targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(vsVO.getConfigFileDirPath()).concat(vsVO.getFileFullName());
+					log.debug("Debug check:else chk FTP_DIR_SEPARATE_SYMBOL => "+targetFileName);
 				}
 				
 				//read file into stream, try-with-resources
 				try {
 					targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
-					log.debug("version read all lines "+targetFileName);
-					contentList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
-					
+					log.debug("Debug check:version read all lines "+targetFileName);
+					try {
+						contentList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
+					}catch(IOException e) {
+						log.info("Read files with UTF_8 error, and try with Big5 again");
+						contentList = Files.readAllLines(Paths.get(targetFileName), Charset.forName("big5"));
+					}
+					log.debug("Debug check if contentList is null?:");
 					if (contentList == null || contentList.isEmpty()) {
 						log.error("contentList is null ! can't get file "+targetFileName);
 					}
-				} catch (IOException e) {
+					log.debug("Debug check: contentList is not null, size =  "+contentList.size());
+				} catch (Exception e) {
+					log.error("Files reading is fail, targetFileName = " + targetFileName);
 					e.printStackTrace();
 				}
 
@@ -439,13 +450,13 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						_hostPort = Env.TFTP_HOST_PORT;
 						break;
 				}
-
+				log.debug("Debug check: Step1. 建立FileServer傳輸物件");
 				// Step2. FTP連線
 				fileUtils.connect(_hostIp, _hostPort);
-
+				log.debug("Debug check: Step2. FTP連線");
 				// Step3. FTP登入
 				fileUtils.login(_loginAccount, _loginPassword);
-
+				log.debug("Debug check: Step3. 移動作業目錄至指定的裝置");
 				// Step3. 移動作業目錄至指定的裝置
 				String fileDir = vsVO.getConfigFileDirPath();
 
@@ -459,12 +470,12 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 				vsVO.setRemoteFileDirPath(fileDir);
 //					fileUtils.changeDir(fileDir, false);
-
+				log.debug("Debug check: Step4. 下載指定的Config落地檔");
 				// Step4. 下載指定的Config落地檔
 				ConfigInfoVO ciVO = new ConfigInfoVO();
 				BeanUtils.copyProperties(vsVO, ciVO);
 				contentList = fileUtils.downloadFiles(ciVO);
-
+				log.debug("Debug check: Step5. 關閉FTP連線");
 				// Step6. 關閉FTP連線
 				if (fileUtils != null) {
 					try {
@@ -475,12 +486,14 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 					}
 				}
 			}
-			
+			log.debug("Debug check: Step6. 轉換為String for UI輸出");
 			// Step5. 轉換為String for UI輸出
 		    if (contentList != null && !contentList.isEmpty()) {
+		    	log.debug("Debug check: Step6. contenList is not null, size = " + contentList.size());
                 vsVO.setConfigContentList(contentList);
-
+                log.debug("Debug check: Step6. VO setConfigContentList");
                 if (transHtmlFormat) {
+                	log.debug("Debug check: Step6. transHtmlFormat");
                     sb = new StringBuffer();
 
                     for (String content : contentList) {
@@ -489,6 +502,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
                     vsVO.setConfigFileContent(sb.toString());
                 }
+                log.debug("Debug check: Step6. no transHtmlFormat");
             }else {
 				log.error("contentList is null ! ");
             }
@@ -850,6 +864,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		int successCount = 0;
 		int errorCount = 0;
 		int noDiffCount = 0;
+		int notBackupCount = 0;
 
 		try {
 			masterVO.setLogMasterId(UUID.randomUUID().toString());
@@ -860,13 +875,15 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			for (String deviceListId : deviceListIDs) {
 				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
 
-				masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
+				if(ssVO != null) {
+					masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
 
-				successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
-				errorCount += !ssVO.isSuccess() ? 1 : 0;
-				noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
-
-				//log.info(ssVO.toString());
+					successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
+					errorCount += !ssVO.isSuccess() ? 1 : 0;
+					noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
+				}else {
+					notBackupCount ++;
+				}				
 			}
 
 			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
@@ -893,15 +910,19 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 			} else if (noDiffCount == 1) {
 				msg = "版本無差異";
+				
+			} else if (notBackupCount == 1) {
+				msg = "設定不備份";
 			}
 
 		} else {
-			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆";
+			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆；設定不備份 {4} 筆";
 			args = new String[] {
 					String.valueOf(totalCount),
 					String.valueOf(successCount),
 					String.valueOf(errorCount),
-					String.valueOf(noDiffCount)
+					String.valueOf(noDiffCount),
+					String.valueOf(notBackupCount)
 			};
 		}
 
@@ -909,6 +930,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		masterVO.setResult(CommonUtils.converMsg(msg, args));
 
 		try {
+			masterVO.setScriptType(ScriptType.BACKUP.toString());
 			provisionService.insertProvisionLog(masterVO);
 		} catch (ServiceLayerException e) {
 			log.error(e.toString(), e);
@@ -930,7 +952,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		int successCount = 0;
 		int errorCount = 0;
 		int noDiffCount = 0;
-
+		int notBackupCount = 0;
+		
 		try {
 			masterVO.setLogMasterId(UUID.randomUUID().toString());
 			masterVO.setBeginTime(new Date());
@@ -942,13 +965,15 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			for (String deviceListId : deviceListIDs) {
 				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
 
-				masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
+				if(ssVO != null) {
+					masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
 
-				successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
-				errorCount += !ssVO.isSuccess() ? 1 : 0;
-				noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
-
-				//log.info(ssVO.toString());
+					successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
+					errorCount += !ssVO.isSuccess() ? 1 : 0;
+					noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
+				}else {
+					notBackupCount ++;
+				}
 			}
 
 			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
@@ -975,15 +1000,19 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 			} else if (noDiffCount == 1) {
 				msg = "版本無差異";
+				
+			} else if (notBackupCount == 1) {
+				msg = "設定不備份";
 			}
 
 		} else {
-			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆";
+			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆；設定不備份 {4} 筆";
 			args = new String[] {
 					String.valueOf(totalCount),
 					String.valueOf(successCount),
 					String.valueOf(errorCount),
-					String.valueOf(noDiffCount)
+					String.valueOf(noDiffCount),
+					String.valueOf(notBackupCount)
 			};
 		}
 
@@ -991,6 +1020,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		masterVO.setResult(CommonUtils.converMsg(msg, args));
 
 		try {
+			masterVO.setScriptType(ScriptType.BACKUP.toString());
 			provisionService.insertProvisionLog(masterVO);
 		} catch (ServiceLayerException e) {
 			log.error(e.toString(), e);
