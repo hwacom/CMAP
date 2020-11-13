@@ -64,6 +64,10 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 		if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)) {
 			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
 		}
+
+		if(device == null) {
+			log.info("get device null by id = " + deviceListId);
+		}
 		
 		ScriptInfo info = loadDefaultScriptInfo(device != null?device.getDeviceModel():Constants.DATA_STAR_SYMBOL, scriptType.toString(), null);
 		
@@ -130,6 +134,7 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 			ScriptInfo scriptInfo = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, deviceModel);
 
 			if (scriptInfo == null) {
+				log.info("get default script info null by deviceModel = " + deviceModel + " and scriptType = " + scriptType);				
 				if (!StringUtils.equals(deviceModel, Constants.DATA_STAR_SYMBOL)) {
 					return findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, Constants.DATA_STAR_SYMBOL);
 				}

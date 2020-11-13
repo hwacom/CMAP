@@ -112,35 +112,20 @@ function findData(from) {
 					return d;
 				},
 				beforeSend : function() {
-					//countDown('START');
+					showProcessing();
 				},
 				complete : function() {
-					//countDown('STOP');
+					hideProcessing();
 				},
-				"error" : function(xhr, ajaxOptions, thrownError) {
+				error : function(xhr, ajaxOptions, thrownError) {
 					ajaxErrorHandler();
 				},
-				/*
-				"dataSrc" : function(json) {
-					if (json.data.length > 0) {
-						if (json.otherMsg != null && json.otherMsg != "") {
-							$("#div_TotalFlow").css("display", "contents");
-							$("#result_TotalFlow").text("總流量：" + json.otherMsg);
-						}
-						
-					} else {
-						$("#div_TotalFlow").css("display", "contents");
-						$("#result_TotalFlow").text("查無符合資料");
-					}
-					return json.data;
-				},
-				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
-					alert(json.msg);
+//					alert(json.msg);
 				}
             },
 			"drawCallback" : function(settings) {

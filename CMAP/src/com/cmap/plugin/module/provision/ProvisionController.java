@@ -1,28 +1,41 @@
 package com.cmap.plugin.module.provision;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.cmap.AppResponse;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
+import com.cmap.model.ProvisionLogConfigBackupError;
 import com.cmap.model.PrtgAccountMapping;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ProvisionApiService;
+import com.cmap.service.ProvisionService;
 import com.cmap.service.PrtgService;
+import com.cmap.service.vo.VersionServiceVO;
+import com.cmap.utils.DataExportUtils;
+import com.cmap.utils.impl.CsvExportUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +51,10 @@ public class ProvisionController extends BaseController {
 	
 	@Autowired
 	private ProvisionApiService provisionApiService;
-		
+	
+	@Autowired
+	private ProvisionService provisionService;
+	
 	private String logKey = null;
 	
 	/**
@@ -220,4 +236,79 @@ public class ProvisionController extends BaseController {
 
 	    return jsonString;
 	}
+	
+	/**
+	 * 組態備份錯誤資料匯出
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param queryGroup
+	 * @param queryDevice
+	 * @param searchValue
+	 * @param exportRecordCount
+	 * @return
+	 */
+	@RequestMapping(value = "dataExport.json", method = RequestMethod.POST)
+    public @ResponseBody AppResponse dataExport(
+            Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name="queryGroup", required=false, defaultValue="") String queryGroup,
+            @RequestParam(name="queryDevice", required=false, defaultValue="") String queryDevice,
+            @RequestParam(name="exportDay", required=false, defaultValue="") String exportDay,
+            @RequestParam(name="searchValue", required=false, defaultValue="") String searchValue,
+            @RequestParam(name="exportRecordCount", required=true, defaultValue="") String exportRecordCount) {
+
+	    List<ProvisionLogConfigBackupError> dataList = new ArrayList<>();
+	    VersionServiceVO vsVO;
+        try {
+            Integer queryStartNum = 0;
+            Integer queryPageLength = getDataExportRecordCount(exportRecordCount);
+
+            vsVO = new VersionServiceVO();
+            if(StringUtils.isNotBlank(queryGroup)) {
+            	setQueryDeviceList(request, vsVO, StringUtils.isNotBlank(queryDevice) ? "queryDevice" : "queryDeviceList", queryGroup, queryDevice);
+            }            
+            vsVO.setStartNum(queryStartNum);
+            
+            SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            
+            vsVO.setQueryDateEnd1(sdFormat.format(calendar.getTime()));
+            calendar.add(Calendar.DATE, -(Integer.valueOf(exportDay)));
+            Date yesterday = calendar.getTime();
+            vsVO.setQueryDateBegin1(sdFormat.format(yesterday));
+            
+            vsVO.setPageLength(queryPageLength);
+            vsVO.setSearchValue(searchValue);
+
+            dataList = provisionService.findProvisionLogConfigBackupError(vsVO);
+
+            
+            if (dataList != null && !dataList.isEmpty()) {
+                String fileName = getFileName("Backup error detail_[CurrentTime]");
+				String[] fieldNames = new String[] { "deviceId", "deviceName", "deviceIp", "deviceModel", "result",
+						"message", "scriptCode", "remark", "beginTime", "endTime", "spendTimeInSeconds", "retryTimes", "processLog"
+						};
+				String[] columnsTitles = new String[] { "設備 ID", "設備名稱", "Ip", "型號", "執行結果", "訊息", "腳本代碼", "備註", "開始時間",
+						"結束時間", "歷時(S)", "重試次數", "cmd紀錄" 
+						};
+
+                DataExportUtils export = new CsvExportUtils();
+                String fileId = export.output2Web(response, fileName, true, dataList, fieldNames, columnsTitles);
+
+                AppResponse app = new AppResponse(HttpServletResponse.SC_OK, "SUCCESS");
+                app.putData("fileId", fileId);
+                return app;
+
+            } else {
+                AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "No matched data.");
+                return app;
+            }
+
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+            AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
+            return app;
+        }
+    }
 }

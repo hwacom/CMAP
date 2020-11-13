@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.cmap.dao.vo.ProvisionLogDAOVO;
 import com.cmap.model.ProvisionAccessLog;
+import com.cmap.model.ProvisionLogConfigBackupError;
 import com.cmap.model.ProvisionLogDetail;
 import com.cmap.model.ProvisionLogDevice;
 import com.cmap.model.ProvisionLogMaster;
 import com.cmap.model.ProvisionLogRetry;
 import com.cmap.model.ProvisionLogStep;
+import com.cmap.service.vo.VersionServiceVO;
 
 public interface ProvisionLogDAO extends BaseDAO {
 
@@ -34,7 +36,8 @@ public interface ProvisionLogDAO extends BaseDAO {
 	 * @param steps
 	 * @param devices
 	 */
-	public void insertProvisionLog(ProvisionLogMaster master, List<ProvisionLogDetail> details, List<ProvisionLogStep> steps, List<ProvisionLogDevice> devices, List<ProvisionLogRetry> retrys);
+	public void insertProvisionLog(ProvisionLogMaster master, List<ProvisionLogDetail> details, List<ProvisionLogStep> steps, List<ProvisionLogDevice> devices, List<ProvisionLogRetry> retrys,
+			List<ProvisionLogConfigBackupError> errors);
 
 	public ProvisionAccessLog findProvisionAccessLogById(String logId);
 
@@ -44,4 +47,12 @@ public interface ProvisionLogDAO extends BaseDAO {
 	 * @return
 	 */
 	public ProvisionLogStep findProvisionLogStepById(String logStepId);
+
+	/**
+	 * 查詢組態備份失敗紀錄
+	 * @param vsVO
+	 * @return
+	 */
+	public List<ProvisionLogConfigBackupError> findProvisionLogConfigBackupErrorByDAOVO(VersionServiceVO vsVO);
+
 }

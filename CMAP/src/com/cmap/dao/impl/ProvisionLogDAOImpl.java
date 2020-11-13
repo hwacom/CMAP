@@ -1,6 +1,7 @@
 package com.cmap.dao.impl;
 
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -14,11 +15,13 @@ import com.cmap.annotation.Log;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.dao.vo.ProvisionLogDAOVO;
 import com.cmap.model.ProvisionAccessLog;
+import com.cmap.model.ProvisionLogConfigBackupError;
 import com.cmap.model.ProvisionLogDetail;
 import com.cmap.model.ProvisionLogDevice;
 import com.cmap.model.ProvisionLogMaster;
 import com.cmap.model.ProvisionLogRetry;
 import com.cmap.model.ProvisionLogStep;
+import com.cmap.service.vo.VersionServiceVO;
 
 @Repository("provisionLogDAOImpl")
 @Transactional
@@ -186,7 +189,7 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 
 	@Override
 	public void insertProvisionLog(ProvisionLogMaster master, List<ProvisionLogDetail> details, List<ProvisionLogStep> steps,
-			List<ProvisionLogDevice> devices, List<ProvisionLogRetry> retrys) {
+			List<ProvisionLogDevice> devices, List<ProvisionLogRetry> retrys, List<ProvisionLogConfigBackupError> errors) {
 
 		if (master != null) {
 			getHibernateTemplate().save(master);
@@ -215,6 +218,12 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 				getHibernateTemplate().save(retry);
 			}
 		}
+		
+		if (errors != null) {
+			for (ProvisionLogConfigBackupError error : errors) {
+				getHibernateTemplate().save(error);
+			}
+		}
 	}
 
 	@Override
@@ -235,5 +244,43 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 	@Override
 	public ProvisionLogStep findProvisionLogStepById(String logStepId) {
 		return getHibernateTemplate().getSessionFactory().getCurrentSession().get(ProvisionLogStep.class, logStepId);
+	}
+	
+	@Override
+	public List<ProvisionLogConfigBackupError> findProvisionLogConfigBackupErrorByDAOVO(VersionServiceVO vsVO) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from ProvisionLogConfigBackupError ")
+		  .append(" where 1=1 ");
+		
+		if (StringUtils.isNotBlank(vsVO.getQueryDevice())) {
+          sb.append(" and deviceId = :deviceId ");
+        } else if (vsVO.getQueryDeviceList() != null && !vsVO.getQueryDeviceList().isEmpty()) {
+          sb.append(" and deviceId in (:deviceId) ");
+        }
+	
+		if (StringUtils.isNotBlank(vsVO.getQueryDateBegin1())) {
+			sb.append("	and createTime >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
+		}
+		if (StringUtils.isNotBlank(vsVO.getQueryDateEnd1())) {
+			sb.append("	and createTime < DATE_FORMAT(:endDate_1, '%Y-%m-%d') ");
+		}
+
+
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Query<?> q = session.createQuery(sb.toString());
+
+		if (StringUtils.isNotBlank(vsVO.getQueryDevice())) {
+            q.setParameter("deviceId", vsVO.getQueryDevice());
+        } else if (vsVO.getQueryDeviceList() != null && !vsVO.getQueryDeviceList().isEmpty()) {
+            q.setParameterList("deviceId", vsVO.getQueryDeviceList());
+        }
+		if (StringUtils.isNotBlank(vsVO.getQueryDateBegin1())) {
+	    	q.setParameter("beginDate_1", vsVO.getQueryDateBegin1());
+	    }
+	    if (StringUtils.isNotBlank(vsVO.getQueryDateEnd1())) {
+	    	q.setParameter("endDate_1", vsVO.getQueryDateEnd1());
+	    }
+	    
+		return (List<ProvisionLogConfigBackupError>)q.list();
 	}
 }

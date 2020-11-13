@@ -24,12 +24,9 @@ public class DeviceLoginInfo {
 	@Column(name = "info_id", unique = true)
 	private String infoId;
 
-	@Column(name = "device_list_id", nullable = true)
-	private String deviceListId;
-
 	@Column(name = "group_id", nullable = true)
 	private String groupId;
-
+	
 	@Column(name = "device_id", nullable = true)
 	private String deviceId;
 
@@ -44,6 +41,9 @@ public class DeviceLoginInfo {
 
 	@Column(name = "enable_password", nullable = true)
 	private String enablePassword;
+	
+	@Column(name = "ENABLE_BACKUP", nullable = true)
+	private String enableBackup;
 	
 	@Column(name = "community_string", nullable = true)
 	private String communityString;
@@ -73,21 +73,23 @@ public class DeviceLoginInfo {
 		super();
 	}
 
-	public DeviceLoginInfo(String infoId, String deviceListId, String groupId, String deviceId, String connectionMode,
-			String loginAccount, String loginPassword, String enablePassword, String communityString, Integer udpPort,
-			String remark, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+	public DeviceLoginInfo(String infoId, String groupId, String deviceId, String connectionMode, String loginAccount,
+			String loginPassword, String enablePassword, String enableBackup, String communityString, Integer udpPort,
+			String remark, String configBackupMode, Timestamp createTime, String createBy, Timestamp updateTime,
+			String updateBy) {
 		super();
 		this.infoId = infoId;
-		this.deviceListId = deviceListId;
 		this.groupId = groupId;
 		this.deviceId = deviceId;
 		this.connectionMode = connectionMode;
 		this.loginAccount = loginAccount;
 		this.loginPassword = loginPassword;
 		this.enablePassword = enablePassword;
+		this.enableBackup = enableBackup;
 		this.communityString = communityString;
 		this.udpPort = udpPort;
 		this.remark = remark;
+		this.configBackupMode = configBackupMode;
 		this.createTime = createTime;
 		this.createBy = createBy;
 		this.updateTime = updateTime;
@@ -100,14 +102,6 @@ public class DeviceLoginInfo {
 
 	public void setInfoId(String infoId) {
 		this.infoId = infoId;
-	}
-
-	public String getDeviceListId() {
-		return deviceListId;
-	}
-
-	public void setDeviceListId(String deviceListId) {
-		this.deviceListId = deviceListId;
 	}
 
 	public String getGroupId() {
@@ -156,6 +150,14 @@ public class DeviceLoginInfo {
 
 	public void setEnablePassword(String enablePassword) {
 		this.enablePassword = enablePassword;
+	}
+
+	public String getEnableBackup() {
+		return enableBackup;
+	}
+
+	public void setEnableBackup(String enableBackup) {
+		this.enableBackup = enableBackup;
 	}
 
 	public String getCommunityString() {

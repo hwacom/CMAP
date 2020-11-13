@@ -54,7 +54,6 @@ import com.cmap.dao.UserDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
-import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.GroupSubnetSetting;
 import com.cmap.model.MenuItem;
 import com.cmap.model.ProtocolSpec;
@@ -614,7 +613,7 @@ public class CommonServiceImpl implements CommonService {
 
                 // 更新 or 寫入 DEVICE_LIST 資料
                 if (deviceList != null && !deviceList.isEmpty()) {
-                    updateDeviceList(deviceList);
+                	deviceDAO.saveOrUpdateDeviceList(deviceList);
                 }
             }
         }
@@ -640,12 +639,6 @@ public class CommonServiceImpl implements CommonService {
 			log.error(e.toString(), e);
 		}
 		return retMap;
-	}
-
-	@Override
-	public void updateDeviceList(List<DeviceList> deviceList) {
-		// 更新 or 寫入 DEVICE_LIST 資料
-		deviceDAO.saveOrUpdateDeviceListByModel(deviceList);
 	}
 
 	@Override
@@ -992,33 +985,6 @@ public class CommonServiceImpl implements CommonService {
     private boolean chkIpInGroupSubnetForIPv6(String cidr, String ip) {
         return false;
     }
-
-	@Override
-	public DeviceLoginInfo findDeviceLoginInfo(String deviceListId, String groupId, String deviceId) {
-		try {
-			DeviceLoginInfo loginInfo = deviceDAO.findDeviceLoginInfo(deviceListId, null, null);
-			
-			if (loginInfo == null) {
-				// 若by【資料ID】查找不到，則再往上一層by【設備ID】查找
-				loginInfo = deviceDAO.findDeviceLoginInfo(null, null, deviceId);
-			}
-
-			if (loginInfo == null) {
-				//若by【設備ID】查找不到，則再往上一層by【群組ID】查找  (PS: 最上層為群組ID)
-				loginInfo = deviceDAO.findDeviceLoginInfo(null, groupId, Constants.DATA_STAR_SYMBOL);
-			}
-			
-			if (loginInfo == null) {
-				// 若by【群組ID】查找不到，則再往上一層by【* + * + *】查找
-				loginInfo = deviceDAO.findDeviceLoginInfo(Constants.DATA_STAR_SYMBOL, Constants.DATA_STAR_SYMBOL, Constants.DATA_STAR_SYMBOL);
-			}
-			
-			return loginInfo;
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-			return null;
-		}
-	}
 
 	@Override
     public Map<String, Map<String, Map<String, String>>> getUserGroupAndDeviceFullInfo(String prtgAccount) {

@@ -7,10 +7,13 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.exception.ServiceLayerException;
@@ -52,7 +55,7 @@ public class CsvExportUtils implements DataExportUtils {
 
                 for (String fieldName : fieldNames) {
                     value = BeanUtils.getProperty(dataObj, fieldName);
-                    values.add(value);
+                    values.add(value.replaceAll("\r\n", "		"));
                 }
 
                 writeLine(writer, values);

@@ -19,6 +19,7 @@ import com.cmap.model.DeviceDetailInfo;
 import com.cmap.model.DeviceDetailMapping;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
+import com.cmap.service.vo.DeviceLoginInfoServiceVO;
 
 @Repository("deviceDAO")
 @Transactional
@@ -86,7 +87,7 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	}
 
 	@Override
-	public void saveOrUpdateDeviceListByModel(List<DeviceList> entityList) {
+	public void saveOrUpdateDeviceList(List<DeviceList> entityList) {
 		for (DeviceList entity : entityList) {
 			getHibernateTemplate().saveOrUpdate(entity);
 		}
@@ -292,36 +293,23 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	}
 
 	@Override
-	public DeviceLoginInfo findDeviceLoginInfo(String deviceListId, String groupId, String deviceId) {
+	public DeviceLoginInfo findDeviceLoginInfo(String deviceId) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from DeviceLoginInfo dli ")
 		  .append(" where 1=1 ");
-
-		if (StringUtils.isNotBlank(deviceListId)) {
-			sb.append(" and dli.deviceListId = :deviceListId ");
-		}
-		if (StringUtils.isNotBlank(groupId)) {
-			sb.append(" and dli.groupId = :groupId ");
-		}
+		
 		if (StringUtils.isNotBlank(deviceId)) {
-			sb.append(" and dli.deviceId = :deviceId ");
-		}
+            sb.append(" and dli.deviceId = :deviceId ");
+        }
 
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 
-	    if (StringUtils.isNotBlank(deviceListId)) {
-	    	q.setParameter("deviceListId", deviceListId);
-		}
-	    if (StringUtils.isNotBlank(groupId)) {
-	    	q.setParameter("groupId", groupId);
-		}
 	    if (StringUtils.isNotBlank(deviceId)) {
 	    	q.setParameter("deviceId", deviceId);
-		}
-
-		List<DeviceLoginInfo> returnList = (List<DeviceLoginInfo>)q.list();
-		return returnList.isEmpty() ? null : returnList.get(0);
+        }
+	    
+		return (DeviceLoginInfo) q.uniqueResult();
 	}
 
     @Override
@@ -479,5 +467,109 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	    List<Object[]> retList = (List<Object[]>)q.list();
 
 		return transObjList2ModelList4Device(retList);
+	}
+	
+	@Override
+	public void saveOrUpdateDeviceLoginInfo(List<DeviceLoginInfo> entityList) {
+		for (DeviceLoginInfo entity : entityList) {
+			getHibernateTemplate().saveOrUpdate(entity);
+		}
+	}
+	
+	@Override
+	public void deleteDeviceLoginInfo(List<DeviceLoginInfo> entities) {
+		getHibernateTemplate().deleteAll(entities);	
+	}
+	
+	@Override
+	public long countDeviceLoginInfoList(DeviceLoginInfoServiceVO vo) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" select count(*) from DeviceLoginInfo dli ")
+		  .append(" where 1=1 ");
+		
+		if (vo.getQueryGroupList() != null && !vo.getQueryGroupList().isEmpty()) {
+            sb.append(" and dli.groupId in (:groupIdList) ");
+        }else if (StringUtils.isNotBlank(vo.getQueryGroup())) {
+            sb.append(" and dli.groupId = :groupId ");
+        }
+		
+		if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+            sb.append(" and dli.deviceId in (:deviceIdList) ");
+        }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
+            sb.append(" and dli.deviceId = :deviceId ");
+        }
+		
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+
+	    if (vo.getQueryGroupList() != null && !vo.getQueryGroupList().isEmpty()) {
+	    	q.setParameter("groupIdList", vo.getQueryGroupList());
+        }else if (StringUtils.isNotBlank(vo.getQueryGroup())) {
+        	q.setParameter("groupId", vo.getQueryGroup());
+        }
+	    
+	    if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+	    	q.setParameter("deviceIdList", vo.getQueryDeviceList());
+        }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
+        	q.setParameter("deviceId", vo.getQueryDevice());
+        }
+	    	    
+		return DataAccessUtils.longResult(q.list());
+	}
+	
+	@Override
+	public List<DeviceLoginInfo> findDeviceLoginInfoList(DeviceLoginInfoServiceVO vo) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from DeviceLoginInfo dli ")
+		  .append(" where 1=1 ");
+		
+		if (vo.getQueryGroupList() != null && !vo.getQueryGroupList().isEmpty()) {
+            sb.append(" and dli.groupId in (:groupIdList) ");
+        }else if (StringUtils.isNotBlank(vo.getQueryGroup())) {
+            sb.append(" and dli.groupId = :groupId ");
+        }
+		
+		if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+            sb.append(" and dli.deviceId in (:deviceIdList) ");
+        }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
+            sb.append(" and dli.deviceId = :deviceId ");
+        }
+
+		if (StringUtils.isNotBlank(vo.getSearchValue())) {
+			sb.append(" and ( ")
+			  .append("       dli.remark like :searchValue ")
+			  .append("     ) ");
+		}
+
+		if (StringUtils.isNotBlank(vo.getOrderColumn())) {
+			sb.append(" order by ").append(vo.getOrderColumn()).append(" ").append(vo.getOrderDirection());
+
+		}
+		
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+
+	    if (vo.getQueryGroupList() != null && !vo.getQueryGroupList().isEmpty()) {
+	    	q.setParameter("groupIdList", vo.getQueryGroupList());
+        }else if (StringUtils.isNotBlank(vo.getQueryGroup())) {
+        	q.setParameter("groupId", vo.getQueryGroup());
+        }
+	    
+	    if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+	    	q.setParameter("deviceIdList", vo.getQueryDeviceList());
+        }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
+        	q.setParameter("deviceId", vo.getQueryDevice());
+        }
+	    
+	    if (StringUtils.isNotBlank(vo.getSearchValue())) {
+	    	q.setParameter("searchValue", "%".concat(vo.getSearchValue()).concat("%"));
+	    }
+
+	    if (vo.getStartNum() != null && vo.getPageLength() != null) {
+	    	q.setFirstResult(vo.getStartNum());
+		    q.setMaxResults(vo.getPageLength());
+	    }
+	    
+		return (List<DeviceLoginInfo>) q.list();
 	}
 }

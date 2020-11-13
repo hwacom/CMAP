@@ -14,22 +14,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.annotation.Log;
+import com.cmap.comm.enums.ScriptType;
 import com.cmap.dao.BaseDAO;
 import com.cmap.dao.DeviceDAO;
 import com.cmap.dao.ProvisionLogDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.ProvisionAccessLog;
+import com.cmap.model.ProvisionLogConfigBackupError;
 import com.cmap.model.ProvisionLogDetail;
 import com.cmap.model.ProvisionLogDevice;
 import com.cmap.model.ProvisionLogMaster;
 import com.cmap.model.ProvisionLogRetry;
 import com.cmap.model.ProvisionLogStep;
-import com.cmap.security.SecurityUtil;
 import com.cmap.service.ProvisionService;
+import com.cmap.service.StepService.Result;
 import com.cmap.service.vo.DeliveryParameterVO;
 import com.cmap.service.vo.ProvisionAccessLogVO;
 import com.cmap.service.vo.ProvisionServiceVO;
+import com.cmap.service.vo.VersionServiceVO;
 import com.cmap.utils.impl.CommonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -84,7 +87,13 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 			List<ProvisionLogStep> stepEntities = null;
 			List<ProvisionLogDevice> deviceEntities = null;
 			List<ProvisionLogRetry> retryEntities = null;
+			List<ProvisionLogConfigBackupError> backupErrorEntities = null;
 
+			boolean isBackup = false;
+			if(StringUtils.equals(ScriptType.BACKUP.toString(), masterVO.getScriptType())) {
+				isBackup = true;				
+			}
+			
 			if (masterVO != null) {
 				final String logMasterId = UUID.randomUUID().toString();
 				final String triggerName = masterVO.getTriggerName();					
@@ -108,6 +117,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 				stepEntities = new ArrayList<>();
 				deviceEntities = new ArrayList<>();
 				retryEntities = new ArrayList<>();
+				backupErrorEntities = new ArrayList<>();
 
 				ProvisionLogDetail detailEntity = null;
 				List<ProvisionServiceVO> detailVOs = masterVO.getDetailVO();
@@ -167,6 +177,8 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 							if (deviceVOList != null && !deviceVOList.isEmpty()) {
 								DeviceList deviceListEntity = null;
 								ProvisionLogDevice deviceEntity = null;
+								ProvisionLogConfigBackupError backupErrorEntity = null;
+								
 								for (ProvisionServiceVO deviceVO : deviceVOList) {
 									deviceEntity = new ProvisionLogDevice();
 									BeanUtils.copyProperties(deviceVO, deviceEntity);
@@ -186,6 +198,15 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 									deviceEntity.setCreateTime(new Timestamp((new Date()).getTime()));
 
 									deviceEntities.add(deviceEntity);
+									
+									if(isBackup && StringUtils.equals(Result.ERROR.toString(), stepEntity.getResult())) {
+										backupErrorEntity = new ProvisionLogConfigBackupError();
+										BeanUtils.copyProperties(deviceListEntity, backupErrorEntity);
+										BeanUtils.copyProperties(stepEntity, backupErrorEntity);
+										backupErrorEntity.setLogMasterId(logMasterId);
+										
+										backupErrorEntities.add(backupErrorEntity);
+									}
 								}
 							}
 
@@ -209,7 +230,7 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 					}
 				}
 
-				provisionLogDAO.insertProvisionLog(masterEntity, detailEntities, stepEntities, deviceEntities, retryEntities);
+				provisionLogDAO.insertProvisionLog(masterEntity, detailEntities, stepEntities, deviceEntities, retryEntities, backupErrorEntities);
 			}
 
 		} catch (Exception e) {
@@ -294,5 +315,16 @@ public class ProvisionServiceImpl extends CommonServiceImpl implements Provision
 		}
 
 		return retVO;
+	}
+	
+	@Override
+	public List<ProvisionLogConfigBackupError> findProvisionLogConfigBackupError(VersionServiceVO vsVO) throws ServiceLayerException {
+		try {
+			return provisionLogDAO.findProvisionLogConfigBackupErrorByDAOVO(vsVO);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			throw new ServiceLayerException(e);
+		}
 	}
 }

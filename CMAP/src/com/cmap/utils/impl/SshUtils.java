@@ -4,8 +4,8 @@ import static net.sf.expectit.filter.Filters.removeColors;
 import static net.sf.expectit.filter.Filters.removeNonPrintable;
 import static net.sf.expectit.matcher.Matchers.contains;
 
+import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			if (ssh == null) {
 				throw new IllegalStateException("SSH connect interrupted! >>> [ " + ipAddress + ":" + port + " ]");
 			}
-			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+//			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 			ssh.addHostKeyVerifier(
 					new HostKeyVerifier() {
 						@Override
@@ -96,9 +96,9 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 		try {
 			checkSshStatus();
 
-			ssh.authPassword(account, password);			
+			ssh.authPassword(account, password);
 			log.info("SSH login success!! >>> [ account: " + account + " , password: " + password + " ]");
-
+			
 		} catch (Exception e) {
 			throw new Exception("[SSH login failed] >> [ account: " + account + " , password: " + password + " ] " + e.getMessage());
 		}
@@ -126,9 +126,10 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 
 		for (int i=0; i<runTime; i++) {
 			String cli = (cmdsList != null && !cmdsList.isEmpty()) ? cmdsList.get(i) : null;
-			String sendCli = replaceContentSign(csVO, scriptVO, configInfoVO, cli);
+			String sendCli = new String(
+					replaceContentSign(csVO, scriptVO, configInfoVO, cli).getBytes(StandardCharsets.UTF_8),
+					StandardCharsets.UTF_8);
 			output = sendCli;
-
 			/*
 			 * 替換腳本參數(replaceContentSign)後送出命令，並等候至預期的結束符號(expectedTerminalSymbol)，將output結果取出
 			 */
@@ -176,13 +177,21 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			    }
 
 			} else {
-				output = expect.sendLine(sendCli)
-						   .expect(contains(expectedTerminalSymbol))
-						   .getBefore();
+				if (StringUtils.isNotBlank(scriptVO.getScriptSleepTime())) {
+					expect.sendLine(sendCli);
+					Thread.sleep(Long.parseLong(scriptVO.getScriptSleepTime()));
+					output = expect.expect(contains(expectedTerminalSymbol)).getBefore();
+					
+				}else {
+					output = expect.sendLine(sendCli)
+							   .expect(contains(expectedTerminalSymbol))
+							   .getBefore();
+				}				
 			}
 
 			processLog.append(output + expectedTerminalSymbol);
-
+			log.debug("for debug output = " + output + expectedTerminalSymbol);
+			
 			boolean success = true;
 
 			if (errorSymbols != null) {
@@ -237,10 +246,33 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			try {
 			    long sleepTime = Env.SEND_COMMAND_SLEEP_TIME != null ? Env.SEND_COMMAND_SLEEP_TIME : 1000;
 
+			    String account = StringUtils.isBlank(configInfoVO.getAccount()) ? Env.DEFAULT_DEVICE_LOGIN_ACCOUNT : configInfoVO.getAccount();
+			    String enable = StringUtils.isBlank(configInfoVO.getEnablePassword()) ? Env.DEFAULT_DEVICE_ENABLE_PASSWORD : configInfoVO.getEnablePassword();
+			    boolean actionFlag = false;
+			    
+		    	for (String text : Env.TELNET_LOGIN_ENABLE_TEXT) { // 判斷是否包含需要enable字元
+		    		if(actionFlag) break;
+		    		try {
+		    			expect.expect(contains(text));//嘗試是否需enable字元
+		    			expect.sendLine("enable");
+		    			actionFlag = true;
+		    			try {
+		    				expect.expect(contains("Password:"));
+		    				expect.sendLine(enable);
+		    			}catch (Exception e) {
+		    				expect.sendLine(account);
+		    				expect.expect(contains("Password:"));
+		    				expect.sendLine(enable);
+						}
+		    		}catch (Exception e) {
+						// nothing
+					}			    		
+				}			    
+				
 				for (ScriptServiceVO scriptVO : scriptList) {
 					// 送出命令
 					csVO = sendCommand(csVO, expect, configInfoVO, scriptVO, processLog, cmdOutputs);
-					Thread.sleep(StringUtils.isNotBlank(scriptVO.getScriptSleepTime())?Long.parseLong(scriptVO.getScriptSleepTime()):sleepTime); // 執行命令間格時間
+					Thread.sleep(sleepTime); // 執行命令間格時間
 				}
 
 				/*
