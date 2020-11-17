@@ -31,6 +31,7 @@ import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.comm.enums.ConnectionMode;
 import com.cmap.comm.enums.RestoreMethod;
+import com.cmap.comm.enums.ScriptType;
 import com.cmap.configuration.hibernate.ConnectionFactory;
 import com.cmap.dao.ConfigDAO;
 import com.cmap.dao.DeviceDAO;
@@ -863,6 +864,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		int successCount = 0;
 		int errorCount = 0;
 		int noDiffCount = 0;
+		int notBackupCount = 0;
 
 		try {
 			masterVO.setLogMasterId(UUID.randomUUID().toString());
@@ -873,13 +875,15 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			for (String deviceListId : deviceListIDs) {
 				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
 
-				masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
+				if(ssVO != null) {
+					masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
 
-				successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
-				errorCount += !ssVO.isSuccess() ? 1 : 0;
-				noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
-
-				//log.info(ssVO.toString());
+					successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
+					errorCount += !ssVO.isSuccess() ? 1 : 0;
+					noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
+				}else {
+					notBackupCount ++;
+				}				
 			}
 
 			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
@@ -906,15 +910,19 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 			} else if (noDiffCount == 1) {
 				msg = "版本無差異";
+				
+			} else if (notBackupCount == 1) {
+				msg = "設定不備份";
 			}
 
 		} else {
-			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆";
+			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆；設定不備份 {4} 筆";
 			args = new String[] {
 					String.valueOf(totalCount),
 					String.valueOf(successCount),
 					String.valueOf(errorCount),
-					String.valueOf(noDiffCount)
+					String.valueOf(noDiffCount),
+					String.valueOf(notBackupCount)
 			};
 		}
 
@@ -922,6 +930,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		masterVO.setResult(CommonUtils.converMsg(msg, args));
 
 		try {
+			masterVO.setScriptType(ScriptType.BACKUP.toString());
 			provisionService.insertProvisionLog(masterVO);
 		} catch (ServiceLayerException e) {
 			log.error(e.toString(), e);
@@ -943,7 +952,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		int successCount = 0;
 		int errorCount = 0;
 		int noDiffCount = 0;
-
+		int notBackupCount = 0;
+		
 		try {
 			masterVO.setLogMasterId(UUID.randomUUID().toString());
 			masterVO.setBeginTime(new Date());
@@ -955,13 +965,15 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			for (String deviceListId : deviceListIDs) {
 				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
 
-				masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
+				if(ssVO != null) {
+					masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
 
-				successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
-				errorCount += !ssVO.isSuccess() ? 1 : 0;
-				noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
-
-				//log.info(ssVO.toString());
+					successCount += ssVO.isSuccess() && (ssVO.getResult() != Result.NO_DIFFERENT) ? 1 : 0;
+					errorCount += !ssVO.isSuccess() ? 1 : 0;
+					noDiffCount += ssVO.getResult() == Result.NO_DIFFERENT ? 1 : 0;
+				}else {
+					notBackupCount ++;
+				}
 			}
 
 			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
@@ -988,15 +1000,19 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 
 			} else if (noDiffCount == 1) {
 				msg = "版本無差異";
+				
+			} else if (notBackupCount == 1) {
+				msg = "設定不備份";
 			}
 
 		} else {
-			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆";
+			msg = "選定備份 {0} 筆設備: 備份成功 {1} 筆；失敗 {2} 筆；版本無差異 {3} 筆；設定不備份 {4} 筆";
 			args = new String[] {
 					String.valueOf(totalCount),
 					String.valueOf(successCount),
 					String.valueOf(errorCount),
-					String.valueOf(noDiffCount)
+					String.valueOf(noDiffCount),
+					String.valueOf(notBackupCount)
 			};
 		}
 
@@ -1004,6 +1020,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		masterVO.setResult(CommonUtils.converMsg(msg, args));
 
 		try {
+			masterVO.setScriptType(ScriptType.BACKUP.toString());
 			provisionService.insertProvisionLog(masterVO);
 		} catch (ServiceLayerException e) {
 			log.error(e.toString(), e);

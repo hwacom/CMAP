@@ -19,6 +19,7 @@ public class ProvisionServiceVO extends CommonServiceVO {
 	private Date endTime;
 	private Integer spendTimeInSeconds;
 	private String remark;
+	private String scriptType;
 
 	// Provision_Log_Master
 	private String userName;
@@ -108,6 +109,12 @@ public class ProvisionServiceVO extends CommonServiceVO {
 	}
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+	public String getScriptType() {
+		return scriptType;
+	}
+	public void setScriptType(String scriptType) {
+		this.scriptType = scriptType;
 	}
 	public String getUserName() {
 		return userName;

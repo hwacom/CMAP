@@ -40,6 +40,16 @@
         		<div class="col-lg-2 action-btn-bar-style" align="center">
 		  	    	<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnBackup"><spring:message code="backup" /></button>
 		  	    </div>
+		  	    <div class="col-lg-1 group-field-other">
+                    <select id="exportDay" name="exportDay" class="form-control form-control-sm" style="min-width: 5px" >
+						<option value="1" label="1天" />
+		                <option value="3" label="3天" />                
+		                <option value="7" label="7天" />
+				    </select>
+	    	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web"><spring:message code="btn.sys.error.log" /><spring:message code="btn.export" /></button>
+	    	    </div>
         	</div>
         </div>
       </div>

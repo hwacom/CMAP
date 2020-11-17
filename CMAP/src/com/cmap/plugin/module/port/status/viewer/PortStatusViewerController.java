@@ -19,15 +19,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.cmap.Constants;
 import com.cmap.DatatableResponse;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
-import com.cmap.exception.ServiceLayerException;
 import com.cmap.i18n.DatabaseMessageSourceBase;
-import com.cmap.plugin.module.netflow.NetFlowVO;
 import com.cmap.security.SecurityUtil;
-import com.cmap.service.vo.VersionServiceVO;
 
 @Controller
 @RequestMapping("/plugin/module/portStatusViewer")
@@ -104,9 +100,9 @@ public class PortStatusViewerController extends BaseController {
 
 			dataList = portStatusViewerService.getPortStatusList(psvVO);
 
-		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+			return new DatatableResponse(total, dataList, filterdTotal, e.getMessage());
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);

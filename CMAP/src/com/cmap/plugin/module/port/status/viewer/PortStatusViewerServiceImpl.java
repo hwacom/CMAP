@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.MibOidMapping;
+import com.cmap.service.DeviceService;
 import com.cmap.service.MibService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.vo.MibVO;
@@ -35,6 +37,9 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
 	
 	@Autowired
     private MibService mibService;
+	
+	@Autowired
+	private DeviceService deviceService;
 	
 	@Override
 	public List<PortStatusViewerVO> getPortStatusList(PortStatusViewerVO psvVO) throws ServiceLayerException {
@@ -76,7 +81,6 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
         	try {
         		snmpUtils = new SnmpV2Utils();
 
-            	String deviceListId = device.getDeviceListId();
                 String groupId = device.getGroupId();
                 String groupName = device.getGroupName();
                 String deviceId = device.getDeviceId();
@@ -86,12 +90,15 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
                 // 取得設備 COMMUNITY_STRING 及 UDP_PORT 設定
                 String communityString = null;
                 Integer udpPort = null;
-                DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
+                DeviceLoginInfo loginInfo = deviceService.findDeviceLoginInfo(deviceId);
                 if (loginInfo != null) {
                 	communityString = loginInfo.getCommunityString();
                 	udpPort = loginInfo.getUdpPort();
-                } else {
+                }
+                if(StringUtil.isEmpty(communityString)) {
                 	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
+                }
+                if(udpPort == null) {
                 	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
                 }
 
@@ -206,7 +213,7 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
 			
 		} catch (Exception e) {
 			log.error(e.toString(), e);
-			throw new ServiceLayerException("查詢異常，請重新操作");
+			throw new ServiceLayerException(e.toString());
 		}
 		return retList;
 	}

@@ -850,6 +850,19 @@
 		                	</c:if>
 		                	</sec:authorize>
 		                	<!-- [資產清冊查詢] END -->
+		                	
+		                	<!-- [設備連線資訊查詢] END -->
+		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
+		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_DEVICE_LOGIN_INFO eq __SHOW__}">
+		                		<li class="subMenu-item">
+			                    	<a id="bk_deviceLoginInfo" href="${pageContext.request.contextPath}/deviceLoginInfo/main">
+			                    	  <span data-feather="package"></span> 
+			                    	  	<span><spring:message code="func.admin.device.login.info" /></span>
+			                    	</a>
+			                    </li>
+		                	</c:if>
+		                	</sec:authorize>
+		                	<!-- [設備連線資訊查詢] END -->
 		                </ul>
 		            </li>
               	</c:if>

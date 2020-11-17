@@ -238,3 +238,51 @@ function findData(from) {
 		});
 	}
 }
+
+//[資料匯出]Modal >> 匯出確認按鈕事件 (由cmap.main.js呼叫)
+function doDataExport(exportRecordCount) {
+	var dataObj = new Object();
+	if ($('#queryFrom').val() == 'WEB') {
+		dataObj.queryGroup = $("#queryGroup").val(),
+		dataObj.queryDevice = $("#queryDevice").val();
+	
+	} else if ($('#queryFrom').val() == 'MOBILE') {
+		dataObj.queryGroup = $("#queryGroup_mobile").val(),
+		dataObj.queryDevice = $("#queryDevice_mobile").val();
+	}
+	dataObj.exportDay = $("#exportDay").val();
+	dataObj.searchValue = $("#resultTable_filter").find("input").val();
+	dataObj.exportRecordCount = exportRecordCount;
+	
+	$.ajax({
+		url : _ctx + '/provision/dataExport.json',
+		data : dataObj,
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function(xhr) {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		initComplete : function(settings, json) {
+        },
+		success : function(resp) {
+			if (resp.code == 200) {
+				const fileId = resp.data.fileId;
+				const url = getResourceDownloadLink(fileId);
+				// 彈出下載視窗
+				location.href = url;
+				// 關閉Modal視窗
+				closeExportPanel();
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}

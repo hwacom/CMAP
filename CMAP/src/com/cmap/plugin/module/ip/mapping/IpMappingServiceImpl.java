@@ -34,6 +34,7 @@ import com.cmap.plugin.module.ip.maintain.IpMaintainServiceVO;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
 import com.cmap.plugin.module.netflow.NetFlowService;
 import com.cmap.plugin.module.netflow.NetFlowVO;
+import com.cmap.service.DeviceService;
 import com.cmap.service.MibService;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.utils.ConnectUtils;
@@ -59,6 +60,9 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
     @Autowired
     private NetFlowService netFlowService;
 
+    @Autowired
+	private DeviceService deviceService;
+    
     @Autowired
     private DatabaseMessageSourceBase messageSource;
 
@@ -103,7 +107,6 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             	try {
             		snmpUtils = new SnmpV2Utils();
 
-                	String deviceListId = device.getDeviceListId();
                     String groupId = device.getGroupId();
                     String deviceId = device.getDeviceId();
                     String deviceIp = device.getDeviceIp();
@@ -111,10 +114,16 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
                     // 取得設備 COMMUNITY_STRING 及 UDP_PORT 設定
                     String communityString = null;
                     Integer udpPort = null;
-                    DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
+                    DeviceLoginInfo loginInfo = deviceService.findDeviceLoginInfo(deviceId);
                     if (loginInfo != null) {
                     	communityString = loginInfo.getCommunityString();
                     	udpPort = loginInfo.getUdpPort();
+                    }
+                    if(StringUtil.isEmpty(communityString)) {
+                    	communityString = Env.DEFAULT_DEVICE_COMMUNITY_STRING;
+                    }
+                    if(udpPort == null) {
+                    	udpPort = Env.DEFAULT_DEVICE_UDP_PORT;
                     }
                     
                     communityString = StringUtils.isBlank(communityString)? Env.DEFAULT_DEVICE_COMMUNITY_STRING : communityString;
@@ -234,14 +243,13 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
             	try {
             		snmpUtils = new SnmpV2Utils();
 
-            		String deviceListId = device.getDeviceListId();
                     String groupId = device.getGroupId();
                     String deviceId = device.getDeviceId();
                     String deviceIp = device.getDeviceIp();
 
                     String communityString = null;
                     Integer udpPort = null;
-                    DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
+                    DeviceLoginInfo loginInfo = deviceService.findDeviceLoginInfo(deviceId);
                     if (loginInfo != null) {
                     	communityString = loginInfo.getCommunityString();
                     	udpPort = loginInfo.getUdpPort();

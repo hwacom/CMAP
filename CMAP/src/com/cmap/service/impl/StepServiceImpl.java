@@ -3,6 +3,7 @@ package com.cmap.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +57,9 @@ import com.cmap.model.DeviceList;
 import com.cmap.model.DeviceLoginInfo;
 import com.cmap.model.ScriptInfo;
 import com.cmap.plugin.module.blocked.record.BlockedRecordService;
-import com.cmap.plugin.module.ip.mapping.IpMappingDAO;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.ConfigService;
-import com.cmap.service.ProvisionService;
+import com.cmap.service.DeviceService;
 import com.cmap.service.ScriptService;
 import com.cmap.service.StepService;
 import com.cmap.service.VersionService;
@@ -111,11 +112,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	private ConfigService configService;
 
 	@Autowired
-	private IpMappingDAO ipMappingDAO;
+	private DeviceService deviceService;
 	
-	@Autowired
-	private ProvisionService provisionService;
-
 	@Autowired
     private BlockedRecordService blockedRecordService;
 
@@ -145,12 +143,20 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		String deviceConfigBackupMode = Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE;
 		try {
 			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
-			loginInfo = findDeviceLoginInfo(device.getDeviceListId(), device.getGroupId(), device.getDeviceId());
-			if(StringUtils.isNotBlank(loginInfo.getConfigBackupMode())) {
-				deviceConfigBackupMode = loginInfo.getConfigBackupMode();
+			if(device == null) {
+				return null;
 			}
+			
+			loginInfo = deviceService.findDeviceLoginInfo(device.getDeviceId());
+            if (loginInfo != null) {
+            	deviceConfigBackupMode = loginInfo.getConfigBackupMode();
+            }
+            
+            if(!StringUtils.equals(Constants.DATA_Y, loginInfo.getEnableBackup())) {
+            	return null;
+            }            
 		}catch(NullPointerException e) {
-			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就跳過
+			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就跳過			
 		}
 		
 		
@@ -255,9 +261,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 								psStepVO.setScriptCode(scriptCode);
 								psStepVO.setRemark(scriptName);
-
 								retVO.setScriptCode(scriptCode);
 
+								log.info("LOAD_DEFAULT_SCRIPT = " + scriptCode + "-" + scriptName);
 								break;
 
 							} catch (Exception e) {
@@ -294,13 +300,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							try {
 								if(loginInfo != null) {
 										if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
-											ciVO.setAccount(loginInfo.getLoginAccount());
+											ciVO.setAccount(new String(Base64.decode(loginInfo.getLoginAccount()), "UTF-8"));
 										}
 										if (StringUtils.isNotBlank(loginInfo.getLoginPassword())) {
-											ciVO.setPassword(loginInfo.getLoginPassword());
+											ciVO.setPassword(new String(Base64.decode(loginInfo.getLoginPassword()), "UTF-8"));
 										}
 										if (StringUtils.isNotBlank(loginInfo.getEnablePassword())) {
-											ciVO.setEnablePassword(loginInfo.getEnablePassword());
+											ciVO.setEnablePassword(new String(Base64.decode(loginInfo.getEnablePassword()), "UTF-8"));
 										}
 
 										/**
@@ -317,7 +323,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 										}
 								}else {
 									findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
-								}								
+								}
+								
 								break;
 
 							} catch (Exception e) {
@@ -818,31 +825,34 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	        return;
 	    }
 
-		DeviceLoginInfo loginInfo = findDeviceLoginInfo(deviceListId, groupId, deviceId);
+		DeviceLoginInfo loginInfo = deviceService.findDeviceLoginInfo(deviceId);
+		try {
+			if (loginInfo != null) {
+				if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
+					ciVO.setAccount(new String(Base64.decode(loginInfo.getLoginAccount()), "UTF-8"));
+				}
+				if (StringUtils.isNotBlank(loginInfo.getLoginPassword())) {
+					ciVO.setPassword(new String(Base64.decode(loginInfo.getLoginPassword()), "UTF-8"));
+				}
+				if (StringUtils.isNotBlank(loginInfo.getEnablePassword())) {
+					ciVO.setEnablePassword(new String(Base64.decode(loginInfo.getEnablePassword()), "UTF-8"));
+				}
 
-		if (loginInfo != null) {
-			if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
-				ciVO.setAccount(loginInfo.getLoginAccount());
-			}
-			if (StringUtils.isNotBlank(loginInfo.getLoginPassword())) {
-				ciVO.setPassword(loginInfo.getLoginPassword());
-			}
-			if (StringUtils.isNotBlank(loginInfo.getEnablePassword())) {
-				ciVO.setEnablePassword(loginInfo.getEnablePassword());
-			}
+				/**
+				 * 判斷該設備是否有指定連線模式(Connection_Mode)，有的話則替換掉廣域設定
+				 */
+				String deviceConnectionMode = loginInfo.getConnectionMode();
+				if (StringUtils.isNotBlank(deviceConnectionMode)) {
+					if (StringUtils.equals(deviceConnectionMode, Constants.SSH)) {
+						ciVO.setConnectionMode(ConnectionMode.SSH);
 
-			/**
-             * 判斷該設備是否有指定連線模式(Connection_Mode)，有的話則替換掉廣域設定
-             */
-			String deviceConnectionMode = loginInfo.getConnectionMode();
-			if (StringUtils.isNotBlank(deviceConnectionMode)) {
-			    if (StringUtils.equals(deviceConnectionMode, Constants.SSH)) {
-			        ciVO.setConnectionMode(ConnectionMode.SSH);
-
-                } else if (StringUtils.equals(deviceConnectionMode, Constants.TELNET)) {
-                    ciVO.setConnectionMode(ConnectionMode.TELNET);
-                }
+					} else if (StringUtils.equals(deviceConnectionMode, Constants.TELNET)) {
+						ciVO.setConnectionMode(ConnectionMode.TELNET);
+					}
+				}
 			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -991,7 +1001,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				
 				log.info("compare version : "+Env.ENABLE_BACKUP_COMPARE_VERSION + ", diffPos isBlank = " + StringUtils.isBlank(compareRetVO.getDiffPos()));
 				
-				if (StringUtils.isBlank(compareRetVO.getDiffPos()) && Env.ENABLE_BACKUP_COMPARE_VERSION ) {
+				if (StringUtils.isBlank(compareRetVO.getDiffPos()) && Boolean.TRUE.equals(Env.ENABLE_BACKUP_COMPARE_VERSION) ) {
 					/*
 					 * 版本內容比對相同:
 					 * (1)若[Env.TFTP_SERVER_AT_LOCAL=true]，刪除本機已上傳的檔案;若為false則不處理(另外設定系統排程定期清整temp資料夾內檔案)
