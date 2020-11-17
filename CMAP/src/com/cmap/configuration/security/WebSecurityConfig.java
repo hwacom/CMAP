@@ -129,6 +129,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/login/authByOIDC_NTPC/**").permitAll()
 			.antMatchers("/login/authByOIDC_CY/**").permitAll()
 			.antMatchers("/login/app").permitAll()                                       // 提供給APP呼叫的登入入口 (Y190603, Case No.C46001804008 >> 新北前瞻計畫-教育網路基礎建設 (網管支援))
+			.antMatchers("/auth/**").permitAll()											// 提供給外部ID驗證使用
 			.antMatchers("/prtg/getPasshash/**").permitAll()                             // 提供給APP呼叫取得PRTG passhash (Y190603, Case No.C46001804008 >> 新北前瞻計畫-教育網路基礎建設 (網管支援))
 			.antMatchers("/admin/env/refreshAll").hasAnyRole("ADMIN")
 			.antMatchers("/userRight").permitAll()

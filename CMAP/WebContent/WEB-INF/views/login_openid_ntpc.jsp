@@ -75,7 +75,7 @@
   <script>
 	  $(document).ready(function() {
 		  $("#btnLogin").click(function(e) {
-			 location.href = "${pageContext.request.contextPath}/login/authByOIDC_NTPC";
+			 location.href = "${pageContext.request.contextPath}/auth/callback";
 		  });
 	  });
   </script>
