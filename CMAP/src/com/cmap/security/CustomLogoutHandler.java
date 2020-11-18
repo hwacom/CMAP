@@ -15,10 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
+import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
+
+import sso.core.User;
+import sso.web.SingleSignOn;
 
 public class CustomLogoutHandler implements LogoutHandler {
 	@Log
@@ -42,7 +46,23 @@ public class CustomLogoutHandler implements LogoutHandler {
 				.setSocketTimeout(Env.HTTP_SOCKET_TIME_OUT)					//請求獲取資料的超時時間，單位毫秒。 如果訪問一個介面，多少時間內無法返回資料，就直接放棄此次調用。
 				.build();
 		httpPost.setConfig(requestConfig);
-
+		
+		// For NTPC SSO平台登出(僅有針對NTPC才做)
+		if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI)) {
+			SingleSignOn sso = new SingleSignOn(request, response);
+			if(sso.isAuthenticated()) {
+				User user = sso.getUser();
+				String schoolId =user.getSchools().getSchools().get(0).getIdentity();
+    			String schoolName = user.getSchools().getSchools().get(0).getName();
+				sso.logout();				
+				//TODO 清除session認證資訊(確認是否所有OIDC都要清?)
+				request.getSession().removeAttribute(Constants.OIDC_SUB);
+				request.getSession().removeAttribute(Constants.OIDC_SCHOOL_ID);
+				request.getSession().removeAttribute(Constants.OIDC_USER_NAME);
+				request.getSession().removeAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME);
+				log.info(schoolName+"("+schoolId+") logout from SSO success.");
+			}
+		}	
 		HttpClientContext context = HttpClientContext.create();
 
 		try {
