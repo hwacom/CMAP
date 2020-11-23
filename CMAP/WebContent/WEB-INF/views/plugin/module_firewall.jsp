@@ -174,6 +174,8 @@
 		      <th scope="col" nowrap="nowrap" data-field="srcCountry"><spring:message code="src.country" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="dstIp"><spring:message code="dst.ip" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="dstPort"><spring:message code="dst.port" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="tranIp"><spring:message code="tran.ip" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="tranPort"><spring:message code="tran.port" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="proto"><spring:message code="protocol" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="service"><spring:message code="service" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="url"><spring:message code="url" /></th>
