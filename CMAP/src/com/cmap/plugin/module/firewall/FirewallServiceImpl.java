@@ -188,8 +188,19 @@ public class FirewallServiceImpl extends CommonServiceImpl implements FirewallSe
 
                         fValue = protocolName;
 
-                    } else {
-                        fValue = Objects.toString(data[dataIdx]);
+                    }else if (oriName.equals("devName")) {
+                    	// 查表轉換顯示內容, 查不到就顯示原始值字串
+                        String devName = Objects.toString(data[dataIdx]);
+                        Map<String, String> devNameListMap = getMenuItem("FIREWALL_LOG_QUERY_DEV_NAME", false); // 設false可不串上order欄位序
+                        if(devNameListMap.containsKey(devName)) {
+                        	fValue = devNameListMap.get(devName);
+                        }else {
+                        	fValue = Objects.toString(data[dataIdx]);
+                        }
+                    }else {
+                    	if(data[dataIdx] != null) {
+                    		fValue = Objects.toString(data[dataIdx]);
+                    	} // null時將會填入fValue預設值空字串避免前端顯示"null"字串                       
                     }
 
                     try {

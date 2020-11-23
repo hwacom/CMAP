@@ -32,6 +32,8 @@ public class FirewallVO extends CommonServiceVO {
     private String srcPort;
     private String dstIp;
     private String dstPort;
+    private String tranIp;
+    private String tranPort;
     private String proto;
     private String app;
     private String action;
@@ -275,4 +277,16 @@ public class FirewallVO extends CommonServiceVO {
     public void setQueryAction(String queryAction) {
         this.queryAction = queryAction;
     }
+	public String getTranIp() {
+		return tranIp;
+	}
+	public void setTranIp(String tranIp) {
+		this.tranIp = tranIp;
+	}
+	public String getTranPort() {
+		return tranPort;
+	}
+	public void setTranPort(String tranPort) {
+		this.tranPort = tranPort;
+	}
 }
