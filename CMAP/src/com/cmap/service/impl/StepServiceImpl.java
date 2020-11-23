@@ -148,13 +148,16 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			}
 			
 			loginInfo = deviceService.findDeviceLoginInfo(device.getDeviceId());
-            if (loginInfo != null) {
-            	deviceConfigBackupMode = loginInfo.getConfigBackupMode();
+            if (loginInfo != null ) {
+            	
+            	if(StringUtils.isNotBlank(loginInfo.getConfigBackupMode())) {
+            		deviceConfigBackupMode = loginInfo.getConfigBackupMode();
+            	}
+            	
+            	if(!StringUtils.equals(Constants.DATA_Y, loginInfo.getEnableBackup())) {
+                	return null;
+                }
             }
-            
-            if(!StringUtils.equals(Constants.DATA_Y, loginInfo.getEnableBackup())) {
-            	return null;
-            }            
 		}catch(NullPointerException e) {
 			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就跳過			
 		}
@@ -820,8 +823,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @throws ServiceLayerException
 	 */
 	private void findDeviceLoginInfo(ConfigInfoVO ciVO, String deviceListId, String groupId, String deviceId) throws ServiceLayerException {
-	    if (StringUtils.isBlank(deviceListId) && StringUtils.isBlank(groupId) && StringUtils.isBlank(deviceId)) {
-	        // 若這三個參數都未傳值則不處理
+	    if (StringUtils.isBlank(groupId) && StringUtils.isBlank(deviceId)) {
+	        // 若參數都未傳值則不處理
 	        return;
 	    }
 
@@ -850,6 +853,11 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						ciVO.setConnectionMode(ConnectionMode.TELNET);
 					}
 				}
+			} else {
+				ciVO.setAccount(new String(Base64.decode(Env.DEFAULT_DEVICE_LOGIN_ACCOUNT), "UTF-8"));
+				ciVO.setPassword(new String(Base64.decode(Env.DEFAULT_DEVICE_LOGIN_PASSWORD), "UTF-8"));
+				ciVO.setEnablePassword(new String(Base64.decode(Env.DEFAULT_DEVICE_ENABLE_PASSWORD), "UTF-8"));
+				ciVO.setConnectionMode(Env.CONNECTION_MODE_OF_DELIVERY);
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
