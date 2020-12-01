@@ -9,4 +9,8 @@ public interface InventoryInfoService {
 
 	List<InventoryInfoVO> findInventoryInfo(InventoryInfoVO sliVO) throws ServiceLayerException;
 
+	String updateInventoryInfo(InventoryInfoVO vo);
+
+	boolean deleteInventoryInfo(List<String> deviceIdList);
+
 }

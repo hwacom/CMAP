@@ -262,7 +262,7 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 			sb.append("	and createTime >= DATE_FORMAT(:beginDate_1, '%Y-%m-%d') ");
 		}
 		if (StringUtils.isNotBlank(vsVO.getQueryDateEnd1())) {
-			sb.append("	and createTime < DATE_FORMAT(:endDate_1, '%Y-%m-%d') ");
+			sb.append("	and createTime < DATE_FORMAT(:endDate_1, '%Y-%m-%d %H:%i:%s') ");
 		}
 
 
@@ -281,6 +281,11 @@ public class ProvisionLogDAOImpl extends BaseDaoHibernate implements ProvisionLo
 	    	q.setParameter("endDate_1", vsVO.getQueryDateEnd1());
 	    }
 	    
-		return (List<ProvisionLogConfigBackupError>)q.list();
+	    List<ProvisionLogConfigBackupError> result = (List<ProvisionLogConfigBackupError>)q.list();
+	    
+	    if(result == null || result.size() == 0) {
+	    	log.error("query empty with SQL = " + sb.toString());
+	    }
+		return result;
 	}
 }

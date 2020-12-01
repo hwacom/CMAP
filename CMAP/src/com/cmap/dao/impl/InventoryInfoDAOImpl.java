@@ -22,10 +22,6 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 	
 	@Override
 	public List<InventoryInfo> findInventoryInfoByDeviceId(List<String> ids){
-		if (ids == null || ids.isEmpty()) {
-			return null;
-		}
-		
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from InventoryInfo ii ")
 		  .append(" where 1=1 ");
@@ -64,6 +60,11 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 		sb.append(" from InventoryInfo ii ")
 		  .append(" where 1=1 ");
 
+		if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+            sb.append(" and ii.deviceId in (:deviceIdList) ");
+        }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
+            sb.append(" and ii.deviceId = :deviceId ");
+        }
 		if (StringUtils.isNotBlank(vo.getQueryProbe())) {
 			sb.append(" and ii.probe = :probe ");
 		}
@@ -87,6 +88,12 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 		
+	    if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+	    	q.setParameter("deviceIdList", vo.getQueryDeviceList());
+        }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
+        	q.setParameter("deviceId", vo.getQueryDevice());
+        }
+	    
 	    if (StringUtils.isNotBlank(vo.getQueryProbe())) {
 	    	q.setParameter("probe", vo.getQueryProbe());
 		}
@@ -110,4 +117,25 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 	    return (List<InventoryInfo>)q.list();
 	}
 	
+	@Override
+	public String findMaxInventoryInfoDeviceId(){
+		StringBuffer sb = new StringBuffer();
+		sb.append(" select max(ii.deviceId) from InventoryInfo ii ")
+		  .append(" where ii.deviceId like 'UA%' ");
+		
+	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+				
+	    return (String)q.getSingleResult();
+	}
+	
+	@Override
+	public void saveOrUpdateInventoryInfo(InventoryInfo entity) {
+		getHibernateTemplate().saveOrUpdate(entity);
+	}
+	
+	@Override
+	public void deleteInventoryInfo(List<InventoryInfo> entities) {
+		getHibernateTemplate().deleteAll(entities);	
+	}
 }
