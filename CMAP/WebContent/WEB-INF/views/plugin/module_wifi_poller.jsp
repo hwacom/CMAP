@@ -62,13 +62,13 @@
 				</div>
 	      	  </div>
 			  <div class="form-group row">
-	    	    <div class="col-lg-7 group-field-other">
-	    	    	<label for="query_DateBegin" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.start.time" /></label>
-	    	    	<input type="date" id="query_DateBegin" style="width: 18%"/>
-	    	    	<input type="time" id="query_TimeBegin" style="width: 15%"/>
+	    	    <div class="col-lg-8 group-field-other">
+	    	   		<label for="query_DateBegin" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.start.time" /></label>
+	    	    	<input type="date" id="query_DateBegin" style="width: 22%"/>
+	    	    	<input type="time" id="query_TimeBegin" style="width: 20%"/>
 					<span class="font-weight-bold center" style="width: 2%">~</span>
-	    	    	<input type="date" id="query_DateEnd" style="width: 18%"/>
-	    	    	<input type="time" id="query_TimeEnd" style="width: 15%"/> 	
+	    	    	<input type="date" id="query_DateEnd" style="width: 22%"/>
+	    	    	<input type="time" id="query_TimeEnd" style="width: 20%"/> 	
 	    	    </div>
 	    	    <div class="col-lg-2  group-field-other">
 	    	    	<input type="text" id="timeoutMsg" disabled="disabled" style="width: 100%">
