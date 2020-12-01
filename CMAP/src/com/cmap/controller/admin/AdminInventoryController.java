@@ -156,12 +156,11 @@ public class AdminInventoryController extends BaseController {
 	        filteredTotal = dataList.size();
 	        total = dataList.size();
 	        
-		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
 
-		return new DatatableResponse(total, dataList, filteredTotal, null, "");
+		return new DatatableResponse(total, dataList, filteredTotal);
 	}
 
 	private List<InventoryInfoVO> doDataQuery(HttpServletRequest request, String queryGroup, String queryDevice,
