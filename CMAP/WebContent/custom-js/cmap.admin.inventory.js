@@ -161,14 +161,14 @@ function doActionAjax(obj, action) {
 			hideProcessing();
 		},
 		success : function(resp) {
-			if (resp.code == '200') {
-				alert(resp.message);
-				findData($("#queryFrom").val());
-				
+			if (resp.code == '200') {								
 				setTimeout(function(){
 					$('#addModifyModal').modal('hide');
 					
 				}, 500);
+				alert(resp.message);
+				
+				findData($("#queryFrom").val());
 			} else {
 				alert('envAction > success > else :: resp.code: '+resp.code);
 				alert(resp.message);
