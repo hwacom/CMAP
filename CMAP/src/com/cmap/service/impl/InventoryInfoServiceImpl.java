@@ -51,76 +51,131 @@ public class InventoryInfoServiceImpl extends CommonServiceImpl implements Inven
 		return result;
 	}
 
-
 	@Override
-	public String updateInventoryInfo(InventoryInfoVO vo) {
-		String action = "更新";
-		// 更新 or 寫入 DEVICE_LIST 資料
+	public String insertInventoryInfo(List<InventoryInfoVO> voList) {
 		try {
-			boolean updateFlag = false;
-			InventoryInfo info = new InventoryInfo();
-			BeanUtils.copyProperties(vo, info);
+			List<InventoryInfo> infoList = new ArrayList<>();
+			InventoryInfo info;
+			long maxDeviceId = -1;
 			
-			if(StringUtils.isBlank(info.getDeviceId())) {
-				String maxDeviceId = Objects.toString(inventoryInfoDAO.findMaxInventoryInfoDeviceId(), "0");
-				info.setDeviceId("UA" + String.format("%05d", (Long.parseLong(maxDeviceId.replaceAll("UA", "")) + 1)));
+			for(InventoryInfoVO vo : voList) {
+				info = new InventoryInfo();
+				BeanUtils.copyProperties(vo, info);
+				
+				if(maxDeviceId < 0) {
+					String maxDeviceIdString = Objects.toString(inventoryInfoDAO.findMaxInventoryInfoDeviceId(), "0");
+					maxDeviceId = Long.parseLong(maxDeviceIdString.replaceAll("UA", ""));
+				}
+				
+				maxDeviceId ++;
+				info.setDeviceId("UA" + String.format("%05d", maxDeviceId));
 				info.setCreateTime(currentTimestamp());
 				info.setCreateBy(currentUserName());
-				action = "新增";
-			}else {
-				info = inventoryInfoDAO.findLastInventoryInfoByDeviceId(vo.getDeviceId());
-			}
-
-			if(!StringUtils.equals(vo.getModifyProbe(), info.getProbe())) {
-				info.setProbe(vo.getModifyProbe());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyGroup(), info.getGroupName())) {
-				info.setGroupName(vo.getModifyGroup());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyDeviceName(), info.getDeviceName())) {
-				info.setDeviceName(vo.getModifyDeviceName());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyDeviceIp(), info.getDeviceIp())) {
-				info.setDeviceIp(vo.getModifyDeviceIp());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyDeviceType(), info.getDeviceType())) {
-				info.setDeviceType(vo.getModifyDeviceType());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyDeviceType(), info.getDeviceType())) {
-				info.setDeviceType(vo.getModifyDeviceType());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyBrand(), info.getBrand())) {
-				info.setBrand(vo.getModifyBrand());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyModel(), info.getModel())) {
-				info.setModel(vo.getModifyModel());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifySystemVersion(), info.getSystemVersion())) {
-				info.setSystemVersion(vo.getModifySystemVersion());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifySerialNumber(), info.getSerialNumber())) {
-				info.setSerialNumber(vo.getModifySerialNumber());
-				updateFlag = true;
-			}
-			if(!StringUtils.equals(vo.getModifyManufactureDate(), info.getManufactureDate())) {
-				info.setManufactureDate(vo.getModifyManufactureDate());
-				updateFlag = true;
-			}
-			
-			if(updateFlag) {
 				info.setUpdateTime(currentTimestamp());
 				info.setUpdateBy(currentUserName());
 				info.setModifyFlag(Constants.DATA_Y);
-				inventoryInfoDAO.saveOrUpdateInventoryInfo(info);
+				infoList.add(info);
+
+			}
+			
+			if(!infoList.isEmpty() && infoList.size() > 0) {
+				inventoryInfoDAO.saveOrUpdateInventoryInfo(infoList);
+			}
+			
+		}catch (Exception e) {
+			return "新增失敗";
+		}	
+		
+		return "新增成功" ;
+	}
+	
+	@Override
+	public String updateOrInsertInventoryInfo(List<InventoryInfoVO> voList) {
+		String action = "更新";
+		// 更新 or 寫入 DEVICE_LIST 資料
+		try {
+			List<InventoryInfo> infoList = new ArrayList<>();
+			boolean updateFlag;
+			InventoryInfo info;
+			long maxDeviceId = -1;
+			
+			for(InventoryInfoVO vo : voList) {
+				
+				updateFlag = false;
+				info = new InventoryInfo();
+				BeanUtils.copyProperties(vo, info);
+				
+				if(StringUtils.isBlank(info.getDeviceId())) {
+					if(maxDeviceId < 0) {
+						String maxDeviceIdString = Objects.toString(inventoryInfoDAO.findMaxInventoryInfoDeviceId(), "0");
+						maxDeviceId = Long.parseLong(maxDeviceIdString.replaceAll("UA", ""));
+					}
+					maxDeviceId ++;
+					info.setDeviceId("UA" + String.format("%05d", maxDeviceId));
+					info.setCreateTime(currentTimestamp());
+					info.setCreateBy(currentUserName());
+					action = "新增";
+				}else {
+					info = inventoryInfoDAO.findLastInventoryInfoByDeviceId(vo.getDeviceId());
+				}
+	
+				if(!StringUtils.equals(vo.getModifyProbe(), info.getProbe())) {
+					info.setProbe(vo.getModifyProbe());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyGroup(), info.getGroupName())) {
+					info.setGroupName(vo.getModifyGroup());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyDeviceName(), info.getDeviceName())) {
+					info.setDeviceName(vo.getModifyDeviceName());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyDeviceIp(), info.getDeviceIp())) {
+					info.setDeviceIp(vo.getModifyDeviceIp());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyDeviceType(), info.getDeviceType())) {
+					info.setDeviceType(vo.getModifyDeviceType());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyDeviceType(), info.getDeviceType())) {
+					info.setDeviceType(vo.getModifyDeviceType());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyBrand(), info.getBrand())) {
+					info.setBrand(vo.getModifyBrand());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyModel(), info.getModel())) {
+					info.setModel(vo.getModifyModel());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifySystemVersion(), info.getSystemVersion())) {
+					info.setSystemVersion(vo.getModifySystemVersion());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifySerialNumber(), info.getSerialNumber())) {
+					info.setSerialNumber(vo.getModifySerialNumber());
+					updateFlag = true;
+				}
+				if(!StringUtils.equals(vo.getModifyManufactureDate(), info.getManufactureDate())) {
+					info.setManufactureDate(vo.getModifyManufactureDate());
+					updateFlag = true;
+				}
+				
+				if(updateFlag) {
+					info.setUpdateTime(currentTimestamp());
+					info.setUpdateBy(currentUserName());
+					info.setModifyFlag(Constants.DATA_Y);
+					
+					infoList.add(info);
+				}
+
+			}
+			
+			if(!infoList.isEmpty() && infoList.size() > 0) {
+				inventoryInfoDAO.saveOrUpdateInventoryInfo(infoList);
 			}
 			
 		}catch (Exception e) {

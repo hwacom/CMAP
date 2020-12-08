@@ -17,6 +17,15 @@ $(document).ready(function() {
 		});
 	});
 	
+	$("#btnImport_web").click(function() {
+		uncheckAll();
+		initModal();
+		
+		$("#inventoryDataImportModal").modal({
+			backdrop : 'static'
+		});
+	});
+	
 	$("#btnModify").click(function() {
 		var checkedItem = $('input[name=chkbox]:checked');
 		
@@ -233,8 +242,11 @@ function findData(from) {
 					d.queryProbe = $("#queryProbe").val(),
 					d.queryDeviceName = $("#queryDeviceName").val(),
 					d.queryDeviceType = $("#queryDeviceType").val(),
+					d.queryModifyOnly = document.getElementById("queryModifyOnly").checked,
 					d.queryBrand = $("#queryBrand").val(),
-					d.queryModel = $("#queryModel").val();
+					d.queryModel = $("#queryModel").val(),
+					d.queryGroupName = $("#queryGroupName").val();
+					
 					d.start = 0; //初始查詢一律從第0筆開始
 					d.length = pageLength;
 					return d;
@@ -374,8 +386,10 @@ function doDataExport(exportRecordCount) {
 	d.queryProbe = $("#queryProbe").val(),
 	d.queryDeviceName = $("#queryDeviceName").val(),
 	d.queryDeviceType = $("#queryDeviceType").val(),
+	d.queryModifyOnly = document.getElementById("queryModifyOnly").checked,
 	d.queryBrand = $("#queryBrand").val(),
-	d.queryModel = $("#queryModel").val();
+	d.queryModel = $("#queryModel").val(),
+	d.queryGroupName = $("#queryGroupName").val();
 	
 	dataObj.start = 0; //初始查詢一律從第0筆開始
 	dataObj.length = pageLength;
@@ -412,4 +426,134 @@ function doDataExport(exportRecordCount) {
 			ajaxErrorHandler();
 		}
 	});
+}
+
+function checkData(file){
+     
+	if(!file.name.endsWith('.csv')){
+		alert('請選擇csv類型檔案');
+		return ;
+	}
+	
+	var reader = new FileReader();
+	reader.readAsText(file,'UTF-8');
+
+   // here we tell the reader what to do when it's done reading...
+   reader.onload = readerEvent => {
+      var content = readerEvent.target.result; // this is the content!
+//      console.log("content ="+ content );
+      
+      if(content.match(/\r?\n|\r/g).length < 2){
+  		alert('檔案內容無資料資訊，請重新選擇');
+  		return ;
+  	  }
+  	 
+//      var data = JSON.parse(csvJSON(content));
+//
+//      $(data).each(function (k, v) {
+//          console.log(v);
+//      })
+
+      $('<div class="confirm font" />').html("請確認是否匯入").dialog({
+		 title: "確認訊息",
+	     modal: true,
+	     show: { effect: "fadeIn", duration: 300 },
+	     resizable: false,
+	     open : function() {
+				$(".ui-dialog").css('z-index', 2000);
+				$(".ui-widget-overlay").css('z-index', 1999);
+				$(".ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close").hide();
+				$(".ui-button.ui-corner-all.ui-widget").css("font-family", "微軟正黑體");
+			},
+	     buttons : {
+	          "確認" : function() {
+	        	  $(this).dialog("close");
+	        	  importData(content);
+	          },
+	          "取消" : function() {
+	            $(this).dialog("close");
+	          }
+	        }
+      });
+      
+//     console.log( "JSON = " +JSON.stringify(content) );
+//     
+//     confirm("請確認是否匯入", "doDeleteActionAjax");
+   }
+   
+}
+
+function importData(content){
+	
+	var result = csvJSON(content);
+	
+	if(result.length < 1){
+		alert('檔案內容無資料資訊或資料格式錯誤，請重新選擇');
+  		return ;
+	}
+	
+	$.ajax({
+		url : _ctx + '/admin/inventory/importData',
+		data : JSON.stringify(result),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {	
+				$("#importFileName").val('');
+				setTimeout(function(){
+					$('#inventoryDataImportModal').modal('hide');
+					
+				}, 500);
+				alert(resp.message);
+				
+				findData($("#queryFrom").val());
+			} else {
+				alert('envAction > success > else :: resp.code: '+resp.code);
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
+
+function csvJSON(csv){
+
+  var lines=csv.split(/\r\n|\r|\n/);
+
+  var result = [];
+
+//  var headers=lines[0].split(",");
+  var headers= ['probe', 'groupName', 'deviceName', 'deviceIp', 'deviceType', 'brand', 'model', 'systemVersion', 'serialNumber', 'manufactureDate'];
+
+  for(var i=1;i<=lines.length;i++){
+
+	  var obj = {};
+	  if(lines[i] != undefined && lines[i].indexOf(",") > -1){
+//		  console.log("currentline["+i+"]/"+lines.length+" ="+ lines[i] );
+		  var currentline=lines[i].split(",");
+		  
+		  if(currentline.length != 10){
+			  for(var j=0;j<headers.length;j++){
+				  obj[headers[j]] = currentline[j];
+			  }			  
+			  result.push(obj);
+		  }
+	  }
+  }
+  
+//  console.log("result ="+ result.length );
+  return result;
 }

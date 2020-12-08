@@ -26,40 +26,53 @@
 	                        <form:options items="${deviceList}" />
 	                    </form:select>
 					</div>
-					<div class="col-lg-2" style="padding-top: 10px;">
-		    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 100%" id="btnSearch_web"><spring:message code="inquiry" /></button>
+					<div class="col-lg-2" style="padding-top: 10px;width: 20%">
+		    	    	<button type="button" class="btn btn-primary btn-sm" style="width: 90%" id="btnSearch_web"><spring:message code="inquiry" /></button>
 		    	    </div>
-		    	    <div class="col-lg-3 group-field-other" style="padding-top: 5px;">
-		    	    	<button type="button" class="btn btn-info btn-sm" style="width: 60%" id="btnExport_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
+		    	    <div class="col-lg-2" style="padding-top: 10px;width: 20%">
+		    	    	<button type="button" class="btn btn-info btn-sm" style="width: 90%" id="btnExport_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
 		    	    		<spring:message code="btn.export" />
+		    	    	</button>
+		    	    </div>
+		    	    <div class="col-lg-2" style="padding-top: 10px;width: 20%">		    	    	
+		    	    	<button type="button" class="btn btn-warning btn-sm" style="width: 90%" id="btnImport_web"  ${is_btnDisabled eq 'true' ? 'disabled' : '' }>
+		    	    		<spring:message code="btn.import" />
 		    	    	</button>
 		    	    </div>
 	      	  	</div>
 	      		<div class="form-group row" style="margin-bottom: -.2rem;">
 		    	    <div class="col-lg-3 group-field-other">
-						<label for="queryProbe" class="font-weight-bold" style="width: 25%"><spring:message code="inventory.probe" /></label>
-						<input type="text" id="queryProbe" style="width: 40%">
+						<label for="queryProbe" class="font-weight-bold" style="width: 35%"><spring:message code="inventory.probe" /></label>
+						<input type="text" id="queryProbe" style="width: 50%">
 					</div>
 					<div class="col-lg-3 group-field-other">
-						<label for="queryDeviceName" class="font-weight-bold" style="width: 20%"><spring:message code="ip.trace.poller.device.name" /></label>
-						<input type="text" id="queryDeviceName" style="width: 60%">
+						<label for="queryDeviceName" class="font-weight-bold" style="width: 35%"><spring:message code="ip.trace.poller.device.name" /></label>
+						<input type="text" id="queryDeviceName" style="width: 50%">
 					</div>
 					<div class="col-lg-3 group-field-other">
-						<label for="queryDeviceType" class="font-weight-bold" style="width: 20%"><spring:message code="inventory.type" /></label>
-						<input type="text" id="queryDeviceType" style="width: 40%">
+						<label for="queryDeviceType" class="font-weight-bold" style="width: 35%"><spring:message code="inventory.type" /></label>
+						<input type="text" id="queryDeviceType" style="width: 50%">
 					</div>
+					<div class="col-lg-3 group-field-other">
+						<input type="checkbox" id="queryModifyOnly" name="queryModifyOnly" />
+	    	    		<label for="query_OnlineOnly" class="font-weight-bold"><spring:message code="inventory.query.modify.only" /></label>  
+					</div>					
 		    	</div>
 		    	<div class="form-group row" style="margin-bottom: -.4rem; margin-top: -.5rem;">
 		    	    <div class="col-lg-3 group-field-other">
-						<label for="queryBrand" class="font-weight-bold" style="width: 20%"><spring:message code="inventory.brand" /></label>
-						<input type="text" id="queryBrand" style="width: 40%">
+						<label for="queryBrand" class="font-weight-bold" style="width: 35%"><spring:message code="inventory.brand" /></label>
+						<input type="text" id="queryBrand" style="width: 50%">
 					</div>
 					<div class="col-lg-3 group-field-other">
-						<label for="queryModel" class="font-weight-bold" style="width: 20%"><spring:message code="device.model" /></label>
-						<input type="text" id="queryModel" style="width: 40%">
-					</div>
-					<div class="col-lg-3 group-field-other" style="padding-top: 5px;">
-		    	    	<input type="hidden" id="timeoutMsg" style="width: 60%">
+						<label for="queryModel" class="font-weight-bold" style="width: 35%"><spring:message code="device.model" /></label>
+						<input type="text" id="queryModel" style="width: 50%">
+					</div>					
+		    	    <div class="col-lg-3 group-field-other" style="padding-top: 5px;">
+		    	    	<label for="queryDeviceType" class="font-weight-bold" style="width: 35%">自訂<spring:message code="group.name" /></label>
+						<input type="text" id="queryGroupName" style="width: 50%">
+		    	    </div>
+		    	    <div class="col-lg-3 group-field-other" style="padding-top: 5px;">
+		    	    	<input type="hidden" id="timeoutMsg" style="width: 20%">
 		    	    </div>
 			  </div>
 	      	</div>
@@ -226,6 +239,52 @@
   </div>
 </div>
 <!-- Modal [Add/Modify] end -->
+
+
+<!-- Modal [資料匯入] start -->
+<div class="modal fade" id="inventoryDataImportModal" tabindex="-1" role="dialog" aria-labelledby="inventoryDataImportLabel" aria-hidden="true">
+  <div class="modal-dialog modal-mid" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="inventoryDataImportLabel"><span id="msgModal_title">資料匯入</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group row">
+        	<div class="form-control form-control-sm col-12 export-description">
+	        	說明:<br>
+	        	<ol style="padding-left: 15px;">
+	        	  <li>請以<font class="blue">CSV檔案格式</font>貼上/輸入資料。一行代表一筆資料，<font class="blue">第一行為表頭</font>，以「<font class="blue">逗號(,)</font>」串接欄位</li>
+	        	  <li>欄位由左至右依序為: <font class="blue"><spring:message code="inventory.probe" /> > <spring:message code="group.name" /> 
+	        	  										  > <spring:message code="ip.trace.poller.device.name" />
+											        	  > <spring:message code="ip.address" /> > <spring:message code="inventory.type" />
+											        	  > <spring:message code="inventory.brand" /> > <spring:message code="device.model" />
+											        	  > <spring:message code="system.version" /> > <spring:message code="inventory.serial.number" /> 
+											        	  > <spring:message code="inventory.manufacture.date" /></font></li>
+	        	  <li>若備註內容含有「<font class="blue">逗號(,)</font>」，請以「<font class="blue">雙引號(")</font>」<font class="blue">前後包夾整段備註</font>(參照第2條範例)</li>
+	        	  <li>若備註內容含有「<font class="blue">雙引號(")</font>」，請以<font class="blue">兩個「雙引號(")</font>」<font class="blue">替代</font>，並且以「<font class="blue">雙引號(")</font>」<font class="blue">前後包夾整段備註</font>(參照第3條範例)</li>
+	        	  <li>(上述末2點為CSV檔針對保留字元處理作法，<font style="text-decoration: underline;">若您是透過文字編輯器開啟CSV檔複製內容，則可忽略上述兩點</font>)</li>
+	        	</ol>
+	        	範例:<br>
+	        	column1,column2,column3<br>
+	        	column1,column2,<font class="red">"</font>備註內容有逗號,用雙引號包夾<font class="red">"</font><br>
+	        	column1,column2,<font class="red">"</font>前後雙引號包夾,<font class="blue">""</font>內容有雙引號則再多加一個<font class="blue">""</font><font class="red">"</font><br>
+	        	...
+        	</div>
+        </div>
+     	<div id="div_edit_panel" class="form-group row">
+        	<label for="importFileName" class="col-12 col-form-label"><spring:message code="please.choose" /> :</label>
+    		<div class="form-control form-control-sm col-12">    			
+		    	<input type="file" id="importFileName" onchange="checkData(this.files[0])">
+    		</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [資料匯入] end -->
 
 <script>
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';

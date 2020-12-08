@@ -60,7 +60,9 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 		sb.append(" from InventoryInfo ii ")
 		  .append(" where 1=1 ");
 
-		if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+		if (StringUtils.isNotBlank(vo.getQueryGroupName())) {
+			sb.append(" and ii.groupName like :groupName ");
+		} else if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
             sb.append(" and ii.deviceId in (:deviceIdList) ");
         }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
             sb.append(" and ii.deviceId = :deviceId ");
@@ -85,10 +87,16 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 			sb.append(" and ii.model like :model ");
 		}
 		
+		if (vo.isQueryModifyOnly()) {
+			sb.append(" and ii.modifyFlag = 'Y' ");
+		}
+		
 	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 		
-	    if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
+	    if (StringUtils.isNotBlank(vo.getQueryGroupName())) {
+			q.setParameter("groupName", "%".concat(vo.getQueryGroupName()).concat("%"));
+		} else if (vo.getQueryDeviceList() != null && !vo.getQueryDeviceList().isEmpty()) {
 	    	q.setParameter("deviceIdList", vo.getQueryDeviceList());
         }else if (StringUtils.isNotBlank(vo.getQueryDevice())) {
         	q.setParameter("deviceId", vo.getQueryDevice());
@@ -130,8 +138,10 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 	}
 	
 	@Override
-	public void saveOrUpdateInventoryInfo(InventoryInfo entity) {
-		getHibernateTemplate().saveOrUpdate(entity);
+	public void saveOrUpdateInventoryInfo(List<InventoryInfo> entityList) {
+		for (InventoryInfo entity : entityList) {
+			getHibernateTemplate().saveOrUpdate(entity);
+		}
 	}
 	
 	@Override
