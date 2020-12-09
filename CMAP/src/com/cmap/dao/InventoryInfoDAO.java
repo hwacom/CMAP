@@ -12,4 +12,11 @@ public interface InventoryInfoDAO extends BaseDAO {
 	InventoryInfo findLastInventoryInfoByDeviceId(String deviceId);
 
 	List<InventoryInfo> findInventoryInfo(InventoryInfoVO vo);
+
+	String findMaxInventoryInfoDeviceId();
+	
+	void saveOrUpdateInventoryInfo(List<InventoryInfo> entityList);
+
+	void deleteInventoryInfo(List<InventoryInfo> entities);
+
 }

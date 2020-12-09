@@ -119,6 +119,7 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
                 // 將撈取結果組成此Method回傳MAP格式
                 PortStatusViewerVO vo = null;
                 for (Map.Entry<String, Map<String, String>> ifTableMap : ifTable.entrySet()) {
+                	
                 	vo = new PortStatusViewerVO();
 
                 	Map<String, String> ifTableEntryMap = ifTableMap.getValue();
@@ -203,7 +204,7 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
         		
         		for (PortStatusViewerVO vo : preRetList) {
         			String pName = vo.getPortName();
-        			orderMap.put(pName, vo);
+        			orderMap.put(vo.getPortIndex()+pName, vo);//portName可能相同
         		}
         		
         		for (PortStatusViewerVO fVO : orderMap.values()) {

@@ -1007,7 +1007,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					throw new ServiceLayerException("本次檔案取得異常，或取得檔案為空, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + nowVersionVO.getFileFullName());
 				}
 				
-				log.info("compare version : "+Env.ENABLE_BACKUP_COMPARE_VERSION + ", diffPos isBlank = " + StringUtils.isBlank(compareRetVO.getDiffPos()));
+				log.debug("compare version : "+Env.ENABLE_BACKUP_COMPARE_VERSION + ", diffPos isBlank = " + StringUtils.isBlank(compareRetVO.getDiffPos()));
 				
 				if (StringUtils.isBlank(compareRetVO.getDiffPos()) && Boolean.TRUE.equals(Env.ENABLE_BACKUP_COMPARE_VERSION) ) {
 					/*
@@ -1039,7 +1039,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				} else {
 					// 版本內容不同
 					haveDiffVersion = true;
-					log.info("compare haveDiffVersion : "+ haveDiffVersion);
+					log.debug("compare haveDiffVersion : "+ haveDiffVersion);
 				}
 
 			} else {

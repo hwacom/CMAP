@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -273,14 +274,14 @@ public class ProvisionController extends BaseController {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date());
             
-            vsVO.setQueryDateEnd1(sdFormat.format(calendar.getTime()));
+//            vsVO.setQueryDateEnd1(sdFormat.format(calendar.getTime()));
             calendar.add(Calendar.DATE, -(Integer.valueOf(exportDay)));
             Date yesterday = calendar.getTime();
             vsVO.setQueryDateBegin1(sdFormat.format(yesterday));
             
             vsVO.setPageLength(queryPageLength);
             vsVO.setSearchValue(searchValue);
-
+			
             dataList = provisionService.findProvisionLogConfigBackupError(vsVO);
 
             
@@ -302,6 +303,10 @@ public class ProvisionController extends BaseController {
 
             } else {
                 AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "No matched data.");
+                log.error("No matched data with queryStartNum = " + queryStartNum + ", queryPageLength = " + queryPageLength
+    					+ ", date = " + vsVO.getQueryDateBegin1() + "~" + vsVO.getQueryDateEnd1() + ", queryPageLength = "
+    					+ queryPageLength + ", searchValue = " + searchValue + ", queryGroup = "
+    					+ queryGroup + ", queryDevice = " + queryDevice);
                 return app;
             }
 

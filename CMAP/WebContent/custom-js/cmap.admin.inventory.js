@@ -1,26 +1,193 @@
 
 var startNum, pageLength;
+var isModify = false;
+
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_admin", "toggleMenu_admin_items", "bk_inventory");
 	
 	startNum = 0;
 	pageLength = Number($("#pageLength").val());	
 
-//	var today = new Date();
-//	var year = today.getFullYear();
-//	var month = parseInt(today.getMonth()) + 1;
-//	month = (month < 10) ? ("0".concat(month)) : month;
-//	var date = today.getDate();
-//	date = (date < 10) ? ("0".concat(date)) : date;
-//	var cDate = year+"-"+month+"-"+date;
-//	
-//	$("#queryDateBegin").val(cDate);
-//	$("#queryDateEnd").val(cDate);
-//	$("#queryTimeBegin").val("00:00");
-//	$("#queryTimeEnd").val("23:59");
-//	
+	$("#btnAdd").click(function() {
+		uncheckAll();
+		initModal();
+		
+		$("#addModifyModal").modal({
+			backdrop : 'static'
+		});
+	});
+	
+	$("#btnImport_web").click(function() {
+		uncheckAll();
+		initModal();
+		
+		$("#inventoryDataImportModal").modal({
+			backdrop : 'static'
+		});
+	});
+	
+	$("#btnModify").click(function() {
+		var checkedItem = $('input[name=chkbox]:checked');
+		
+		if (checkedItem.length == 0) {
+			alert('請先勾選欲修改的項目');
+			return;
+		}
+		
+		if (checkedItem.length > 1) {
+			alert('請僅勾選1個項目');
+			return;
+		}
+		
+		document.getElementById('addProbe').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(3).text(); 
+		document.getElementById('addGroup').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text();
+		document.getElementById('addDeviceName').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(5).text();
+		document.getElementById('addDeviceIp').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(6).text();
+		document.getElementById('addDeviceType').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(7).text();
+		document.getElementById('addBrand').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(8).text(); 
+		document.getElementById('addModel').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(9).text();
+		document.getElementById('addSystemVersion').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(10).text();
+		document.getElementById('addSerialNumber').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(11).text();
+		document.getElementById('addManufactureDate').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(12).text();
+		
+		$("#addModifyModal").modal({
+			backdrop : 'static'
+		});
+	});
+	
+	$("#btnDelete").click(function() {
+		envAction('delete');
+	});
+	
+	$("#btnSave").click(function() {
+		envAction('save');
+	});
 });
 
+function envAction(action) {
+	var obj = new Object();
+	
+	var id = $("input[name='chkbox']:checked").map(function() {
+     	return $(this).val();
+     }).get(0);
+	
+	obj.deviceId = id;
+	
+	if (action == "delete") {
+		var checkedItem = $('input[name=chkbox]:checked');
+		
+		if (checkedItem.length == 0) {
+			alert('請先勾選欲刪除的項目');
+			return;
+		}
+		
+		confirm("請確認是否刪除", "doDeleteActionAjax")
+	} else if (action == "save") {
+		var checkFlag = true;
+		var checkFields = document.getElementsByClassName("checkRequired");
+		for(var i= 0 ; i < checkFields.length; i++){
+			var val = checkFields[i].value;
+			if(!val || /^\s*$/.test(val)){
+				alert(checkFields[i].placeholder + "不可為空白");
+				return ;
+			}
+		}
+		
+		var modifyProbe = $("input[name='inputAddProbe']").map(function() {
+		        	return $(this).val();
+		        }).get(0);
+		var modifyGroup = $("input[name='inputAddGroup']").map(function() {
+		         	return $(this).val();
+		         }).get(0);
+		var modifyDeviceName = $("input[name='inputAddDeviceName']").map(function() {
+		         	 return $(this).val();
+		          }).get(0);
+		var modifyDeviceIp = $("input[name='inputAddDeviceIp']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		var modifyDeviceType = $("input[name='inputAddDeviceType']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		var modifyBrand = $("input[name='inputAddBrand']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		var modifyModel = $("input[name='inputAddModel']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		var modifySystemVersion = $("input[name='inputAddSystemVersion']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		var modifySerialNumber = $("input[name='inputAddSerialNumber']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		var modifyManufactureDate = $("input[name='inputAddManufactureDate']").map(function() {
+        	 return $(this).val();
+         }).get(0);
+		
+		obj.modifyProbe = modifyProbe;
+		obj.modifyGroup = modifyGroup;
+		obj.modifyDeviceName = modifyDeviceName;
+		obj.modifyDeviceIp = modifyDeviceIp;
+		obj.modifyDeviceType = modifyDeviceType;
+		obj.modifyBrand = modifyBrand;
+		obj.modifyModel = modifyModel;
+		obj.modifySystemVersion = modifySystemVersion;
+		obj.modifySerialNumber = modifySerialNumber;
+		obj.modifyManufactureDate = modifyManufactureDate;
+		
+		doActionAjax(obj, "save");
+	}
+	
+}
+
+function doDeleteActionAjax() {
+	var obj = new Object();
+	
+	var ids = $("input[name='chkbox']:checked").map(function() {
+     	return $(this).val();
+     }).get();
+	
+	obj.ids = ids;
+	
+	doActionAjax(obj, "delete");
+}
+
+function doActionAjax(obj, action) {
+	$.ajax({
+		url : _ctx + '/admin/inventory/'+action,
+		data : JSON.stringify(obj),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {								
+				setTimeout(function(){
+					$('#addModifyModal').modal('hide');
+					
+				}, 500);
+				alert(resp.message);
+				
+				findData($("#queryFrom").val());
+			} else {
+				alert('envAction > success > else :: resp.code: '+resp.code);
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
 
 //查詢按鈕動作
 function findData(from) {
@@ -64,13 +231,21 @@ function findData(from) {
 				"type" : 'POST',
 				"data" : function ( d ) {
 					if ($('#queryFrom').val() == 'WEB') {
-						d.queryProbe = $("#queryProbe").val(),
-						d.queryDeviceName = $("#queryDeviceName").val(),
-						d.queryDeviceType = $("#queryDeviceType").val(),
-						d.queryBrand = $("#queryBrand").val(),
-						d.queryModel = $("#queryModel").val();
+						d.queryGroup = $("#queryGroup").val(),
+						d.queryDevice = $("#queryDevice").val()
 					
+					} else if ($('#queryFrom').val() == 'MOBILE') {
+						d.queryGroup = $("#queryGroup_mobile").val(),
+						d.queryDevice = $("#queryDevice_mobile").val()
 					}
+					
+					d.queryProbe = $("#queryProbe").val(),
+					d.queryDeviceName = $("#queryDeviceName").val(),
+					d.queryDeviceType = $("#queryDeviceType").val(),
+					d.queryModifyOnly = document.getElementById("queryModifyOnly").checked,
+					d.queryBrand = $("#queryBrand").val(),
+					d.queryModel = $("#queryModel").val(),
+					d.queryGroupName = $("#queryGroupName").val();
 					
 					d.start = 0; //初始查詢一律從第0筆開始
 					d.length = pageLength;
@@ -87,7 +262,7 @@ function findData(from) {
 				},
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[5 , 'acs' ]],
+			"order": [[6 , 'acs' ]],
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
@@ -106,16 +281,14 @@ function findData(from) {
 				
 				startNum = pageLength; //初始查詢完成後startNum固定為pageLength大小
 				lastScrollYPos = $(".dataTables_scrollBody").prop("scrollTop");
-				$("#resultTable_filter").find("input").prop("placeholder","(模糊查詢速度較慢)")
-//				getTotalTraffic();
-//				getTotalFilteredCount();
+				$("#resultTable_filter").find("input").prop("placeholder","(模糊查詢速度較慢)");
 				bindTrEvent();
 			},
 			"columns" : [
-				{},
+				{},{},
 				{ "data" : "deviceId" , "orderable" : false },
 				{ "data" : "probe" , "orderable" : false },
-				{ "data" : "group" , "orderable" : false },
+				{ "data" : "groupName" , "orderable" : false },
 				{ "data" : "deviceName" , "orderable" : false },
 				{ "data" : "deviceIp" , "orderable" : false },
 				{ "data" : "deviceType" , "orderable" : false },
@@ -128,6 +301,16 @@ function findData(from) {
 			"columnDefs" : [
 				{
 					"targets" : [0],
+					"className" : "center",
+					"searchable": false,
+					"orderable": false,
+					"render" : function(data, type, row) {
+								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value="'+row.deviceId+'">';
+								 return html;
+							 }
+				},
+				{
+					"targets" : [1],
 					"className" : "center",
 					"searchable": false,
 					"orderable": false,
@@ -192,13 +375,21 @@ function bindScrollEvent() {
 function doDataExport(exportRecordCount) {
 	var dataObj = new Object();
 	if ($('#queryFrom').val() == 'WEB') {
-		dataObj.queryProbe = $("#queryProbe").val(),
-		dataObj.queryDeviceName = $("#queryDeviceName").val(),
-		dataObj.queryDeviceType = $("#queryDeviceType").val(),
-		dataObj.queryBrand = $("#queryBrand").val(),
-		dataObj.queryModel = $("#queryModel").val();
-		
+		d.queryGroup = $("#queryGroup").val(),
+		d.queryDevice = $("#queryDevice").val()
+	
+	} else if ($('#queryFrom').val() == 'MOBILE') {
+		d.queryGroup = $("#queryGroup_mobile").val(),
+		d.queryDevice = $("#queryDevice_mobile").val()
 	}
+	
+	d.queryProbe = $("#queryProbe").val(),
+	d.queryDeviceName = $("#queryDeviceName").val(),
+	d.queryDeviceType = $("#queryDeviceType").val(),
+	d.queryModifyOnly = document.getElementById("queryModifyOnly").checked,
+	d.queryBrand = $("#queryBrand").val(),
+	d.queryModel = $("#queryModel").val(),
+	d.queryGroupName = $("#queryGroupName").val();
 	
 	dataObj.start = 0; //初始查詢一律從第0筆開始
 	dataObj.length = pageLength;
@@ -235,4 +426,134 @@ function doDataExport(exportRecordCount) {
 			ajaxErrorHandler();
 		}
 	});
+}
+
+function checkData(file){
+     
+	if(!file.name.endsWith('.csv')){
+		alert('請選擇csv類型檔案');
+		return ;
+	}
+	
+	var reader = new FileReader();
+	reader.readAsText(file,'UTF-8');
+
+   // here we tell the reader what to do when it's done reading...
+   reader.onload = readerEvent => {
+      var content = readerEvent.target.result; // this is the content!
+//      console.log("content ="+ content );
+      
+      if(content.match(/\r?\n|\r/g).length < 2){
+  		alert('檔案內容無資料資訊，請重新選擇');
+  		return ;
+  	  }
+  	 
+//      var data = JSON.parse(csvJSON(content));
+//
+//      $(data).each(function (k, v) {
+//          console.log(v);
+//      })
+
+      $('<div class="confirm font" />').html("請確認是否匯入").dialog({
+		 title: "確認訊息",
+	     modal: true,
+	     show: { effect: "fadeIn", duration: 300 },
+	     resizable: false,
+	     open : function() {
+				$(".ui-dialog").css('z-index', 2000);
+				$(".ui-widget-overlay").css('z-index', 1999);
+				$(".ui-button.ui-corner-all.ui-widget.ui-button-icon-only.ui-dialog-titlebar-close").hide();
+				$(".ui-button.ui-corner-all.ui-widget").css("font-family", "微軟正黑體");
+			},
+	     buttons : {
+	          "確認" : function() {
+	        	  $(this).dialog("close");
+	        	  importData(content);
+	          },
+	          "取消" : function() {
+	            $(this).dialog("close");
+	          }
+	        }
+      });
+      
+//     console.log( "JSON = " +JSON.stringify(content) );
+//     
+//     confirm("請確認是否匯入", "doDeleteActionAjax");
+   }
+   
+}
+
+function importData(content){
+	
+	var result = csvJSON(content);
+	
+	if(result.length < 1){
+		alert('檔案內容無資料資訊或資料格式錯誤，請重新選擇');
+  		return ;
+	}
+	
+	$.ajax({
+		url : _ctx + '/admin/inventory/importData',
+		data : JSON.stringify(result),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		dataType : 'json',
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {	
+				$("#importFileName").val('');
+				setTimeout(function(){
+					$('#inventoryDataImportModal').modal('hide');
+					
+				}, 500);
+				alert(resp.message);
+				
+				findData($("#queryFrom").val());
+			} else {
+				alert('envAction > success > else :: resp.code: '+resp.code);
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
+}
+
+function csvJSON(csv){
+
+  var lines=csv.split(/\r\n|\r|\n/);
+
+  var result = [];
+
+//  var headers=lines[0].split(",");
+  var headers= ['probe', 'groupName', 'deviceName', 'deviceIp', 'deviceType', 'brand', 'model', 'systemVersion', 'serialNumber', 'manufactureDate'];
+
+  for(var i=1;i<=lines.length;i++){
+
+	  var obj = {};
+	  if(lines[i] != undefined && lines[i].indexOf(",") > -1){
+//		  console.log("currentline["+i+"]/"+lines.length+" ="+ lines[i] );
+		  var currentline=lines[i].split(",");
+		  
+		  if(currentline.length != 10){
+			  for(var j=0;j<headers.length;j++){
+				  obj[headers[j]] = currentline[j];
+			  }			  
+			  result.push(obj);
+		  }
+	  }
+  }
+  
+//  console.log("result ="+ result.length );
+  return result;
 }

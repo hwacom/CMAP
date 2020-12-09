@@ -21,16 +21,16 @@ public class InventoryInfo {
 	@Column(name = "DEVICE_ID", unique = true)
 	private String deviceId;
 
-	@Column(name = "PROBE", nullable = false)
+	@Column(name = "PROBE", nullable = true)
 	private String probe;
 
-	@Column(name = "GROUP", nullable = false)
-	private String group;
+	@Column(name = "GROUP_NAME", nullable = true)
+	private String groupName;
 
-	@Column(name = "DEVICE_NAME", nullable = false)
+	@Column(name = "DEVICE_NAME", nullable = true)
 	private String deviceName;
 
-	@Column(name = "DEVICE_IP", nullable = false)
+	@Column(name = "DEVICE_IP", nullable = true)
 	private String deviceIp;
 
 	@Column(name = "DEIVCE_TYPE", nullable = true)
@@ -51,23 +51,34 @@ public class InventoryInfo {
 	@Column(name = "MANUFACTURE_DATE", nullable = true)
 	private String manufactureDate;
 	
+	@Column(name = "MODIFY_FLAG", nullable = true)
+	private String modifyFlag;
+	
 	@Column(name = "create_time", nullable = true)
 	private Timestamp createTime;
 
 	@Column(name = "create_by", nullable = true)
 	private String createBy;
 
-	public InventoryInfo() {
+	@Column(name = "update_time", nullable = true)
+	private Timestamp updateTime;
 
+	@Column(name = "update_by", nullable = true)
+	private String updateBy;
+	
+	public InventoryInfo() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
-	public InventoryInfo(String deviceId, String probe, String group, String deviceName, String deviceIp,
+	public InventoryInfo(String deviceId, String probe, String groupName, String deviceName, String deviceIp,
 			String deviceType, String brand, String model, String systemVersion, String serialNumber,
-			String manufactureDate, Timestamp createTime, String createBy) {
+			String manufactureDate, String modifyFlag, Timestamp createTime, String createBy, Timestamp updateTime,
+			String updateBy) {
 		super();
 		this.deviceId = deviceId;
 		this.probe = probe;
-		this.group = group;
+		this.groupName = groupName;
 		this.deviceName = deviceName;
 		this.deviceIp = deviceIp;
 		this.deviceType = deviceType;
@@ -76,8 +87,11 @@ public class InventoryInfo {
 		this.systemVersion = systemVersion;
 		this.serialNumber = serialNumber;
 		this.manufactureDate = manufactureDate;
+		this.modifyFlag = modifyFlag;
 		this.createTime = createTime;
 		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
 	}
 
 	public String getDeviceId() {
@@ -96,12 +110,12 @@ public class InventoryInfo {
 		this.probe = probe;
 	}
 
-	public String getGroup() {
-		return group;
+	public String getGroupName() {
+		return groupName;
 	}
 
-	public void setGroup(String group) {
-		this.group = group;
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 
 	public String getDeviceName() {
@@ -168,6 +182,14 @@ public class InventoryInfo {
 		this.manufactureDate = manufactureDate;
 	}
 
+	public String getModifyFlag() {
+		return modifyFlag;
+	}
+
+	public void setModifyFlag(String modifyFlag) {
+		this.modifyFlag = modifyFlag;
+	}
+
 	public Timestamp getCreateTime() {
 		return createTime;
 	}
@@ -183,4 +205,21 @@ public class InventoryInfo {
 	public void setCreateBy(String createBy) {
 		this.createBy = createBy;
 	}
+
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
+
 }

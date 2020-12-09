@@ -69,7 +69,7 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 	    	q.setParameter("loginMode", loginMode);
 		}
 	    List<UserRightSetting> result = (List<UserRightSetting>)q.list();
-	    return result != null?result.get(0):null;
+	    return result != null && result.size() > 0 ?result.get(0):null;
 	}
 	
 	@Override
