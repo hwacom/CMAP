@@ -89,9 +89,6 @@
 		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
 		  	    	<button type="button" class="btn btn-danger btn-sm" style="width: 100%" id="btnDelete"><spring:message code="btn.delete" /></button>
 		  	    </div>
-		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
-	    	    	<button type="button" class="btn btn-info btn-sm" style="width: 100%" id="btnExport_web"><spring:message code="btn.export" /></button>
-	    	    </div>
         	</div>
         </div>
       </div>
