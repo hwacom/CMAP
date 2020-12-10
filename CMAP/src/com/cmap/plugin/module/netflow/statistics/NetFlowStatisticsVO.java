@@ -16,6 +16,7 @@ public class NetFlowStatisticsVO extends CommonServiceVO {
     private String totalTraffic;
     private String uploadTraffic;
     private String downloadTraffic;
+    private String sessionNum;
     private String ipDesc;
 
     public String getQueryGroupId() {
@@ -84,7 +85,13 @@ public class NetFlowStatisticsVO extends CommonServiceVO {
     public void setDownloadTraffic(String downloadTraffic) {
         this.downloadTraffic = downloadTraffic;
     }
-    public String getIpDesc() {
+    public String getSessionNum() {
+		return sessionNum;
+	}
+	public void setSessionNum(String sessionNum) {
+		this.sessionNum = sessionNum;
+	}
+	public String getIpDesc() {
         return ipDesc;
     }
     public void setIpDesc(String ipDesc) {

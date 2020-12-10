@@ -21,7 +21,7 @@ public class ModuleIpTrafficStatistics {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer id;
+	private Long id;
 
 	@Column(name = "group_id", nullable = false)
 	private String groupId;
@@ -40,6 +40,9 @@ public class ModuleIpTrafficStatistics {
 
 	@Column(name = "download_traffic", nullable = true)
     private Long downloadTraffic = new Long(0);
+	
+	@Column(name = "session_num", nullable = true)
+    private Integer sessionNum = new Integer(0);
 
 	@Column(name = "create_time", nullable = false)
 	private Timestamp createTime;
@@ -57,8 +60,8 @@ public class ModuleIpTrafficStatistics {
 		super();
 	}
 
-    public ModuleIpTrafficStatistics(Integer id, String groupId, Date statDate, String ipAddress,
-            Long totalTraffic, Long uploadTraffic, Long downloadTraffic, Timestamp createTime,
+    public ModuleIpTrafficStatistics(Long id, String groupId, Date statDate, String ipAddress,
+            Long totalTraffic, Long uploadTraffic, Long downloadTraffic, Integer sessionNum, Timestamp createTime,
             String createBy, Timestamp updateTime, String updateBy) {
         super();
         this.id = id;
@@ -68,17 +71,18 @@ public class ModuleIpTrafficStatistics {
         this.totalTraffic = totalTraffic;
         this.uploadTraffic = uploadTraffic;
         this.downloadTraffic = downloadTraffic;
+        this.sessionNum = sessionNum;
         this.createTime = createTime;
         this.createBy = createBy;
         this.updateTime = updateTime;
         this.updateBy = updateBy;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -130,6 +134,14 @@ public class ModuleIpTrafficStatistics {
         this.downloadTraffic = downloadTraffic;
     }
 
+    public Integer getSessionNum() {
+		return sessionNum;
+	}
+
+	public void setSessionNum(Integer sessionNum) {
+		this.sessionNum = sessionNum;
+	}
+
     public Timestamp getCreateTime() {
         return createTime;
     }
@@ -138,7 +150,7 @@ public class ModuleIpTrafficStatistics {
         this.createTime = createTime;
     }
 
-    public String getCreateBy() {
+	public String getCreateBy() {
         return createBy;
     }
 
