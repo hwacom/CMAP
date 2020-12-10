@@ -332,7 +332,7 @@ function viewWifiDetail(groupName, clientMac, clientIp, startTime, endTime) {
 									display: true, \
 									scaleLabel: { \
 										display: true, \
-										labelString: \'分貝毫瓦(dBm)\' \
+										labelString: \'訊號品質\' \
 									} \
 								}] \
 							} \
@@ -576,7 +576,7 @@ function findData(from) {
 				*/
 				"timeout" : parseInt(_timeout) * 1000 //設定60秒Timeout
 			},
-			"order": [[ 2, 'desc' ]], //用startTime排序
+			"order": [[ 3, 'desc' ]], //用startTime排序
 			"initComplete": function(settings, json) {
 				if (json.msg != null) {
 					$(".myTableSection").hide();
