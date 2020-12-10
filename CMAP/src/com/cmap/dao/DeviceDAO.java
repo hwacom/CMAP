@@ -32,12 +32,12 @@ public interface DeviceDAO extends BaseDAO {
 
 	public List<Object[]> getDeviceIdAndNameByDeviceIds(List<String> deviceIds);
 
-	public List<DeviceDetailInfo> findDeviceDetailInfo(String deviceListId, String groupId, String deviceId, String infoName);
+	public List<DeviceDetailInfo> findDeviceDetailInfo(String groupId, String deviceId, String infoName);
 
 	public List<DeviceDetailMapping> findDeviceDetailMapping(String targetInfoName);
 
-	public boolean deleteDeviceDetailInfoByInfoName(
-			String deviceListId, String groupId, String deviceId, String infoName, Timestamp deleteTime, String deleteBy) throws Exception;
+	public boolean deleteDeviceDetailInfoByInfoName(String groupId, String deviceId, String infoName, Timestamp deleteTime,
+			String deleteBy) throws Exception;
 
 	public DeviceLoginInfo findDeviceLoginInfo(String deviceId);
 

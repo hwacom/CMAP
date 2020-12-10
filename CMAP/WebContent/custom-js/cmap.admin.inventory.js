@@ -545,7 +545,7 @@ function csvJSON(csv){
 //		  console.log("currentline["+i+"]/"+lines.length+" ="+ lines[i] );
 		  var currentline=lines[i].split(",");
 		  
-		  if(currentline.length != 10){
+		  if(currentline.length == 10){
 			  for(var j=0;j<headers.length;j++){
 				  obj[headers[j]] = currentline[j];
 			  }			  

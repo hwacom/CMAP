@@ -26,9 +26,6 @@ public class DeviceDetailInfo {
 	@Column(name = "info_id", unique = true)
 	private String infoId;
 
-	@Column(name = "device_list_id", nullable = false)
-	private String deviceListId;
-
 	@Column(name = "group_id", nullable = false)
 	private String groupId;
 
@@ -72,12 +69,11 @@ public class DeviceDetailInfo {
 		super();
 	}
 
-	public DeviceDetailInfo(String infoId, String deviceListId, String groupId, String deviceId, String infoName,
-			String infoValue, Integer infoOrder, String infoRemark, String deleteFlag, Timestamp deleteTime,
-			String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+	public DeviceDetailInfo(String infoId, String groupId, String deviceId, String infoName, String infoValue,
+			Integer infoOrder, String infoRemark, String deleteFlag, Timestamp deleteTime, String deleteBy,
+			Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
 		super();
 		this.infoId = infoId;
-		this.deviceListId = deviceListId;
 		this.groupId = groupId;
 		this.deviceId = deviceId;
 		this.infoName = infoName;
@@ -99,14 +95,6 @@ public class DeviceDetailInfo {
 
 	public void setInfoId(String infoId) {
 		this.infoId = infoId;
-	}
-
-	public String getDeviceListId() {
-		return deviceListId;
-	}
-
-	public void setDeviceListId(String deviceListId) {
-		this.deviceListId = deviceListId;
 	}
 
 	public String getGroupId() {

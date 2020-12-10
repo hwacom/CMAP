@@ -186,15 +186,12 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	}
 
 	@Override
-	public List<DeviceDetailInfo> findDeviceDetailInfo(String deviceListId, String groupId, String deviceId, String infoName) {
+	public List<DeviceDetailInfo> findDeviceDetailInfo(String groupId, String deviceId, String infoName) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" from DeviceDetailInfo ddi ")
 		  .append(" where 1=1 ")
 		  .append(" and ddi.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 
-		if (StringUtils.isNotBlank(deviceListId)) {
-			sb.append(" and ddi.deviceListId = :deviceListId ");
-		}
 		if (StringUtils.isNotBlank(groupId)) {
 			sb.append(" and ddi.groupId = :groupId ");
 		}
@@ -210,9 +207,6 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 
-	    if (StringUtils.isNotBlank(deviceListId)) {
-			q.setParameter("deviceListId", deviceListId);
-		}
 		if (StringUtils.isNotBlank(groupId)) {
 			q.setParameter("groupId", groupId);
 		}
@@ -248,19 +242,15 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	}
 
 	@Override
-	public boolean deleteDeviceDetailInfoByInfoName(
-			String deviceListId, String groupId, String deviceId, String infoName, Timestamp deleteTime, String deleteBy) throws Exception {
-		if (StringUtils.isBlank(deviceListId) && StringUtils.isBlank(groupId) && StringUtils.isBlank(deviceId)) {
-			throw new Exception("欲刪除設備明細資料(Device_Detail_Info)傳入參數檢核失敗 >> deviceListId, groupId, deviceId 不得皆為空");
+	public boolean deleteDeviceDetailInfoByInfoName(String groupId, String deviceId, String infoName, Timestamp deleteTime, String deleteBy) throws Exception {
+		if (StringUtils.isBlank(groupId) && StringUtils.isBlank(deviceId)) {
+			throw new Exception("欲刪除設備明細資料(Device_Detail_Info)傳入參數檢核失敗 >> groupId, deviceId 不得皆為空");
 		}
 
 		StringBuffer sb = new StringBuffer();
 		sb.append(" delete DeviceDetailInfo ddi ")
 		  .append(" where 1=1 ");
 
-		if (StringUtils.isNotBlank(deviceListId)) {
-			sb.append(" and ddi.deviceListId = :deviceListId ");
-		}
 		if (StringUtils.isNotBlank(groupId)) {
 			sb.append(" and ddi.groupId = :groupId ");
 		}
@@ -274,9 +264,6 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 
-	    if (StringUtils.isNotBlank(deviceListId)) {
-	    	q.setParameter("deviceListId", deviceListId);
-	    }
 	    if (StringUtils.isNotBlank(groupId)) {
 	    	q.setParameter("groupId", groupId);
 	    }
