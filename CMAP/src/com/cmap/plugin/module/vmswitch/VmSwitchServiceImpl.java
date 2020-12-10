@@ -800,12 +800,11 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	private void disableSwitchHostInterface(DeviceList deviceList, String logKey) throws ServiceLayerException {
 	    String errorMsg = "";
         try {
-            final String deviceListId = deviceList.getDeviceListId();
             final String groupId = deviceList.getGroupId();
             final String deviceId = deviceList.getDeviceId();
             final String infoName = "PORT_ETHERNET";
 
-            List<DeviceDetailInfo> infoList = deviceDAO.findDeviceDetailInfo(deviceListId, groupId, deviceId, infoName);
+            List<DeviceDetailInfo> infoList = deviceDAO.findDeviceDetailInfo(groupId, deviceId, infoName);
 
             if (infoList == null || (infoList != null && infoList.isEmpty())) {
                 errorMsg = "查詢不到要切換的 VM port 清單";

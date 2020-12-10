@@ -1330,7 +1330,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					/*
 					 * 版本有差異情況下，先刪除前一次分析取出的內容
 					 */
-					deviceDAO.deleteDeviceDetailInfoByInfoName(null, configInfoVO.getGroupId(), configInfoVO.getDeviceId(), null, currentTimestamp(), userName);
+					deviceDAO.deleteDeviceDetailInfoByInfoName(configInfoVO.getGroupId(), configInfoVO.getDeviceId(), null, currentTimestamp(), userName);
 
 					List<String> configContent = getConfigContent(configInfoVO);
 
@@ -1347,7 +1347,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							final Integer getValueIndex = entity.getGetValueIndex();
 							final String targetInfoName = entity.getTargetInfoName();
 							final String targetInfoRemark = entity.getTargetInfoRemark();
-							final String deviceListId = configInfoVO.getDeviceListId();
 							final String groupId = configInfoVO.getGroupId();
 							final String deviceId = configInfoVO.getDeviceId();
 							final Timestamp updateTime = currentTimestamp();
@@ -1400,7 +1399,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 									targetInfoOrder++;
 								}
 
-								List<DeviceDetailInfo> info = deviceDAO.findDeviceDetailInfo(deviceListId, groupId, deviceId, targetInfoName);
+								List<DeviceDetailInfo> info = deviceDAO.findDeviceDetailInfo(groupId, deviceId, targetInfoName);
 
 								if (info != null && !info.isEmpty()) {
 									continue;
@@ -1408,7 +1407,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 								ddi = new DeviceDetailInfo();
 								ddi.setInfoId(UUID.randomUUID().toString());
-								ddi.setDeviceListId(deviceListId);
 								ddi.setGroupId(groupId);
 								ddi.setDeviceId(deviceId);
 								ddi.setInfoName(targetInfoName);

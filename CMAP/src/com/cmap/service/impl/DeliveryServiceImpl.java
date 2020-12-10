@@ -402,7 +402,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 						final String deviceId = devices.get(i);
 						final String mapKey = groupId + Env.COMM_SEPARATE_SYMBOL + deviceId;
 
-						List<DeviceDetailInfo> infos = deviceDAO.findDeviceDetailInfo(null, groupId, deviceId, key);
+						List<DeviceDetailInfo> infos = deviceDAO.findDeviceDetailInfo(groupId, deviceId, key);
 
 						if (deviceVarMap.containsKey(mapKey)) {
 							varMap = deviceVarMap.get(mapKey);
