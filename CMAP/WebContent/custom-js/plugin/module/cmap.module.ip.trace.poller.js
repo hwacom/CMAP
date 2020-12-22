@@ -272,6 +272,7 @@ function findData(from) {
 	var chkQueryDateTime;
 	var chkQueryClientIp;
 	var chkQueryClientMac;
+	var chkQueryOnlineOnly;
 	
 	$('#queryFrom').val(from);
 	//確認Group篩選條件輸入狀態
@@ -302,6 +303,13 @@ function findData(from) {
 	}else{
 		chkQueryClientMac = 'N';
 	}
+	//確認QueryOnlineOnly篩選條件輸入狀態
+	if($("#query_OnlineOnly").prop("checked")){
+		chkQueryOnlineOnly = 'Y';		
+	}
+	else{
+		chkQueryOnlineOnly = 'N';
+	}	
 	
 	if ($("#query_DateBegin").val().trim().length != 0 && $("#query_TimeBegin").val().trim().length != 0){
 		chkQueryDateTimeBegin = 'Y';
@@ -326,7 +334,7 @@ function findData(from) {
 		chkQueryDateTime='Y'
 	}
 	//至少要輸入一種條件篩選
-	if(chkQueryGroup=='N' && chkQueryClientIp=='N' && chkQueryClientMac=='N' && chkQueryDateTime=='N'){
+	if(chkQueryGroup=='N' && chkQueryClientIp=='N' && chkQueryClientMac=='N' && chkQueryDateTime=='N' && chkQueryOnlineOnly=='N'){
 		alert(msg_chooseOne);
 		return;
 	}
