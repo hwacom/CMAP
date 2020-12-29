@@ -174,9 +174,13 @@
 	            </div>	            
 	            <div class="form-group row">
 	            	<label for="addGroup" class="col-md-2 col-sm-3 col-form-label"><spring:message code="group.name" /></label>
-	            	<div class="col-md-10 col-sm-9">
-	            		<input type="text" class="form-control form-control-sm" id="addGroup" name="inputAddGroup" >
+	            	<div class="col-md-10 col-sm-9" id="inputAddGroupDiv" style="width: 80%">
+	            		<input type="text" class="form-control form-control-sm" id="addGroup" name="inputAddGroup" onchange="showValue()">
 	            	</div>
+	            	<button type="button" class="btn btn-primary btn-sm" onclick="divAddInputText('')">+</button>
+	            	<div class="col-md-10 col-sm-9">
+	            		<b><font class="blue">群組名稱：</font><span id="showGroupName"></span></b>
+	            	</div>	            	
 	            </div>	            
 	            <div class="form-group row">
 	            	<label for="addDeviceName" class="col-md-2 col-sm-3 col-form-label"><spring:message code="ip.trace.poller.device.name" /></label>
@@ -226,7 +230,13 @@
 	            	<div class="col-md-10 col-sm-9">
 	                	<input type="text" class="form-control form-control-sm" id="addManufactureDate" name="inputAddManufactureDate" >
 	                </div>
-	            </div>                
+	            </div>
+	            <div class="form-group row">
+	            	<label for="addRemark" class="col-md-2 col-sm-3 col-form-label"><spring:message code="remark" /></label>
+	            	<div class="col-md-10 col-sm-9">
+	                	<input type="text" class="form-control form-control-sm" id="addRemark" name="inputAddRemark" placeholder="EX: N=北向註記" >
+	                </div>
+	            </div>            
               </div>
 			</div>
 			<div class="modal-footer">
@@ -257,12 +267,14 @@
 	        	說明:<br>
 	        	<ol style="padding-left: 15px;">
 	        	  <li>請以<font class="blue">CSV檔案格式</font>貼上/輸入資料。一行代表一筆資料，<font class="blue">第一行為表頭</font>，以「<font class="blue">逗號(,)</font>」串接欄位</li>
-	        	  <li>欄位由左至右依序為: <font class="blue"><spring:message code="inventory.probe" /> > <spring:message code="group.name" /> 
+	        	  <li>欄位由左至右依序為: <font class="blue"><spring:message code="inventory.probe" /> > <spring:message code="group.name" />1 
+	        	  > <spring:message code="group.name" />2 > <spring:message code="group.name" />3 > <spring:message code="group.name" />4 > <spring:message code="group.name" />5 
 	        	  										  > <spring:message code="ip.trace.poller.device.name" />
 											        	  > <spring:message code="ip.address" /> > <spring:message code="inventory.type" />
 											        	  > <spring:message code="inventory.brand" /> > <spring:message code="device.model" />
 											        	  > <spring:message code="system.version" /> > <spring:message code="inventory.serial.number" /> 
-											        	  > <spring:message code="inventory.manufacture.date" /></font></li>
+											        	  > <spring:message code="inventory.manufacture.date" />
+											        	  > <spring:message code="remark" /></font></li>
 	        	  <li>若備註內容含有「<font class="blue">逗號(,)</font>」，請以「<font class="blue">雙引號(")</font>」<font class="blue">前後包夾整段備註</font>(參照第2條範例)</li>
 	        	  <li>若備註內容含有「<font class="blue">雙引號(")</font>」，請以<font class="blue">兩個「雙引號(")</font>」<font class="blue">替代</font>，並且以「<font class="blue">雙引號(")</font>」<font class="blue">前後包夾整段備註</font>(參照第3條範例)</li>
 	        	  <li>(上述末2點為CSV檔針對保留字元處理作法，<font style="text-decoration: underline;">若您是透過文字編輯器開啟CSV檔複製內容，則可忽略上述兩點</font>)</li>
@@ -273,6 +285,9 @@
 	        	column1,column2,<font class="red">"</font>前後雙引號包夾,<font class="blue">""</font>內容有雙引號則再多加一個<font class="blue">""</font><font class="red">"</font><br>
 	        	...
         	</div>
+        	<a href="#" onclick="javascript:window.open('${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}/${pageContext.request.contextPath}resource/download/inventoryImportSample','_blank')">
+            	<span><spring:message code="func.inventory.sample.download" /></span>
+            </a>
         </div>
      	<div id="div_edit_panel" class="form-group row">
         	<label for="importFileName" class="col-12 col-form-label"><spring:message code="please.choose" /> :</label>

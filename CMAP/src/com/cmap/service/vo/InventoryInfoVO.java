@@ -21,6 +21,11 @@ public class InventoryInfoVO extends CommonServiceVO {
 	private String deviceId;
 	private String probe;
 	private String groupName;
+	//For Export File
+	private String groupName1;
+	private String groupName2;
+	private String groupName3;
+	private String groupName4;
 	private String deviceName;
 	private String deviceIp;
 	private String deviceType;
@@ -29,6 +34,7 @@ public class InventoryInfoVO extends CommonServiceVO {
 	private String systemVersion;
 	private String serialNumber;
 	private String manufactureDate;
+	private String remark;
 	private Timestamp createTime;
 	private String createTimeStr;
 	private String createBy;
@@ -56,12 +62,13 @@ public class InventoryInfoVO extends CommonServiceVO {
 
 	public InventoryInfoVO(String queryDevice, List<String> queryDeviceList, String queryProbe, String queryDeviceName,
 			String queryDeviceType, String queryGroupName, String queryBrand, String queryModel,
-			boolean queryModifyOnly, String deviceId, String probe, String groupName, String deviceName,
-			String deviceIp, String deviceType, String brand, String model, String systemVersion, String serialNumber,
-			String manufactureDate, Timestamp createTime, String createTimeStr, String createBy, Timestamp updateTime,
-			String updateBy, String modifyProbe, String modifyGroup, String modifyDeviceName, String modifyDeviceIp,
-			String modifyDeviceType, String modifyBrand, String modifyModel, String modifySystemVersion,
-			String modifySerialNumber, String modifyManufactureDate) {
+			boolean queryModifyOnly, String deviceId, String probe, String groupName, String groupName1,
+			String groupName2, String groupName3, String groupName4, String deviceName, String deviceIp,
+			String deviceType, String brand, String model, String systemVersion, String serialNumber,
+			String manufactureDate, String remark, Timestamp createTime, String createTimeStr, String createBy,
+			Timestamp updateTime, String updateBy, String modifyProbe, String modifyGroup, String modifyDeviceName,
+			String modifyDeviceIp, String modifyDeviceType, String modifyBrand, String modifyModel,
+			String modifySystemVersion, String modifySerialNumber, String modifyManufactureDate) {
 		super();
 		this.queryDevice = queryDevice;
 		this.queryDeviceList = queryDeviceList;
@@ -75,6 +82,10 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.deviceId = deviceId;
 		this.probe = probe;
 		this.groupName = groupName;
+		this.groupName1 = groupName1;
+		this.groupName2 = groupName2;
+		this.groupName3 = groupName3;
+		this.groupName4 = groupName4;
 		this.deviceName = deviceName;
 		this.deviceIp = deviceIp;
 		this.deviceType = deviceType;
@@ -83,6 +94,7 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.systemVersion = systemVersion;
 		this.serialNumber = serialNumber;
 		this.manufactureDate = manufactureDate;
+		this.remark = remark;
 		this.createTime = createTime;
 		this.createTimeStr = createTimeStr;
 		this.createBy = createBy;
@@ -196,6 +208,38 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.groupName = groupName;
 	}
 
+	public String getGroupName1() {
+		return groupName1;
+	}
+
+	public void setGroupName1(String groupName1) {
+		this.groupName1 = groupName1;
+	}
+
+	public String getGroupName2() {
+		return groupName2;
+	}
+
+	public void setGroupName2(String groupName2) {
+		this.groupName2 = groupName2;
+	}
+
+	public String getGroupName3() {
+		return groupName3;
+	}
+
+	public void setGroupName3(String groupName3) {
+		this.groupName3 = groupName3;
+	}
+
+	public String getGroupName4() {
+		return groupName4;
+	}
+
+	public void setGroupName4(String groupName4) {
+		this.groupName4 = groupName4;
+	}
+
 	public String getDeviceName() {
 		return deviceName;
 	}
@@ -258,6 +302,14 @@ public class InventoryInfoVO extends CommonServiceVO {
 
 	public void setManufactureDate(String manufactureDate) {
 		this.manufactureDate = manufactureDate;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	public Timestamp getCreateTime() {

@@ -4,8 +4,12 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +24,10 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 	@Log
     private static Logger log;
 	
+	@Autowired
+    @Qualifier("quartzSessionFactory")
+    private SessionFactory quartzSessionFactory;
+	
 	@Override
 	public long countQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception {
 		StringBuffer sb = new StringBuffer();
@@ -30,7 +38,12 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 		  .append(" and qt.triggerName = qct.triggerName ")
 		  .append(" and qt.triggerGroup = qct.triggerGroup ");
 		
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Session session = quartzSessionFactory.getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+//		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 	    
 		return DataAccessUtils.longResult(q.list());
@@ -81,7 +94,12 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 			sb.append(" order by qt.prevFireTime desc ");
 		}
 		
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Session session = quartzSessionFactory.getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+//		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 	    Query<?> q = session.createQuery(sb.toString());
 	    
 	    if (daoVO != null && StringUtils.isNotBlank(daoVO.getJobKeyName())) {

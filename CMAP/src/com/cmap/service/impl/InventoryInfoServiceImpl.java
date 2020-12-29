@@ -44,6 +44,14 @@ public class InventoryInfoServiceImpl extends CommonServiceImpl implements Inven
 			currVO = new InventoryInfoVO();
 			BeanUtils.copyProperties(info, currVO);
 			
+			if(currVO.getGroupName().indexOf(" > ") > 0) {
+				String[] names = currVO.getGroupName().split(" > ");
+				currVO.setGroupName(names[0]);
+				currVO.setGroupName1(names[1]);
+				if(names.length > 2) currVO.setGroupName2(names[2]);
+				if(names.length > 3) currVO.setGroupName3(names[3]);
+				if(names.length > 4) currVO.setGroupName4(names[4]);
+			}
 			currVO.setCreateTimeStr(Constants.FORMAT_YYYYMMDD_HH24MISS.format(info.getCreateTime()));
 			result.add(currVO);
 		}

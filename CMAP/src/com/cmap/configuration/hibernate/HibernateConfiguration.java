@@ -2,7 +2,9 @@ package com.cmap.configuration.hibernate;
 
 import java.beans.PropertyVetoException;
 import java.util.Properties;
+
 import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,13 +17,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
 import com.cmap.annotation.Log;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
 @EnableTransactionManagement
 @ComponentScan({ "com.cmap.configuration" })
-@PropertySource(value = { "classpath:application.properties" })
+@PropertySource(value = { "classpath:quartz.properties","classpath:application.properties" })
 public class HibernateConfiguration {
 	@Log
 	private static Logger log;
@@ -98,7 +101,29 @@ public class HibernateConfiguration {
         sessionFactory.setEntityInterceptor(new HibernateInterceptor());
         return sessionFactory;
      }
-
+    
+    @Bean(name = "quartzSessionFactory")
+    @Qualifier(value = "quartzSessionFactory")
+    public LocalSessionFactoryBean quartzSessionFactory() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+		ComboPooledDataSource dataSource = new ComboPooledDataSource();
+		try {
+			dataSource.setDriverClass(environment.getRequiredProperty("org.quartz.dataSource.qzDS.driver"));
+			dataSource.setJdbcUrl(environment.getRequiredProperty("org.quartz.dataSource.qzDS.URL"));
+			dataSource.setUser(environment.getRequiredProperty("org.quartz.dataSource.qzDS.user"));
+			dataSource.setPassword(environment.getRequiredProperty("org.quartz.dataSource.qzDS.password"));
+			dataSource.setTestConnectionOnCheckin(new Boolean(environment.getRequiredProperty("org.quartz.dataSource.qzDS.testConnectionOnCheckin")));
+			
+		} catch (IllegalStateException | PropertyVetoException e) {
+			log.error(e.toString(), e);
+		}
+        sessionFactory.setDataSource(dataSource);
+        sessionFactory.setPackagesToScan(new String[] { "com.cmap.model", "com.cmap.plugin.module" });
+        sessionFactory.setHibernateProperties(hibernateProperties());
+        sessionFactory.setEntityInterceptor(new HibernateInterceptor());
+        return sessionFactory;
+     }
+    
     @Bean
     public DataSource secondDataSource() {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();

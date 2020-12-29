@@ -131,16 +131,16 @@ function findBlockedPortRecordData(statusFlag) {
 	        },
 	        "createdRow": function( row, data, dataIndex ) {
 	        	   if(data.blockReason != null && data.blockReason.length > blockReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
-	        	      $(row).children('td').eq(8).attr('onclick','javascript:changeShowContent(this, '+blockReasonShowLength+');');
-	        	      $(row).children('td').eq(8).addClass('cursor_zoom_in');
-	        	   }
-	        	   $(row).children('td').eq(8).attr('content', data.blockReason);
-	        	   
-	        	   if(data.openReason != null && data.openReason.length > openReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
-	        	      $(row).children('td').eq(9).attr('onclick','javascript:changeShowContent(this, '+openReasonShowLength+');');
+	        	      $(row).children('td').eq(9).attr('onclick','javascript:changeShowContent(this, '+blockReasonShowLength+');');
 	        	      $(row).children('td').eq(9).addClass('cursor_zoom_in');
 	        	   }
-	        	   $(row).children('td').eq(9).attr('content', data.openReason);
+	        	   $(row).children('td').eq(9).attr('content', data.blockReason);
+	        	   
+	        	   if(data.openReason != null && data.openReason.length > openReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
+	        	      $(row).children('td').eq(10).attr('onclick','javascript:changeShowContent(this, '+openReasonShowLength+');');
+	        	      $(row).children('td').eq(10).addClass('cursor_zoom_in');
+	        	   }
+	        	   $(row).children('td').eq(10).attr('content', data.openReason);
 	        	},
 			"ajax" : {
 				"url" : _ctx + '/plugin/module/blockedRecord/getBlockedData.json',
@@ -164,7 +164,7 @@ function findBlockedPortRecordData(statusFlag) {
 					ajaxErrorHandler();
 				}
 			},
-			"order" : [[5 , 'desc' ]],
+			"order" : [[6 , 'desc' ]],
 			"pageLength" : 100,
 			"drawCallback" : function(settings) {
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -200,18 +200,20 @@ function findBlockedPortRecordData(statusFlag) {
 				$('td:eq(0)', row).attr('data-field', 'action');
 				$('td:eq(1)', row).attr('data-field', 'seq');
 				$('td:eq(2)', row).attr('data-field', 'groupName');
-				$('td:eq(3)', row).attr('data-field', 'port');
-				$('td:eq(4)', row).attr('data-field', 'status');
-				$('td:eq(5)', row).attr('data-field', 'blockTime');
-				$('td:eq(6)', row).attr('data-field', 'openTime');
-				$('td:eq(7)', row).attr('data-field', 'blockReason');
-				$('td:eq(8)', row).attr('data-field', 'openReason');
-				$('td:eq(9)', row).attr('data-field', 'blockBy');
-				$('td:eq(10)', row).attr('data-field', 'openBy');
+				$('td:eq(3)', row).attr('data-field', 'deviceName');
+				$('td:eq(4)', row).attr('data-field', 'port');
+				$('td:eq(5)', row).attr('data-field', 'status');
+				$('td:eq(6)', row).attr('data-field', 'blockTime');
+				$('td:eq(7)', row).attr('data-field', 'openTime');
+				$('td:eq(8)', row).attr('data-field', 'blockReason');
+				$('td:eq(9)', row).attr('data-field', 'openReason');
+				$('td:eq(10)', row).attr('data-field', 'blockBy');
+				$('td:eq(11)', row).attr('data-field', 'openBy');
 			},
 			"columns" : [
 				{},{},
 				{ "data" : "groupName" , "className" : "left" },
+				{ "data" : "deviceName" , "className" : "left" },
 				{ "data" : "port" , "className" : "center" },
 				{ "data" : "statusFlag" , "className" : "center" },
 				{ "data" : "blockTimeStr" , "className" : "center" },
@@ -242,7 +244,7 @@ function findBlockedPortRecordData(statusFlag) {
 						   	}
 				},
 				{
-					"targets" : [7],
+					"targets" : [8],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,
@@ -256,7 +258,7 @@ function findBlockedPortRecordData(statusFlag) {
 				}
 				,
 				{
-					"targets" : [8],
+					"targets" : [9],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,

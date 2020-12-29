@@ -39,8 +39,18 @@ $(document).ready(function() {
 			return;
 		}
 		
-		document.getElementById('addProbe').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(3).text(); 
-		document.getElementById('addGroup').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text();
+		document.getElementById('addProbe').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(3).text();
+		if($('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text().indexOf(" > ") > -1){
+			var groupName = $('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text().split(" > ");
+			document.getElementById('addGroup').value=groupName[0];
+			for(var i=1;i<groupName.length;i++){
+				divAddInputText(groupName[i]);
+			}			
+		}else{
+			document.getElementById('addGroup').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text();
+		}
+		showValue();
+		
 		document.getElementById('addDeviceName').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(5).text();
 		document.getElementById('addDeviceIp').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(6).text();
 		document.getElementById('addDeviceType').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(7).text();
@@ -96,9 +106,18 @@ function envAction(action) {
 		var modifyProbe = $("input[name='inputAddProbe']").map(function() {
 		        	return $(this).val();
 		        }).get(0);
-		var modifyGroup = $("input[name='inputAddGroup']").map(function() {
-		         	return $(this).val();
-		         }).get(0);
+//		var modifyGroup = $("input[name='inputAddGroup']").map(function() {
+//		         	return $(this).val();
+//		         }).get(0);
+		var modifyGroup = "";
+		
+		$("input[name='inputAddGroup']").map(function() {
+			if ($(this).val().trim() != ''){
+				if(modifyGroup != "") modifyGroup = modifyGroup + " > ";
+				modifyGroup = modifyGroup +  $(this).val();
+			}
+	     });
+
 		var modifyDeviceName = $("input[name='inputAddDeviceName']").map(function() {
 		         	 return $(this).val();
 		          }).get(0);
@@ -123,6 +142,9 @@ function envAction(action) {
 		var modifyManufactureDate = $("input[name='inputAddManufactureDate']").map(function() {
         	 return $(this).val();
          }).get(0);
+		var remark = $("input[name='inputAddRemark']").map(function() {
+       	 return $(this).val();
+        }).get(0);
 		
 		obj.modifyProbe = modifyProbe;
 		obj.modifyGroup = modifyGroup;
@@ -134,6 +156,7 @@ function envAction(action) {
 		obj.modifySystemVersion = modifySystemVersion;
 		obj.modifySerialNumber = modifySerialNumber;
 		obj.modifyManufactureDate = modifyManufactureDate;
+		obj.remark = remark;
 		
 		doActionAjax(obj, "save");
 	}
@@ -436,23 +459,16 @@ function checkData(file){
 	}
 	
 	var reader = new FileReader();
-	reader.readAsText(file,'UTF-8');
+	reader.readAsText(file,'big5');
 
    // here we tell the reader what to do when it's done reading...
    reader.onload = readerEvent => {
       var content = readerEvent.target.result; // this is the content!
-//      console.log("content ="+ content );
       
       if(content.match(/\r?\n|\r/g).length < 2){
   		alert('檔案內容無資料資訊，請重新選擇');
   		return ;
   	  }
-  	 
-//      var data = JSON.parse(csvJSON(content));
-//
-//      $(data).each(function (k, v) {
-//          console.log(v);
-//      })
 
       $('<div class="confirm font" />').html("請確認是否匯入").dialog({
 		 title: "確認訊息",
@@ -536,7 +552,7 @@ function csvJSON(csv){
   var result = [];
 
 //  var headers=lines[0].split(",");
-  var headers= ['probe', 'groupName', 'deviceName', 'deviceIp', 'deviceType', 'brand', 'model', 'systemVersion', 'serialNumber', 'manufactureDate'];
+  var headers= ['probe', 'groupName', 'groupName2', 'groupName3', 'groupName4', 'groupName5', 'deviceName', 'deviceIp', 'deviceType', 'brand', 'model', 'systemVersion', 'serialNumber', 'manufactureDate', 'remark'];
 
   for(var i=1;i<=lines.length;i++){
 
@@ -544,10 +560,23 @@ function csvJSON(csv){
 	  if(lines[i] != undefined && lines[i].indexOf(",") > -1){
 //		  console.log("currentline["+i+"]/"+lines.length+" ="+ lines[i] );
 		  var currentline=lines[i].split(",");
-		  
-		  if(currentline.length == 10){
+
+		  if(currentline.length == headers.length){
+			  var groupName = "";
 			  for(var j=0;j<headers.length;j++){
-				  obj[headers[j]] = currentline[j];
+				  
+				  if(j > 0 && j <= 5){//groupName
+					  if (currentline[j].trim() != ''){
+						  if(groupName != "") groupName = groupName + " > ";
+						  groupName = groupName +  currentline[j].trim();
+					  }
+					  
+					  if(j == 5){
+						  obj[headers[1]] = groupName;
+					  }
+				  } else{
+					  obj[headers[j]] = currentline[j];
+				  }
 			  }			  
 			  result.push(obj);
 		  }
@@ -556,4 +585,29 @@ function csvJSON(csv){
   
 //  console.log("result ="+ result.length );
   return result;
+}
+
+function divAddInputText(val) {
+	if($("input[name='inputAddGroup']").length == 5) return;
+	var x = document.createElement("input");
+	x.setAttribute("type", "text");
+	x.setAttribute("name", "inputAddGroup");
+	x.setAttribute("class", "form-control form-control-sm");
+	x.setAttribute("value", val);
+	x.setAttribute("onchange", "showValue()");
+	var parent = document.getElementById("inputAddGroupDiv");
+	parent.appendChild(x);
+}
+
+function showValue() {
+	var result = "";
+	
+	$("input[name='inputAddGroup']").map(function() {
+		if ($(this).val().trim() != ''){
+			if(result != "") result = result + " > ";
+			result = result +  $(this).val();
+		}
+     });
+	$("#showGroupName").text(result);
+	console.log("value = " + result);
 }

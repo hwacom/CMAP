@@ -54,6 +54,9 @@ public class InventoryInfo {
 	@Column(name = "MODIFY_FLAG", nullable = true)
 	private String modifyFlag;
 	
+	@Column(name = "REMARK", nullable = true)
+	private String remark;
+	
 	@Column(name = "create_time", nullable = true)
 	private Timestamp createTime;
 
@@ -73,8 +76,8 @@ public class InventoryInfo {
 
 	public InventoryInfo(String deviceId, String probe, String groupName, String deviceName, String deviceIp,
 			String deviceType, String brand, String model, String systemVersion, String serialNumber,
-			String manufactureDate, String modifyFlag, Timestamp createTime, String createBy, Timestamp updateTime,
-			String updateBy) {
+			String manufactureDate, String modifyFlag, String remark, Timestamp createTime, String createBy,
+			Timestamp updateTime, String updateBy) {
 		super();
 		this.deviceId = deviceId;
 		this.probe = probe;
@@ -88,6 +91,7 @@ public class InventoryInfo {
 		this.serialNumber = serialNumber;
 		this.manufactureDate = manufactureDate;
 		this.modifyFlag = modifyFlag;
+		this.remark = remark;
 		this.createTime = createTime;
 		this.createBy = createBy;
 		this.updateTime = updateTime;
@@ -188,6 +192,14 @@ public class InventoryInfo {
 
 	public void setModifyFlag(String modifyFlag) {
 		this.modifyFlag = modifyFlag;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	public Timestamp getCreateTime() {

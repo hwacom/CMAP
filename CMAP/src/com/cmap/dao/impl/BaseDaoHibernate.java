@@ -44,7 +44,10 @@ public class BaseDaoHibernate extends HibernateDaoSupport implements BaseDAO {
 
 	@Resource(name = "secondSessionFactory")
     private SessionFactory secondSessionFactory;
-
+	
+	@Resource(name = "quartzSessionFactory")
+    private SessionFactory quartzSessionFactory;
+	
 	protected static final String MARK_AS_DELETE = "Y";
 
 	@Autowired

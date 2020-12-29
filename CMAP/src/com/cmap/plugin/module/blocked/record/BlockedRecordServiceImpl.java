@@ -108,11 +108,13 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
                 Timestamp updateTime = entity[19] != null ? (Timestamp)entity[19] : null;
                 String updateBy = Objects.toString(entity[20], null);
                 String listId = Objects.toString(entity[21]);
+                String deviceName = Objects.toString(entity[22], "");
                 
                 vo = new BlockedRecordVO();
                 vo.setListId(listId);
                 vo.setGroupId(groupId);
                 vo.setGroupName(groupName);
+                vo.setDeviceName(deviceName);
                 vo.setDeviceId(deviceId);
                 vo.setBlockType(blockType);
                 

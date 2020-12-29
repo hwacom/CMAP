@@ -246,10 +246,11 @@ public class AdminInventoryController extends BaseController {
 
 	        if (dataList != null && !dataList.isEmpty()) {
 				String fileName = getFileName("Inventory_Info_[CurrentTime]");
-				String[] fieldNames = new String[] { "deviceId", "probe", "group", "deviceName", "deviceIp",
-						"deviceType", "brand", "model", "systemVersion", "serialNumber", "manufactureDate" };
-				String[] columnsTitles = new String[] { "設備 ID", "所屬 Probe", "所屬群組", "設備名稱", "IP_Address", "設備類型",
-						"設備廠牌", "設備型號", "軟體版本", "序號", "出廠日期" };
+				String[] fieldNames = new String[] { "deviceId", "probe", "groupName", "groupName1", "groupName2",
+						"groupName3", "groupName4", "deviceName", "deviceIp", "deviceType", "brand", "model",
+						"systemVersion", "serialNumber", "manufactureDate", "remark" };
+				String[] columnsTitles = new String[] { "設備 ID", "所屬 Probe", "第一層群組", "第二層群組", "第三層群組", "第四層群組",
+						"第五層群組", "設備名稱", "IP_Address", "設備類型", "設備廠牌", "設備型號", "軟體版本", "序號", "出廠日期", "備註" };
 
 	            DataExportUtils export = new CsvExportUtils();
 	            String fileId = export.output2Web(response, fileName, true, dataList, fieldNames, columnsTitles);

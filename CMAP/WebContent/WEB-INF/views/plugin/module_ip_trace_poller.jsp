@@ -68,7 +68,7 @@
 	    	    	<input type="date" id="query_DateEnd" style="width: 18%"/>
 	    	    	<input type="time" id="query_TimeEnd" style="width: 15%"/>
 	    	    	<span class="font-weight-bold center" style="width: 2%"></span>
-	    	    	<input type="checkbox" id="query_OnlineOnly" name="query_OnlineOnly" />
+	    	    	<input type="checkbox" id="query_OnlineOnly" name="query_OnlineOnly" checked/>
 	    	    	<label for="query_OnlineOnly" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.query.online.only" /></label>   	    	
 	    	    </div>
 	    	    

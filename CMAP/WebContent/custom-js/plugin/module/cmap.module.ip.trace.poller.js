@@ -53,10 +53,10 @@ $(document).ready(function() {
 	var date = today.getDate();
 	date = (date < 10) ? ("0".concat(date)) : date;
 	
-	$("#query_DateBegin").val(year+"-"+month+"-"+date);
-	$("#query_DateEnd").val(year+"-"+month+"-"+date);
-	$("#query_TimeBegin").val("00:00");
-	$("#query_TimeEnd").val("23:59");
+//	$("#query_DateBegin").val(year+"-"+month+"-"+date);
+//	$("#query_DateEnd").val(year+"-"+month+"-"+date);
+//	$("#query_TimeBegin").val("00:00");
+//	$("#query_TimeEnd").val("23:59");
 	//Init Device Menu
 	changeDeviceMenu('queryDevice',$('#queryGroup').val());
 });

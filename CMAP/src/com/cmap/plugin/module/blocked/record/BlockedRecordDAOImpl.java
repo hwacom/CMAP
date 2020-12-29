@@ -126,6 +126,7 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
           .append("  ,mbl.update_time ")
           .append("  ,mbl.update_by ")
           .append("  ,mbl.list_id ")
+          .append("  ,dl.device_name ")
           .append(" from module_blocked_list mbl ")
           .append(" left join Module_Ip_Data_Setting mids ")
           .append(" on ( mbl.group_id = mids.group_id ")

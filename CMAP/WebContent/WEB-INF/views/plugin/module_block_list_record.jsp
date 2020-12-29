@@ -76,6 +76,7 @@
 		    <tr>
 		      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
+		      <th scope="col" nowrap="nowrap" data-field="deviceName"><spring:message code="device.name" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="blockType"><spring:message code="block.rule" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="address"><spring:message code="ip.address" />/<br><spring:message code="mac.address" />/<br><spring:message code="port.name" /></th>
 		      <th scope="col" nowrap="nowrap" data-field="ipDesc"><spring:message code="ip.remark" /></th>

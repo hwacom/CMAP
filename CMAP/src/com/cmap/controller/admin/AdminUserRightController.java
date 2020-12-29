@@ -4,8 +4,10 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,7 +61,43 @@ public class AdminUserRightController extends BaseController {
 		} finally {
 			init(model, request);
 			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
-			model.addAttribute("userGroupList", getUserRightGroup(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserUnit()));
+			
+			Map<String, String> retMap = new LinkedHashMap<>();
+			Map<String, String> typeMap = getUserRightGroup(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserUnit());
+			/*
+			 * 排序設定處理
+			 */
+			if (Env.SORT_GROUP_MENU_BY_GROUP_NAME_INCLUDED_SEQ_NO) {
+				Map<Integer, String> sortedMap = new TreeMap<>();
+				Map<String, String> sortedNonNumberMap = new TreeMap<>();
+				for (Map.Entry<String, String> entry : typeMap.entrySet()) {
+					final String sourceMapKey = entry.getKey();
+					final String sourceMapValue = entry.getValue();
+
+					String splitSymbolWithoutRegex = Env.GROUP_NAME_SPLIT_SEQ_NO_SYMBOL.replace("\\", "");
+					if (sourceMapValue.indexOf(splitSymbolWithoutRegex) != -1) {
+						Integer groupSeq =
+								Integer.parseInt(sourceMapValue.split(Env.GROUP_NAME_SPLIT_SEQ_NO_SYMBOL)[Env.GROUP_NAME_SPLITTED_SEQ_NO_INDEX]);
+						sortedMap.put(groupSeq, sourceMapKey);
+
+					} else {
+						sortedNonNumberMap.put(sourceMapKey, sourceMapKey);
+					}
+				}
+
+				for (String sourceKey : sortedMap.values()) {
+					retMap.put(sourceKey, typeMap.get(sourceKey));
+				}
+				for (String sourceKey : sortedNonNumberMap.values()) {
+					retMap.put(sourceKey, typeMap.get(sourceKey));
+				}
+
+			} else {
+				for (Map.Entry<String, String> entry : typeMap.entrySet()) {
+					retMap.put(entry.getKey(), entry.getValue());
+				}
+			}
+			model.addAttribute("userGroupList", retMap);
 			
 			Map<String, String> loginModeMap = new HashMap<String, String>();
 			for(String mode : Env.LOGIN_MODE) {

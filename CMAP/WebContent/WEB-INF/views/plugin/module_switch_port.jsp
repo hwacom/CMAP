@@ -85,6 +85,7 @@
 				      <th scope="col" nowrap="nowrap"><spring:message code="action" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="seq"><spring:message code="seq" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="groupName"><spring:message code="group.name" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="deviceName"><spring:message code="device.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="port"><spring:message code="port.name" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>

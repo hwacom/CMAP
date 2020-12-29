@@ -10,7 +10,7 @@ var blockedTableHeight;
 
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_plugin", "toggleMenu_plugin_items", "cm_blockedListRecord");
-
+	
 	$("#btnSearch_record_web").click(function(e) {
 		$('#queryFrom').val("WEB");
 		findBlockedRecordData();
@@ -53,10 +53,10 @@ function findBlockedRecordData() {
 	        },
 	        "createdRow": function( row, data, dataIndex ) {
 	        	   if(data.blockReason != null && data.blockReason.length > blockReasonShowLength) { //當內容長度超出設定值，加上onclick事件(切換顯示部分or全部)
-	        	      $(row).children('td').eq(7).attr('onclick','javascript:changeShowContent(this, '+blockReasonShowLength+');');
-	        	      $(row).children('td').eq(7).addClass('cursor_zoom_in');
+	        	      $(row).children('td').eq(8).attr('onclick','javascript:changeShowContent(this, '+blockReasonShowLength+');');
+	        	      $(row).children('td').eq(8).addClass('cursor_zoom_in');
 	        	   }
-	        	   $(row).children('td').eq(7).attr('content', data.blockReason);
+	        	   $(row).children('td').eq(8).attr('content', data.blockReason);
 	        	   
 	        	},
 			"ajax" : {
@@ -78,23 +78,25 @@ function findBlockedRecordData() {
 					ajaxErrorHandler();
 				}
 			},
-			"order" : [[2 , 'asc' ],[6 , 'desc' ]],
+			"order" : [[3 , 'asc' ],[6 , 'desc' ]],
 			"pageLength" : 100,
 			"rowCallback": function( row, data ) {
 				$('td:eq(0)', row).attr('data-field', 'seq');
 				$('td:eq(1)', row).attr('data-field', 'groupName');
-				$('td:eq(2)', row).attr('data-field', 'blockType');
-				$('td:eq(3)', row).attr('data-field', 'address');
-				$('td:eq(4)', row).attr('data-field', 'ipDesc');
-				$('td:eq(5)', row).attr('data-field', 'status');
-				$('td:eq(6)', row).attr('data-field', 'blockTime');
-				$('td:eq(7)', row).attr('data-field', 'blockReason');
-				$('td:eq(8)', row).attr('data-field', 'blockBy');
-				$('td:eq(9)', row).attr('data-field', 'scriptName');
+				$('td:eq(2)', row).attr('data-field', 'deviceName');
+				$('td:eq(3)', row).attr('data-field', 'blockType');
+				$('td:eq(4)', row).attr('data-field', 'address');
+				$('td:eq(5)', row).attr('data-field', 'ipDesc');
+				$('td:eq(6)', row).attr('data-field', 'status');
+				$('td:eq(7)', row).attr('data-field', 'blockTime');
+				$('td:eq(8)', row).attr('data-field', 'blockReason');
+				$('td:eq(9)', row).attr('data-field', 'blockBy');
+				$('td:eq(10)', row).attr('data-field', 'scriptName');
 			},
 			"columns" : [
 				{},
 				{ "data" : "groupName" , "className" : "left" },
+				{ "data" : "deviceName" , "className" : "left" },
 				{ "data" : "blockType" , "className" : "center" },
 				{ "data" : "address" , "className" : "left" },
 				{ "data" : "ipDesc" , "className" : "left" },
@@ -115,7 +117,7 @@ function findBlockedRecordData() {
 						   	}
 				},
 				{
-					"targets" : [7],
+					"targets" : [8],
 					"className" : "left",
 					"searchable": true,
 					"orderable": false,
