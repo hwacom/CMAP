@@ -52,11 +52,16 @@ $(document).ready(function() {
 	month = (month < 10) ? ("0".concat(month)) : month;
 	var date = today.getDate();
 	date = (date < 10) ? ("0".concat(date)) : date;
-	
-//	$("#query_DateBegin").val(year+"-"+month+"-"+date);
-//	$("#query_DateEnd").val(year+"-"+month+"-"+date);
-//	$("#query_TimeBegin").val("00:00");
-//	$("#query_TimeEnd").val("23:59");
+	//Init deafault checked
+	$("#query_OnlineOnly").prop("checked", true);
+	$("#query_DateBegin").val("");
+	$("#query_DateEnd").val("");
+	$("#query_TimeBegin").val("");
+	$("#query_TimeEnd").val("");	
+	//	$("#query_DateBegin").val(year+"-"+month+"-"+date);
+	//	$("#query_DateEnd").val(year+"-"+month+"-"+date);
+	//	$("#query_TimeBegin").val("00:00");
+	//	$("#query_TimeEnd").val("23:59");
 	//Init Device Menu
 	changeDeviceMenu('queryDevice',$('#queryGroup').val());
 });
