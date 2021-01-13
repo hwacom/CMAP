@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 
+import javax.naming.Context;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -147,14 +148,21 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
 			
 			LDAPUtils utils = new LDAPUtils();
-			boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
-
+			//boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
+			boolean loginSuccess = true;
 			if (loginSuccess) {
 				UserRightSetting userRight = userService.getUserRightSetting(username, Constants.LOGIN_AUTH_MODE_LDAP);
 				
 				String userGroup = null;
-				if(userRight == null) {
-					userGroup = new String(Base64.getDecoder().decode(Env.LDAP_DEFAULT_PRTG_ACCOUNT),Constants.CHARSET_UTF8);
+				if(userRight == null) {			
+					// 2021-01-11 Alvin modified for NFU blocking the unknown AD users login by LDAP
+					if(StringUtils.isEmpty(Env.LDAP_DEFAULT_PRTG_ACCOUNT)) {
+						request.getSession().setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "此帳號無網路管理系統存取權限");
+						request.getSession().setAttribute("LDAP_AUTH_RESULT", true);
+						throw new ServiceLayerException("LDAP認證成功，但網管系統查無此用戶帳號");
+					}else {
+						userGroup = new String(Base64.getDecoder().decode(Env.LDAP_DEFAULT_PRTG_ACCOUNT),Constants.CHARSET_UTF8);
+					}
 				}else {
 					userGroup = userRight.getUserGroup();
 				}

@@ -79,7 +79,15 @@
 			  	<div class="row">
 			  		<div class="col-md-6 col-sm-12 offset-md-3 m-t-5 login-form">
 				  		<form class="form-signin" name="f" method='POST'>
-						  <c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION}">
+				  			<!-- 2021-01-12 Alvin modified 支援LDAP登入未知帳號顯示客製化錯誤訊息 -->
+				  		  <c:if test="${not empty LOGIN_EXCEPTION}">
+			  					<div class="col-md-10 col-sm-12 center">
+			  						<span class="red">
+							        	<spring:message code="${LOGIN_EXCEPTION}" />
+							      	</span>
+			  					</div>
+						  </c:if>
+						  <c:if test="${not empty SPRING_SECURITY_LAST_EXCEPTION && empty LOGIN_EXCEPTION }">
 						      <span class="red">
 						        	<spring:message code="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
 						      </span>
