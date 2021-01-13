@@ -18,7 +18,7 @@
     <!-- Custom styles for this template -->
 	<link href="${pageContext.request.contextPath}/resources/css/signin.css" rel="stylesheet">
 	
-	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.3.1.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.5.1.min.js"></script>
 	
   <body class="text-center">
   	<!-- Container fluid  -->

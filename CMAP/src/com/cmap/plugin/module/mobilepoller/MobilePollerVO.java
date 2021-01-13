@@ -1,49 +1,47 @@
-package com.cmap.plugin.module.wifipoller;
+package com.cmap.plugin.module.mobilepoller;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.cmap.service.vo.CommonServiceVO;
 
-public class WifiPollerVO extends CommonServiceVO {
+public class MobilePollerVO extends CommonServiceVO {
 
-    private String queryClientMac;
-    private String queryClientIp;
+    private String queryClientSUPI;
+    private String queryClientNumber;
     private String queryGroupId;
-    private String queryApName;
+    private String queryCellName;
     private String querySsid;
     private String queryDateBegin;
     private String queryDateEnd;
     private String queryTimeBegin;
     private String queryTimeEnd;
-    private String queryUserName;
     // for getWifiDetailData
     private String queryStartTime; //as Datetime
     private String queryEndTime; //as Datetime
 
-	private List<WifiPollerVO> matchedList = new ArrayList<>();
+	private List<MobilePollerVO> matchedList = new ArrayList<>();
 	private int totalCount = 0;
 	
 	private String groupName;
-    private String clientMac;
+    private String clientSUPI;
     private String startTime;
     private String endTime;
-    private String userName;
-    private String clientIp;
+    private String clientNumber;
     private String apName;
     private String ssid;
     private String totalTraffic;
     private String uploadTraffic;
     private String downloadTraffic;
     
-	public String getQueryClientMac() {
-		return queryClientMac;
+	public String getQueryClientSUPI() {
+		return queryClientSUPI;
 	}
-	public String getQueryApName() {
-		return queryApName;
+	public String getQueryCellName() {
+		return queryCellName;
 	}
-	public void setQueryApName(String queryApName) {
-		this.queryApName = queryApName;
+	public void setQueryCellName(String queryCellName) {
+		this.queryCellName = queryCellName;
 	}
 	public String getQuerySsid() {
 		return querySsid;
@@ -51,14 +49,14 @@ public class WifiPollerVO extends CommonServiceVO {
 	public void setQuerySsid(String querySsid) {
 		this.querySsid = querySsid;
 	}
-	public void setQueryClientMac(String queryClientMac) {
-		this.queryClientMac = queryClientMac;
+	public void setQueryClientSUPI(String queryClientSUPI) {
+		this.queryClientSUPI = queryClientSUPI;
 	}
-	public String getQueryClientIp() {
-		return queryClientIp;
+	public String getQueryClientNumber() {
+		return queryClientNumber;
 	}
-	public void setQueryClientIp(String queryClientIp) {
-		this.queryClientIp = queryClientIp;
+	public void setQueryClientNumber(String queryClientNumber) {
+		this.queryClientNumber = queryClientNumber;
 	}
 	public String getQueryGroupId() {
 		return queryGroupId;
@@ -102,23 +100,17 @@ public class WifiPollerVO extends CommonServiceVO {
 	public void setQueryEndTime(String queryEndTime) {
 		this.queryEndTime = queryEndTime;
 	}
-	public String getQueryUserName() {
-		return queryUserName;
-	}
-	public void setQueryUserName(String queryUserName) {
-		this.queryUserName = queryUserName;
-	}
 	public String getGroupName() {
 		return groupName;
 	}
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
 	}
-	public String getClientMac() {
-		return clientMac;
+	public String getClientSUPI() {
+		return clientSUPI;
 	}
-	public void setClientMac(String clientMac) {
-		this.clientMac = clientMac;
+	public void setClientSUPI(String clientSUPI) {
+		this.clientSUPI = clientSUPI;
 	}
 	public String getStartTime() {
 		return startTime;
@@ -132,22 +124,16 @@ public class WifiPollerVO extends CommonServiceVO {
 	public void setEndTime(String endTime) {
 		this.endTime = endTime;
 	}
-	public String getUserName() {
-		return userName;
+	public String getClientNumber() {
+		return clientNumber;
 	}
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setClientNumber(String clientNumber) {
+		this.clientNumber = clientNumber;
 	}
-	public String getClientIp() {
-		return clientIp;
-	}
-	public void setClientIp(String clientIp) {
-		this.clientIp = clientIp;
-	}
-	public String getApName() {
+	public String getCellName() {
 		return apName;
 	}
-	public void setApName(String apName) {
+	public void setCellName(String apName) {
 		this.apName = apName;
 	}
 	public String getSsid() {
@@ -174,10 +160,10 @@ public class WifiPollerVO extends CommonServiceVO {
 	public void setDownloadTraffic(String downloadTraffic) {
 		this.downloadTraffic = downloadTraffic;
 	}
-	public List<WifiPollerVO> getMatchedList() {
+	public List<MobilePollerVO> getMatchedList() {
 		return matchedList;
 	}
-	public void setMatchedList(List<WifiPollerVO> matchedList) {
+	public void setMatchedList(List<MobilePollerVO> matchedList) {
 		this.matchedList = matchedList;
 	}
 	public int getTotalCount() {

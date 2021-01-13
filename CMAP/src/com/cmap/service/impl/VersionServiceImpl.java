@@ -147,17 +147,21 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		try {
 			dlDAOVO = transServiceVO2DeviceDAOVO(vsVO);
 			
-			int queryTimes = (dlDAOVO.getQueryDeviceList().size()/2000) + ((dlDAOVO.getQueryDeviceList().size() % 2000 != 0)? 1 : 0 );
-			List<String> deviceList = dlDAOVO.getQueryDeviceList();
-			for(int i = 1; i <= queryTimes; i++) {
-				if(i != queryTimes) {
-					dlDAOVO.setQueryDeviceList(deviceList.subList(0, 2000));
-					deviceList = deviceList.subList(2001, deviceList.size());
-				}else {
-					dlDAOVO.setQueryDeviceList(deviceList);
+			if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+				retCount = deviceDAO.countDeviceListAndLastestVersionByDAOVO(dlDAOVO);
+	        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+	        	int queryTimes = (dlDAOVO.getQueryDeviceList().size()/2000) + ((dlDAOVO.getQueryDeviceList().size() % 2000 != 0)? 1 : 0 );
+				List<String> deviceList = dlDAOVO.getQueryDeviceList();
+				for(int i = 1; i <= queryTimes; i++) {
+					if(i != queryTimes) {
+						dlDAOVO.setQueryDeviceList(deviceList.subList(0, 2000));
+						deviceList = deviceList.subList(2001, deviceList.size());
+					}else {
+						dlDAOVO.setQueryDeviceList(deviceList);
+					}
+					retCount += deviceDAO.countDeviceListAndLastestVersionByDAOVO(dlDAOVO);
 				}
-				retCount += deviceDAO.countDeviceListAndLastestVersionByDAOVO(dlDAOVO);
-			}
+	        }
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -213,17 +217,21 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		try {
 			dlDAOVO = transServiceVO2DeviceDAOVO(vsVO);
 			
-			int queryTimes = (dlDAOVO.getQueryDeviceList().size()/2000) + ((dlDAOVO.getQueryDeviceList().size() % 2000 != 0)? 1 : 0 );
-			List<String> deviceList = dlDAOVO.getQueryDeviceList();
-			for(int i = 1; i <= queryTimes; i++) {
-				if(i != queryTimes) {
-					dlDAOVO.setQueryDeviceList(deviceList.subList(0, 2000));
-					deviceList = deviceList.subList(2001, deviceList.size());
-				}else {
-					dlDAOVO.setQueryDeviceList(deviceList);
+			if (StringUtils.isNotBlank(dlDAOVO.getQueryDevice())) {
+				modelList = deviceDAO.findDeviceListAndLastestVersionByDAOVO(dlDAOVO, startRow, pageLength);
+	        } else if (dlDAOVO.getQueryDeviceList() != null && !dlDAOVO.getQueryDeviceList().isEmpty()) {
+	        	int queryTimes = (dlDAOVO.getQueryDeviceList().size()/2000) + ((dlDAOVO.getQueryDeviceList().size() % 2000 != 0)? 1 : 0 );
+				List<String> deviceList = dlDAOVO.getQueryDeviceList();
+				for(int i = 1; i <= queryTimes; i++) {
+					if(i != queryTimes) {
+						dlDAOVO.setQueryDeviceList(deviceList.subList(0, 2000));
+						deviceList = deviceList.subList(2001, deviceList.size());
+					}else {
+						dlDAOVO.setQueryDeviceList(deviceList);
+					}
+					modelList.addAll(deviceDAO.findDeviceListAndLastestVersionByDAOVO(dlDAOVO, startRow, pageLength));
 				}
-				modelList.addAll(deviceDAO.findDeviceListAndLastestVersionByDAOVO(dlDAOVO, startRow, pageLength));
-			}
+	        }
 			
 			if (modelList != null && !modelList.isEmpty()) {
 				retList = transModel2ServiceVO4Device(modelList);
@@ -413,7 +421,12 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						contentList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
 					}catch(IOException e) {
 						log.info("Read files with UTF_8 error, and try with Big5 again");
-						contentList = Files.readAllLines(Paths.get(targetFileName), Charset.forName("big5"));
+						try {
+							contentList = Files.readAllLines(Paths.get(targetFileName), Charset.forName("big5"));
+						}catch(IOException e1) {
+							log.info("Read files with Big5 error, and try with ISO_8859_1 again");
+							contentList = Files.readAllLines(Paths.get(targetFileName), Charset.forName("ISO_8859_1"));
+						}						
 					}
 					log.debug("Debug check if contentList is null?:");
 					if (contentList == null || contentList.isEmpty()) {

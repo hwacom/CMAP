@@ -259,7 +259,7 @@
         </div>
         
         <div class="form-group row">
-        	<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail()" ></i>
+        	<i class="fas fa-clipboard-list fa-2x" onclick="viewPortNumberDetail()" ></i>
         </div>
       </div>
       <div class="modal-footer">
@@ -270,40 +270,40 @@
 <!-- Modal [View IP_Address 來源/目的 port] end -->
 
 
-<!-- Modal [ViewIpDetail] start -->
-<div class="modal fade" id="viewIpDetailModal" tabindex="-1" role="dialog" aria-labelledby="viewIpDetailLabel" aria-hidden="true">
+<!-- Modal [viewPortNumberDetail] start -->
+<div class="modal fade" id="viewPortNumberDetailModal" tabindex="-1" role="dialog" aria-labelledby="viewPortNumberDetailLabel" aria-hidden="true">
   <div class="modal-dialog modal-mid" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="viewIpDetailLabel"><span id="msgModal_title">連線明細資料</span></h5>
+        <h5 class="modal-title" id="viewPortNumberDetailLabel"><span id="msgModal_title">連線明細資料</span></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
      	<div class="form-group row">
-        	<label for="viewIpDetailModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpDetailModal_groupName"></div>
+        	<label for="viewPortNumberDetailModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_groupName"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewIpDetailModal_clientMac" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.mac" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpDetailModal_clientMac"></div>
+        	<label for="viewPortNumberDetailModal_clientIp" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.ip" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_clientIp"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewIpDetailModal_clientIp" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.ip" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpDetailModal_clientIp"></div>
+        	<label for="viewPortNumberDetailModal_pollingTime" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.polling.time" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_pollingTime"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewIpDetailModal_pollingTime" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.polling.time" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpDetailModal_pollingTime"></div>
+        	<label for="viewPortNumberDetailModal_uploadSize" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_uploadSize"></div>
+    		<label for="viewPortNumberDetailModal_uploadSession" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_uploadSession"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewIpDetailModal_trafficData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpDetailModal_trafficData"></div>
-        </div>
-        <div class="form-group row">
-        	<label for="viewIpDetailModal_qualityData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.quality.chart" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpDetailModal_qualityData"></div>
+        	<label for="viewPortNumberDetailModal_downloadSize" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_downloadSize"></div>
+    		<label for="viewPortNumberDetailModal_downloadSession" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewPortNumberDetailModal_downloadSession"></div>
         </div>
       </div>
       <div class="modal-footer">

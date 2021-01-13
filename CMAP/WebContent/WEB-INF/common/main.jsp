@@ -61,7 +61,7 @@
     <link href="${pageContext.request.contextPath}/resources/css/flag-icon-css-master/flag-icon.min.css" rel="stylesheet">
 	
 	<!-- Core Javascript -->
-	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.3.1.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.5.1.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/dist/jquery.validate.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/dist/additional-methods.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/dist/localization/messages_zh_TW.min.js"></script>
@@ -378,8 +378,19 @@
 		                    	</a>
 		                    </li>
 			            </c:if>
-			            <!-- [Wifi查詢] END -->			
-			                        
+			            <!-- [Wifi查詢] END -->
+
+						<!-- [行動用戶紀錄查詢] START -->
+			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_MOBILE_POLLER eq __SHOW__}">
+			            	<li class="subMenu-item">
+		                    	<a id="cm_mobile" href="${pageContext.request.contextPath}/plugin/module/mobilePoller">
+		                    	  <span data-feather="phone-call"></span>
+		                    		<span><spring:message code="func.plugin.mobile.manage" /></span>
+		                    	</a>
+		                    </li>
+			            </c:if>
+			            <!-- [行動用戶紀錄查詢] END -->	
+			            
 			            <!-- [IP異動紀錄查詢] START -->
 			            <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER eq __SHOW__}">
 			            	<li class="subMenu-item">

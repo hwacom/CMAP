@@ -8,7 +8,7 @@ var startNum, pageLength;
 var lastScrollYPos = 0;
 
 $(document).ready(function() {
-	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "cm_wifi");
+	initMenuStatus("toggleMenu_prtg", "toggleMenu_prtg_items", "cm_mobile");
 	
 	startNum = 0;
 	pageLength = Number($("#pageLength").val());
@@ -29,19 +29,16 @@ $(document).ready(function() {
 	//$('#queryGroup').unbind('blur').bind('blur',function(){
     //   $(this).val($(this).val().trim());
     //});
-	$('#query_ClientMac').unbind('blur').bind('blur',function(){
+	$('#query_ClientSUPI').unbind('blur').bind('blur',function(){
         $(this).val($(this).val().trim());
     });
-	$('#query_ClientIp').unbind('blur').bind('blur',function(){
+	$('#query_ClientNumber').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});
-	$('#query_ApName').unbind('blur').bind('blur',function(){
+	$('#query_CellName').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});
 	$('#query_Ssid').unbind('blur').bind('blur',function(){
-		$(this).val($(this).val().trim());
-	});
-	$('#query_UserName').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});
 	
@@ -115,16 +112,16 @@ function addRow(dataList) {
 		var cTR = $("#resultTable > tbody > tr:eq(0)").clone();
 		$(cTR).find("td:eq(0)").html( ++rowCount );
 		$(cTR).find("td:eq(1)").html( data.groupName );
-		$(cTR).find("td:eq(2)").html( data.clientMac );
+		$(cTR).find("td:eq(2)").html( data.clientSUPI );
 		$(cTR).find("td:eq(3)").html( data.startTime );
 		$(cTR).find("td:eq(4)").html( data.endTime );
-		$(cTR).find("td:eq(5)").html( data.clientIp );
+		$(cTR).find("td:eq(5)").html( data.clientNumber );
 		$(cTR).find("td:eq(6)").html( data.apName );
 		$(cTR).find("td:eq(7)").html( data.ssid );
 		$(cTR).find("td:eq(8)").html( data.totalTraffic );
 		$(cTR).find("td:eq(9)").html( data.uploadTraffic );
 		$(cTR).find("td:eq(10)").html( data.downloadTraffic );
-		$(cTR).find("td:eq(11)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+data.groupName+'\',' +'\''+data.clientMac+'\',' +'\''+data.clientIp+'\',' +'\''+data.startTime+'\',' +'\''+data.endTime+'\'' + ')" ></i>' );
+		$(cTR).find("td:eq(11)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+data.groupName+'\',' +'\''+data.clientSUPI+'\',' +'\''+data.clientNumber+'\',' +'\''+data.startTime+'\',' +'\''+data.endTime+'\'' + ')" ></i>' );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -140,11 +137,10 @@ function getTotalFilteredCount() {
 			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
-			"queryClientMac" : $("#query_ClientMac").val(),
-			"queryClientIp" : $("#query_ClientIp").val(),
-			"queryApName" : $("#query_ApName").val(),
-			"querySsid" : $("#query_Ssid").val(),
-			"queryUserName" : $("#query_UserName").val()
+			"queryClientSUPI" : $("#query_ClientSUPI").val(),
+			"queryClientNumber" : $("#query_ClientNumber").val(),
+			"queryCellName" : $("#query_CellName").val(),
+			"querySsid" : $("#query_Ssid").val()
 		},
 		type : "POST",
 		dataType : 'json',
@@ -187,12 +183,12 @@ function getTotalFilteredCount() {
 }
 
 // 跳窗顯示WifiDetail資料
-function viewWifiDetail(groupName, clientMac, clientIp, startTime, endTime) {
+function viewWifiDetail(groupName, clientSUPI, clientNumber, startTime, endTime) {
 
 	var obj = new Object();
 	obj.groupName = groupName;
-	obj.clientMac = clientMac;
-	obj.clientIp = clientIp;
+	obj.clientSUPI = clientSUPI;
+	obj.clientNumber = clientNumber;
 	obj.startTime = startTime;
 	obj.endTime = endTime
 	
@@ -214,13 +210,13 @@ function viewWifiDetail(groupName, clientMac, clientIp, startTime, endTime) {
 		success : function(resp) {
 			if (resp.code == '200') {
 				$('#viewWifiDetailModal_groupName').parent().show();
-				$('#viewWifiDetailModal_clientMac').parent().show();
-				$('#viewWifiDetailModal_clientIp').parent().show();
+				$('#viewWifiDetailModal_clientSUPI').parent().show();
+				$('#viewWifiDetailModal_clientNumber').parent().show();
 				$('#viewWifiDetailModal_pollingTime').parent().show();
 				//填入對應欄位值
 				$('#viewWifiDetailModal_groupName').html(resp.data.groupName);
-				$('#viewWifiDetailModal_clientMac').html(resp.data.clientMac);
-				$('#viewWifiDetailModal_clientIp').html(resp.data.clientIp);
+				$('#viewWifiDetailModal_clientSUPI').html(resp.data.clientSUPI);
+				$('#viewWifiDetailModal_clientNumber').html(resp.data.clientNumber);
 				$('#viewWifiDetailModal_pollingTime').html(resp.data.startTime +" ~ "+resp.data.endTime);
 				var trafficChartHtml = 
 				"<canvas id=\"canvasTraffic\" width=\"300\" height=\"100\"></canvas> \
@@ -383,11 +379,10 @@ function findNextData() {
 			"queryDateEnd" : $("#query_DateEnd").val(),
 			"queryTimeBegin" : $("#query_TimeBegin").val(),
 			"queryTimeEnd" : $("#query_TimeEnd").val(),
-			"queryClientMac" : $("#query_ClientMac").val(),
-			"queryClientIp" : $("#query_ClientIp").val(),
-			"queryApName" : $("#query_ApName").val(),
+			"queryClientSUPI" : $("#query_ClientSUPI").val(),
+			"queryClientNumber" : $("#query_ClientNumber").val(),
+			"queryCellName" : $("#query_CellName").val(),
 			"querySsid" : $("#query_Ssid").val(),
-			"queryUserName" : $("#query_UserName").val(),
 			"start" : startNum,
 			"length" : pageLength,
 			"order[0][column]" : sortIdx,
@@ -443,8 +438,8 @@ function findData(from) {
 	var chkQueryDateTimeBegin;
 	var chkQueryDateTimeEnd;
 	var chkQueryDateTime;
-	var chkQueryClientIp;
-	var chkQueryClientMac;
+	var chkQueryClientNumber;
+	var chkQueryClientSUPI;
 	
 	$('#queryFrom').val(from);
 	//確認Group篩選條件輸入狀態
@@ -456,16 +451,16 @@ function findData(from) {
 		chkQueryGroup = 'N';
 	}
 	//確認ClientIP篩選條件輸入狀態
-	if ($("#query_ClientIp").val().trim().length != 0) {
-		chkQueryClientIp = 'Y';
+	if ($("#query_ClientNumber").val().trim().length != 0) {
+		chkQueryClientNumber = 'Y';
 	}else{
-		chkQueryClientIp = 'N';
+		chkQueryClientNumber = 'N';
 	}
-	//確認ClientMac篩選條件輸入狀態
-	if ($("#query_ClientMac").val().trim().length != 0) {
-		chkQueryClientMac = 'Y';
+	//確認ClientSUPI篩選條件輸入狀態
+	if ($("#query_ClientSUPI").val().trim().length != 0) {
+		chkQueryClientSUPI = 'Y';
 	}else{
-		chkQueryClientMac = 'N';
+		chkQueryClientSUPI = 'N';
 	}
 	if ($("#query_DateBegin").val().trim().length != 0 && $("#query_TimeBegin").val().trim().length != 0){
 		chkQueryDateTimeBegin = 'Y';
@@ -490,7 +485,7 @@ function findData(from) {
 		chkQueryDateTime='Y'
 	}
 	//至少要輸入一種條件篩選
-	if(chkQueryGroup=='N' && chkQueryClientIp=='N' && chkQueryClientMac=='N' && chkQueryDateTime=='N'){
+	if(chkQueryGroup=='N' && chkQueryClientNumber=='N' && chkQueryClientSUPI=='N' && chkQueryDateTime=='N'){
 		alert(msg_chooseOne);
 		return;
 	}
@@ -537,21 +532,19 @@ function findData(from) {
 						d.queryDateEnd = $("#query_DateEnd").val(),
 						d.queryTimeBegin = $("#query_TimeBegin").val(),
 						d.queryTimeEnd = $("#query_TimeEnd").val(),
-						d.queryClientMac = $("#query_ClientMac").val(),
-						d.queryClientIp = $("#query_ClientIp").val(),
-						d.queryApName = $("#query_ApName").val(),
-						d.querySsid = $("#query_Ssid").val(),
-						d.queryUserName = $("#query_UserName").val()
+						d.queryClientSUPI = $("#query_ClientSUPI").val(),
+						d.queryClientNumber = $("#query_ClientNumber").val(),
+						d.queryCellName = $("#query_CellName").val(),
+						d.querySsid = $("#query_Ssid").val()	
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						//d.queryGroup = $("#queryGroup_mobile").val(),
 						d.queryDate = $("#query_Date_mobile").val(),
 						//d.queryTimeBegin = $("#query_TimeBegin_mobile").val(),
 						//d.queryTimeEnd = $("#query_TimeEnd_mobile").val(),
-						d.queryClientMac = $("#query_ClientMac_mobile").val(),
-						d.queryClientIp = $("#query_ClientIp_mobile").val(),
-						d.queryApName = $("#query_ApName_mobile").val(),
-						d.querySsid = $("#query_Ssid_mobile").val(),
-						d.queryUserName = $("#query_UserName_mobile").val()
+						d.queryClientSUPI = $("#query_ClientSUPI_mobile").val(),
+						d.queryClientNumber = $("#query_ClientNumber_mobile").val(),
+						d.queryCellName = $("#query_CellName_mobile").val(),
+						d.querySsid = $("#query_Ssid_mobile").val()
 					}
 					d.start = 0; //初始查詢一律從第0筆開始
 					d.length = pageLength;
@@ -624,16 +617,13 @@ function findData(from) {
 			"columns" : [
 				{},
 				{ "data" : "groupName" , "orderable" : true },
-				{ "data" : "clientMac" , "orderable" : true },
+				{ "data" : "clientSUPI" , "orderable" : true },
 				{ "data" : "startTime", "orderable" : true },
 				{ "data" : "endTime" , "orderable" : true},
-				{ "data" : "userName" , "orderable" : true },
-				{ "data" : "clientIp" , "orderable" : true },
+				{ "data" : "clientNumber" , "orderable" : true },
 				{ "data" : "apName" , "orderable" : true },
-				{ "data" : "ssid" , "orderable" : true },
+				/*{ "data" : "ssid" , "orderable" : true },*/
 				{ "data" : "totalTraffic", "orderable" : true },
-				{ "data" : "uploadTraffic", "orderable" : true },
-				{ "data" : "downloadTraffic", "orderable" : true },
 				{}
 			],
 			"columnDefs" : [
@@ -647,12 +637,12 @@ function findData(from) {
 						   	}
 				},
 				{
-					"targets" : [12],
+					"targets" : [8],
 					"className" : "center",
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-									var html = '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail('+'\''+row.groupName+'\',' +'\''+row.clientMac+'\',' +'\''+row.clientIp+'\','+'\''+row.startTime+'\',' +'\''+row.endTime+'\'' + ')" ></i>';
+									var html = '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail('+'\''+row.groupName+'\',' +'\''+row.clientSUPI+'\',' +'\''+row.clientNumber+'\','+'\''+row.startTime+'\',' +'\''+row.endTime+'\'' + ')" ></i>';
 									return html;
 							 }
 				}
