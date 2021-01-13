@@ -41,6 +41,9 @@ $(document).ready(function() {
 	$('#query_Ssid').unbind('blur').bind('blur',function(){
 		$(this).val($(this).val().trim());
 	});
+	$('#query_UserName').unbind('blur').bind('blur',function(){
+		$(this).val($(this).val().trim());
+	});
 	
 	var today = new Date();
 	var year = today.getFullYear();
@@ -140,7 +143,8 @@ function getTotalFilteredCount() {
 			"queryClientMac" : $("#query_ClientMac").val(),
 			"queryClientIp" : $("#query_ClientIp").val(),
 			"queryApName" : $("#query_ApName").val(),
-			"querySsid" : $("#query_Ssid").val()
+			"querySsid" : $("#query_Ssid").val(),
+			"queryUserName" : $("#query_UserName").val()
 		},
 		type : "POST",
 		dataType : 'json',
@@ -383,6 +387,7 @@ function findNextData() {
 			"queryClientIp" : $("#query_ClientIp").val(),
 			"queryApName" : $("#query_ApName").val(),
 			"querySsid" : $("#query_Ssid").val(),
+			"queryUserName" : $("#query_UserName").val(),
 			"start" : startNum,
 			"length" : pageLength,
 			"order[0][column]" : sortIdx,
@@ -535,7 +540,8 @@ function findData(from) {
 						d.queryClientMac = $("#query_ClientMac").val(),
 						d.queryClientIp = $("#query_ClientIp").val(),
 						d.queryApName = $("#query_ApName").val(),
-						d.querySsid = $("#query_Ssid").val()	
+						d.querySsid = $("#query_Ssid").val(),
+						d.queryUserName = $("#query_UserName").val()
 					} else if ($('#queryFrom').val() == 'MOBILE') {
 						//d.queryGroup = $("#queryGroup_mobile").val(),
 						d.queryDate = $("#query_Date_mobile").val(),
@@ -544,7 +550,8 @@ function findData(from) {
 						d.queryClientMac = $("#query_ClientMac_mobile").val(),
 						d.queryClientIp = $("#query_ClientIp_mobile").val(),
 						d.queryApName = $("#query_ApName_mobile").val(),
-						d.querySsid = $("#query_Ssid_mobile").val()
+						d.querySsid = $("#query_Ssid_mobile").val(),
+						d.queryUserName = $("#query_UserName_mobile").val()
 					}
 					d.start = 0; //初始查詢一律從第0筆開始
 					d.length = pageLength;
@@ -620,6 +627,7 @@ function findData(from) {
 				{ "data" : "clientMac" , "orderable" : true },
 				{ "data" : "startTime", "orderable" : true },
 				{ "data" : "endTime" , "orderable" : true},
+				{ "data" : "userName" , "orderable" : true },
 				{ "data" : "clientIp" , "orderable" : true },
 				{ "data" : "apName" , "orderable" : true },
 				{ "data" : "ssid" , "orderable" : true },
@@ -639,7 +647,7 @@ function findData(from) {
 						   	}
 				},
 				{
-					"targets" : [11],
+					"targets" : [12],
 					"className" : "center",
 					"searchable": false,
 					"orderable": false,

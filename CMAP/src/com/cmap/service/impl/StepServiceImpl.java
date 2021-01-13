@@ -1062,34 +1062,38 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					}
 					
 					if (Env.TFTP_SERVER_AT_LOCAL) {
-						if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {//分散式架構要將備份檔丟回core server					
-							Properties prop = new Properties();
-							final String propFileName = "distributed_setting.properties";
-							InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
-							prop.load(inputStream);
-							
-							if(!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), "core")){
-								ConfigInfoVO coreInfoVO = new ConfigInfoVO();
-								coreInfoVO.settFtpIP(Env.DISTRIBUTED_CORE_IP);
-								coreInfoVO.setFtpIP(Env.DISTRIBUTED_CORE_IP);
-								coreInfoVO.setFtpPort(ciVO.getFtpPort());
-								coreInfoVO.settFtpPort(ciVO.gettFtpPort());
+						if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {//分散式架構要將備份檔丟回core server	
+							try {
+								Properties prop = new Properties();
+								final String propFileName = "distributed_setting.properties";
+								InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+								prop.load(inputStream);
 								
-								FileUtils coreFileUtils = null;								
-								coreFileUtils = connect2FileServer(coreFileUtils, _mode, coreInfoVO);								
-								String configFileName = ciVO.getConfigFileDirPath().concat(nowVersionFileName);
-								
-								String targetFileName;
-								List<String> cList = new ArrayList<>();
-								if(StringUtils.isBlank(ciVO.getConfigFileDirPath()) || ciVO.getConfigFileDirPath().length() == 1) {
-									targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(nowVersionFileName);
-								}else {
-									targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(nowVersionFileName);
+								if(!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), "core")){
+									ConfigInfoVO coreInfoVO = new ConfigInfoVO();
+									coreInfoVO.settFtpIP(Env.DISTRIBUTED_CORE_IP);
+									coreInfoVO.setFtpIP(Env.DISTRIBUTED_CORE_IP);
+									coreInfoVO.setFtpPort(ciVO.getFtpPort());
+									coreInfoVO.settFtpPort(ciVO.gettFtpPort());
+									
+									FileUtils coreFileUtils = null;								
+									coreFileUtils = connect2FileServer(coreFileUtils, _mode, coreInfoVO);								
+									String configFileName = ciVO.getConfigFileDirPath().concat(nowVersionFileName);
+									
+									String targetFileName;
+									List<String> cList = new ArrayList<>();
+									if(StringUtils.isBlank(ciVO.getConfigFileDirPath()) || ciVO.getConfigFileDirPath().length() == 1) {
+										targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(nowVersionFileName);
+									}else {
+										targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(nowVersionFileName);
+									}
+									//read file into stream, try-with-resources
+									targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+									cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);								
+									coreFileUtils.uploadFiles(configFileName, IOUtils.toInputStream(String.join("\r\n", cList)));
 								}
-								//read file into stream, try-with-resources
-								targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
-								cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);								
-								coreFileUtils.uploadFiles(configFileName, IOUtils.toInputStream(String.join("\r\n", cList)));
+							} catch (Exception e) {
+								log.error(e.toString(), e);//傳不上去就放棄吧
 							}
 						}
 					}

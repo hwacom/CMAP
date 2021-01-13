@@ -94,8 +94,9 @@ function openPrtgWindow(_uri) {
 
   	openWindow = window.open(
   			_uri, 
-  			"_prtg", 
-  			"toolbar=no,scrollbars=yes,titlebar=no,status=no,menubar=no,location=no,resizable=yes,top="+y+",left="+x+",width="+width+",height="+height+"\"");
+  			"_prtg");
+  	//, 
+  	//		"toolbar=no,scrollbars=yes,titlebar=no,status=no,menubar=no,location=no,resizable=yes,top="+y+",left="+x+",width="+width+",height="+height+"\"");
 
   	openWindow.focus();
 	//prtgLoginWindow.blur();

@@ -60,7 +60,8 @@ public class Env {
     public static String SHOW_MENU_ITEM_PLUGIN_IP_TRACE_POLLER;		             // 監控平台 > IP異動紀錄查詢
     public static String SHOW_MENU_ITEM_PRTG_ABNORMAL_HIS;		             // 監控平台 > 異常歷史紀錄查詢
     public static String SHOW_MENU_ITEM_VLAN_SWITCH;                        	// 監控平台 > vlan 切換
-
+    public static String SHOW_MENU_ITEM_PLUGIN_MOBILE_POLLER;		             // 監控平台 > 行動用戶紀錄查詢
+    
     public static String SHOW_MENU_TREE_CONFIG_MANAGEMENT;                   // 組態管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_MANAGEMENT;               // 組態管理 > 版本管理
 	public static String SHOW_MENU_ITEM_CM_VERSION_BACKUP;                   // 組態管理 > 版本備份

@@ -1,4 +1,4 @@
-package com.cmap.plugin.module.wifipoller;
+package com.cmap.plugin.module.mobilepoller;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -13,20 +13,20 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(
-		name = "module_wifi_trace_mst",
+		name = "module_mobile_trace_mst",
 		uniqueConstraints = {
-				@UniqueConstraint(columnNames = {"client_mac", "start_time"})
+				@UniqueConstraint(columnNames = {"client_SUPI", "start_time"})
 		}
 )
-public class ModuleWifiTraceMst {
+public class ModuleMobileTraceMst {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "data_id", unique = true)
 	private Long dataId;
     
-	@Column(name = "client_mac", nullable = false)
-	private String clientMac;
+	@Column(name = "client_SUPI", nullable = false)
+	private String clientSUPI;
 
 	@Column(name = "start_time", nullable = false)
     private Date startTime;
@@ -34,13 +34,10 @@ public class ModuleWifiTraceMst {
 	@Column(name = "end_time", nullable = true)
 	private Date endTime;
 
-	@Column(name = "user_name", nullable = true)
-	private String userName;
+	@Column(name = "client_Number", nullable = false)
+	private String clientNumber;
 	
-	@Column(name = "client_ip", nullable = false)
-	private String clientIp;
-	
-	@Column(name = "ap_name", nullable = false)
+	@Column(name = "cell_name", nullable = false)
 	private String apName;
 	
 	@Column(name = "ssid", nullable = false)
@@ -67,31 +64,30 @@ public class ModuleWifiTraceMst {
 	@Column(name = "update_by", nullable = false)
 	private String updateBy;
 
-	public ModuleWifiTraceMst() {
+	public ModuleMobileTraceMst() {
 		super();
 	}
 
-	public ModuleWifiTraceMst(Long dataId, String clientMac, Date startTime, Date endTime, String userName,
-			String clientIp, String apName, String ssid, Double totalTraffic, Double uploadTraffic,
-			Double downloadTraffic, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
-		super();
-		this.dataId = dataId;
-		this.clientMac = clientMac;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.userName = userName;
-		this.clientIp = clientIp;
-		this.apName = apName;
-		this.ssid = ssid;
-		this.totalTraffic = totalTraffic;
-		this.uploadTraffic = uploadTraffic;
-		this.downloadTraffic = downloadTraffic;
-		this.createTime = createTime;
-		this.createBy = createBy;
-		this.updateTime = updateTime;
-		this.updateBy = updateBy;
-	}
-
+    public ModuleMobileTraceMst( Long dataId, String clientSUPI, Date startTime, Date endTime, String clientNumber,
+    		String apName, String ssid, Double totalTraffic, Double uploadTraffic, Double downloadTraffic,
+    		Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+        super();
+        this.dataId = dataId;
+        this.clientSUPI = clientSUPI;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.clientNumber = clientNumber;
+        this.apName = apName;
+        this.ssid = ssid;
+        this.totalTraffic = totalTraffic;
+        this.uploadTraffic = uploadTraffic;
+        this.downloadTraffic = downloadTraffic;
+        this.createTime = createTime;
+        this.createBy = createBy;
+        this.updateTime = updateTime;
+        this.updateBy = updateBy;
+    }
+    
 	public Long getDataId() {
 		return dataId;
 	}
@@ -100,12 +96,12 @@ public class ModuleWifiTraceMst {
 		this.dataId = dataId;
 	}
 
-	public String getClientMac() {
-		return clientMac;
+	public String getClientSUPI() {
+		return clientSUPI;
 	}
 
-	public void setClientMac(String clientMac) {
-		this.clientMac = clientMac;
+	public void setClientSUPI(String clientSUPI) {
+		this.clientSUPI = clientSUPI;
 	}
 
 	public Date getStartTime() {
@@ -124,27 +120,19 @@ public class ModuleWifiTraceMst {
 		this.endTime = endTime;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getClientNumber() {
+		return clientNumber;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setClientNumber(String clientNumber) {
+		this.clientNumber = clientNumber;
 	}
 
-	public String getClientIp() {
-		return clientIp;
-	}
-
-	public void setClientIp(String clientIp) {
-		this.clientIp = clientIp;
-	}
-
-	public String getApName() {
+	public String getCellName() {
 		return apName;
 	}
 
-	public void setApName(String apName) {
+	public void setCellName(String apName) {
 		this.apName = apName;
 	}
 

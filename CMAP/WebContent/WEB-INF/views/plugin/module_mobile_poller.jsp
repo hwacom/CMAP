@@ -44,34 +44,26 @@
 				 -->
 			  </div>
 			  <div class="form-group row">
-	    	    <div class="col-lg-2 group-field-other">
-					<label for="query_ClientMac" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.client.mac" /></label>
-					<input type="text" id="query_ClientMac" class="" style="width: 65%">
+	    	    <div class="col-lg-3 group-field-other">
+					<label for="query_ClientSUPI" class="font-weight-bold" style="width: 25%"><spring:message code="mobile.poller.client.supi" /></label>
+					<input type="text" id="query_ClientSUPI" class="" style="width: 70%">
 				</div>
-				<div class="col-lg-2 group-field-other">
-					<label for="query_ClientIp" class="font-weight-bold" style="width: 20%"><spring:message code="wifi.poller.client.ip" /></label>
-					<input type="text" id="query_ClientIp" class="input-ip" style="width: 70%">
+				<div class="col-lg-3 group-field-other">
+					<label for="query_ClientNumber" class="font-weight-bold" style="width: 20%"><spring:message code="mobile.poller.client.number" /></label>
+					<input type="text" id="query_ClientNumber" class="input-ip" style="width: 70%">
 				</div>
 			  	<div class="col-lg-2 group-field-other">
-					<label for="query_ApName" class="font-weight-bold" style="width: 25%"><spring:message code="wifi.poller.ap.name" /></label>
-					<input type="text" id="query_ApName" class="" style="width: 60%">
+					<label for="query_CellName" class="font-weight-bold" style="width: 30%"><spring:message code="mobile.poller.cell.name" /></label>
+					<input type="text" id="query_CellName" class="" style="width: 60%">
 				</div>
 		  		<div class="col-lg-2 group-field-other">
-					<label for="query_Ssid" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.ssid" /></label>
+					<label for="query_Ssid" class="font-weight-bold" style="width: 35%"><spring:message code="mobile.poller.ssid" /></label>
 					<input type="text" id="query_Ssid" class="" style="width: 60%">
-				</div>
-				<div class="col-lg-2 group-field-other">
-					<label for="query_Ssid" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.ssid" /></label>
-					<input type="text" id="query_Ssid" class="" style="width: 60%">
-				</div>
-				<div class="col-lg-2 group-field-other">
-					<label for="query_UserName" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.user.name" /></label>
-					<input type="text" id="query_UserName" class="" style="width: 60%">
 				</div>
 	      	  </div>
 			  <div class="form-group row">
 	    	    <div class="col-lg-8 group-field-other">
-	    	   		<label for="query_DateBegin" class="font-weight-bold" style="width: 7%"><spring:message code="ip.trace.poller.start.time" /></label>
+	    	   		<label for="query_DateBegin" class="font-weight-bold" style="width: 10%"><spring:message code="ip.trace.poller.start.time" /></label>
 	    	    	<input type="date" id="query_DateBegin" style="width: 22%"/>
 	    	    	<input type="time" id="query_TimeBegin" style="width: 20%"/>
 					<span class="font-weight-bold center" style="width: 2%">~</span>
@@ -115,28 +107,24 @@
 		    	  </div>
 		    	    -->
 		    	  <div class="form-group row">
-		    	  	<label for="query_Date_mobile" class="col-sm-2 col-form-label"><spring:message code="wifi.poller.date.conn" /></label>
+		    	  	<label for="query_Date_mobile" class="col-sm-2 col-form-label"><spring:message code="mobile.poller.date.conn" /></label>
 		    	  	<input type="date" class="form-control form-control-sm" id="query_Date_mobile">
 				  </div>
 				  <div class="form-group row">
-		    	  	<label for="query_ClientMac_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.ip" /></label>
-		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_ClientMac_mobile">
+		    	  	<label for="query_ClientSUPI_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.ip" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_ClientSUPI_mobile">
 				  </div>
 				  <div class="form-group row">
-		    	  	<label for="query_ClientIp_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.port" /></label>
-		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_ClientIp_mobile">
+		    	  	<label for="query_ClientNumber_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.destination.port" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm input-port" id="query_ClientNumber_mobile">
 				  </div>
 				  <div class="form-group row">
-		    	  	<label for="query_ApName_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.sender.ip" /></label>
-		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_ApName_mobile">
+		    	  	<label for="query_CellName_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.sender.ip" /></label>
+		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_CellName_mobile">
 				  </div>
 				  <div class="form-group row">
 		    	  	<label for="query_Ssid_mobile" class="col-sm-2 col-form-label"><spring:message code="net.flow.mac" /></label>
 		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_Ssid_mobile">
-				  </div>
-				  <div class="form-group row">
-		    	  	<label for="query_UserName_mobile" class="col-sm-2 col-form-label"><spring:message code="wifi.poller.user.name" /></label>
-		    	  	<input type="text" class="col-sm-10 form-control form-control-sm" id="query_UserName_mobile">
 				  </div>
 				  <div class="form-group row">
 		    	    <div class="col-sm-12">
@@ -157,17 +145,14 @@
 		    <tr>
 		      <th scope="col" nowrap="nowrap"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.client.mac" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.start.time" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.end.time" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.user.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.client.ip" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.ap.name" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.ssid" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.client.supi" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.start.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.end.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.client.number" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.cell.name" /></th>
+		      <!-- <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.ssid" /></th> -->
 		      <th scope="col" nowrap="nowrap"><spring:message code="total.traffic" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="upload.traffic" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="download.traffic" /></th>
-		      <th scope="col" nowrap="nowrap"><spring:message code="wifi.poller.conn.history" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="mobile.poller.conn.history" /></th>
 		    </tr>
 		  </thead>
 		</table>
@@ -176,40 +161,40 @@
   </div>
   
 </section>
-<!-- Modal [ViewWifiDetail] start -->
-<div class="modal fade" id="viewWifiDetailModal" tabindex="-1" role="dialog" aria-labelledby="viewWifiDetailLabel" aria-hidden="true">
+<!-- Modal [ViewMobileDetail] start -->
+<div class="modal fade" id="viewMobileDetailModal" tabindex="-1" role="dialog" aria-labelledby="viewMobileDetailLabel" aria-hidden="true">
   <div class="modal-dialog modal-mid" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="viewWifiDetailLabel"><span id="msgModal_title">Wifi連線明細資料</span></h5>
+        <h5 class="modal-title" id="viewMobileDetailLabel"><span id="msgModal_title">Mobile連線明細資料</span></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
      	<div class="form-group row">
-        	<label for="viewWifiDetailModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_groupName"></div>
+        	<label for="viewMobileDetailModal_groupName" class="col-md-2 col-sm-12 col-form-label"><spring:message code="group.name" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewMobileDetailModal_groupName"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewWifiDetailModal_clientMac" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.mac" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_clientMac"></div>
+        	<label for="viewMobileDetailModal_clientSUPI" class="col-md-2 col-sm-12 col-form-label"><spring:message code="mobile.poller.client.mac" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewMobileDetailModal_clientSUPI"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewWifiDetailModal_clientIp" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.client.ip" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_clientIp"></div>
+        	<label for="viewMobileDetailModal_clientNumber" class="col-md-2 col-sm-12 col-form-label"><spring:message code="mobile.poller.client.ip" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewMobileDetailModal_clientNumber"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewWifiDetailModal_pollingTime" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.polling.time" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_pollingTime"></div>
+        	<label for="viewMobileDetailModal_pollingTime" class="col-md-2 col-sm-12 col-form-label"><spring:message code="mobile.poller.polling.time" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewMobileDetailModal_pollingTime"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewWifiDetailModal_trafficData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.traffic.chart" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_trafficData"></div>
+        	<label for="viewMobileDetailModal_trafficData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="mobile.poller.traffic.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewMobileDetailModal_trafficData"></div>
         </div>
         <div class="form-group row">
-        	<label for="viewWifiDetailModal_qualityData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="wifi.poller.quality.chart" /> :</label>
-    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewWifiDetailModal_qualityData"></div>
+        	<label for="viewMobileDetailModal_qualityData" class="col-md-2 col-sm-12 col-form-label"><spring:message code="mobile.poller.quality.chart" /> :</label>
+    		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewMobileDetailModal_qualityData"></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -217,12 +202,12 @@
     </div>
   </div>
 </div>
-<!-- Modal [ViewWifiDetail] end -->
+<!-- Modal [ViewMobileDetail] end -->
 <script>
 	var msg_chooseGroup = '<spring:message code="please.choose" /><spring:message code="group.name" />';
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
 </script>
-<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.wifi.poller.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/custom/min/plugin/module/cmap.module.mobile.poller.min.js"></script>
 <style>
 	canvas {
 		-moz-user-select: none;
