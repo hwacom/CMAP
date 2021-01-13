@@ -184,7 +184,8 @@ public class LoginContoller extends BaseController {
 		if (StringUtils.isNotBlank(loginError)) {
 			model.addAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, loginError);
 			session.removeAttribute(Constants.MODEL_ATTR_LOGIN_ERROR);
-			return chkLoginPage(request);
+			// 2021-01-13 Alvin modified 登入發生錯誤有錯誤訊息時不需chkLoginPage,否則會因為redirect頁面行為重置request物件洗空錯誤訊息
+			return "login";
 
 		} else {
 			if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {

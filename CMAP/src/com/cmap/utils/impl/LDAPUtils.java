@@ -10,6 +10,8 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.cmap.Env;
 import com.cmap.annotation.Log;
 
@@ -61,9 +63,13 @@ public class LDAPUtils {
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 		env.put(Context.PROVIDER_URL, Env.LDAP_URL);
 		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, account + "@" + Env.LDAP_DOMAIN);
+		// 2021-01-08 Alvin modified for the NFU AD integration帳號不需驗Domain時Env.LDAP_DOMAIN留空
+		if(StringUtils.isEmpty(Env.LDAP_DOMAIN))
+			env.put(Context.SECURITY_PRINCIPAL, account);
+		else
+			env.put(Context.SECURITY_PRINCIPAL, account + "@" + Env.LDAP_DOMAIN);
 		env.put(Context.SECURITY_CREDENTIALS, password);
-
+		
 		LdapContext ctx = null;
 		try {
 			ctx = new InitialLdapContext(env, null);
