@@ -40,7 +40,7 @@ public class AdminUserRightController extends BaseController {
 	@Log
 	private static Logger log;
 
-	private static final String[] UI_TABLE_COLUMNS = new String[] {"","","settingName","settingValue","settingRemark","createTime","createBy","updateTime","updateBy"};
+	private static final String[] UI_TABLE_COLUMNS = new String[] {"","","account","userName","","userGroupStr","","remark","loginMode","isAdmin","createTimeStr","createBy","updateTimeStr","updateBy"};
 
 	@Autowired
 	UserService userService;
@@ -143,22 +143,26 @@ public class AdminUserRightController extends BaseController {
 		try {
 			List<UserRightServiceVO> urVOs = new ArrayList<>();
 
+			Iterator<JsonNode> idIt = jsonData.findValues(Constants.JSON_FIELD_IDS).get(0).iterator();
 			Iterator<JsonNode> accountIt = jsonData.findValues(Constants.JSON_FIELD_MODIFY_ACCOUNT).get(0).iterator();
 			Iterator<JsonNode> nameIt = jsonData.findValues(Constants.JSON_FIELD_MODIFY_USER_NAME).get(0).iterator();
 			Iterator<JsonNode> passwordIt = jsonData.findValues(Constants.JSON_FIELD_MODIFY_PASSWORD).get(0).iterator();
 			Iterator<JsonNode> groupIt = jsonData.findValues(Constants.JSON_FIELD_MODIFY_USERGROUP) != null ? jsonData.findValues(Constants.JSON_FIELD_MODIFY_USERGROUP).get(0).iterator():null;
 			Iterator<JsonNode> isAdminIt = jsonData.findValues(Constants.JSON_FIELD_ADD_IS_ADMIN) != null ?jsonData.findValues(Constants.JSON_FIELD_ADD_IS_ADMIN).get(0).iterator() :null;
 			Iterator<JsonNode> modeIt = jsonData.findValues(Constants.JSON_FIELD_MODIFY_LOGIN_MODE) != null ? jsonData.findValues(Constants.JSON_FIELD_MODIFY_LOGIN_MODE).get(0).iterator():null;
+			Iterator<JsonNode> remarkIt = jsonData.findValues(Constants.JSON_FIELD_MODIFY_REMARK) != null ? jsonData.findValues(Constants.JSON_FIELD_MODIFY_REMARK).get(0).iterator():null;
 			
 			UserRightServiceVO urVO;
 			while (nameIt.hasNext()) {
 				urVO = new UserRightServiceVO();
+				urVO.setId(idIt.hasNext()?idIt.next().asText():null);
 				urVO.setAccount(accountIt.hasNext()?accountIt.next().asText():null);
 				urVO.setUserName(nameIt.hasNext() ? nameIt.next().asText() : null);
 				urVO.setPassword(passwordIt.hasNext() ? passwordIt.next().asText() : null);
 				urVO.setUserGroup(groupIt != null && groupIt.hasNext() ? groupIt.next().asText() : null);
 				urVO.setIsAdmin(isAdminIt != null && isAdminIt.hasNext() ? isAdminIt.next().asText() : null);
 				urVO.setLoginMode(modeIt != null && modeIt.hasNext() ? modeIt.next().asText() : null);
+				urVO.setRemark(remarkIt != null && remarkIt.hasNext() ? remarkIt.next().asText() : null);
 				
 				urVOs.add(urVO);
 			}

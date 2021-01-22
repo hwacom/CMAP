@@ -25,6 +25,8 @@
       <div class="col-12 action-btn-bar">
         <div class="container-fluid">
         	<div id="defaultActionBar" class="row">
+        		<!-- 提供帳號權限資訊給Javascript參考動態控制欄位 -->
+        		<input type="hidden" id="isAdmin" value="${isAdmin}" />
         		<c:if test="${isAdmin eq true}">
 			  	    <div class="col-lg-2 action-btn-bar-style" align="center">
 			  	    	<button type="button" class="btn btn-success btn-sm" style="width: 100%" id="btnAdd"><spring:message code="btn.add" /></button>
@@ -88,11 +90,12 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="group.name" /></th>		       
 		      <th scope="col" nowrap="nowrap"><spring:message code="login.mode" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="user.right.remark" /></th>		
 		      <th scope="col" nowrap="nowrap"><spring:message code="user.right.isadmin" /></th>
 		      <th scope="col" nowrap="nowrap">CREATE_TIME</th>
 		      <th scope="col" nowrap="nowrap">CREATE_BY</th>
-		      <th scope="col" nowrap="nowrap">UPDATE_TIME</th>
-		      <th scope="col" nowrap="nowrap">UPDATE_BY</th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="user.right.update.time" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="user.right.update.by" /></th>
 		    </tr>
 		  </thead>
 		</table>
@@ -162,7 +165,13 @@
 			            </form:select> 
                   	</div>
                 </div>
-                
+                <div class="form-group row">
+	            	<label for="addRemark" class="col-md-2 col-sm-3 col-form-label"><spring:message code="user.right.remark" /></label>
+	            	<div class="col-md-10 col-sm-9">
+	                	<input type="text" class="form-control form-control-sm" id="addRemark" name="addRemark" placeholder="remark" >
+	                </div>
+	            </div>
+	            
               </div>
 			</div>
 			<div class="modal-footer">

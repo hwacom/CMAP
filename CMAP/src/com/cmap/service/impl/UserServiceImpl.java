@@ -20,7 +20,9 @@ import com.cmap.annotation.Log;
 import com.cmap.dao.UserDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.PrtgAccountMapping;
+import com.cmap.model.User;
 import com.cmap.model.UserRightSetting;
+import com.cmap.security.SecurityUser;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.PrtgService;
 import com.cmap.service.UserService;
@@ -161,9 +163,14 @@ public class UserServiceImpl implements UserService {
 		try {
 			UserRightSetting entity;
 			for (UserRightServiceVO urVO : urVOs) {
-				entity = userDAO.findUserRightSetting(urVO.getAccount(), urVO.getLoginMode());
-
-				final String username = SecurityUtil.getSecurityUser().getUsername();
+				//2021-01-18 Alvin modified 改pkey id找資料,找不到才新增Entity to add
+				if(urVO.getId()!=null)
+					entity = userDAO.findUserRightSetting(urVO.getId()); //update case
+				else
+					entity = null; //create case
+				 //2021-01-15 Alvin modified 改抓取目前登入者的帳號+名稱
+				final String account = SecurityUtil.getSecurityUser().getUser().getUserName();
+				final String username = SecurityUtil.getSecurityUser().getUsername()+"("+account+")";
 				final Timestamp nowTimestamp = new Timestamp((new Date()).getTime());
 
 				if (entity == null) {
@@ -181,6 +188,9 @@ public class UserServiceImpl implements UserService {
 				}
 				if(urVO.getLoginMode() != null) {
 					entity.setLoginMode(urVO.getLoginMode());
+				}
+				if(urVO.getRemark() != null) {
+					entity.setRemark(urVO.getRemark());
 				}
 				if(urVO.getIsAdmin() != null) {
 					entity.setIsAdmin(StringUtils.equals(urVO.getIsAdmin().toUpperCase(), Constants.DATA_Y)?Constants.DATA_Y:Constants.DATA_N);

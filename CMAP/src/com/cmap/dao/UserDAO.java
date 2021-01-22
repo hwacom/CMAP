@@ -10,6 +10,8 @@ public interface UserDAO extends BaseDAO {
 	List<UserRightSetting> findUserRightSetting(String belongGroup, String[] roles, String account);
 	
 	UserRightSetting findUserRightSetting(String account, String loginMode);
+	
+	UserRightSetting findUserRightSetting(String id);
 
 	long countUserRightSettingsByVO(UserRightServiceVO vo);
 

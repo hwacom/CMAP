@@ -158,6 +158,7 @@ public class Constants {
 	public static final String JSON_FIELD_MODIFY_PASSWORD = "modifyPassword";
 	public static final String JSON_FIELD_MODIFY_USERGROUP = "modifyUserGroup";
 	public static final String JSON_FIELD_MODIFY_LOGIN_MODE = "modifyLoginMode";
+	public static final String JSON_FIELD_MODIFY_REMARK = "modifyRemark";
 	public static final String JSON_FIELD_ADD_IS_ADMIN = "addIsAdmin";
 	
 	public static final String DATA_MARK_DELETE = "Y";

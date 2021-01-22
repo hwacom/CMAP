@@ -2,10 +2,9 @@
  * 
  */
 var remarkShowLength = 30;	//設定欄位顯示內容最大長度
-	
+
 $(document).ready(function() {
 	initMenuStatus("toggleMenu_admin", "toggleMenu_admin_items", "bk_usr");
-	
 	//查詢按鈕(Web)點擊事件
 	if(isWEB){
 		findData('WEB');
@@ -97,7 +96,15 @@ function changeModifyView() {
 				return html;
 			}
 		);
-		
+		$('input[name=chkbox]:checked:eq('+i+')').parents("tr").children().eq(7).html(
+				//切換「Remark」欄位為輸入框
+				function() {
+					if(document.getElementById("isAdmin").value == "true"){
+						var html = '<input type="text" name="modifyRemark" value="' + $(this).text() +'" class="form-control form-control-sm"style="min-width: 150px"/>';
+						return html;
+					}
+				}
+			);
 		if($("#btnAdd").length){
 			var selectedUserGroupIndex = 0;
 			$('input[name=chkbox]:checked:eq('+i+')').parents("tr").children().eq(5).html(
@@ -158,22 +165,25 @@ function changeModifyView() {
 function envAction(action) {
 	var obj = new Object();
 	
-	var id = $("input[name='chkbox']:checked").map(function() {
+	var ids = $("input[name='chkbox']:checked").map(function() {
      	return $(this).val();
      }).get();
 	
-	obj.id = id;
+	obj.ids = ids;
 	
 	if (action == "modify") {
 		var modeifyAccount = $("input[name='modeifyAccount']").map(function() {
 						        	return $(this).val();
-						        }).get();
+						         }).get();
 		var modifyUserName = $("input[name='modifyUserName']").map(function() {
 						         	return $(this).val();
 						         }).get();
 		var modifyPassword = $("input[name='modifyPassword']").map(function() {
-						         	 return $(this).val();
-						          }).get();
+						         	return $(this).val();
+						         }).get();
+		var modifyRemark = $("input[name='modifyRemark']").map(function() {
+        	 						return $(this).val();
+         						}).get();
 		if($("#modifyUserGroup").length){
 			var modifyUserGroup = $('#modifyUserGroup :selected').map(function() {
 	        	return $(this).val();
@@ -196,6 +206,7 @@ function envAction(action) {
 		obj.modifyPassword = modifyPassword;
 		obj.modifyUserGroup = modifyUserGroup;
 		obj.modifyLoginMode = modifyLoginMode;
+		obj.modifyRemark = modifyRemark;
 		obj.addIsAdmin = addIsAdmin;
 		
 		doActionAjax(obj, "save");
@@ -234,15 +245,19 @@ function envAction(action) {
 		var modifyLoginMode = $('#addLoginMode :selected').map(function() {
 			        	return $(this).val();
 			        }).get();
+		var modifyRemark = $("input[name='addRemark']").map(function() {
+         	return $(this).val();
+         }).get();
 		var addIsAdmin = $('#addIsAdmin :selected').map(function() {
 			       	 return $(this).val();
 			        }).get();
-		
+		//obj.id = null;
 		obj.modeifyAccount = modeifyAccount;
 		obj.modifyUserName = modifyUserName;
 		obj.modifyPassword = modifyPassword;
 		obj.modifyUserGroup = modifyUserGroup;
 		obj.modifyLoginMode = modifyLoginMode;
+		obj.modifyRemark = modifyRemark;
 		obj.addIsAdmin = addIsAdmin;
 		
 		doActionAjax(obj, "save");
@@ -358,6 +373,13 @@ function findData(from) {
             },
 			"drawCallback" : function(settings) {
 				resultTable.columns( [6] ).visible( false );
+				if(document.getElementById("isAdmin").value != "true"){
+					resultTable.columns( [9] ).visible( false );
+				}
+				resultTable.columns( [10] ).visible( false );
+				resultTable.columns( [11] ).visible( false );
+				//resultTable.columns( [12] ).visible( false );
+				//resultTable.columns( [13] ).visible( false );
 				$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				$("div.dataTables_length").parent().removeClass("col-sm-12");
 				$("div.dataTables_length").parent().addClass("col-sm-6");
@@ -379,6 +401,7 @@ function findData(from) {
 				{ "data" : "userGroupStr" },
 				{ "data" : "userGroup", "className": "hiddenColumn" },
 				{ "data" : "loginMode" },
+				{ "data" : "remark" },
 				{ "data" : "isAdmin" , "className" : "center" },
 				{ "data" : "createTimeStr" },
 				{ "data" : "createBy" },
