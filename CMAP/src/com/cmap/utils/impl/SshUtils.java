@@ -107,7 +107,7 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 	}
 
 	private CommonServiceVO sendCommand(CommonServiceVO csVO, Expect expect, ConfigInfoVO configInfoVO, ScriptServiceVO scriptVO, StringBuilder processLog, List<String> cmdOutputs) throws Exception {
-		String output = "";
+		String output = "\n";
 		String[] errorSymbols = StringUtils.isNotBlank(scriptVO.getErrorSymbol()) ? scriptVO.getErrorSymbol().split(Env.COMM_SEPARATE_SYMBOL) : null;
 
 		/*
