@@ -167,6 +167,8 @@ function findIpMacBoundRecordData(statusFlag) {
             },
             */
 			"drawCallback" : function(settings) {
+				resultTable_ipMacBoundRecord.columns( [6] ).visible( false );
+				resultTable_ipMacBoundRecord.columns( [14] ).visible( false );
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				$("div.dataTables_length").parent().removeClass('col-sm-12');
 				$("div.dataTables_length").parent().addClass('col-sm-6');
