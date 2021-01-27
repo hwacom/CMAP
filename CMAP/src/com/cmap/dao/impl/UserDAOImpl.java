@@ -73,6 +73,22 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 	}
 	
 	@Override
+	public UserRightSetting findUserRightSetting(String id) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from UserRightSetting urs ")
+		  .append(" where 1=1 ")
+		  .append(" and urs.id = :id ")
+		  .append(" and urs.deleteFlag  = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
+		
+	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+	    q.setParameter("id", id);
+	    
+	    List<UserRightSetting> result = (List<UserRightSetting>)q.list();
+	    return result != null && result.size() > 0 ?result.get(0):null;
+	}
+	
+	@Override
 	public long countUserRightSettingsByVO(UserRightServiceVO vo) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select count(urs.id) ")

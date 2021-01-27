@@ -20,6 +20,7 @@ public class UserRightServiceVO extends CommonServiceVO {
 	private String userGroup;
 	private String userGroupStr;
 	private String loginMode;
+	private String remark;
 	private String createBy;
 	private String createTimeStr;
 	private String updateBy;
@@ -32,6 +33,7 @@ public class UserRightServiceVO extends CommonServiceVO {
 	private String modifyUserName;
 	private String modifyPassword;
 	private String modifyUserGroup;
+	private String modifyRemark;
 	
 	public String getInputAccount() {
 		return inputAccount;
@@ -146,6 +148,18 @@ public class UserRightServiceVO extends CommonServiceVO {
 	}
 	public void setLoginMode(String loginMode) {
 		this.loginMode = loginMode;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getModifyRemark() {
+		return modifyRemark;
+	}
+	public void setModifyRemark(String modifyRemark) {
+		this.modifyRemark = modifyRemark;
 	}
 	
 }

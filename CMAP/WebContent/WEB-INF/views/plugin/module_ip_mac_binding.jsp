@@ -50,7 +50,7 @@
 	<div class="row">
 		<div class="col-12">
 			<div id="divBlockedTitle" style="width: 100%; padding-top: 50px; color: #ee2525; font-weight: bold; font-size: 1rem;">
-				<spring:message code="blocked.ip.list.sub.title" />:&nbsp;&nbsp;&nbsp;
+				<spring:message code="ip.mac.binding.list.sub.title" />:&nbsp;&nbsp;&nbsp;
 				
 				<!-- 若使用者擁有多群組權限則show出群組選單；否則不顯示 -->
 				<c:if test="${fn:length(groupList) gt 1}">
@@ -62,7 +62,7 @@
 	            </c:if>
 	            
 	            <!-- 解鎖Button -->
-				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.ip.open" /></button>
+				<button type="button" style="width: 100px;" class="btn btn-primary btn-sm" id="btnOpen" disabled="disabled"><spring:message code="btn.ip.mac.binding.cancel" /></button>
 			</div>
 		</div>
 	</div>
@@ -82,12 +82,12 @@
 				      <th scope="col" nowrap="nowrap" data-field="macAddress"><spring:message code="mac.address" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="port"><spring:message code="port" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="status"><spring:message code="status" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="block.time" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="open.time" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="block.reason" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="open.reason" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="block.by" /></th>
-				      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="open.by" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="blockTime"><spring:message code="bind.time" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="openTime"><spring:message code="bind.cancel.time" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="blockReason"><spring:message code="bind.reason" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="openReason"><spring:message code="bind.cancel.reason" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="blockBy"><spring:message code="bind.by" /></th>
+				      <th scope="col" nowrap="nowrap" data-field="openBy"><spring:message code="bind.cancel.by" /></th>
 				      <th scope="col" nowrap="nowrap" data-field="scriptName"><spring:message code="block.rule" /></th>
 				    </tr>
 				  </thead>

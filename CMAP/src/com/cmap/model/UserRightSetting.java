@@ -46,6 +46,9 @@ public class UserRightSetting implements java.io.Serializable {
 	@Column(name = "LOGIN_MODE", nullable = false)
 	private String loginMode;
 	
+	@Column(name = "REMARK", nullable = true)
+	private String remark;
+	
 	@Column(name = "DELETE_FLAG", nullable = false)
 	private String deleteFlag = Constants.DATA_N;
 
@@ -72,8 +75,8 @@ public class UserRightSetting implements java.io.Serializable {
 	}
 
 	public UserRightSetting(String id, String account, String userName, String password, String isAdmin,
-			String userGroup, String deleteFlag, Timestamp deleteTime,
-			String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+			String userGroup, String loginMode, String remark, String deleteFlag, Timestamp deleteTime, String deleteBy,
+			Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
 		super();
 		this.id = id;
 		this.account = account;
@@ -81,6 +84,8 @@ public class UserRightSetting implements java.io.Serializable {
 		this.password = password;
 		this.isAdmin = isAdmin;
 		this.userGroup = userGroup;
+		this.loginMode = loginMode;
+		this.remark = remark;
 		this.deleteFlag = deleteFlag;
 		this.deleteTime = deleteTime;
 		this.deleteBy = deleteBy;
@@ -201,4 +206,13 @@ public class UserRightSetting implements java.io.Serializable {
 	public void setUpdateBy(String updateBy) {
 		this.updateBy = updateBy;
 	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	
 }

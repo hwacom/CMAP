@@ -222,7 +222,7 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 				String output;
 				CommonServiceVO csVO = new CommonServiceVO();
 				for (ScriptServiceVO scriptVO : scriptList) {
-					output = "";
+					output = "\n";
 
 					/*
 					 * 預期命令送出後結束符號，針對VM設備的config檔因為內含有「#」符號，判斷會有問題 e.g. 「#」 > 「NK-HeNBGW-04#」
