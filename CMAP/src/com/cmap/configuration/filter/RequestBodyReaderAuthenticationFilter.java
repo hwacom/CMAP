@@ -148,8 +148,8 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			request.getSession().setAttribute("LDAP_AUTH_RESULT", false);
 			
 			LDAPUtils utils = new LDAPUtils();
-			//boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
-			boolean loginSuccess = true;
+			boolean loginSuccess = utils.LDAP_AUTH_AD(request, username, password);
+			
 			if (loginSuccess) {
 				UserRightSetting userRight = userService.getUserRightSetting(username, Constants.LOGIN_AUTH_MODE_LDAP);
 				
