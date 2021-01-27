@@ -2,6 +2,7 @@ package com.cmap.plugin.module.wifipoller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
@@ -194,7 +195,7 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         		String totalTraffic = data[7].toString();
                 String uploadTraffic = data[8].toString();
                 String downloadTraffic = data[9].toString();
-                String userName = data[10].toString();
+                String userName = Objects.toString(data[10], "");
         		
                 retVO.setGroupName(groupName);
                 retVO.setClientMac(clientMac);

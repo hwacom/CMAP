@@ -118,13 +118,14 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(2)").html( data.clientMac );
 		$(cTR).find("td:eq(3)").html( data.startTime );
 		$(cTR).find("td:eq(4)").html( data.endTime );
-		$(cTR).find("td:eq(5)").html( data.clientIp );
-		$(cTR).find("td:eq(6)").html( data.apName );
-		$(cTR).find("td:eq(7)").html( data.ssid );
-		$(cTR).find("td:eq(8)").html( data.totalTraffic );
-		$(cTR).find("td:eq(9)").html( data.uploadTraffic );
-		$(cTR).find("td:eq(10)").html( data.downloadTraffic );
-		$(cTR).find("td:eq(11)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+data.groupName+'\',' +'\''+data.clientMac+'\',' +'\''+data.clientIp+'\',' +'\''+data.startTime+'\',' +'\''+data.endTime+'\'' + ')" ></i>' );
+		$(cTR).find("td:eq(5)").html( data.userName );
+		$(cTR).find("td:eq(6)").html( data.clientIp );
+		$(cTR).find("td:eq(7)").html( data.apName );
+		$(cTR).find("td:eq(8)").html( data.ssid );
+		$(cTR).find("td:eq(9)").html( data.totalTraffic );
+		$(cTR).find("td:eq(10)").html( data.uploadTraffic );
+		$(cTR).find("td:eq(11)").html( data.downloadTraffic );
+		$(cTR).find("td:eq(12)").html( '<i class="fas fa-clipboard-list fa-2x" onclick="viewWifiDetail(' +'\''+data.groupName+'\',' +'\''+data.clientMac+'\',' +'\''+data.clientIp+'\',' +'\''+data.startTime+'\',' +'\''+data.endTime+'\'' + ')" ></i>' );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
