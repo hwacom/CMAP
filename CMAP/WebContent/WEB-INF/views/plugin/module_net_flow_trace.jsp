@@ -257,10 +257,10 @@
         	<label for="viewIpMappingPortModal_country" class="col-md-2 col-sm-12 col-form-label"><spring:message code="country" /> :</label>
     		<div class="form-control form-control-sm col-md-10 col-sm-12" id="viewIpMappingPortModal_country" style="background-color: #dbeded;"></div>
         </div>
-        
+        <!-- 
         <div class="form-group row">
         	<i class="fas fa-clipboard-list fa-2x" onclick="viewPortNumberDetail()" ></i>
-        </div>
+        </div> -->
       </div>
       <div class="modal-footer">
       </div>
