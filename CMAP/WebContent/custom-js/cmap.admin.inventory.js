@@ -340,6 +340,16 @@ function findData(from) {
 					"render": function (data, type, row, meta) {
 						       	return meta.row + meta.settings._iDisplayStart + 1;
 						   	}
+				},
+				{
+					"targets" : [5],
+					"className" : "left",
+					"searchable": true,
+					"orderable": true,
+					"render" : function(data, type, row) {
+									var html = '<a href="#" onclick="viewCellDetail(\''+row.deviceId+'\')">'+row.deviceName+'</a>';
+									return html;
+							 }
 				}
 			],
 		});
@@ -398,21 +408,21 @@ function bindScrollEvent() {
 function doDataExport(exportRecordCount) {
 	var dataObj = new Object();
 	if ($('#queryFrom').val() == 'WEB') {
-		d.queryGroup = $("#queryGroup").val(),
-		d.queryDevice = $("#queryDevice").val()
+		dataObj.queryGroup = $("#queryGroup").val(),
+		dataObj.queryDevice = $("#queryDevice").val()
 	
 	} else if ($('#queryFrom').val() == 'MOBILE') {
-		d.queryGroup = $("#queryGroup_mobile").val(),
-		d.queryDevice = $("#queryDevice_mobile").val()
+		dataObj.queryGroup = $("#queryGroup_mobile").val(),
+		dataObj.queryDevice = $("#queryDevice_mobile").val()
 	}
 	
-	d.queryProbe = $("#queryProbe").val(),
-	d.queryDeviceName = $("#queryDeviceName").val(),
-	d.queryDeviceType = $("#queryDeviceType").val(),
-	d.queryModifyOnly = document.getElementById("queryModifyOnly").checked,
-	d.queryBrand = $("#queryBrand").val(),
-	d.queryModel = $("#queryModel").val(),
-	d.queryGroupName = $("#queryGroupName").val();
+	dataObj.queryProbe = $("#queryProbe").val(),
+	dataObj.queryDeviceName = $("#queryDeviceName").val(),
+	dataObj.queryDeviceType = $("#queryDeviceType").val(),
+	dataObj.queryModifyOnly = document.getElementById("queryModifyOnly").checked,
+	dataObj.queryBrand = $("#queryBrand").val(),
+	dataObj.queryModel = $("#queryModel").val(),
+	dataObj.queryGroupName = $("#queryGroupName").val();
 	
 	dataObj.start = 0; //初始查詢一律從第0筆開始
 	dataObj.length = pageLength;
@@ -610,4 +620,62 @@ function showValue() {
      });
 	$("#showGroupName").text(result);
 	console.log("value = " + result);
+}
+
+
+function viewCellDetail(deviceId) {
+	var obj = new Object();
+	obj.deviceId = deviceId;
+	
+	$.ajax({
+		url : _ctx + '/admin/inventory/getInvCellDetailData.json',
+		data : JSON.stringify(obj),
+		headers: {
+		    'Accept': 'application/json',
+		    'Content-Type': 'application/json'
+		},
+		type : "POST",
+		async: true,
+		beforeSend : function() {
+			showProcessing();
+		},
+		complete : function() {
+			hideProcessing();
+		},
+		success : function(resp) {
+			if (resp.code == '200') {
+				$('#viewCellDetailModal_frequencyBand').parent().show();
+				$('#viewCellDetailModal_amfIpAddress').parent().show();
+				$('#viewCellDetailModal_enodebType').parent().show();
+				$('#viewCellDetailModal_gnbId').parent().show();
+				$('#viewCellDetailModal_cellIdentify').parent().show();
+				$('#viewCellDetailModal_physicalCellGroupId').parent().show();
+				$('#viewCellDetailModal_physicalCellId').parent().show();
+				$('#viewCellDetailModal_plmn').parent().show();
+				$('#viewCellDetailModal_arfcn').parent().show();
+				$('#viewCellDetailModal_bandWidth').parent().show();
+				$('#viewCellDetailModal_currentTxPower').parent().show();
+				
+				$('#viewCellDetailModal_frequencyBand').html(resp.data.frequencyBand);
+				$('#viewCellDetailModal_amfIpAddress').html(resp.data.amfIpAddress);
+				$('#viewCellDetailModal_enodebType').html(resp.data.enodebType);
+				$('#viewCellDetailModal_gnbId').html(resp.data.gnbId);
+				$('#viewCellDetailModal_cellIdentify').html(resp.data.cellIdentify);
+				$('#viewCellDetailModal_physicalCellGroupId').html(resp.data.physicalCellGroupId);
+				$('#viewCellDetailModal_physicalCellId').html(resp.data.physicalCellId);
+				$('#viewCellDetailModal_plmn').html(resp.data.plmn);
+				$('#viewCellDetailModal_arfcn').html(resp.data.arfcn);
+				$('#viewCellDetailModal_bandWidth').html(resp.data.bandWidth);
+				$('#viewCellDetailModal_currentTxPower').html(resp.data.currentTxPower);
+				
+				$('#viewCellDetailModal').modal('show');
+				
+			} else {
+				alert(resp.message);
+			}
+		},
+		error : function(xhr, ajaxOptions, thrownError) {
+			ajaxErrorHandler();
+		}
+	});
 }

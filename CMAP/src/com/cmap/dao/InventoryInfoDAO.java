@@ -3,6 +3,7 @@ package com.cmap.dao;
 import java.util.List;
 
 import com.cmap.model.InventoryInfo;
+import com.cmap.model.InventoryInfoCellDetail;
 import com.cmap.service.vo.InventoryInfoVO;
 
 public interface InventoryInfoDAO extends BaseDAO {
@@ -18,5 +19,7 @@ public interface InventoryInfoDAO extends BaseDAO {
 	void saveOrUpdateInventoryInfo(List<InventoryInfo> entityList);
 
 	void deleteInventoryInfo(List<InventoryInfo> entities);
+
+	InventoryInfoCellDetail findInvCellDetailDataByDeviceId(String deviceId);
 
 }

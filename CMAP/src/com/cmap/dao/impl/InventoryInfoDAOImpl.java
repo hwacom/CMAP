@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cmap.annotation.Log;
 import com.cmap.dao.InventoryInfoDAO;
 import com.cmap.model.InventoryInfo;
+import com.cmap.model.InventoryInfoCellDetail;
 import com.cmap.service.vo.InventoryInfoVO;
 
 @Repository("inventoryInfoDAO")
@@ -147,5 +148,30 @@ public class InventoryInfoDAOImpl extends BaseDaoHibernate implements InventoryI
 	@Override
 	public void deleteInventoryInfo(List<InventoryInfo> entities) {
 		getHibernateTemplate().deleteAll(entities);	
+	}
+	
+	@Override
+	public InventoryInfoCellDetail findInvCellDetailDataByDeviceId(String deviceId){
+		StringBuffer sb = new StringBuffer();
+		sb.append(" from InventoryInfoCellDetail iicd ")
+		  .append(" where 1=1 ");
+
+		if (StringUtils.isNotBlank(deviceId)) {
+            sb.append(" and iicd.deviceId = :deviceId ");
+        }
+		
+	    Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+	    Query<?> q = session.createQuery(sb.toString());
+		
+	    if (StringUtils.isNotBlank(deviceId)) {
+        	q.setParameter("deviceId", deviceId);
+        }
+	    
+	    try {
+	    	return (InventoryInfoCellDetail) q.uniqueResult();
+	    }catch (Exception e) {
+	    	return null;
+		}
+	    
 	}
 }
