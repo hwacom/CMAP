@@ -77,9 +77,10 @@
 		      <th scope="col" nowrap="nowrap" style="width: 5%;"><spring:message code="seq" /></th>
 		      <th scope="col" nowrap="nowrap" style="width: 15%;"><spring:message code="group.name" /></th>
 		      <th scope="col" nowrap="nowrap" style="width: 20%;"><spring:message code="device.name" /></th>
-		      <th scope="col" nowrap="nowrap" style="width: 30%;"><spring:message code="port.name" /></th>
+		      <th scope="col" nowrap="nowrap" style="width: 20%;"><spring:message code="port.name" /></th>
 		      <th scope="col" nowrap="nowrap" style="width: 15%;"><spring:message code="port.admin.status" /></th>
 		      <th scope="col" nowrap="nowrap" style="width: 15%;"><spring:message code="port.oper.status" /></th>
+		      <th scope="col" nowrap="nowrap" style="width: 10%;"><spring:message code="port.speed" />(/M)</th>
 		    </tr>
 		  </thead>
 		</table>

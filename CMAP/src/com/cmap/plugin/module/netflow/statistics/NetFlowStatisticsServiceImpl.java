@@ -418,15 +418,17 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                 Map<String, String> groupNameMap = new HashMap<>();
 
                 // Step 1. 第一筆塞入 Total 列
-                String ttlTotalTraffic = Objects.toString(entities.get(0)[6], "0");
-                String ttlUploadTraffic = Objects.toString(entities.get(0)[7], "0");
-                String ttlDownloadTraffic = Objects.toString(entities.get(0)[8], "0");
+                String ttlTotalTraffic = Objects.toString(entities.get(0)[7], "0");
+                String ttlUploadTraffic = Objects.toString(entities.get(0)[8], "0");
+                String ttlDownloadTraffic = Objects.toString(entities.get(0)[9], "0");
+                String ttlSession = Objects.toString(entities.get(0)[10], "0");
                 NetFlowStatisticsVO vo = new NetFlowStatisticsVO();
                 vo.setIpAddress("總計");
                 vo.setPercent("100%");
                 vo.setTotalTraffic(convertByteSizeUnit(new BigDecimal(ttlTotalTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
                 vo.setUploadTraffic(convertByteSizeUnit(new BigDecimal(ttlUploadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
                 vo.setDownloadTraffic(convertByteSizeUnit(new BigDecimal(ttlDownloadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                vo.setSessionNum(ttlSession);
                 retList.add(vo);
 
                 // Step 2. 第二筆開始塞入 Raw data
@@ -439,7 +441,8 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         String totalTraffic = Objects.toString(entity[3], "0");
                         String uploadTraffic = Objects.toString(entity[4], "0");
                         String downloadTraffic = Objects.toString(entity[5], "0");
-                        String ipDesc = Objects.toString(entity[9], Env.IP_DESC_NULL_SHOW_WHAT);
+                        String sessionNum = Objects.toString(entity[6], "0");
+                        String ipDesc = Objects.toString(entity[11], Env.IP_DESC_NULL_SHOW_WHAT);
 
                         if (StringUtils.isBlank(ipAddress) || StringUtils.isBlank(groupId)) {
                             return;
@@ -479,6 +482,7 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
                         vo.setTotalTraffic(convertByteSizeUnit(new BigDecimal(totalTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
                         vo.setUploadTraffic(convertByteSizeUnit(new BigDecimal(uploadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
                         vo.setDownloadTraffic(convertByteSizeUnit(new BigDecimal(downloadTraffic), Env.NET_FLOW_SHOW_UNIT_OF_RESULT_DATA_SIZE));
+                        vo.setSessionNum(sessionNum);
                         vo.setIpDesc(ipDesc);
                         retList.add(vo);
                     }

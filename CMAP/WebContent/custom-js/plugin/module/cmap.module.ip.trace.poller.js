@@ -130,6 +130,7 @@ function addRow(dataList) {
 		$(cTR).find("td:eq(6)").html( data.groupName );
 		$(cTR).find("td:eq(7)").html( data.deviceName );
 		$(cTR).find("td:eq(8)").html( data.portName );
+		$(cTR).find("td:eq(9)").html( data.portDescription );
 		$("#resultTable > tbody").append($(cTR));
 	}
 	$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
@@ -476,7 +477,8 @@ function findData(from) {
 				{ "data" : "clientMac" , "orderable" : true },
 				{ "data" : "groupName" , "orderable" : true },
 				{ "data" : "deviceName" , "orderable" : true },
-				{ "data" : "portName", "orderable" : true }
+				{ "data" : "portName", "orderable" : true },
+				{ "data" : "portDescription", "orderable" : true }
 			],
 			"columnDefs" : [
 				{

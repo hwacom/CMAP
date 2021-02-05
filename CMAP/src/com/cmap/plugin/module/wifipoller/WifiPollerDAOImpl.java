@@ -102,7 +102,7 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
     	List<WifiPollerVO> retList = new ArrayList<>();
     	
         StringBuffer sb = new StringBuffer();
-        sb.append(" select group_name '1', client_mac '2', start_time '3', end_time '4', client_ip '5', ap_name '6', ssid '7', total_traffic '8', upload_traffic '9', download_traffic '10', user_name '11' ")
+        sb.append(" select group_name '1', client_mac '2', start_time '3', end_time '4', user_name '5', client_ip '6', ap_name '7', ssid '8', total_traffic '9', upload_traffic '10', download_traffic '11' ")
         	.append(" from module_wifi_trace_mst mst")
         	.append(" where 1=1 ");
 
@@ -110,19 +110,19 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
             sb.append(" and mst.group_id = :queryGroupId ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            sb.append(" and mst.client_mac = :queryClientMac ");
+            sb.append(" and mst.client_mac like :queryClientMac ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            sb.append(" and mst.client_ip = :queryClientIp ");
+            sb.append(" and mst.client_ip like :queryClientIp ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryApName())) {
-            sb.append(" and mst.ap_name = :queryApName ");
+            sb.append(" and mst.ap_name like :queryApName ");
         }
         if (StringUtils.isNotBlank(searchVO.getQuerySsid())) {
-            sb.append(" and mst.ssid = :querySsid ");
+            sb.append(" and mst.ssid like :querySsid ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryUserName())) {
-            sb.append(" and mst.user_name = :queryUserName ");
+            sb.append(" and mst.user_name like :queryUserName ");
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
             sb.append(" and mst.start_time >= :queryDateTimeBeginStr ");
@@ -150,19 +150,19 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
             q.setParameter("queryGroupId", searchVO.getQueryGroupId());
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientMac())) {
-            q.setParameter("queryClientMac", searchVO.getQueryClientMac());
+            q.setParameter("queryClientMac", "%".concat(searchVO.getQueryClientMac()).concat("%"));
         }
         if (StringUtils.isNotBlank(searchVO.getQueryClientIp())) {
-            q.setParameter("queryClientIp", searchVO.getQueryClientIp());
+            q.setParameter("queryClientIp", "%".concat(searchVO.getQueryClientIp()).concat("%"));
         }
         if (StringUtils.isNotBlank(searchVO.getQueryApName())) {
-            q.setParameter("queryApName", searchVO.getQueryApName());
+            q.setParameter("queryApName", "%".concat(searchVO.getQueryApName()).concat("%"));
         }
         if (StringUtils.isNotBlank(searchVO.getQuerySsid())) {
-            q.setParameter("querySsid", searchVO.getQuerySsid());
+            q.setParameter("querySsid", "%".concat(searchVO.getQuerySsid()).concat("%"));
         }
         if (StringUtils.isNotBlank(searchVO.getQueryUserName())) {
-            q.setParameter("queryUserName", searchVO.getQueryUserName());
+            q.setParameter("queryUserName", "%".concat(searchVO.getQueryUserName()).concat("%"));
         }
         if (StringUtils.isNotBlank(searchVO.getQueryDateBegin())&&StringUtils.isNotBlank(searchVO.getQueryTimeBegin()) ) {
             q.setParameter("queryDateTimeBeginStr", searchVO.getQueryDateBegin().concat(" ").concat(searchVO.getQueryTimeBegin()));
@@ -189,13 +189,14 @@ public class WifiPollerDAOImpl extends BaseDaoHibernate implements WifiPollerDAO
         		String endTime = "";
         		if(data[3]!=null)
         			endTime = Constants.FORMAT_YYYYMMDD_HH24MISS.format(data[3]);
-        		String clientIp = data[4].toString();
-        		String apName = data[5].toString();
-        		String ssid = data[6].toString();
-        		String totalTraffic = data[7].toString();
-                String uploadTraffic = data[8].toString();
-                String downloadTraffic = data[9].toString();
-                String userName = Objects.toString(data[10], "");
+        		String userName = Objects.toString(data[4], "");
+        		String clientIp = data[5].toString();
+        		String apName = data[6].toString();
+        		String ssid = data[7].toString();
+        		String totalTraffic = data[8].toString();
+                String uploadTraffic = data[9].toString();
+                String downloadTraffic = data[10].toString();
+                
         		
                 retVO.setGroupName(groupName);
                 retVO.setClientMac(clientMac);

@@ -19,6 +19,7 @@ public class PortStatusViewerVO extends CommonServiceVO {
 	private String portOperStatus;
 	private String portOperStatusDesc;
 	private String portOperStatusPresentType;
+	private String speed;
 	
 	public String getQueryGroupId() {
 		return queryGroupId;
@@ -103,5 +104,11 @@ public class PortStatusViewerVO extends CommonServiceVO {
 	}
 	public void setPortOperStatusPresentType(String portOperStatusPresentType) {
 		this.portOperStatusPresentType = portOperStatusPresentType;
+	}
+	public String getSpeed() {
+		return speed;
+	}
+	public void setSpeed(String speed) {
+		this.speed = speed;
 	}
 }

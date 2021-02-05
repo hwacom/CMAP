@@ -512,7 +512,7 @@ function findData(from) {
 		{
 			"autoWidth" 	: true,
 			"paging" 		: false,
-			"bFilter" 		: true,
+			"bFilter" 		: false,
 			"ordering" 		: true,
 			"info" 			: true,
 			"serverSide" 	: true, //false關閉server端排序

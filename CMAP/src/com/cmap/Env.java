@@ -338,6 +338,7 @@ public class Env {
 	public static String OID_NAME_OF_IF_TABLE_DESCRIPTION;
 	public static String OID_NAME_OF_IF_TABLE_ADMIN_STATUS;
 	public static String OID_NAME_OF_IF_TABLE_OPER_STATUS;
+	public static String OID_NAME_OF_IF_TABLE_HIGH_SPEED;
 
 	public static String CLI_VAR_ENABLE_PWD;
 	public static String CLI_VAR_PWD;

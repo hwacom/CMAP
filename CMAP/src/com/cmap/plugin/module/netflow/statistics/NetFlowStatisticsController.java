@@ -37,7 +37,7 @@ public class NetFlowStatisticsController extends BaseController {
     @Autowired
     private NetFlowStatisticsService netFlowStatisticsService;
 
-    private static final String[] UI_TABLE_COLUMNS = new String[] {"","mits1.ip_Address","mids.ip_desc","mits1.group_Id","percent","ttl_traffic","ttl_upload_traffic","ttl_download_traffic"};
+    private static final String[] UI_TABLE_COLUMNS = new String[] {"","mits1.ip_Address","mids.ip_desc","mits1.group_Id","percent","ttl_traffic","ttl_upload_traffic","ttl_download_traffic","ttl_session_num"};
     //是否查詢條件為sensorId
   	private boolean isSensorSearchMode = StringUtils.isNotBlank(Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR) && Env.NET_FLOW_SEARCH_MODE_WITH_SENSOR.equalsIgnoreCase(Constants.DATA_Y);
   	
@@ -220,7 +220,7 @@ public class NetFlowStatisticsController extends BaseController {
             if (dataList != null && !dataList.isEmpty()) {
                 String fileName = getFileName(Env.EXPORT_DATA_CSV_FILE_NAME_OF_TRAFFIC_RANK, var1);
                 String[] fieldNames = new String[] {
-                        "ipAddress", "ipDesc", "groupName", "percent", "totalTraffic", "uploadTraffic", "downloadTraffic"
+                        "ipAddress", "ipDesc", "groupName", "percent", "totalTraffic", "uploadTraffic", "downloadTraffic", "sessionNum" 
                 };
                 String[] columnsTitles = Env.EXPORT_DATA_CSV_COLUMNS_TITLES_OF_TRAFFIC_RANK.split(",");
 

@@ -142,6 +142,7 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.group.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.device.name" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.port.name" /></th>
+		      <th scope="col" nowrap="nowrap"><spring:message code="ip.trace.poller.port.description" /></th>
 		    </tr>
 		  </thead>
 		</table>
