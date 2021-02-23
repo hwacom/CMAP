@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,7 +56,7 @@ public class CsvExportUtils implements DataExportUtils {
 
                 for (String fieldName : fieldNames) {
                     value = BeanUtils.getProperty(dataObj, fieldName);
-                    values.add(value.replaceAll("\r\n", "		"));
+                    values.add(Objects.toString(value, "").replaceAll("\r\n", "		"));
                 }
 
                 writeLine(writer, values);

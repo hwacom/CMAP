@@ -313,6 +313,12 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
         if (ibrVO.getQueryExcludeStatusFlag() != null && !ibrVO.getQueryExcludeStatusFlag().isEmpty()) {
             sb.append(" and mbl.statusFlag not in (:excludeStatusFlag) ");
         }
+        if (StringUtils.isNotBlank(ibrVO.getQueryScriptCode())) {
+            sb.append(" and mbl.scriptCode = :scriptCode ");
+        }
+        if (StringUtils.isNotBlank(ibrVO.getQueryUndoScriptCode())) {
+            sb.append(" and mbl.undoScriptCode = :undoScriptCode ");
+        }
         sb.append(" order by mbl.updateTime desc ");
         
         Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
@@ -338,7 +344,13 @@ public class BlockedRecordDAOImpl extends BaseDaoHibernate implements BlockedRec
         if (ibrVO.getQueryExcludeStatusFlag() != null && !ibrVO.getQueryExcludeStatusFlag().isEmpty()) {
             q.setParameterList("excludeStatusFlag", ibrVO.getQueryExcludeStatusFlag());
         }
-
+        if (StringUtils.isNotBlank(ibrVO.getQueryScriptCode())) {
+            q.setParameter("scriptCode", ibrVO.getQueryScriptCode());
+        }
+        if (StringUtils.isNotBlank(ibrVO.getQueryUndoScriptCode())) {
+        	q.setParameter("undoScriptCode", ibrVO.getQueryUndoScriptCode());
+        }
+        
         List<ModuleBlockedList> entities = (List<ModuleBlockedList>)q.list();
         return (entities != null && !entities.isEmpty()) ? entities.get(0) : null;
     }

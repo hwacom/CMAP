@@ -192,9 +192,11 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
               .append("       ,sum(mits1.total_traffic) as ttl_traffic")
               .append("       ,sum(mits1.upload_traffic) as ttl_upload_traffic ")
               .append("       ,sum(mits1.download_traffic) as ttl_download_traffic ")
+              .append("       ,sum(mits1.session_num) as ttl_session_num ")
               .append("       ,mits2.sum_total as ttl_totalTraffic ")
               .append("       ,mits2.sum_upload as ttl_uploadTraffic ")
               .append("       ,mits2.sum_download as ttl_downloadTraffic ")
+              .append("       ,mits2.sum_session as ttl_session ")
               .append("       ,mids.ip_desc ")
               .append(" from Module_Ip_Traffic_Statistics as mits1 ")
               .append("      left join Module_Ip_Data_Setting mids ")
@@ -203,6 +205,7 @@ public class NetFlowStatisticsDAOImpl extends BaseDaoHibernate implements NetFlo
               .append("     ,(select sum(mits.total_traffic) as sum_total ")
               .append("             ,sum(mits.upload_traffic) as sum_upload ")
               .append("             ,sum(mits.download_traffic) as sum_download ")
+              .append("             ,sum(mits.session_num) as sum_session ")
               .append("       from Module_Ip_Traffic_Statistics as mits ")
               .append("       where 1=1 ");
 

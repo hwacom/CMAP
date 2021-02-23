@@ -30,6 +30,7 @@ public class IpTracePollerVO extends CommonServiceVO {
 	private String deviceName;
 	private String deviceModel; //目前前端不顯示此欄位
 	private String portName;
+	private String portDescription;
     private String showMsg;//NetFlow關連查詢IP資料顯示infoMessage
 	
 	public String getQueryClientMac() {
@@ -145,6 +146,12 @@ public class IpTracePollerVO extends CommonServiceVO {
 	}
 	public void setPortName(String portName) {
 		this.portName = portName;
+	}
+	public String getPortDescription() {
+		return portDescription;
+	}
+	public void setPortDescription(String portDescription) {
+		this.portDescription = portDescription;
 	}
 	public String getQueryDevice() {
 		return queryDevice;

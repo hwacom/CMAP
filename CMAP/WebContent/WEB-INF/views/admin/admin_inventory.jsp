@@ -301,6 +301,70 @@
 </div>
 <!-- Modal [資料匯入] end -->
 
+
+<!-- Modal [View Cell Detail] start -->
+<div class="modal fade" id="viewCellDetailModal" tabindex="-1" role="dialog" aria-labelledby="viewCellDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-mid" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewCellDetailLabel"><span id="msgModal_title">基站資訊</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+     	<div class="form-group row">
+        	<label for="viewCellDetailModal_frequencyBand" class="col-md-3 col-sm-12 col-form-label"><spring:message code="Frequency Band" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_frequencyBand"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_amfIpAddress" class="col-md-3 col-sm-12 col-form-label"><spring:message code="AMF IP Address" /> :</label>
+        	<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_amfIpAddress"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_enodebType" class="col-md-3 col-sm-12 col-form-label"><spring:message code="eNodeB Type" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_enodebType"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_gnbId" class="col-md-3 col-sm-12 col-form-label"><spring:message code="gNB ID" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_gnbId"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_cellIdentify" class="col-md-3 col-sm-12 col-form-label"><spring:message code="Cell Identity" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_cellIdentify"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_physicalCellGroupId" class="col-md-3 col-sm-12 col-form-label"><spring:message code="Physical Cell Group ID" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_physicalCellGroupId"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_physicalCellId" class="col-md-3 col-sm-12 col-form-label"><spring:message code="Physical Cell ID" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_physicalCellId"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_plmn" class="col-md-3 col-sm-12 col-form-label"><spring:message code="PLMN" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_plmn"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_arfcn" class="col-md-3 col-sm-12 col-form-label"><spring:message code="ARFCN" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_arfcn"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_bandWidth" class="col-md-3 col-sm-12 col-form-label"><spring:message code="Band Width" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_bandWidth"></div>
+        </div>
+        <div class="form-group row">
+        	<label for="viewCellDetailModal_currentTxPower" class="col-md-3 col-sm-12 col-form-label"><spring:message code="Current TX Power(dBm)" /> :</label>
+    		<div class="form-control form-control-sm col-md-8 col-sm-12" id="viewCellDetailModal_currentTxPower"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [View Cell Detail] end -->
+
 <script>
 	var msg_chooseDate = '<spring:message code="please.choose" /><spring:message code="date" />';
 </script>

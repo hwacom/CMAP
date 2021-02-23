@@ -17,6 +17,8 @@ public class BlockedRecordVO extends CommonServiceVO {
     private List<String> queryExcludeStatusFlag;
     private String queryBeginDate;
     private String queryEndDate;
+    private String queryScriptCode;
+    private String queryUndoScriptCode;
 
     private List<String> queryGroupIdList;
     private List<String> queryDeviceIdList;
@@ -137,6 +139,22 @@ public class BlockedRecordVO extends CommonServiceVO {
 
 	public void setQueryEndDate(String queryEndDate) {
 		this.queryEndDate = queryEndDate;
+	}
+
+	public String getQueryScriptCode() {
+		return queryScriptCode;
+	}
+
+	public void setQueryScriptCode(String queryScriptCode) {
+		this.queryScriptCode = queryScriptCode;
+	}
+
+	public String getQueryUndoScriptCode() {
+		return queryUndoScriptCode;
+	}
+
+	public void setQueryUndoScriptCode(String queryUndoScriptCode) {
+		this.queryUndoScriptCode = queryUndoScriptCode;
 	}
 
 	public List<String> getQueryGroupIdList() {

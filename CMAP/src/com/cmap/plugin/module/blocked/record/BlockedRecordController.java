@@ -679,28 +679,28 @@ public class BlockedRecordController extends BaseController {
             boolean isAdmin = (boolean) request.getSession().getAttribute(Constants.ISADMIN);
 			brVO.setAdmin(isAdmin);
 			
-            filterdTotal = blockedRecordService.countModuleBlockedList(brVO);
-
-            if (filterdTotal != 0) {
-                dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);                
-            }
-            
             if(showSyncAction && Constants.STATUS_FLAG_SYNC.equals(queryStatusFlag) && StringUtils.isNotBlank(brVO.getQueryGroupId())) {
             	
 				String prtgLoginAccount = Objects.toString(request.getSession().getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
 
-				if (BlockType.IP.toString().equals(brVO.getQueryBlockType()) && blockedRecordService.doSyncDeviceIpBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
-					dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);  
+				if (BlockType.IP.toString().equals(brVO.getQueryBlockType())) {
+					blockedRecordService.doSyncDeviceIpBlockedList(isAdmin, prtgLoginAccount, brVO, dataList);
 				}
-				if (BlockType.PORT.toString().equals(brVO.getQueryBlockType()) && blockedRecordService.doSyncDevicePortBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
-					dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);  
+				if (BlockType.PORT.toString().equals(brVO.getQueryBlockType())) {
+					blockedRecordService.doSyncDevicePortBlockedList(isAdmin, prtgLoginAccount, brVO, dataList);
 				}
-				if (BlockType.MAC.toString().equals(brVO.getQueryBlockType()) && blockedRecordService.doSyncDeviceMacBlockedList(isAdmin, prtgLoginAccount, brVO, dataList)) {
-					dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);  
+				if (BlockType.MAC.toString().equals(brVO.getQueryBlockType())) {
+					blockedRecordService.doSyncDeviceMacBlockedList(isAdmin, prtgLoginAccount, brVO, dataList);
 				}
-				filterdTotal = dataList.size();
+				
         	}
 
+            filterdTotal = blockedRecordService.countModuleBlockedList(brVO);
+
+            if (filterdTotal != 0) {
+                dataList = blockedRecordService.findModuleBlockedList(brVO, startNum, pageLength);
+            }
+            
             total = filterdTotal;   //不顯示所有筆數，只顯示符合條件的筆數
 
         } catch (ServiceLayerException sle) {

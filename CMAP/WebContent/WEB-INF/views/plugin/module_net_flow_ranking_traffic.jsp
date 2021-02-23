@@ -160,6 +160,7 @@
 		      <th scope="col" nowrap="nowrap"><spring:message code="total.traffic" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="upload.traffic" /></th>
 		      <th scope="col" nowrap="nowrap"><spring:message code="download.traffic" /></th>
+		      <th scope="col" nowrap="nowrap">Session</th>
 		    </tr>
 		  </thead>
 		</table>

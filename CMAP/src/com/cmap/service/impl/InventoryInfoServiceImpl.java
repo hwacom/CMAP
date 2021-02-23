@@ -16,7 +16,9 @@ import com.cmap.annotation.Log;
 import com.cmap.dao.InventoryInfoDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.InventoryInfo;
+import com.cmap.model.InventoryInfoCellDetail;
 import com.cmap.service.InventoryInfoService;
+import com.cmap.service.vo.InventoryInfoCellDetailVO;
 import com.cmap.service.vo.InventoryInfoVO;
 
 @Service("inventoryInfoService")
@@ -212,4 +214,23 @@ public class InventoryInfoServiceImpl extends CommonServiceImpl implements Inven
 		return false;
 	}
 
+	@Override
+	public InventoryInfoCellDetailVO findInvCellDetailData(String deviceId) throws ServiceLayerException {
+		
+		if(StringUtils.isBlank(deviceId)) {
+			throw new ServiceLayerException("查無紀錄!!");
+		}
+		
+		InventoryInfoCellDetail detail = inventoryInfoDAO.findInvCellDetailDataByDeviceId(deviceId);
+		
+		if(detail == null) {
+			throw new ServiceLayerException("查無紀錄!!");
+		}
+		
+		InventoryInfoCellDetailVO currVO = new InventoryInfoCellDetailVO();
+		BeanUtils.copyProperties(detail, currVO);
+		currVO.setCreateTimeStr(Constants.FORMAT_YYYYMMDD_HH24MISS.format(detail.getCreateTime()));
+		
+		return currVO;
+	}
 }

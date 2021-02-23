@@ -245,7 +245,8 @@ function findData(from) {
 				{ "data" : "percent" , "searchable" : false },
 				{ "data" : "totalTraffic" , "searchable" : false },
 				{ "data" : "uploadTraffic" , "searchable" : false },
-				{ "data" : "downloadTraffic" , "searchable" : false }
+				{ "data" : "downloadTraffic" , "searchable" : false },
+				{ "data" : "sessionNum" , "searchable" : false }
 			],
 			"columnDefs" : [
 				{

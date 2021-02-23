@@ -3,6 +3,7 @@ package com.cmap.controller.admin;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import com.cmap.controller.BaseController;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.InventoryInfoService;
+import com.cmap.service.vo.InventoryInfoCellDetailVO;
 import com.cmap.service.vo.InventoryInfoVO;
 import com.cmap.utils.DataExportUtils;
 import com.cmap.utils.impl.CsvExportUtils;
@@ -294,4 +296,44 @@ public class AdminInventoryController extends BaseController {
 		}
 	}
 	
+	@RequestMapping(value = "getInvCellDetailData.json", method = RequestMethod.POST)
+	public @ResponseBody AppResponse getInvCellDetailData(Model model, HttpServletRequest request,
+			HttpServletResponse response, @RequestBody JsonNode jsonData) {
+    		//查詢條件
+		
+			if(!jsonData.has("queryDevice") || jsonData.findValues("queryDevice").isEmpty()) {
+				return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無明細資料!!");
+			}
+    		String queryDevice = jsonData.findValues("queryDevice").get(0).asText();
+
+	    try {
+	    	
+	    	InventoryInfoCellDetailVO detail = inventoryInfoService.findInvCellDetailData(queryDevice);
+	        
+	    	if(detail == null ) {
+	    		return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無明細資料!!");
+	    	}
+	    	
+	    	Map<String, Object> retMap = new HashMap<>();
+			retMap.put("frequencyBand", detail.getFrequencyBand());
+			retMap.put("amfIpAddress", detail.getAmfIpAddress());
+			retMap.put("enodebType", detail.getEnodebType());
+			retMap.put("gnbId", detail.getGnbId());
+			retMap.put("cellIdentify", detail.getCellIdentify());
+			retMap.put("physicalCellGroupId", detail.getPhysicalCellGroupId());
+			retMap.put("physicalCellId", detail.getPhysicalCellId());
+			retMap.put("plmn", detail.getPlmn());
+			retMap.put("arfcn", detail.getArfcn());
+			retMap.put("bandWidth", detail.getBandWidth());
+			retMap.put("currentTxPower", detail.getCurrentTxPower());
+			
+			return new AppResponse(HttpServletResponse.SC_OK, "資料取得正常", retMap);
+			
+	    } catch (ServiceLayerException sle) {
+			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查無明細資料!!");
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+		}
+	}
 }

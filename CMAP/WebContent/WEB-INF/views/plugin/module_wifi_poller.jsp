@@ -61,10 +61,6 @@
 					<input type="text" id="query_Ssid" class="" style="width: 60%">
 				</div>
 				<div class="col-lg-2 group-field-other">
-					<label for="query_Ssid" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.ssid" /></label>
-					<input type="text" id="query_Ssid" class="" style="width: 60%">
-				</div>
-				<div class="col-lg-2 group-field-other">
 					<label for="query_UserName" class="font-weight-bold" style="width: 30%"><spring:message code="wifi.poller.user.name" /></label>
 					<input type="text" id="query_UserName" class="" style="width: 60%">
 				</div>

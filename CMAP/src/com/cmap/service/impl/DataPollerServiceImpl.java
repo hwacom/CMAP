@@ -2005,6 +2005,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
             final Map<Integer, DataPollerServiceVO> mappingMap = composeMapping(setting);
 
             if (mappingMap == null) {
+            	log.info("Mapping_Code (" + setting.getMappingCode() + ") 取不到 Data_Poller_Mapping 資料");
                 dpsVO.setJobExcuteResult(Result.FAILED);
                 dpsVO.setJobExcuteResultRecords("0");
                 dpsVO.setJobExcuteRemark("Mapping_Code (" + setting.getMappingCode() + ") 取不到 Data_Poller_Mapping 資料");
@@ -2031,6 +2032,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                 final String fileName = f.getName();
 
                 if (fileName.indexOf("[") == -1 || fileName.indexOf("]") == -1) {
+                	log.info("檔案名稱格式不正確，無法解析出 targetTableName");
                     // 檔案名稱格式不正確，無法解析出 targetTableName
                     continue;
                 }

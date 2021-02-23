@@ -47,7 +47,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
     	List<IpTracePollerVO> retList = new ArrayList<>();
     	
         StringBuffer sb = new StringBuffer();
-        sb.append(" select mit.client_ip '1', mids.ip_desc '2',mit.start_time '3',mit.end_time '4',mit.client_mac '5',mit.group_name '6',mit.device_name '7',mit.port_name '8' ")
+        sb.append(" select mit.client_ip '1', mids.ip_desc '2',mit.start_time '3',mit.end_time '4',mit.client_mac '5',mit.group_name '6',mit.device_name '7',mit.port_name '8',mit.PORT_DESCRIPTION '9' ")
         	.append(" from module_ip_trace mit")
         	.append("      left join Module_Ip_Data_Setting mids ")
             .append("      on ( mit.group_id = mids.group_id ")
@@ -131,7 +131,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
         		String groupName = data[5].toString();
         		String deviceName = data[6].toString();
         		String portName = data[7].toString();
-        		
+        		String portDescription = Objects.toString(data[8], "");
         		
                 retVO.setClientIp(clientIp);
                 retVO.setStartTime(startTime);
@@ -140,6 +140,7 @@ public class IpTracePollerDAOImpl extends BaseDaoHibernate implements IpTracePol
                 retVO.setGroupName(groupName);
                 retVO.setDeviceName(deviceName);
                 retVO.setPortName(portName);
+                retVO.setPortDescription(portDescription);
                 retVO.setIpDesc(ipDesc);
                 
         		retList.add(retVO);

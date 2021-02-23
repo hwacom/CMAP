@@ -148,7 +148,8 @@ function findData(from) {
 				{ "data" : "deviceName" , "className" : "center" },
 				{ "data" : "portName" },
 				{ "data" : "portAdminStatus" },
-				{ "data" : "portOperStatus" }
+				{ "data" : "portOperStatus" },
+				{ "data" : "speed" }
 			],
 			"columnDefs" : [
 				{

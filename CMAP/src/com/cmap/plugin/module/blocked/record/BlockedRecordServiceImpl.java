@@ -205,18 +205,18 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
             	brVO.setGlobalValue(varMap.get(globalVarKey));            	
             }
             
-            
             brVO.setRemark(remark);
             brVO.setBlockType(scriptCode.substring(0, scriptCode.indexOf("_")));
-            
-            ScriptInfo info = scriptService.getScriptInfoEntityByScriptCode(scriptCode);
             brVO.setScriptCode(scriptCode);
-            brVO.setScriptName(info.getScriptName());
-        	brVO.setUndoScriptCode(info.getUndoScriptCode());
+            ScriptInfo info = scriptService.getScriptInfoEntityByScriptCode(scriptCode);
+            
         	if(StringUtils.isNotBlank(info.getUndoScriptCode())) {
+                brVO.setScriptName(info.getScriptName());
+            	brVO.setUndoScriptCode(info.getUndoScriptCode());
         		brVO.setBlockBy(currentUserName());
                 brVO.setBlockReason(remark);
                 brVO.setStatusFlag(Constants.STATUS_FLAG_BLOCK);
+                
         	}else {
         		brVO.setOpenBy(currentUserName());
                 brVO.setOpenReason(remark);
@@ -243,12 +243,17 @@ public class BlockedRecordServiceImpl extends CommonServiceImpl implements Block
                 qVO.setQueryIpAddress(ibrVO.getIpAddress());
                 qVO.setQueryMacAddress(ibrVO.getMacAddress());
                 qVO.setQueryPortId(ibrVO.getPort());
-
+                
                 String actionStatusFlag = ibrVO.getStatusFlag();
-                String preStatusFlag = "";
-
+                if (StringUtils.equals(actionStatusFlag, Constants.STATUS_FLAG_BLOCK)) {
+                	qVO.setQueryScriptCode(ibrVO.getScriptCode());
+                } else {
+                	qVO.setQueryUndoScriptCode(ibrVO.getScriptCode());
+                }
+                
                 ModuleBlockedList lastestRecord = blockedRecordDAO.findLastestModuleBlockedList(qVO);
 
+                String preStatusFlag = "";
                 if (lastestRecord != null) {
                     preStatusFlag = lastestRecord.getStatusFlag();
                     

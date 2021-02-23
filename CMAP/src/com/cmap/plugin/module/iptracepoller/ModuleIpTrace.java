@@ -58,6 +58,9 @@ public class ModuleIpTrace {
 	@Column(name = "port_name", nullable = false)
 	private String portName;
 
+	@Column(name = "PORT_DESCRIPTION", nullable = false)
+	private String portDescription;
+	
 	@Column(name = "create_time", nullable = false)
 	private Timestamp createTime;
 
@@ -73,10 +76,10 @@ public class ModuleIpTrace {
 	public ModuleIpTrace() {
 		super();
 	}
-    
-	public ModuleIpTrace(Long dataId, String clientIp, Date startTime, Date endTime, String clientMac,
-			String groupId, String groupName, String deviceId, String deviceName, String deviceModel, String portId,
-			String portName, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+
+	public ModuleIpTrace(Long dataId, String clientIp, Date startTime, Date endTime, String clientMac, String groupId,
+			String groupName, String deviceId, String deviceName, String deviceModel, String portId, String portName,
+			String portDescription, Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
 		super();
 		this.dataId = dataId;
 		this.clientIp = clientIp;
@@ -90,6 +93,7 @@ public class ModuleIpTrace {
 		this.deviceModel = deviceModel;
 		this.portId = portId;
 		this.portName = portName;
+		this.portDescription = portDescription;
 		this.createTime = createTime;
 		this.createBy = createBy;
 		this.updateTime = updateTime;
@@ -192,6 +196,14 @@ public class ModuleIpTrace {
 		this.portName = portName;
 	}
 
+	public String getPortDescription() {
+		return portDescription;
+	}
+
+	public void setPortDescription(String portDescription) {
+		this.portDescription = portDescription;
+	}
+
 	public Timestamp getCreateTime() {
 		return createTime;
 	}
@@ -223,5 +235,5 @@ public class ModuleIpTrace {
 	public void setUpdateBy(String updateBy) {
 		this.updateBy = updateBy;
 	}
-
+    
 }
