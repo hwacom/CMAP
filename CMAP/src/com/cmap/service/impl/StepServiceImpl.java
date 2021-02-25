@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -2417,9 +2418,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 									break;
 								}
 
-								vsVOs = getVersionInfo(
-											new String[]{restoreVersionId}
-										);
+								vsVOs = versionService.findConfigFilesInfo(Arrays.asList(restoreVersionId));
+//								getVersionInfo(
+//											new String[]{restoreVersionId}
+//										);
 
 								if (vsVOs != null && !vsVOs.isEmpty() && ciVO != null) {
 									VersionServiceVO vsVO = vsVOs.get(0);
@@ -2667,7 +2669,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		 * Provision_Log_Step
 		 */
 		psStepVO.setEndTime(new Date());
-		psStepVO.setResult(retVO.getResult().toString());
+		psStepVO.setResult(Objects.toString(retVO.getResult(), ""));
 		psStepVO.setMessage(retVO.getMessage());
 		psStepVO.setRetryTimes(round-1);
 		psStepVO.setProcessLog(retVO.getCmdProcessLog());

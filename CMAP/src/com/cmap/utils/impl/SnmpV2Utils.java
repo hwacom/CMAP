@@ -345,6 +345,56 @@ public class SnmpV2Utils implements ConnectUtils {
         return tableMap;
     }
 
+	public Map<String, Map<String, String>> snmpGetTable(Map<String, String> entryMap) throws Exception {
+		Map<String, Map<String, String>> tableMap = new HashMap<>();
+        try {
+            int maxRepetitions = 100;
+
+            PDUFactory pF = new DefaultPDUFactory(PDU.GETNEXT);
+
+            TableUtils tableUtils = new TableUtils(snmp, pF);
+            tableUtils.setMaxNumRowsPerPDU(maxRepetitions);
+
+            OID[] columns = new OID[1];
+            String oidTable ;
+            
+            for (String key : entryMap.keySet()) {
+            	oidTable = entryMap.get(key).substring(0, entryMap.get(key).lastIndexOf("."));				
+				columns[0] = new VariableBinding(new OID(oidTable)).getOid();
+				List<TableEvent> snmpList = tableUtils.getTable(target, columns, null, null);
+
+				for (int j = 0; j < snmpList.size(); j++) {
+					TableEvent event = snmpList.get(j);
+					VariableBinding[] vbs = event.getColumns();
+
+					if (vbs != null) {
+						for (VariableBinding vb : vbs) {
+							String vbOID = vb.getOid().toString();
+							String vbValue = vb.getVariable().toString();
+							String oidBegin = entryMap.get(key).substring(1);
+							String oidKey = vbOID.replaceAll(oidBegin, "");
+							
+							if (vbOID.startsWith(oidBegin) && oidKey.startsWith(".")) {
+								Map<String, String> tableEntry = null;
+								if (tableMap.containsKey(oidKey)) {
+									tableEntry = tableMap.get(oidKey);
+								} else {
+									tableEntry = new HashMap<>();
+								}
+								tableEntry.put(key, vbValue);
+								tableMap.put(oidKey, tableEntry);
+							}
+						}
+					}
+				}
+			}
+        } catch (Exception e) {
+            log.error(e.toString(),e);
+            throw e;
+        }
+        return tableMap;
+    }
+	
 	public List<Map<String, String>> doSnmpTableView(List<String> oids) throws Exception {
         //结果集合
         List<Map<String,String>> mibOidToValueMap = new ArrayList<Map<String,String>>();
