@@ -107,12 +107,12 @@ public class PortStatusViewerServiceImpl extends CommonServiceImpl implements Po
                 snmpUtils.connect(udpAddress, communityString);
 
                 // 撈取設備IF_TABLE相關資料
-                Map<String, Map<String, String>> ifTable = snmpUtils.pollTableView(ifTableOid, tableEntryMap);
+                Map<String, Map<String, String>> ifTable = ((SnmpV2Utils) snmpUtils).snmpGetTable(tableEntryMap);
 
                 if (ifTable == null || (ifTable != null && ifTable.isEmpty())) {
                 	throw new ServiceLayerException("查無該設備IF_TABLE資料，請重新操作");
                 }
-                
+                                
                 // 查找 IF_TABLE 中 Entry value 說明表
                 Map<String, Map<String, MibVO>> entryValueMapping = mibService.findMibValueMappingByOidTable(Env.OID_NAME_OF_IF_TABLE);
 

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.mapping.Array;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -287,6 +288,7 @@ public class ScriptController extends BaseController {
 			int index = 0;
 			List<ScriptStepAction> scriptStepActions = new ArrayList<>();
 			StringBuffer actionScriptVar = new StringBuffer("[\"");
+			List<String> actionScriptVarList = new ArrayList<>();
 			
 			for(String scriptAction : scriptActions) {
 				ScriptStepAction action = new ScriptStepAction();
@@ -304,14 +306,18 @@ public class ScriptController extends BaseController {
 				
 				if(scriptAction.indexOf("%") >= 0 ) {
 					String[] array = scriptAction.split("%");
-					for(int idx = 0; idx < array.length ; idx++) {
+					for(int idx = 0; idx < array.length ; idx++) {// 調整為去除重複參數
 						if(idx % 2 == 1) {
-							if(actionScriptVar.length() > 2) {
-								actionScriptVar.append("\",\"");
+							if(!actionScriptVarList.contains(array[idx].trim())) {
+								actionScriptVarList.add(array[idx].trim());
 							}
-							actionScriptVar.append(array[idx].trim());
+//							if(actionScriptVar.length() > 2) {
+//								actionScriptVar.append("\",\"");
+//							}
+//							actionScriptVar.append(array[idx].trim());
 						}
 					}
+					actionScriptVar.append(StringUtils.join(actionScriptVarList.toArray(), "\",\""));
 				}
 			}
 			

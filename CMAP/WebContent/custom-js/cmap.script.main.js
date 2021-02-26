@@ -399,7 +399,7 @@ function goStep(num) {
 			});
 		}
 	}else if(STEP_NUM == 2 && nextStep == 1){//退回第一步 
-		if($("#currentIndex").val() > 1){
+		if(parseInt($("#currentIndex").val()) > 1){
 			var varInput = $("input[name=input_var2]");
 			if (varInput.length > 0) {
 				$.each(varInput, function(key, input) {
@@ -438,7 +438,7 @@ function goStep(num) {
 			});
 		}
 	}else if(STEP_NUM == 2 && nextStep == 3){
-		if($("#currentIndex").val() < window.sessionStorage.getItem("addScriptContentLine")){
+		if(parseInt($("#currentIndex").val()) < parseInt(window.sessionStorage.getItem("addScriptContentLine"))){
 			var idx = parseInt($("#currentIndex").val())+1;
 			$("#currentIndex").val(idx);
 			$("#showContentValue").val(window.sessionStorage.getItem("addScriptContentValue").split(",")[idx-1]);

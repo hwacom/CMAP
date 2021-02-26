@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -160,9 +159,11 @@ public class ProvisionController extends BaseController {
 
 		String jsonString = "";
 		// 宣告container並填充內容，最後會以JSON格式回傳至前端
-		Map<String, String> data = new HashMap<String, String>();
+		Map<String, Object> data = new HashMap<String, Object>();
 		ObjectMapper mapper = new ObjectMapper();		
-
+		List<String> typeCode = new ArrayList<>();
+		List<String> typeName = new ArrayList<>();
+		
 		try {
 			
 			// Step 1.
@@ -174,8 +175,18 @@ public class ProvisionController extends BaseController {
 			}
 			String username = jsonData.get("user").textValue();
 			PrtgAccountMapping mapping = prtgService.getMappingByAccount(username);
-			data = commonService.getScriptTypeMenu(null);
+			Map<String, String> retMap = commonService.getScriptTypeMenu(null);
 
+			for(String key:retMap.keySet()) {
+				typeCode.add(key);
+				typeName.add(retMap.get(key));
+			}
+			
+			if(!typeCode.isEmpty() && !typeName.isEmpty()) {
+				data.put("typeCode", typeCode);
+				data.put("typeName", typeName);
+			}
+			
 	        jsonString = mapper.writeValueAsString(data);
 	        System.out.println(new Date() + " >>> " + jsonString);
 	        
