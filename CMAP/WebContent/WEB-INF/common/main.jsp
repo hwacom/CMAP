@@ -222,18 +222,7 @@
 		                    </li>
 				        </c:if>
 				        <!-- [拓樸圖] END -->
-		                
-				        <!-- [流量統計] START -->
-	                    <c:if test="${Env.SHOW_MENU_ITEM_PRTG_NET_FLOW_STATICS eq __SHOW__}">
-	                    	<li class="subMenu-item">
-		                    	<a id="mp_netFlowSummary" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/prtg/netFlowSummary')">
-		                    	  <span data-feather="activity"></span>
-		                    	  	<span><spring:message code="func.prtg.net.flow.statistics" /></span>
-		                    	</a>
-		                    </li>
-	                    </c:if>
-	                    <!-- [流量統計] END -->
-	                    
+
 	                    <!-- [核心路由器出口流量圖] START -->
 	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 	                    	<c:if test="${Env.SHOW_MENU_ITEM_PRTG_CR_NET_FLOW_OUTPUT eq __SHOW__}">
@@ -282,19 +271,6 @@
 	                    </c:if>
 	                    <!-- [各校即時IP流量排行] END -->
 	                    
-	                    <!-- [所有學校即時IP流量排行] START -->
-	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
-					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_TRAFFIC eq __SHOW__}">
-					        	<li class="subMenu-item">
-			                    	<a id="mp_netFlowCurrentRanking_traffic_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/traffic/all')">
-			                    	  <span data-feather="activity"></span>
-			                    	  	<span><spring:message code="func.net.flow.all.current.ranking.traffic" /></span>
-			                    	</a>
-			                    </li>
-					        </c:if>
-	                    </sec:authorize>
-	                    <!-- [所有學校即時IP流量排行] END -->
-	                    
 	                    <!-- [各校即時連線數排行] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_CURRNET_RANKING_SESSION eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -306,19 +282,6 @@
 	                    </c:if>
 	                    <!-- [各校即時連線數排行] END -->
 	                    
-	                    <!-- [所有學校即時連線數排行] START -->
-	                    <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
-					        <c:if test="${Env.SHOW_MENU_ITEM_NET_FLOW_ALL_CURRNET_RANKING_SESSION eq __SHOW__}">
-					        	<li class="subMenu-item">
-			                    	<a id="mp_netFlowCurrentRanking_session_all" href="#" onclick="closeTabAndGo('${pageContext.request.contextPath}/plugin/module/netFlow/ranking/session/all')">
-			                    	  <span data-feather="link"></span>
-			                    	  	<span><spring:message code="func.net.flow.all.current.ranking.session" /></span>
-			                    	</a>
-			                    </li>
-					        </c:if>
-	                    </sec:authorize>
-	                    <!-- [所有學校即時連線數排行] END -->
-	                    
 	                    <!-- [Interface狀態清單] START -->
 				        <c:if test="${Env.SHOW_MENU_ITEM_INTERFACE_STATUS_LIST eq __SHOW__}">
 				        	<li class="subMenu-item">
@@ -329,33 +292,7 @@
 		                    </li>
 				        </c:if>
 	                    <!-- [Interface狀態清單] END -->
-	                    
-	                    <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] START -->
-<!--
-			            <c:if test="${Env.SHOW_MENU_ITEM_IP_CONFLICT eq __SHOW__}">
-			            	<li class="subMenu-item">
-		                    	<a id="ip_record" href="${pageContext.request.contextPath}/plugin/module/ipMapping/change">
-		                    	  <span data-feather="minimize-2"></span>
-		                    		<span><spring:message code="func.plugin.ip.record" /></span>
-		                    	</a>
-		                    </li>
-			            </c:if>
- -->
- 			            <!-- [IP衝突查詢(IP/MAC/Port異動查詢)] END -->
-			            
-	                    <!-- [Net flow查詢] START -->
-<!-- 
-	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW eq __SHOW__}">
-	                    	<li class="subMenu-item">
-		                    	<a id="cm_netflow" href="${pageContext.request.contextPath}/plugin/module/netFlow">
-		                    	  <span data-feather="shuffle"></span>
-		                    	  	<span><spring:message code="func.plugin.net.flow" /></span>
-		                    	</a>
-		                    </li>
-	                    </c:if>
- -->
-	                    <!-- [Net flow查詢] END -->
-	                    
+
 	                    <!-- [Net flow trace查詢] START -->
 	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_NET_FLOW_TRACE eq __SHOW__}">
 	                    	<li class="subMenu-item">
@@ -798,17 +735,6 @@
 			                    </li>
 		                	</c:if>
 		                	<!-- [使用者授權維護] END -->
-		                	
-		                	<!-- [預設腳本維護] START --><!-- 沒有功能
-		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_DEFAULT_SCRIPT eq __SHOW__}">
-		                		<li class="subMenu-item">
-			                    	<a id="bk_script" href="${pageContext.request.contextPath}/admin/script/main">
-			                    	  <span data-feather="hash"></span> 
-			                    	  	<span><spring:message code="func.default.script.manage" /></span>
-			                    	</a>
-			                    </li>
-		                	</c:if> -->
-		                	<!-- [預設腳本維護] END -->
 		                	
 		                	<!-- [排程設定維護] START -->
 		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
