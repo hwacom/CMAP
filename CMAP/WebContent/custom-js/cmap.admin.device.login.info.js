@@ -274,6 +274,15 @@ function findData(from) {
 						   	}
 				},
 				{
+					"targets" : [4],
+					"className" : "center",
+					"searchable": false,
+					"orderable": false,
+					"render": function (data, type, row, meta) {
+								 return atob(row.loginAccount);
+						   	}
+				},
+				{
 					"targets" : [5],
 					"className" : "center",
 					"searchable": false,

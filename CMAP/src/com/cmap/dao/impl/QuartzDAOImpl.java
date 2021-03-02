@@ -79,9 +79,6 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
             }
 
         } finally {
-            if (tx != null) {
-                tx.commit();
-            }
             if (session != null) {
                 session.close();
             }
@@ -164,9 +161,6 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
             }
 
         } finally {
-            if (tx != null) {
-                tx.commit();
-            }
             if (session != null) {
                 session.close();
             }
