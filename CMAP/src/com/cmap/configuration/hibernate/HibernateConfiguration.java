@@ -113,6 +113,20 @@ public class HibernateConfiguration {
 			dataSource.setUser(environment.getRequiredProperty("org.quartz.dataSource.qzDS.user"));
 			dataSource.setPassword(environment.getRequiredProperty("org.quartz.dataSource.qzDS.password"));
 			dataSource.setTestConnectionOnCheckin(new Boolean(environment.getRequiredProperty("org.quartz.dataSource.qzDS.testConnectionOnCheckin")));
+			dataSource.setTestConnectionOnCheckout(new Boolean(environment.getRequiredProperty("org.quartz.dataSource.qzDS.testConnectionOnCheckout")));
+			dataSource.setMaxPoolSize(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.max_pool_size")));
+			dataSource.setMinPoolSize(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.min_pool_size")));
+			dataSource.setInitialPoolSize(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.initial_pool_size")));
+			dataSource.setMaxIdleTime(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.max_idle_time")));
+			dataSource.setAcquireRetryAttempts(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.acquire_retry_attempts")));
+			dataSource.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.max_statements")));
+			dataSource.setIdleConnectionTestPeriod(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.idle_connection_test_period")));
+			dataSource.setCheckoutTimeout(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.timeout")));
+			dataSource.setStatementCacheNumDeferredCloseThreads(
+			        Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.statement_cache_num_deferred_close_threads")));
+			dataSource.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.acquire_increment")));
+			dataSource.setBreakAfterAcquireFailure(new Boolean(environment.getRequiredProperty("hibernate.c3p0.break_after_acquire_failure")));
+			dataSource.setPreferredTestQuery(environment.getRequiredProperty("hibernate.c3p0.preferred_test_query"));
 			
 		} catch (IllegalStateException | PropertyVetoException e) {
 			log.error(e.toString(), e);
