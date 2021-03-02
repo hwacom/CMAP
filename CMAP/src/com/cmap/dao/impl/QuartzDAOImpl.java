@@ -2,9 +2,13 @@ package com.cmap.dao.impl;
 
 import java.util.List;
 
+import javax.persistence.TransactionRequiredException;
+
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
@@ -28,6 +32,25 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
     @Qualifier("quartzSessionFactory")
     private SessionFactory quartzSessionFactory;
 	
+	Session session = null;
+    Transaction tx = null;
+    
+	private void checkSession() {
+        try {
+            session = quartzSessionFactory.openSession();
+        } catch (HibernateException e) {
+            session = quartzSessionFactory.openSession();
+        } finally {
+            if (session != null) {
+                if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+                    tx = session.beginTransaction();
+                } else {
+                    tx = session.getTransaction();
+                }
+            }
+        }
+	}
+	
 	@Override
 	public long countQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception {
 		StringBuffer sb = new StringBuffer();
@@ -38,15 +61,33 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 		  .append(" and qt.triggerName = qct.triggerName ")
 		  .append(" and qt.triggerGroup = qct.triggerGroup ");
 		
-		Session session = quartzSessionFactory.getCurrentSession();
+		try {
+			checkSession();
+			
+			Query<?> q = session.createQuery(sb.toString());
+			
+			return DataAccessUtils.longResult(q.list());
+        } catch (TransactionRequiredException tre) {
+            log.error(tre.toString());
 
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            if (tx != null) {
+                tx.rollback();
+                session.close();
+            }
+
+        } finally {
+            if (tx != null) {
+                tx.commit();
+            }
+            if (session != null) {
+                session.close();
+            }
         }
-//		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createQuery(sb.toString());
-	    
-		return DataAccessUtils.longResult(q.list());
+        
+		return 0;
 	}
 	
 	@Override
@@ -94,24 +135,43 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 			sb.append(" order by qt.prevFireTime desc ");
 		}
 		
-		Session session = quartzSessionFactory.getCurrentSession();
+		try {
+			checkSession();
+			
+			Query<?> q  = session.createQuery(sb.toString());
+		    
+		    if (daoVO != null && StringUtils.isNotBlank(daoVO.getJobKeyName())) {
+				q.setParameter("jobName", daoVO.getJobKeyName());
+			}
+			if (daoVO != null && StringUtils.isNotBlank(daoVO.getJobKeyGroup())) {
+				q.setParameter("jobGroup", daoVO.getJobKeyGroup());
+			}
+			if (daoVO != null && StringUtils.isNotBlank(daoVO.getSearchValue())) {
+				q.setParameter("searchValue", "%".concat(daoVO.getSearchValue()).concat("%"));
+			}
+			
+			return (List<Object[]>)q.list();
+			
+        } catch (TransactionRequiredException tre) {
+            log.error(tre.toString());
 
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
+        } catch (Exception e) {
+            log.error(e.toString(), e);
+
+            if (tx != null) {
+                tx.rollback();
+                session.close();
+            }
+
+        } finally {
+            if (tx != null) {
+                tx.commit();
+            }
+            if (session != null) {
+                session.close();
+            }
         }
-//		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-	    Query<?> q = session.createQuery(sb.toString());
 	    
-	    if (daoVO != null && StringUtils.isNotBlank(daoVO.getJobKeyName())) {
-			q.setParameter("jobName", daoVO.getJobKeyName());
-		}
-		if (daoVO != null && StringUtils.isNotBlank(daoVO.getJobKeyGroup())) {
-			q.setParameter("jobGroup", daoVO.getJobKeyGroup());
-		}
-		if (daoVO != null && StringUtils.isNotBlank(daoVO.getSearchValue())) {
-			q.setParameter("searchValue", "%".concat(daoVO.getSearchValue()).concat("%"));
-		}
-	    
-		return (List<Object[]>)q.list();
+		return null;
 	}
 }

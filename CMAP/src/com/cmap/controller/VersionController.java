@@ -2,6 +2,7 @@ package com.cmap.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -579,8 +580,8 @@ public class VersionController extends BaseController {
 		List<VersionServiceVO> retList;
 		try {
 			VersionServiceVO vsVO = new VersionServiceVO();
-			vsVO.setQueryDeviceListId(deviceListId);
-
+//			vsVO.setQueryDeviceListId(deviceListId);
+			vsVO.setQueryDevice1List(Arrays.asList(deviceListId));
 			retList = versionService.findVersionInfo(vsVO, null, null);
 
 			AppResponse resp = new AppResponse(HttpServletResponse.SC_OK, "取得歷史版本紀錄成功");

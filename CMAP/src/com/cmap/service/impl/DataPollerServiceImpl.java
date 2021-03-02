@@ -2032,7 +2032,7 @@ public class DataPollerServiceImpl extends CommonServiceImpl implements DataPoll
                 final String fileName = f.getName();
 
                 if (fileName.indexOf("[") == -1 || fileName.indexOf("]") == -1) {
-                	log.info("檔案名稱格式不正確，無法解析出 targetTableName");
+                	log.debug("檔案名稱格式不正確，無法解析出 targetTableName" + fileName);
                     // 檔案名稱格式不正確，無法解析出 targetTableName
                     continue;
                 }
