@@ -25,7 +25,7 @@ $(document).ready(function() {
 			
 			if(ckeckedCount == 1){
 				document.getElementById('modifyConnectionMode').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(3).text(); 
-				document.getElementById('modifyLoginAccount').value=atob($('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text());
+				document.getElementById('modifyLoginAccount').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(4).text();
 				document.getElementById('modifyLoginPassword').value=atob($('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(5).children().eq(0).val());
 				document.getElementById('modifyEnablePassword').value=atob($('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(6).children().eq(0).val());
 				document.getElementById('modifyEnableBackup').value=$('input[name=chkbox]:checked:eq(0)').parents("tr").children().eq(7).text();
