@@ -359,7 +359,7 @@ public class SnmpV2Utils implements ConnectUtils {
             String oidTable ;
             
             for (String key : entryMap.keySet()) {
-            	oidTable = entryMap.get(key).substring(0, entryMap.get(key).lastIndexOf("."));				
+            	oidTable = entryMap.get(key); //2021-03-05 edit by Alvin 改成使用oid精確抓取單一欄位值(時間成本比抓整張ifTable更低,零流失零浪費)
 				columns[0] = new VariableBinding(new OID(oidTable)).getOid();
 				List<TableEvent> snmpList = tableUtils.getTable(target, columns, null, null);
 
