@@ -63,6 +63,7 @@ public class AdminLoginInfoController extends BaseController {
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
 		}
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
@@ -112,6 +113,8 @@ public class AdminLoginInfoController extends BaseController {
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return new DatatableResponse(total, dataList, filteredTotal, null, "");
@@ -193,6 +196,8 @@ public class AdminLoginInfoController extends BaseController {
 	        log.error(e.toString(), e);
 	        AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
-	    }
+	    } finally {
+	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
 	}
 }

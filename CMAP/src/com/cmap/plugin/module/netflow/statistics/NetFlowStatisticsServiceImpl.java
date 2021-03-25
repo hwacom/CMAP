@@ -38,6 +38,7 @@ import com.cmap.model.PrtgUserRightSetting;
 import com.cmap.plugin.module.netflow.NetFlowDAO;
 import com.cmap.plugin.module.netflow.NetFlowIpStat;
 import com.cmap.plugin.module.netflow.NetFlowVO;
+import com.cmap.plugin.module.netflowpoller.NetFlowTraceDAO;
 import com.cmap.service.impl.CommonServiceImpl;
 import com.cmap.service.impl.jobs.BaseJobImpl.Result;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
@@ -50,6 +51,9 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
     @Autowired
     private NetFlowDAO netFlowDAO;
 
+    @Autowired
+    private NetFlowTraceDAO netFlowTraceDAO;
+    
     @Autowired
     private NetFlowStatisticsDAO netFlowStatisticsDAO;
 
@@ -70,7 +74,7 @@ public class NetFlowStatisticsServiceImpl extends CommonServiceImpl implements N
             final String nowDateStr = Constants.FORMAT_YYYY_MM_DD_NOSYMBOL.format(new Date());
 
             // Step 2. 迴圈跑所有學校的NET_FLOW檢核SQL
-            List<DataPollerSetting> dpsList = netFlowDAO.getHasAlreadySetUpNetFlowDataPollerInfo();
+            List<DataPollerSetting> dpsList = netFlowTraceDAO.getHasAlreadySetUpNetFlowDataPollerInfo();
 
             if (dpsList == null || (dpsList != null && dpsList.isEmpty())) {
                 // 如果都沒有已經設定好的 Data_Poller_Setting 設定則不做事

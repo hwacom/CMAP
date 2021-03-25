@@ -2,7 +2,9 @@ package com.cmap.configuration;
 
 import java.util.Locale;
 import java.util.Properties;
+
 import javax.servlet.Filter;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,6 +25,8 @@ import org.springframework.web.servlet.view.JstlView;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
+
+import com.cmap.Env;
 import com.cmap.dao.I18nDAO;
 import com.cmap.dao.impl.I18nDAOImpl;
 import com.cmap.i18n.DatabaseMessageSourceBase;
@@ -141,18 +145,23 @@ public class AppConfig implements WebMvcConfigurer {
 	@Bean
 	public JavaMailSenderImpl javaMailSenderImpl(){
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-		mailSender.setHost("smtp.aliyun.com");
-		mailSender.setPort(465);
+		
+		mailSender.setHost("smtp.gmail.com");//Env.MAIL_SERVER_HOST
+		mailSender.setPort(465);//Integer.parseInt(Env.MAIL_SERVER_PORT)
 		//Set gmail email id
-		mailSender.setUsername("cmp.message@aliyun.com");
+		mailSender.setUsername("hwacomtaitai@gmail.com");//Env.MAIL_SERVER_ACCOUNT
 		//Set gmail email password
-		mailSender.setPassword("y7u8i9g0@CMPmail");
+		mailSender.setPassword("1qaz@WSX3edc");//Env.MAIL_SERVER_PASSWORD
 		Properties prop = mailSender.getJavaMailProperties();
-		prop.setProperty("mail.transport.protocol", "smtps");
-		prop.setProperty("mail.smtps.auth", "true");
-		prop.setProperty("mail.smtps.ssl.enable", "true");
-		//prop.setProperty("mail.smtp.starttls.enable", "true");
-		prop.setProperty("mail.debug", "false");
+		prop.put("mail.smtp.host", "smtp.gmail.com");
+		prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+		prop.put("mail.smtp.port", 465);
+		prop.put("mail.transport.protocol", "smtp");
+		prop.put("mail.smtp.auth", "true");
+		prop.put("mail.smtp.starttls.enable", "true");
+		prop.put("mail.smtp.starttls.required", "true");
+		prop.put("mail.debug", "false");
+		prop.put("mail.smtp.ssl.enable", "true");
 		return mailSender;
 	}
 

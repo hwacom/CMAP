@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.cmap.dao.BaseDAO;
 import com.cmap.model.DataPollerSetting;
-import com.cmap.plugin.module.netflow.NetFlowIpStat;
 import com.cmap.service.vo.DataPollerServiceVO;
 
 public interface NetFlowTraceDAO extends BaseDAO {

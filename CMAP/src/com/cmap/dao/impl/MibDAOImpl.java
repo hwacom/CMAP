@@ -3,11 +3,8 @@ package com.cmap.dao.impl;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +18,6 @@ import com.cmap.model.MibValueMapping;
 public class MibDAOImpl extends BaseDaoHibernate implements MibDAO {
 	@Log
     private static Logger log;
-
-    @Autowired
-    @Qualifier("secondSessionFactory")
-    private SessionFactory secondSessionFactory;
     
 	@Override
     public List<MibOidMapping> findMibOidMappingByNames(List<String> oidNames) {

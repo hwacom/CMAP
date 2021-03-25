@@ -102,6 +102,7 @@ public class MobilePollerController extends BaseController {
 
 		} finally {
 			initMenu(model, request);
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 		return "plugin/module_mobile_poller";
 	}
@@ -147,6 +148,8 @@ public class MobilePollerController extends BaseController {
             AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             app.putData(Constants.APP_DATA_KEY_FILTERED_COUNT, retVal);
             return app;
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
 	}
 	
@@ -197,7 +200,9 @@ public class MobilePollerController extends BaseController {
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
-		}
+		} finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        }
 
 		return new DatatableResponse(total, dataList, filteredTotal, null, totalFlow);
 	}
@@ -292,7 +297,9 @@ public class MobilePollerController extends BaseController {
     		} catch (Exception e) {
     			log.error(e.toString(), e);
     			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
-    		}
+    		} finally {
+            	behaviorLog(request.getRequestURI(), request.getQueryString());
+            }
     }
 	
 }

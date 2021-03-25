@@ -81,6 +81,8 @@ public class BlockedRecordController extends BaseController {
 			model.addAttribute("scriptTypeList", scriptTypeMap);
 
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+			
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -288,7 +290,9 @@ public class BlockedRecordController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
     }
 	
 
@@ -393,7 +397,9 @@ public class BlockedRecordController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
     }
 
 
@@ -495,7 +501,9 @@ public class BlockedRecordController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
     }
     
 
@@ -601,7 +609,9 @@ public class BlockedRecordController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
     }
 
 	/**
@@ -707,8 +717,8 @@ public class BlockedRecordController extends BaseController {
         } catch (Exception e) {
 
         } finally {
-            //initMenu(model, request);
-        }
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
 
         return new DatatableResponse(total, dataList, filterdTotal);
     }
@@ -779,6 +789,8 @@ public class BlockedRecordController extends BaseController {
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);

@@ -518,6 +518,30 @@ public class Env {
 
 	public static String OIDC_URL_OF_CHIAYI_CITY;
 	
+	
+	/**
+	 * 密碼檢核相關
+	 * A.    8碼以上
+		B.    複雜度須全符合(4選4)
+		 i.   英文大寫字元（A 到 Z）
+		 ii.  英文小寫字元（a 到 z）
+		 iii. 10 個基本數字（0 到 9）
+		 iv. 非英文字母字元（例如！、＄、＃、％）
+		C. 5代不重覆
+		D. 錯誤5次鎖定15分以上
+		E. 90天密碼到期鎖定
+	 */
+	public static String PASSWORD_VALID_SETTING_FLAG;					//密碼檢核開關
+	public static String PASSWORD_VALID_SETTING_LENGTH;					//密碼長度
+	public static String PASSWORD_VALID_SETTING_CONTAIN_UPCASE;			//包含大寫英文字母
+	public static String PASSWORD_VALID_SETTING_CONTAIN_LOWERCASE;		//包含小寫英文字母
+	public static String PASSWORD_VALID_SETTING_CONTAIN_NUMBER;			//包含數字
+	public static String PASSWORD_VALID_SETTING_CONTAIN_SPECAIL_CHAR;	//包含特殊符號
+	public static String PASSWORD_VALID_SETTING_NOT_REPEAT_TIMES;		//密碼不可設定重複次數(循環次數)
+	public static String PASSWORD_VALID_SETTING_RETRY_TIMES;			//超過鎖定錯誤次數
+	public static String PASSWORD_VALID_SETTING_LOCK_TIME;				//超過鎖定時間
+	public static String PASSWORD_VALID_SETTING_VALIDITY_PERIOD;		//密碼使用週期
+	
 	/**
 	 * 執行指定腳本流程
 	 */

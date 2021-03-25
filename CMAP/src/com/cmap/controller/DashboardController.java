@@ -13,7 +13,7 @@ import com.cmap.security.SecurityUtil;
 
 @Controller
 @RequestMapping("/dashboard")
-public class DashboardController {
+public class DashboardController extends BaseController {
 	@Log
 	private static Logger log;
 
@@ -25,6 +25,7 @@ public class DashboardController {
 
 		} finally {
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 

@@ -12,7 +12,7 @@ public interface NetFlowService {
      * @return
      * @throws ServiceLayerException
      */
-	public long countNetFlowRecordFromDB(NetFlowVO nfVO, List<String> searchLikeField) throws ServiceLayerException;
+//	public long countNetFlowRecordFromDB(NetFlowVO nfVO, List<String> searchLikeField) throws ServiceLayerException;
 
 	/**
 	 * 查找符合條件資料 From DB
@@ -23,7 +23,7 @@ public interface NetFlowService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public List<NetFlowVO> findNetFlowRecordFromDB(NetFlowVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField) throws ServiceLayerException;
+//	public List<NetFlowVO> findNetFlowRecordFromDB(NetFlowVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField) throws ServiceLayerException;
 
 	/**
 	 * 查找符合條件資料 From File
@@ -33,7 +33,7 @@ public interface NetFlowService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public NetFlowVO findNetFlowRecordFromFile(NetFlowVO nfVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
+//	public NetFlowVO findNetFlowRecordFromFile(NetFlowVO nfVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
 
 	/**
 	 * 查找符合條件資料總流量
@@ -42,7 +42,7 @@ public interface NetFlowService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public String getTotalTraffic(NetFlowVO nfVO, List<String> searchLikeField) throws ServiceLayerException;
+//	public String getTotalTraffic(NetFlowVO nfVO, List<String> searchLikeField) throws ServiceLayerException;
 
 	/**
 	 * 查找資料 By groupId + dataId
@@ -51,5 +51,5 @@ public interface NetFlowService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId, String fromDateTime) throws ServiceLayerException;
+//	public NetFlowVO findNetFlowRecordByGroupIdAndDataId(String groupId, String dataId, String fromDateTime) throws ServiceLayerException;
 }

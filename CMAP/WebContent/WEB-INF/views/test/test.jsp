@@ -23,7 +23,7 @@
     <!-- Custom styles for this template -->
 	<link href="${pageContext.request.contextPath}/resources/css/main.css" rel="stylesheet">
 	
-	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.3.1.min.js"></script>
+	<script src="${pageContext.request.contextPath}/resources/js/jquery/jquery-3.5.1.min.js"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/bootstrap/bootstrap.min.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/jquery-ui/jquery-ui.min.js"></script>
 	

@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,14 +48,14 @@ public class AdminUserRightController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)
 	public String adminEnv(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 
 		try {
-
-
+			
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 
@@ -104,9 +105,11 @@ public class AdminUserRightController extends BaseController {
 				loginModeMap.put(mode, mode);
 			}
 			model.addAttribute("loginModeList", loginModeMap);
+			model.addAttribute("checkPWDate", true);
 		}
 
 		return "admin/admin_user_right";
+		
 	}
 
 	@RequestMapping(value = "delete", method = RequestMethod.POST)
@@ -164,6 +167,13 @@ public class AdminUserRightController extends BaseController {
 				urVO.setLoginMode(modeIt != null && modeIt.hasNext() ? modeIt.next().asText() : null);
 				urVO.setRemark(remarkIt != null && remarkIt.hasNext() ? remarkIt.next().asText() : null);
 				
+				if(StringUtils.equals(urVO.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) || StringUtils.isBlank(urVO.getLoginMode())){
+					List<String> errorList = isValid(urVO.getPassword());
+					
+					if(errorList.size() > 0) {
+						return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, urVO.getAccount() + "輸入密碼違反密碼規則：<br>" + StringUtils.join(errorList, "<br>"));
+					}
+				}				
 				urVOs.add(urVO);
 			}
 
@@ -179,6 +189,34 @@ public class AdminUserRightController extends BaseController {
 		}
 	}
 
+	private List isValid(String pw) {
+	    Pattern specailCharPatten = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+	    Pattern UpperCasePatten = Pattern.compile("[A-Z ]");
+	    Pattern lowerCasePatten = Pattern.compile("[a-z ]");
+	    Pattern digitCasePatten = Pattern.compile("[0-9 ]");
+	    List<String> errorList = new ArrayList<>();
+	    
+	    if(StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_FLAG)) {
+	    	
+		    if (Env.PASSWORD_VALID_SETTING_LENGTH != null && pw.length() < Integer.parseInt(Env.PASSWORD_VALID_SETTING_LENGTH)) {
+		        errorList.add("密碼長度不可短於"+Env.PASSWORD_VALID_SETTING_LENGTH+"位數!!");
+		    }
+		    if (StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_CONTAIN_SPECAIL_CHAR) && !specailCharPatten.matcher(pw).find()) {
+		        errorList.add("密碼必須包含特殊符號!!");
+		    }
+		    if (StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_CONTAIN_UPCASE) &&!UpperCasePatten.matcher(pw).find()) {
+		        errorList.add("密碼必須包含大寫字母!!");
+		    }
+		    if (StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_CONTAIN_LOWERCASE) &&!lowerCasePatten.matcher(pw).find()) {
+		        errorList.add("密碼必須包含小寫字母!!");
+		    }
+		    if (StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_CONTAIN_NUMBER) &&!digitCasePatten.matcher(pw).find()) {
+		        errorList.add("密碼必須包含數字!!");
+		    }
+	    }
+	    return errorList;
+	}
+	
 	@RequestMapping(value = "getUserRightSetting", method = RequestMethod.POST)
 	public @ResponseBody DatatableResponse getUserRightSetting(
 			Model model, HttpServletRequest request, HttpServletResponse response,

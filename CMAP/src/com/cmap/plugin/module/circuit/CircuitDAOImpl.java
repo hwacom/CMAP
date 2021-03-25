@@ -20,9 +20,26 @@ public class CircuitDAOImpl extends BaseDaoHibernate implements CircuitDAO {
     private static Logger log;
 
 	@Override
-	public List<Object[]> findModuleBlockedList(CircuitVO cVO, Integer startRow, Integer pageLength) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<ModuleCircuitE1OpenList> findModuleE1OpenList(CircuitVO cVO) {
+		StringBuffer sb = new StringBuffer();
+        sb.append(" select mcbl ")
+          .append(" from module_circuit_e1open_list mcbl ")
+          .append(" where 1=1 ");
+
+        if (StringUtils.isNotBlank(cVO.getQueryIp())) {
+            sb.append(" and mcbl.ipAddress = :ipAddress ");
+        }
+        
+        sb.append(" order by  mcbl.createTime desc ");
+        
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+        Query<?> q = session.createQuery(sb.toString());
+        
+        if (StringUtils.isNotBlank(cVO.getQueryIp())) {
+        	q.setParameter("ipAddress", cVO.getQueryIp());
+        }
+        
+        return (List<ModuleCircuitE1OpenList>)q.list();
 	}
 
 	@Override
@@ -87,8 +104,7 @@ public class CircuitDAOImpl extends BaseDaoHibernate implements CircuitDAO {
 		StringBuffer sb = new StringBuffer();
         sb.append(" select mcds ")
           .append(" from ModuleCircuitDiagramSetting mcds ")
-          .append(" where 1=1 ")
-          .append(" and mcds.deleteFlag = '"+Constants.DATA_MARK_NOT_DELETE+"' ");
+          .append(" where 1=1 ");
 
         if (StringUtils.isNotBlank(e1Ip)) {
             sb.append(" and mcds.e1Ip = :e1Ip ");

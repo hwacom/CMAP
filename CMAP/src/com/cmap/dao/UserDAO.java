@@ -20,4 +20,10 @@ public interface UserDAO extends BaseDAO {
 	Integer deleteUserRightSettingById(List<String> ids, String actionBy);
 
 	void saveUserRightSetting(UserRightSetting model);
+
+	void saveOrUpdateEntities(List<Object> entities);
+
+	void saveOrUpdateEntity(Object entity);
+
+	long countUserLoginFailTimes(String userAccount, String checkTime);
 }

@@ -1,18 +1,12 @@
 package com.cmap.plugin.module.circuit;
 
 import java.util.List;
+import java.util.Map;
 
 import com.cmap.exception.ServiceLayerException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public interface CircuitService {
-
-    /**
-     * 查詢符合條件資料(頁面使用)
-     * @param brVO
-     * @return
-     * @throws ServiceLayerException
-     */
-    public List<CircuitVO> findModuleCircuitDiagramInfo(CircuitVO cVO, Integer startRow, Integer pageLength) throws ServiceLayerException;
 
     /**
      * 查詢符合條件資料
@@ -27,5 +21,9 @@ public interface CircuitService {
 	public List<ModuleCircuitDiagramSetting> findModuleCircuitDiagramInfoSetting(String e1Ip);
 
 	boolean deleteSetting(String e1Ip);
+
+	List<ModuleCircuitE1OpenList> findModuleE1OpenList(CircuitVO cVO);
+
+	public Map<String, Object> doE1OpenProvision(JsonNode jsonData, String ip);
     
 }

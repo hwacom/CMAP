@@ -9,19 +9,19 @@ import com.cmap.service.vo.DataPollerServiceVO;
 
 public interface NetFlowDAO extends BaseDAO {
 
-	public long countNetFlowDataFromDB(NetFlowVO nfVO, List<String> searchLikeField, String tableName);
+//	public long countNetFlowDataFromDB(NetFlowVO nfVO, List<String> searchLikeField, String tableName);
 
-	public List<Object[]> findNetFlowDataFromDB(NetFlowVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField, String tableName, String selectSql);
+//	public List<Object[]> findNetFlowDataFromDB(NetFlowVO nfVO, Integer startRow, Integer pageLength, List<String> searchLikeField, String tableName, String selectSql);
 
-	public BigDecimal getTotalFlowOfQueryConditionsFromDB(NetFlowVO nfVO, List<String> searchLikeField, String tableName);
+//	public BigDecimal getTotalFlowOfQueryConditionsFromDB(NetFlowVO nfVO, List<String> searchLikeField, String tableName);
 
-	public NetFlowVO findNetFlowDataFromFile(
-			DataPollerSetting setting,
-			Map<Integer, DataPollerServiceVO> fieldIdxMap,
-			Map<String, DataPollerServiceVO> fieldVOMap,
-			Map<String, NetFlowVO> queryMap,
-			Integer startRow,
-			Integer pageLength);
+//	public NetFlowVO findNetFlowDataFromFile(
+//			DataPollerSetting setting,
+//			Map<Integer, DataPollerServiceVO> fieldIdxMap,
+//			Map<String, DataPollerServiceVO> fieldVOMap,
+//			Map<String, NetFlowVO> queryMap,
+//			Integer startRow,
+//			Integer pageLength);
 
 	/**
 	 * 以GROUP_ID查找對應表取得要寫入的目標TABLE_NAME
@@ -62,11 +62,11 @@ public interface NetFlowDAO extends BaseDAO {
 	 */
 	public boolean chkFlowExceedIpHasAlreadyExistsInStatToday(String groupId, String nowDateStr, String direction, String ipAddr);
 
-	public NetFlowIpStat findNetFlowIpStatByStatId(String statId);
+//	public NetFlowIpStat findNetFlowIpStatByStatId(String statId);
 
 	public NetFlowIpStat saveNetFlowIpStat(NetFlowIpStat netFlowIpStat);
 
-	public void updateNetFlowIpStat(NetFlowIpStat netFlowIpStat);
+//	public void updateNetFlowIpStat(NetFlowIpStat netFlowIpStat);
 
 	public List<NetFlowIpStat> findNetFlowIpStat4Resend(String nowDateStr, String sendPRTGFlag);
 }

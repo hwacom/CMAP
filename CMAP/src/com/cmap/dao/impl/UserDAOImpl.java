@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
 import com.cmap.annotation.Log;
+import com.cmap.comm.enums.BehaviorType;
 import com.cmap.dao.UserDAO;
 import com.cmap.model.UserRightSetting;
 import com.cmap.service.vo.UserRightServiceVO;
@@ -234,5 +236,41 @@ public class UserDAOImpl extends BaseDaoHibernate implements UserDAO {
 	@Override
 	public void saveUserRightSetting(UserRightSetting model) {
 		getHibernateTemplate().saveOrUpdate(model);
+	}
+	
+	@Override
+	public void saveOrUpdateEntities(List<Object> entities) {
+		for (Object entity : entities) {
+			getHibernateTemplate().saveOrUpdate(entity);
+		}
+	}
+	
+	@Override
+	public void saveOrUpdateEntity(Object entity) {
+		getHibernateTemplate().saveOrUpdate(entity);
+	}
+	
+
+	@Override
+	public long countUserLoginFailTimes(String userAccount, String checkTime) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(" select count(1) ")
+          .append(" from user_behavior_log ubl")
+          .append(" where 1=1 ")
+          .append(" and ubl.BEHAVIOR = '" + BehaviorType.LOGIN_FAIL_PW.toString() +"'")
+          .append(" and ubl.USER_ACCOUNT = :userAccount ")
+          .append(" and ubl.BEHAVIOR_TIME >= :checkTime ");
+        
+        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+
+        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
+            session.beginTransaction();
+        }
+
+        Query<?> q = session.createNativeQuery(sb.toString());
+        q.setParameter("userAccount", userAccount);
+        q.setParameter("checkTime", checkTime);
+
+        return DataAccessUtils.longResult(q.list());
 	}
 }

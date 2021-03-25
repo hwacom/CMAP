@@ -247,7 +247,8 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 			    long sleepTime = Env.SEND_COMMAND_SLEEP_TIME != null ? Env.SEND_COMMAND_SLEEP_TIME : 1000;
 
 			    String account = StringUtils.isBlank(configInfoVO.getAccount()) ? Env.DEFAULT_DEVICE_LOGIN_ACCOUNT : configInfoVO.getAccount();
-			    String enable = StringUtils.isBlank(configInfoVO.getEnablePassword()) ? Env.DEFAULT_DEVICE_ENABLE_PASSWORD : configInfoVO.getEnablePassword();
+//			    String enable = StringUtils.isBlank(configInfoVO.getEnablePassword()) ? Env.DEFAULT_DEVICE_ENABLE_PASSWORD : configInfoVO.getEnablePassword();
+			    String enable = configInfoVO.getEnablePassword();
 			    boolean actionFlag = false;
 			    
 		    	for (String text : Env.TELNET_LOGIN_ENABLE_TEXT) { // 判斷是否包含需要enable字元

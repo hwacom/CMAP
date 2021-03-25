@@ -46,6 +46,7 @@ public class AdminJobController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)
@@ -63,6 +64,8 @@ public class AdminJobController extends BaseController {
 		} finally {
 			model.addAttribute("inputSchedType", getMenuItem(Env.MENU_CODE_OF_SCHED_TYPE, true));
 			model.addAttribute("inputConfigType", getMenuItem(Env.MENU_CODE_OF_CONFIG_TYPE, true));
+			model.addAttribute("inputReportType", getMenuItem("REPORT_TYPE", true));
+			model.addAttribute("inputReportName", getMenuItem("REPORT_NAME", true));
 			model.addAttribute("inputMisFirePolicy", getMenuItem(Env.MENU_CODE_OF_MISS_FIRE_POLICY, true));
 
 			Map<Integer, Integer> executeOrderMap = new HashMap<>();
@@ -332,8 +335,6 @@ public class AdminJobController extends BaseController {
 			if (filterdTotal > 0) {
 				dataList = jobService.findJobInfoByVO(jsVO);
 			}
-
-			total = jobService.countJobInfoByVO(null);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);

@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,11 +55,13 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
+import com.cmap.comm.enums.BehaviorType;
 import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.SysLoginInfo;
 import com.cmap.model.User;
+import com.cmap.model.UserBehaviorLog;
 import com.cmap.model.UserRightSetting;
 import com.cmap.security.SecurityUser;
 import com.cmap.security.SecurityUtil;
@@ -754,5 +757,17 @@ public class BaseController {
 	        log.error(e.toString(), e);
 	    }
 	    return retVal;
+	}
+	
+	protected void behaviorLog(String uri, String params) {
+		UserBehaviorLog entity = new UserBehaviorLog();
+		entity.setLogId(UUID.randomUUID().toString());
+		entity.setUserAccount(SecurityUtil.getSecurityUser().getUser().getUserName());
+		entity.setUserName(SecurityUtil.getSecurityUser().getUsername());
+		entity.setTargetPath(uri);
+		entity.setDescription(params);
+		entity.setBehaviorTime(new Timestamp((new Date()).getTime()));
+		entity.setBehavior(BehaviorType.CLICK_ACTION.toString());
+		userService.saveOrUpdateEntity(entity);
 	}
 }

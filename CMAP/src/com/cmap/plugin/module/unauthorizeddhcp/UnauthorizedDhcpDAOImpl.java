@@ -1,16 +1,14 @@
 package com.cmap.plugin.module.unauthorizeddhcp;
 
 import java.util.List;
+
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -20,10 +18,6 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements UnauthorizedDhcpDAO {
 	@Log
     private static Logger log;
-
-	@Autowired
-	@Qualifier("secondSessionFactory")
-	private SessionFactory secondSessionFactory;
 
 	@Override
 	public long countUnauthorizedDhcpRecord(UnauthorizedDhcpServiceVO udsVO) {
@@ -97,11 +91,7 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 		}
 		sb.append(" ) ud ");
 
-		Session session = secondSessionFactory.getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {
@@ -226,11 +216,7 @@ public class UnauthorizedDhcpDAOImpl extends BaseDaoHibernate implements Unautho
 				break;
 		}
 
-		Session session = secondSessionFactory.getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(udsVO.getQueryGroup())) {

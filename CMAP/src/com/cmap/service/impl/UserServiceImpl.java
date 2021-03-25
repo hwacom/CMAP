@@ -1,13 +1,16 @@
 package com.cmap.service.impl;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +23,7 @@ import com.cmap.annotation.Log;
 import com.cmap.dao.UserDAO;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.PrtgAccountMapping;
-import com.cmap.model.User;
 import com.cmap.model.UserRightSetting;
-import com.cmap.security.SecurityUser;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.PrtgService;
 import com.cmap.service.UserService;
@@ -160,52 +161,73 @@ public class UserServiceImpl implements UserService {
 		Integer totalCount = urVOs.size();
 		Integer successCount = 0;
 
-		try {
-			UserRightSetting entity;
-			for (UserRightServiceVO urVO : urVOs) {
-				//2021-01-18 Alvin modified 改pkey id找資料,找不到才新增Entity to add
-				if(urVO.getId()!=null)
-					entity = userDAO.findUserRightSetting(urVO.getId()); //update case
-				else
-					entity = null; //create case
-				 //2021-01-15 Alvin modified 改抓取目前登入者的帳號+名稱
-				final String account = SecurityUtil.getSecurityUser().getUser().getUserName();
-				final String username = SecurityUtil.getSecurityUser().getUsername()+"("+account+")";
-				final Timestamp nowTimestamp = new Timestamp((new Date()).getTime());
+		UserRightSetting entity;
+		for (UserRightServiceVO urVO : urVOs) {
+			//2021-01-18 Alvin modified 改pkey id找資料,找不到才新增Entity to add
+			if(urVO.getId()!=null)
+				entity = userDAO.findUserRightSetting(urVO.getId()); //update case
+			else
+				entity = null; //create case
+			 //2021-01-15 Alvin modified 改抓取目前登入者的帳號+名稱
+			final String account = SecurityUtil.getSecurityUser().getUser().getUserName();
+			final String username = SecurityUtil.getSecurityUser().getUsername()+"("+account+")";
+			final Timestamp nowTimestamp = new Timestamp((new Date()).getTime());
 
-				if (entity == null) {
-					entity = new UserRightSetting();
-					entity.setCreateBy(username);
-					entity.setCreateTime(nowTimestamp);
-					entity.setAccount(urVO.getAccount());
-				}
+			String pwEncode = StringUtils.upperCase(EncryptUtils.getSha256(urVO.getPassword()));
+			String pwAppendString = "";
 			
-				entity.setUserName(urVO.getUserName());
-				entity.setPassword(StringUtils.upperCase(EncryptUtils.getSha256(urVO.getPassword())));
-				
-				if(urVO.getUserGroup() != null) {
-					entity.setUserGroup(urVO.getUserGroup());
+			if (entity == null) {
+				entity = new UserRightSetting();
+				entity.setCreateBy(username);
+				entity.setCreateTime(nowTimestamp);
+				entity.setAccount(urVO.getAccount());
+			} else {
+				if(StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_FLAG)) {
+					/**
+					 * 增加密碼檢核
+					 * N代不重覆
+					 */
+					String[] oriPW = entity.getPWRecord().split(Env.COMM_SEPARATE_SYMBOL);
+					int checkTime = Integer.parseInt(Objects.toString(Env.PASSWORD_VALID_SETTING_NOT_REPEAT_TIMES, "0"));
+					
+					for(int i = 0; i < checkTime && i < oriPW.length; i++) {
+						if(StringUtils.equals(oriPW[i], pwEncode)) {
+							throw new ServiceLayerException("輸入的密碼已使用過，請勿重複使用密碼!!");
+						}
+						pwAppendString = pwAppendString.concat(Env.COMM_SEPARATE_SYMBOL).concat(oriPW[i]);
+					}
 				}
-				if(urVO.getLoginMode() != null) {
-					entity.setLoginMode(urVO.getLoginMode());
-				}
-				if(urVO.getRemark() != null) {
-					entity.setRemark(urVO.getRemark());
-				}
-				if(urVO.getIsAdmin() != null) {
-					entity.setIsAdmin(StringUtils.equals(urVO.getIsAdmin().toUpperCase(), Constants.DATA_Y)?Constants.DATA_Y:Constants.DATA_N);
-				}
-				
-				entity.setUpdateBy(username);
-				entity.setUpdateTime(nowTimestamp);
-
-				userDAO.saveUserRightSetting(entity);
-				successCount++;
-
 			}
+		
+			if(StringUtils.isNotBlank(urVO.getUserName())) {
+				entity.setUserName(urVO.getUserName());
+			}
+			if((StringUtils.equals(urVO.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) || StringUtils.isBlank(urVO.getLoginMode()))
+					&& StringUtils.isNotBlank(urVO.getPassword())
+					&& !StringUtils.equals(urVO.getPassword(), pwEncode)) {
+				entity.setPassword(pwEncode);
+				pwAppendString = pwEncode.concat(pwAppendString);
+				entity.setPWRecord(pwAppendString);
+				entity.setLastPWUpdateTime(nowTimestamp);
+			}
+			if(StringUtils.isNotBlank(urVO.getUserGroup())) {
+				entity.setUserGroup(urVO.getUserGroup());
+			}
+			if(StringUtils.isNotBlank(urVO.getLoginMode())) {
+				entity.setLoginMode(urVO.getLoginMode());
+			}
+			if(StringUtils.isNotBlank(urVO.getRemark())) {
+				entity.setRemark(urVO.getRemark());
+			}
+			if(StringUtils.isNotBlank(urVO.getIsAdmin())) {
+				entity.setIsAdmin(StringUtils.equals(urVO.getIsAdmin().toUpperCase(), Constants.DATA_Y)?Constants.DATA_Y:Constants.DATA_N);
+			}
+			
+			entity.setUpdateBy(username);
+			entity.setUpdateTime(nowTimestamp);
 
-		} catch (Exception e) {
-			log.error(e.toString(), e);
+			userDAO.saveUserRightSetting(entity);
+			successCount++;
 
 		}
 
@@ -217,4 +239,39 @@ public class UserServiceImpl implements UserService {
 		return CommonUtils.converMsg(msg, args);
 	}
 
+	@Override
+	public boolean saveOrUpdateEntity(Object entity) {
+
+		try {
+			userDAO.saveOrUpdateEntity(entity);
+		}catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean checkPWRetryTimes(String userAccount) throws ServiceLayerException {
+		long retVal = 0;
+
+		try {
+			if(!StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_FLAG)
+					|| StringUtils.isBlank(Env.PASSWORD_VALID_SETTING_RETRY_TIMES)
+					|| StringUtils.isBlank(Env.PASSWORD_VALID_SETTING_LOCK_TIME)) {
+				return true;
+			}
+			int re = Integer.parseInt(Env.PASSWORD_VALID_SETTING_LOCK_TIME);
+			SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date current = DateUtils.addMinutes(new Date(), -re);
+			retVal = userDAO.countUserLoginFailTimes(userAccount, sdFormat.format(current));
+
+			if(retVal >= Integer.parseInt(Env.PASSWORD_VALID_SETTING_RETRY_TIMES)) {
+				return false;
+			}
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+			throw new ServiceLayerException(e);
+		}
+		return true;
+	}
 }

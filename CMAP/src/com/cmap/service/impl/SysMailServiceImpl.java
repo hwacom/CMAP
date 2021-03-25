@@ -1,5 +1,8 @@
 package com.cmap.service.impl;
 
+import java.io.File;
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +59,8 @@ public class SysMailServiceImpl extends CommonServiceImpl implements SysMailServ
 
             while (round < retryTimes) {
                 try {
-                    sendHtmlEmail(mailTo, mailCc, mailBcc, subject, mailContent);
+                	sendMail(mailTo, mailCc, mailBcc, subject, mailContent, Arrays.asList(new String[] {Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat( mailListVO.getMailAttFilePath())}));
+//                    sendHtmlEmail(mailTo, mailCc, mailBcc, subject, mailContent);
                     success = true;
                     break;
 

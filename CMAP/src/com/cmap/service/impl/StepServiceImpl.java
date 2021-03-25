@@ -326,7 +326,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							                }
 										}
 								}else {
-									findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
+									findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
 								}
 								
 								break;
@@ -823,8 +823,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * [Step] 查找設備連線帳密 & 連線方式(TELNET / SSH)
 	 * @throws ServiceLayerException
 	 */
-	private void findDeviceLoginInfo(ConfigInfoVO ciVO, String deviceListId, String groupId, String deviceId) throws ServiceLayerException {
-	    if (StringUtils.isBlank(groupId) && StringUtils.isBlank(deviceId)) {
+	private void findDeviceLoginInfo(ConfigInfoVO ciVO, String deviceListId, String deviceId) throws ServiceLayerException {
+	    if (StringUtils.isBlank(deviceId)) {
 	        // 若參數都未傳值則不處理
 	        return;
 	    }
@@ -958,7 +958,6 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 			// 查找此裝置前一版本組態檔資料
 			ConfigVersionInfo configInfo = configDAO.getLastConfigVersionInfoByDeviceIdAndConfigType(ciVO.getDeviceId(), type);
-
 			// 當前備份版本正確檔名
 			final String nowVersionFileName = StringUtils.replace(ciVO.getConfigFileName(), Env.COMM_SEPARATE_SYMBOL, type);
 			// 當前備份版本上傳於temp資料夾內檔名 (若TFTP Server與CMAP系統不是架設在同一台主機時)
@@ -1003,7 +1002,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 				allVersionList.add(vsVOs);
 
 				VersionServiceVO compareRetVO = versionService.compareConfigFiles(vsVOs);
-				
+				ciVO.setConfigContentList(compareRetVO.getRestoreContentList());
 				if(compareRetVO.getDiffRetRevList() == null || compareRetVO.getDiffRetRevList().isEmpty()) {
 					throw new ServiceLayerException("本次檔案取得異常，或取得檔案為空, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + nowVersionVO.getFileFullName());
 				}
@@ -1037,10 +1036,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						}
 					}
 
+					ciVO.setFileFullName(configInfo.getFileFullName());
 				} else {
 					// 版本內容不同
 					haveDiffVersion = true;
 					log.debug("compare haveDiffVersion : "+ haveDiffVersion);
+					
+					ciVO.setFileFullName(nowVersionVO.getFileFullName());
 				}
 
 			} else {
@@ -1329,7 +1331,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 			try {
 				List<DeviceDetailMapping> entities = deviceDAO.findDeviceDetailMapping(null);
 
-				if (entities != null && !entities.isEmpty()) {
+				if (entities != null && !entities.isEmpty() && !configInfoVO.getConfigContentList().isEmpty()) {
 					final String userName = jobTrigger ? Env.USER_NAME_JOB : SecurityUtil.getSecurityUser().getUsername();
 
 					/*
@@ -1337,16 +1339,17 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					 */
 					deviceDAO.deleteDeviceDetailInfoByInfoName(configInfoVO.getGroupId(), configInfoVO.getDeviceId(), null, currentTimestamp(), userName);
 
-					List<String> configContent = getConfigContent(configInfoVO);
+//					List<String> configContent = getConfigContent(configInfoVO);
 
 					List<DeviceDetailInfo> insertEntities = new ArrayList<>();
 					Map<String, Integer> orderMap = new HashMap<>();
 					Map<String, DeviceDetailInfo> analyzeInfoName = new HashMap<>();
-
-					for (final String configStr : configContent) {
+					
+					for (final String configStr : configInfoVO.getConfigContentList()) {
 
 						DeviceDetailInfo ddi = null;
 						for (DeviceDetailMapping entity : entities) {
+							
 							final String sourceString = entity.getSourceString();
 							final String splitBy = entity.getSplitBy();
 							final Integer getValueIndex = entity.getGetValueIndex();
@@ -1385,15 +1388,17 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                             if (excludeThisMapping) {
                                 continue;
                             }
-
-							if (StringUtils.startsWith(configStr, sourceString)) {
+                            
+                            if (StringUtils.startsWith(configStr, sourceString)) {
 								String[] tmpArray = StringUtils.split(configStr, splitBy);
-
+								
 								String getTargetValue = null;
 								if (tmpArray.length > getValueIndex) {
 									getTargetValue = tmpArray[getValueIndex];
 								}
-
+								log.debug("for debug configStr ="+ configStr + ", entity = " + entity.getTargetInfoName()+ "split to :" + Arrays.asList(tmpArray)
+										+ ", getTargetValue = " + getTargetValue);
+								
 								if (getTargetValue == null) {
 									continue;
 								}
@@ -1872,7 +1877,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
+								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {
@@ -2157,7 +2162,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                         case FIND_DEVICE_LOGIN_INFO:
                             try {
-                                findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
+                                findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
                                 break;
 
                             } catch (Exception e) {
@@ -2594,7 +2599,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得要還原的目標設備登入資訊
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getGroupId(), ciVO.getDeviceId());
+								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {

@@ -1,10 +1,12 @@
 package com.cmap.service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.service.vo.CommonServiceVO;
@@ -105,8 +107,10 @@ public interface CommonService {
 	 * @throws Exception
 	 */
 	public void sendMail(String[] toAddress, String[] ccAddress, String[] bccAddress,
-	        String subject, String mailContent, ArrayList<String> filePathList) throws Exception;
+	        String subject, String mailContent, List<String> filePathList) throws Exception;
 
+	public JavaMailSenderImpl javaMailSenderImpl();
+	
 	/**
 	 * 取得當前登入者名稱
 	 * @return

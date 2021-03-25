@@ -67,6 +67,7 @@ public class UnauthorizedDhcpController extends BaseController {
 
 		} finally {
 			initMenu(model, request);
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 		return "plugin/module_unauthorized_dhcp";
 	}
@@ -127,6 +128,8 @@ public class UnauthorizedDhcpController extends BaseController {
         } catch (ServiceLayerException sle) {
 		} catch (Exception e) {
             log.error(e.toString(), e);
+        } finally {
+            behaviorLog(request.getRequestURI(), request.getQueryString());
         }
 
         return new DatatableResponse(total, dataList, filterdTotal);

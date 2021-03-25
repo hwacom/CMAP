@@ -130,7 +130,7 @@ public class JobCircuitSettingSync extends BaseJobImpl implements BaseJobService
 			        	settingMap = new HashMap<String, ModuleCircuitDiagramSetting>();
 			        	List<ModuleCircuitDiagramSetting> settings = circuitService.findModuleCircuitDiagramInfoSetting(currIp);
 			        	for(ModuleCircuitDiagramSetting setting:settings) {
-			        		settingMap.put(setting.getSettingValue(), setting);
+//			        		settingMap.put(setting.getSettingValue(), setting);
 			        	}
 			        	retVO = stepService.doCommands(ConnectionMode.SSH, currId, null, cmdList, false, triggerBy, "");
 			        	

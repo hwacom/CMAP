@@ -332,6 +332,33 @@
 	            </div>
 	            <!-- [END]IP/MAC/Port Poller -->
 	            
+	            <!-- 報表排程 -->
+	            <div id="sec_reportMailSender" style="display: none">
+		            <div class="form-group row">
+		            	<label for="inputReportName" class="col-md-2 col-sm-3 col-form-label">報表類型<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-10 col-sm-9">
+		                	<form:select path="inputReportName" id="inputReportName" name="inputReportName" class="form-control form-control-sm">
+			                  	<form:options items="${inputReportName}" />
+			                </form:select>
+		                </div>
+		            </div>
+		            <div class="form-group row">
+		            	<label for="inputReportType" class="col-md-2 col-sm-3 col-form-label">檔案格式<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-10 col-sm-9">
+		                	<form:select path="inputReportType" id="inputReportType" name="inputReportType" class="form-control form-control-sm">
+			                  	<form:options items="${inputReportType}" />
+			                </form:select>
+		                </div>
+		            </div>
+		            <div class="form-group row">
+		            	<label for="inputMailToAddress" class="col-md-2 col-sm-3 col-form-label">發送信箱<span class="pull-right" style="color: red;">＊ </span></label>
+		            	<div class="col-md-10 col-sm-9">
+		            		<textarea rows="5" class="form-control form-control-sm" id="inputMailToAddress" name="inputMailToAddress" placeholder="多組以「,」區隔"></textarea>
+		                </div>
+		            </div>
+	            </div>
+	            <!-- [END]報表排程 -->
+	            
 	            <!-- E1電路設定同步 -->
 	            <div id="sec_circuitSettingSync" style="display: none">
 		            <div class="form-group row">
@@ -514,6 +541,29 @@
 	            </div>
        	  	</div>
        	  	<!-- [END]IP/MAC/Port Poller -->
+            
+            <!-- 報表排程 -->
+            <div id="sec_reportMailSender" style="display: none">
+            	<div class="form-group row">
+	            	<label for="viewDetailReportName" class="col-md-2 col-sm-3 col-form-label">報表類型:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="viewDetailReportName" readonly>
+	            	</div>
+	            </div>
+	            <div class="form-group row">
+	            	<label for="viewDetailReportType" class="col-md-2 col-sm-3 col-form-label">檔案格式:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="viewDetailReportType" readonly>
+	            	</div>
+	            </div>
+	            <div class="form-group row">
+	            	<label for="viewDetailMailToAddress" class="col-md-2 col-sm-3 col-form-label">發送信箱:</label>
+	            	<div class="col-md-10 col-sm-9">
+	            		<input type="text" class="form-control form-control-sm" id="viewDetailMailToAddress" readonly>
+	            	</div>
+	            </div>
+            </div>
+            <!-- [END]報表排程 -->
             
             <!-- E1電路設定同步 -->
        	  	<div id="sec_detail_circuitSettingSync" style="display: none">

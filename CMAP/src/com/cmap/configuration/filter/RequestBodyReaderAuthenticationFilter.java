@@ -4,8 +4,8 @@ import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
-import javax.naming.Context;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,11 +20,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.comm.enums.BehaviorType;
 import com.cmap.dao.SysLoginInfoDAO;
 import com.cmap.exception.AuthenticateException;
 import com.cmap.exception.ServiceLayerException;
 import com.cmap.model.PrtgAccountMapping;
 import com.cmap.model.SysLoginInfo;
+import com.cmap.model.UserBehaviorLog;
 import com.cmap.model.UserRightSetting;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.PrtgService;
@@ -59,16 +61,37 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			
 			if(userRight == null) {
 				throw new ServiceLayerException("使用者登入資訊錯誤!!");
-			} else if (StringUtils.equalsIgnoreCase(userRight.getLoginMode(), "CM") && !StringUtils
+			}
+
+			/**
+			 * 增加錯誤5次鎖定15分以上
+			 * 90天密碼到期鎖定
+			 */
+			UserBehaviorLog entity = new UserBehaviorLog();
+			entity.setLogId(UUID.randomUUID().toString());
+			entity.setUserAccount(userRight.getAccount());
+			entity.setUserName(userRight.getUserName());
+			entity.setTargetPath(request.getRequestURI());
+			entity.setDescription(null);
+			entity.setBehaviorTime(new Timestamp((new Date()).getTime()));
+			
+			if (StringUtils.equalsIgnoreCase(userRight.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) && !StringUtils
 					.equals(StringUtils.upperCase(EncryptUtils.getSha256(password)), userRight.getPassword())) {
 				log.debug("for debug 1 = " + StringUtils.upperCase(EncryptUtils.getSha256(password))+ 
-						", 2 = " + userRight.getPassword() + ", 3 = " + password);				
+						", 2 = " + userRight.getPassword() + ", 3 = " + password);	
+				
+				entity.setBehavior(BehaviorType.LOGIN_FAIL_PW.toString());
+				userService.saveOrUpdateEntity(entity);
+				
 				throw new ServiceLayerException("使用者登入資訊錯誤!!");
 			}
 			
 			PrtgAccountMapping mapping = prtgService.getMappingByAccount(userRight.getUserGroup());
 			
 			if(mapping == null) {
+				entity.setBehavior(BehaviorType.LOGIN_FAIL_AUTH.toString());
+				userService.saveOrUpdateEntity(entity);
+				
 				throw new ServiceLayerException("使用者登入資訊錯誤!!");
 			}
 			
@@ -78,6 +101,10 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 			boolean loginSuccess = prtgApiUtils.login(request, mapping.getPrtgAccount(), adminPass);
 
 			if (loginSuccess) {
+				if(!userService.checkPWRetryTimes(userRight.getAccount())) {
+					throw new ServiceLayerException("登入錯誤次數超過限制，帳號鎖定"+Env.PASSWORD_VALID_SETTING_LOCK_TIME+"分鐘，請稍後在試!!");
+				}
+				
 				request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
 				request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
 				request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight.getUserName());
@@ -91,6 +118,9 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 	            info.setUserName(userRight.getUserName());
 	            info.setLoginTime(new Timestamp((new Date()).getTime()));
 	            sysLoginInfoDAO.saveSysLoginInfo(info);
+			}else {
+				entity.setBehavior(BehaviorType.LOGIN_FAIL_AUTH.toString());
+				userService.saveOrUpdateEntity(entity);
 			}
 
 		} catch (AuthenticateException ae) {
@@ -202,7 +232,5 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
-
-		
 	}
 }

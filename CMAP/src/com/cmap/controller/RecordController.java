@@ -35,6 +35,8 @@ public class RecordController extends BaseController {
 
 			model.addAttribute("queryDevice", "");
 			model.addAttribute("deviceList", deviceListMap);
+			
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 

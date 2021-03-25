@@ -80,6 +80,8 @@ public class VersionController extends BaseController {
 			model.addAttribute("configTypeList", configTypeMap);
 
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+			
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -164,6 +166,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -225,6 +228,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -259,6 +263,7 @@ public class VersionController extends BaseController {
             log.error(e.toString(), e);
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
 
         return "version/version_diff_view";
@@ -289,6 +294,7 @@ public class VersionController extends BaseController {
 			log.error(e.toString(), e);
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return new AppResponse(HttpServletResponse.SC_OK, "刪除成功");
@@ -424,6 +430,8 @@ public class VersionController extends BaseController {
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -486,6 +494,8 @@ public class VersionController extends BaseController {
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -546,6 +556,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "備份失敗，請重新操作");
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -594,6 +605,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "備份失敗，請重新操作");
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -633,6 +645,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "還原失敗，請重新操作");
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -730,6 +743,8 @@ public class VersionController extends BaseController {
             log.error(e.toString(), e);
             AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
     }
 }
