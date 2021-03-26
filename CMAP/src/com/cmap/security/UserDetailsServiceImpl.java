@@ -1,6 +1,7 @@
 package com.cmap.security;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -74,7 +75,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 		SecurityUser securityUser = new SecurityUser(
 				user,
-				user.getUserChineseName(),
+				Objects.toString(user.getUserChineseName(), username),
 				new BCryptPasswordEncoder().encode(user.getPassword()),
 				accountEnabled,
 				accountNonExpired,

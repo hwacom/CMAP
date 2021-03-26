@@ -24,28 +24,11 @@ public interface IpMaintainDAO extends BaseDAO {
             IpMaintainServiceVO imsVO, Integer startRow, Integer pageLength);
 
     /**
-     * 查詢符合條件資料 From Secondary DB
-     * @param imsVO
-     * @param startRow
-     * @param pageLength
-     * @return
-     */
-    public List<Object[]> findModuleIpDataSettingFromSecondaryDB(
-            IpMaintainServiceVO imsVO, Integer startRow, Integer pageLength);
-
-    /**
      * 查找資料 By ID
      * @param settingId
      * @return
      */
     public ModuleIpDataSetting findModuleIpDataSettingById(String settingId);
-
-    /**
-     * 查找資料 By ID From Secondary DB
-     * @param settingId
-     * @return
-     */
-    public ModuleIpDataSetting findModuleIpDataSettingByIdFromSecondaryDB(String settingId);
 
     /**
      * 查找資料 By Unique Key

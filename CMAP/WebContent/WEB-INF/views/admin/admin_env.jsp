@@ -41,6 +41,14 @@
         			<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" onclick="closeTabAndGo('${pageContext.request.contextPath}/i18n/reload')">reload i18n
         			</button>
 		  	    </div>
+		  	    <!-- <div class="col-lg-2 action-btn-bar-style" align="center">
+        			<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" onclick="closeTabAndGo('${pageContext.request.contextPath}/report/downloadxls')">testReport
+        			</button>
+		  	    </div>
+		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
+        			<button type="button" class="btn btn-secondary btn-sm" style="width: 100%" onclick="closeTabAndGo('${pageContext.request.contextPath}/report/reportsendmail?type=xlsx')">sendmail
+        			</button>
+		  	    </div> -->
         	</div>
         	<div id="modifyActionBar" class="row" style="display: none">
 		  	    <div class="col-lg-2 action-btn-bar-style" align="center">

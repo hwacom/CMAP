@@ -170,6 +170,7 @@
       <div class="row">
         <nav class="web-menu col-md-2 d-none d-md-block sidebar sidebar-bg">
           <div class="sidebar-sticky">
+          <c:if test="${checkPWDate}">          
             <ul class="nav flex-column">
               <!-- [系統操作手冊下載] START -->
               <c:if test="${Env.SHOW_MENU_TREE_USER_GUIDE_DOWNLOAD eq __SHOW__}">
@@ -806,6 +807,7 @@
               
               <!-- [後台管理] END -->
             </ul>
+            </c:if>
           </div>
         </nav>
 

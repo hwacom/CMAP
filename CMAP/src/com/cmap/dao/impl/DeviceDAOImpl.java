@@ -559,4 +559,19 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	    
 		return (List<DeviceLoginInfo>) q.list();
 	}
+	
+	@Override
+	public List<Object[]> findDeviceListForReport() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(" select dl.group_id, dl.group_name, ")
+		  .append("   dl.device_id, dl.device_name, dl.DEVICE_IP,  ")
+		  .append("   dl.device_model, dl.DEVICE_LAYER, dl.CONFIG_FILE_DIR_PATH ")
+		  .append(" from Device_List dl ");
+		sb.append(" where 1=1 ");
+
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Query<?> q = session.createNativeQuery(sb.toString());
+
+		return (List<Object[]>)q.list();
+	}
 }

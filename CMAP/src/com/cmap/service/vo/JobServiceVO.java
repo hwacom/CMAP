@@ -32,6 +32,13 @@ public class JobServiceVO extends CommonServiceVO {
 	private String inputIpMacPortMappingPollerGroupId;
 	private List<String> inputE1GroupIds = new ArrayList<>();
 	private List<String> inputE1DeviceIds = new ArrayList<>();
+
+	/**
+	 * 報表排程欄位
+	 */
+	private String inputReportName;
+	private String inputReportType;
+	private String inputMailToAddress;
 	
 	private List<JobServiceVO> jobKeySet = new ArrayList<>();
 	private String jobKeyName;
@@ -72,7 +79,7 @@ public class JobServiceVO extends CommonServiceVO {
 	private String jobClassName;
 	private String cronExpression;
 	private String timeZoneId;
-
+	
 	private String jobExcuteResultRecords;
 	private String jobExcuteRemark;
 
@@ -483,5 +490,23 @@ public class JobServiceVO extends CommonServiceVO {
 	}
 	public void setInputE1DeviceIds(List<String> inputE1DeviceIds) {
 		this.inputE1DeviceIds = inputE1DeviceIds;
+	}
+	public String getInputReportName() {
+		return inputReportName;
+	}
+	public void setInputReportName(String inputReportName) {
+		this.inputReportName = inputReportName;
+	}
+	public String getInputReportType() {
+		return inputReportType;
+	}
+	public void setInputReportType(String inputReportType) {
+		this.inputReportType = inputReportType;
+	}
+	public String getInputMailToAddress() {
+		return inputMailToAddress;
+	}
+	public void setInputMailToAddress(String inputMailToAddress) {
+		this.inputMailToAddress = inputMailToAddress;
 	}
 }

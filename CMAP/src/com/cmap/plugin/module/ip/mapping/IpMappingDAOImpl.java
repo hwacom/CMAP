@@ -1,19 +1,14 @@
 package com.cmap.plugin.module.ip.mapping;
 
 import java.util.List;
+
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cmap.Constants;
-import com.cmap.Env;
 import com.cmap.annotation.Log;
 import com.cmap.dao.impl.BaseDaoHibernate;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
@@ -23,10 +18,6 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
     @Log
     private static Logger log;
-
-    @Autowired
-    @Qualifier("secondSessionFactory")
-    private SessionFactory secondSessionFactory;
 
     @Override
     public List<ModuleMacTableExcludePort> findModuleMacTableExcludePort(String groupId, String deviceId) {
@@ -41,51 +32,6 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
         q.setParameter("groupId", groupId);
         q.setParameter("deviceId", deviceId);
         return (List<ModuleMacTableExcludePort>)q.list();
-    }
-
-    @Override
-    public List<ModuleArpTable> findModuleArpTable(String groupId, String deviceId, String ipAddress, Integer limit) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(" from ModuleArpTable mat ")
-          .append(" where 1=1 ");
-
-        if (StringUtils.isNotBlank(groupId)) {
-            sb.append(" and mat.groupId = :groupId ");
-        }
-        if (StringUtils.isNotBlank(deviceId)) {
-            sb.append(" and mat.deviceId = :deviceId ");
-        }
-        if (StringUtils.isNotBlank(ipAddress)) {
-            sb.append(" and mat.ipAddr = :ipAddress ");
-        }
-        sb.append(" order by mat.updateTime desc ");
-
-        Session session ;
-        if (Constants.DATA_Y.equals(Env.ENABLE_SECONDARY_DB)) {
-        	session = secondSessionFactory.getCurrentSession();
-        	
-        	if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-                session.beginTransaction();
-            }
-        }else {
-        	session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-        }
-        
-        Query<?> q = session.createQuery(sb.toString());
-        if (StringUtils.isNotBlank(groupId)) {
-            q.setParameter("groupId", groupId);
-        }
-        if (StringUtils.isNotBlank(deviceId)) {
-            q.setParameter("deviceId", deviceId);
-        }
-        if (StringUtils.isNotBlank(ipAddress)) {
-        	q.setParameter("ipAddress", ipAddress);
-        }
-        if (limit != null) {
-            q.setFirstResult(0);
-            q.setMaxResults(limit);
-        }
-        return (List<ModuleArpTable>)q.list();
     }
 
 	@Override
@@ -189,11 +135,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 			  .append("     ) ");
 		}
 
-		Session session = secondSessionFactory.getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
@@ -318,11 +260,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
 				break;
 		}
 
-		Session session = secondSessionFactory.getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
 		Query<?> q = session.createNativeQuery(sb.toString());
 		if (StringUtils.isNotBlank(imsVO.getQueryGroup())) {
@@ -382,11 +320,7 @@ public class IpMappingDAOImpl extends BaseDaoHibernate implements IpMappingDAO {
           .append(" 	mimpm.RECORD_TIME DESC ")
           .append(" LIMIT 1 ");
 
-		Session session = secondSessionFactory.getCurrentSession();
-
-        if (session.getTransaction().getStatus() == TransactionStatus.NOT_ACTIVE) {
-            session.beginTransaction();
-        }
+		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 
 		Query<?> q = session.createNativeQuery(sb.toString());
 		q.setParameter("groupId", groupId);

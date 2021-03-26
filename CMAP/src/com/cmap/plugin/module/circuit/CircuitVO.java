@@ -7,7 +7,9 @@ public class CircuitVO extends CommonServiceVO {
     private String queryCircleId;
     private String queryType;
     private String queryName;
-
+    private String queryIp;
+    private String queryNode;
+    
     private String circleId;
     private String circleName;
     private String type;
@@ -42,6 +44,22 @@ public class CircuitVO extends CommonServiceVO {
 
 	public void setQueryName(String queryName) {
 		this.queryName = queryName;
+	}
+
+	public String getQueryIp() {
+		return queryIp;
+	}
+
+	public void setQueryIp(String queryIp) {
+		this.queryIp = queryIp;
+	}
+
+	public String getQueryNode() {
+		return queryNode;
+	}
+
+	public void setQueryNode(String queryNode) {
+		this.queryNode = queryNode;
 	}
 
 	public String getCircleId() {

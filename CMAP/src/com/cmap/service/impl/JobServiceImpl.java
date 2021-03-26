@@ -93,7 +93,7 @@ public class JobServiceImpl implements JobService {
 			BeanUtils.copyProperties(jsVO, daoVO);
 
 			List<Object[]> modelList = quartzDAO.findQuartzDataByDAOVO(daoVO);
-
+			
 			QrtzTriggers qt;
 			QrtzCronTriggers qct;
 			QrtzJobDetails qjd;
@@ -423,6 +423,12 @@ public class JobServiceImpl implements JobService {
 			case Constants.QUARTZ_SCHED_TYPE_CIRCUIT_SETTING_SYNC:
 				jobDataMap.put(Constants.QUARTZ_PARA_GROUP_ID, mapper.writeValueAsString(jsVO.getInputE1GroupIds()));
 				jobDataMap.put(Constants.QUARTZ_PARA_DEVICE_ID, mapper.writeValueAsString(jsVO.getInputE1DeviceIds()));
+				break;
+				
+			case Constants.QUARTZ_SCHED_TYPE_REPORT_MAIL_SENDER:
+				jobDataMap.put(Constants.QUARTZ_PARA_REPORT_NAME, mapper.writeValueAsString(jsVO.getInputReportName()));
+				jobDataMap.put(Constants.QUARTZ_PARA_REPORT_TYPE, mapper.writeValueAsString(jsVO.getInputReportType()));
+				jobDataMap.put(Constants.QUARTZ_PARA_MAIL_TO_ADDRESS, mapper.writeValueAsString(jsVO.getInputMailToAddress()));
 				break;
 		}
 

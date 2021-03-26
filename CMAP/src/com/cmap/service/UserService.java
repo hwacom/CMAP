@@ -38,4 +38,14 @@ public interface UserService {
 
 	String addOrModifyUserRightSettings(List<UserRightServiceVO> urVOs) throws ServiceLayerException;
 
+	boolean saveOrUpdateEntity(Object entity);
+
+	/**
+	 * 檢核密碼輸入錯誤次數
+	 * @param userAccount
+	 * @return
+	 * @throws ServiceLayerException
+	 */
+	boolean checkPWRetryTimes(String userAccount) throws ServiceLayerException;
+
 }

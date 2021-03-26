@@ -71,6 +71,8 @@ public class IpMaintainController extends BaseController {
 				model.addAttribute("groupList", groupListMap);
 			}	
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+            
+            behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -188,6 +190,8 @@ public class IpMaintainController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(super.getLineNumber(), e.getMessage());
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -236,6 +240,8 @@ public class IpMaintainController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(super.getLineNumber(), e.getMessage());
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -265,6 +271,8 @@ public class IpMaintainController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(super.getLineNumber(), e.getMessage());
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -310,6 +318,8 @@ public class IpMaintainController extends BaseController {
         } catch (ServiceLayerException sle) {
         } catch (Exception e) {
             log.error(e.toString(), e);
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
 
         return new DatatableResponse(total, dataList, filterdTotal);

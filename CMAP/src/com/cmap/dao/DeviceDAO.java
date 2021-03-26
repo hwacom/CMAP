@@ -48,4 +48,6 @@ public interface DeviceDAO extends BaseDAO {
 	public List<DeviceLoginInfo> findDeviceLoginInfoList(DeviceLoginInfoServiceVO vo);
 
 	public void deleteDeviceLoginInfo(List<DeviceLoginInfo> entities);
+
+	List<Object[]> findDeviceListForReport();
 }

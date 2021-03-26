@@ -11,10 +11,9 @@ public interface CircuitDAO extends BaseDAO {
      * @param cVO
      * @param startRow
      * @param pageLength
-     * @return Object[0]:ModuleBlockedList
-     *         Object[1]:DeviceList
+     * @return 
      */
-    public List<Object[]> findModuleBlockedList(CircuitVO cVO, Integer startRow, Integer pageLength);
+    public List<ModuleCircuitE1OpenList> findModuleE1OpenList(CircuitVO cVO);
 
     /**
      * 取得符合條件資料

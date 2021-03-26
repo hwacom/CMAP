@@ -297,6 +297,9 @@ function doActionAjax(obj, action) {
 		success : function(resp) {
 			if (resp.code == '200') {
 				alert(resp.message);
+				window.location = _ctx + '/userRight/main';
+				
+				/*
 				findData($("#queryFrom").val());
 				
 				if(obj.addIsAdmin != null){
@@ -304,9 +307,8 @@ function doActionAjax(obj, action) {
 						$('#addModifyModal').modal('hide');
 						
 					}, 500);
-				}
+				} */
 			} else {
-				alert('envAction > success > else :: resp.code: '+resp.code);
 				alert(resp.message);
 			}
 		},

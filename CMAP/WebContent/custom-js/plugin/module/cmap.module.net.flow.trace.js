@@ -14,15 +14,7 @@ $(document).ready(function() {
 	pageLength = Number($("#pageLength").val());
 	
 	$("input").val("");
-	
-	/*
-	var inputIp = new Cleave('.input-ip', {
-		numericOnly: true,
-		delimiter: '.',
-	    blocks: [3, 3, 3, 3]
-	});
-	*/
-	
+		
 	var inputPort = new Cleave('.input-port-src', {
 		numericOnly: true,
 		blocks: [5]
@@ -32,15 +24,7 @@ $(document).ready(function() {
 		numericOnly: true,
 		blocks: [5]
 	});
-	
-	/*
-	var inputMac = new Cleave('.input-mac', {
-		delimiter: ':',
-		blocks: [2, 2, 2, 2, 2, 2],
-		uppercase: true
-	});
-	*/
-	
+		
 	$("#resultTable").on('xhr.dt', function ( e, settings, json, xhr ) {
 		if (json.msg != null) {
 			$(".myTableSection").hide();

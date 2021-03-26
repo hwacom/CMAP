@@ -1,7 +1,5 @@
 package com.cmap.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +123,8 @@ public class SingleSignOnController extends BaseController {
     		request.getSession().setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "SSO平台連線存取資料異常，請與系統管理員聯繫");
             log.error(e.toString(), e);
             return "redirect:/loginOIDC_NTPC";
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 }

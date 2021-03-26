@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.mapping.Array;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -52,6 +51,7 @@ public class ScriptController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.GET)
@@ -71,6 +71,7 @@ public class ScriptController extends BaseController {
 			model.addAttribute("scriptTypeList", scriptTypeMap);
 			model.addAttribute("deviceModelList", getDeviceModelMap((String)request.getSession().getAttribute("PRTG_LOGIN_ACCOUNT")));
 			
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return "script/script_main";
@@ -126,6 +127,8 @@ public class ScriptController extends BaseController {
 		} catch (ServiceLayerException sle) {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -176,6 +179,8 @@ public class ScriptController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 	
@@ -197,6 +202,8 @@ public class ScriptController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 	
@@ -231,6 +238,8 @@ public class ScriptController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
+		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 	
@@ -311,16 +320,12 @@ public class ScriptController extends BaseController {
 							if(!actionScriptVarList.contains(array[idx].trim())) {
 								actionScriptVarList.add(array[idx].trim());
 							}
-//							if(actionScriptVar.length() > 2) {
-//								actionScriptVar.append("\",\"");
-//							}
-//							actionScriptVar.append(array[idx].trim());
 						}
 					}
-					actionScriptVar.append(StringUtils.join(actionScriptVarList.toArray(), "\",\""));
 				}
 			}
 			
+			actionScriptVar.append(StringUtils.join(actionScriptVarList.toArray(), "\",\""));
 			info.setActionScriptVariable(actionScriptVar.append("\"]").toString());
 			info.setScriptStepActions(scriptStepActions);
 			

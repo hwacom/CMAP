@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -11,8 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.stereotype.Controller;
@@ -26,6 +29,8 @@ import com.cmap.AppResponse;
 import com.cmap.Constants;
 import com.cmap.Env;
 import com.cmap.annotation.Log;
+import com.cmap.model.UserRightSetting;
+import com.cmap.service.UserService;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.Secret;
@@ -39,6 +44,9 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 public class LoginContoller extends BaseController {
 	@Log
 	private static Logger log;
+	
+	@Autowired
+	UserService userService;
 	
 	private String chkLoginPage(HttpServletRequest request) {
 	    HttpSession session = request.getSession();	   
@@ -94,7 +102,8 @@ public class LoginContoller extends BaseController {
 				return chkLoginPage(request);
 			}
 
-			return "redirect:" + Env.HOME_PAGE;
+			String checkpage =  checkPWDate(request);
+			return checkpage != null ? checkpage : "redirect:" + Env.HOME_PAGE;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -110,7 +119,8 @@ public class LoginContoller extends BaseController {
 			    return chkLoginPage(request);
 			}
 
-			return "redirect:" + Env.HOME_PAGE;
+			String checkpage =  checkPWDate(request);
+			return checkpage != null ? checkpage : "redirect:" + Env.HOME_PAGE;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -131,7 +141,8 @@ public class LoginContoller extends BaseController {
 			String redirectUrl = StringUtils.isNotBlank(previousPage) && StringUtils.contains(previousPage, "/plugin/module/vmswitch/power/off")
 			                        ? previousPage : Env.HOME_PAGE;
 			
-			return "redirect:" + redirectUrl;
+			String checkpage =  checkPWDate(request);
+			return checkpage != null ? checkpage : "redirect:" + redirectUrl;
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -139,7 +150,22 @@ public class LoginContoller extends BaseController {
 
 		return null;
 	}
-
+	
+	private String checkPWDate(HttpServletRequest request) {
+		if(StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_FLAG)
+				&& !StringUtils.isBlank(Env.PASSWORD_VALID_SETTING_VALIDITY_PERIOD)) {
+			
+			Date checkDate = DateUtils.addDays(new Date(), -(Integer.parseInt(Env.PASSWORD_VALID_SETTING_VALIDITY_PERIOD)));
+			UserRightSetting userRight = userService.getUserRightSetting(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID).toString(), Constants.LOGIN_AUTH_MODE_CM);
+			if(userRight != null && userRight.getLastPWUpdateTime().compareTo(checkDate) < 0) {
+				request.getSession().setAttribute("checkPWDate", false);
+				return "redirect:/userRightPWChange/main";
+			}
+		}
+		request.getSession().setAttribute("checkPWDate", true);
+		return null;
+	}
+	
 	@RequestMapping(value = "login/app", method = RequestMethod.GET)
     public String loginForApp(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {

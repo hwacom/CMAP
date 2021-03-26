@@ -9,4 +9,6 @@ public interface QuartzDAO {
 	public long countQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception;
 	
 	public List<Object[]> findQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception;
+
+	void closeQuartzSession();
 }

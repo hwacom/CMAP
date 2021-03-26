@@ -42,6 +42,7 @@ public class AdminEnvController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)

@@ -113,6 +113,7 @@ public class Constants {
 	public static final String QUARTZ_SCHED_TYPE_MAIL_SENDER = "mailSender";
 	public static final String QUARTZ_SCHED_TYPE_IP_MAC_PORT_MAPPING_POLLER = "ipMacPortMappingPoller";
 	public static final String QUARTZ_SCHED_TYPE_CIRCUIT_SETTING_SYNC = "circuitSettingSync";
+	public static final String QUARTZ_SCHED_TYPE_REPORT_MAIL_SENDER = "reportMailSender";
 
 	public static final String QUARTZ_PARA_JSON_STR = "paraJsonStr";
 	public static final String QUARTZ_PARA_DEVICE_LIST_ID = "deviceListIds";
@@ -132,6 +133,13 @@ public class Constants {
 	public static final String QUARTZ_PARA_IP_MAC_PORT_MAPPING_POLLER_GROUP_ID = "jobIpMacPortMappingPollerGroupId";
 	public static final String QUARTZ_PARA_DISTRIBUTED_GROUP_ID = "distributedGroupId";
 
+	/**
+	 * 報表批次參數
+	 */
+	public static final String QUARTZ_PARA_REPORT_NAME = "reportName";
+	public static final String QUARTZ_PARA_REPORT_TYPE = "reportTyep";
+	public static final String QUARTZ_PARA_MAIL_TO_ADDRESS = "mailToAddress";
+	
 	public static final String PARA_IP_ADDRESS = "IP_ADDRESS";
 
 	public static final String DATA_POLLER_FILE_BY_FTP = "FTP";

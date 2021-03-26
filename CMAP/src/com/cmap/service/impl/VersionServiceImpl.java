@@ -669,7 +669,9 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 							targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
 							log.debug("for debug targetFileName = " + targetFileName);
 							cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);
-							
+							if(!cList.isEmpty() && cList != null) {
+								retVO.setRestoreContentList(cList);//保留讀取config內容
+							}
 						} catch (IOException e) {
 							e.printStackTrace();
 						}

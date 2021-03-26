@@ -22,24 +22,15 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
     @Column(name = "E1_IP", nullable = true)
     private String e1Ip;
 
-    @Column(name = "SETTING_NAME", nullable = false)
-    private String settingName;
+    @Column(name = "E1_NODE", nullable = false)
+    private String e1Node;
 
-    @Column(name = "SETTING_VALUE", nullable = false)
-    private String settingValue;
+    @Column(name = "PORT", nullable = false)
+    private String port;
         
     @Column(name = "remark", nullable = true)
     private String remark;
-    
-    @Column(name = "delete_flag", nullable = false)
-	private String deleteFlag;
-	
-	@Column(name = "delete_time", nullable = true)
-	private Timestamp deleteTime;
-	
-	@Column(name = "delete_by", nullable = true)
-	private String deleteBy;
-	
+    	
     @Column(name = "create_time", nullable = false)
     private Timestamp createTime;
 
@@ -56,18 +47,14 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 		super();
 	}
 
-	public ModuleCircuitDiagramSetting(String settingId, String e1Ip, String settingName, String settingValue,
-			String remark, String deleteFlag, Timestamp deleteTime, String deleteBy, Timestamp createTime,
-			String createBy, Timestamp updateTime, String updateBy) {
+	public ModuleCircuitDiagramSetting(String settingId, String e1Ip, String e1Node, String port, String remark,
+			Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
 		super();
 		this.settingId = settingId;
 		this.e1Ip = e1Ip;
-		this.settingName = settingName;
-		this.settingValue = settingValue;
+		this.e1Node = e1Node;
+		this.port = port;
 		this.remark = remark;
-		this.deleteFlag = deleteFlag;
-		this.deleteTime = deleteTime;
-		this.deleteBy = deleteBy;
 		this.createTime = createTime;
 		this.createBy = createBy;
 		this.updateTime = updateTime;
@@ -90,20 +77,20 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 		this.e1Ip = e1Ip;
 	}
 
-	public String getSettingName() {
-		return settingName;
+	public String getE1Node() {
+		return e1Node;
 	}
 
-	public void setSettingName(String settingName) {
-		this.settingName = settingName;
+	public void setE1Node(String e1Node) {
+		this.e1Node = e1Node;
 	}
 
-	public String getSettingValue() {
-		return settingValue;
+	public String getPort() {
+		return port;
 	}
 
-	public void setSettingValue(String settingValue) {
-		this.settingValue = settingValue;
+	public void setPort(String port) {
+		this.port = port;
 	}
 
 	public String getRemark() {
@@ -112,30 +99,6 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
-	}
-
-	public String getDeleteFlag() {
-		return deleteFlag;
-	}
-
-	public void setDeleteFlag(String deleteFlag) {
-		this.deleteFlag = deleteFlag;
-	}
-
-	public Timestamp getDeleteTime() {
-		return deleteTime;
-	}
-
-	public void setDeleteTime(Timestamp deleteTime) {
-		this.deleteTime = deleteTime;
-	}
-
-	public String getDeleteBy() {
-		return deleteBy;
-	}
-
-	public void setDeleteBy(String deleteBy) {
-		this.deleteBy = deleteBy;
 	}
 
 	public Timestamp getCreateTime() {
@@ -168,6 +131,10 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 
 	public void setUpdateBy(String updateBy) {
 		this.updateBy = updateBy;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

@@ -40,6 +40,9 @@ public class SysMailListSetting {
 	@Column(name = "mail_bcc", nullable = true)
     private String mailBcc;
 
+	@Column(name = "MAIL_ATT_FILE_PATH", nullable = true)
+    private String mailAttFilePath;	
+	
 	@Column(name = "remark", nullable = true)
     private String remark;
 
@@ -59,108 +62,118 @@ public class SysMailListSetting {
 		super();
 	}
 
-    public SysMailListSetting(String settingId, String settingCode, String mailSubject,
-            String mailTo, String mailCc, String mailBcc, String remark, Timestamp createTime,
-            String createBy, Timestamp updateTime, String updateBy) {
-        super();
-        this.settingId = settingId;
-        this.settingCode = settingCode;
-        this.mailSubject = mailSubject;
-        this.mailTo = mailTo;
-        this.mailCc = mailCc;
-        this.mailBcc = mailBcc;
-        this.remark = remark;
-        this.createTime = createTime;
-        this.createBy = createBy;
-        this.updateTime = updateTime;
-        this.updateBy = updateBy;
-    }
+	public SysMailListSetting(String settingId, String settingCode, String mailSubject, String mailTo, String mailCc,
+			String mailBcc, String mailAttFilePath, String remark, Timestamp createTime, String createBy,
+			Timestamp updateTime, String updateBy) {
+		super();
+		this.settingId = settingId;
+		this.settingCode = settingCode;
+		this.mailSubject = mailSubject;
+		this.mailTo = mailTo;
+		this.mailCc = mailCc;
+		this.mailBcc = mailBcc;
+		this.mailAttFilePath = mailAttFilePath;
+		this.remark = remark;
+		this.createTime = createTime;
+		this.createBy = createBy;
+		this.updateTime = updateTime;
+		this.updateBy = updateBy;
+	}
 
-    public String getSettingId() {
-        return settingId;
-    }
+	public String getSettingId() {
+		return settingId;
+	}
 
-    public void setSettingId(String settingId) {
-        this.settingId = settingId;
-    }
+	public void setSettingId(String settingId) {
+		this.settingId = settingId;
+	}
 
-    public String getSettingCode() {
-        return settingCode;
-    }
+	public String getSettingCode() {
+		return settingCode;
+	}
 
-    public void setSettingCode(String settingCode) {
-        this.settingCode = settingCode;
-    }
+	public void setSettingCode(String settingCode) {
+		this.settingCode = settingCode;
+	}
 
-    public String getMailSubject() {
-        return mailSubject;
-    }
+	public String getMailSubject() {
+		return mailSubject;
+	}
 
-    public void setMailSubject(String mailSubject) {
-        this.mailSubject = mailSubject;
-    }
+	public void setMailSubject(String mailSubject) {
+		this.mailSubject = mailSubject;
+	}
 
-    public String getMailTo() {
-        return mailTo;
-    }
+	public String getMailTo() {
+		return mailTo;
+	}
 
-    public void setMailTo(String mailTo) {
-        this.mailTo = mailTo;
-    }
+	public void setMailTo(String mailTo) {
+		this.mailTo = mailTo;
+	}
 
-    public String getMailCc() {
-        return mailCc;
-    }
+	public String getMailCc() {
+		return mailCc;
+	}
 
-    public void setMailCc(String mailCc) {
-        this.mailCc = mailCc;
-    }
+	public void setMailCc(String mailCc) {
+		this.mailCc = mailCc;
+	}
 
-    public String getMailBcc() {
-        return mailBcc;
-    }
+	public String getMailBcc() {
+		return mailBcc;
+	}
 
-    public void setMailBcc(String mailBcc) {
-        this.mailBcc = mailBcc;
-    }
+	public void setMailBcc(String mailBcc) {
+		this.mailBcc = mailBcc;
+	}
 
-    public String getRemark() {
-        return remark;
-    }
+	public String getMailAttFilePath() {
+		return mailAttFilePath;
+	}
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
+	public void setMailAttFilePath(String mailAttFilePath) {
+		this.mailAttFilePath = mailAttFilePath;
+	}
 
-    public Timestamp getCreateTime() {
-        return createTime;
-    }
+	public String getRemark() {
+		return remark;
+	}
 
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
-    }
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 
-    public String getCreateBy() {
-        return createBy;
-    }
+	public Timestamp getCreateTime() {
+		return createTime;
+	}
 
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
+	public void setCreateTime(Timestamp createTime) {
+		this.createTime = createTime;
+	}
 
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
+	public String getCreateBy() {
+		return createBy;
+	}
 
-    public void setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
-    }
+	public void setCreateBy(String createBy) {
+		this.createBy = createBy;
+	}
 
-    public String getUpdateBy() {
-        return updateBy;
-    }
+	public Timestamp getUpdateTime() {
+		return updateTime;
+	}
 
-    public void setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
-    }
+	public void setUpdateTime(Timestamp updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
+	
 }

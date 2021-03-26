@@ -75,6 +75,8 @@ public class AdminInventoryController extends BaseController {
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
 		}
+
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
@@ -168,6 +170,8 @@ public class AdminInventoryController extends BaseController {
 	        
 		} catch (Exception e) {
 			log.error(e.toString(), e);
+		} finally {
+			initMenu(model, request);
 		}
 
 		return new DatatableResponse(total, dataList, filteredTotal);
@@ -270,7 +274,9 @@ public class AdminInventoryController extends BaseController {
 	        log.error(e.toString(), e);
 	        AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
-	    }
+	    } finally {
+			initMenu(model, request);
+		}
 	}
 	
 	@CrossOrigin(maxAge = 3600)
@@ -334,6 +340,8 @@ public class AdminInventoryController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+		} finally {
+			initMenu(model, request);
 		}
 	}
 }

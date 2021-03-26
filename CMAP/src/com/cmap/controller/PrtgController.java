@@ -37,9 +37,10 @@ public class PrtgController extends BaseController {
 	@Autowired
 	private PrtgService prtgService;
 	
-	private void init(Model model) {
+	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("PRTG_IP_ADDR", Env.PRTG_SERVER_IP);
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
+		behaviorLog(request.getRequestURI(), request.getQueryString());
 	}
 
 //	private String sendLogin(HttpServletRequest request, HttpServletResponse response) {
@@ -140,6 +141,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -158,6 +160,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -192,6 +195,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -210,6 +214,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -228,6 +233,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -258,6 +264,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -276,6 +283,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -294,6 +302,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -312,6 +321,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 	
@@ -330,6 +340,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 	
@@ -348,6 +359,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -366,6 +378,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 
@@ -384,6 +397,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -402,6 +416,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
 		}
 	}
 	
@@ -420,13 +435,14 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 	
 	@RequestMapping(value = "/index/login", method = RequestMethod.GET)
 	public String prtgIndexAndLogin(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 			model.addAttribute("DO_LOGIN", "Y");
 
 		} catch (Exception e) {
@@ -438,7 +454,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
 	public String prtgIndex(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -449,7 +465,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/dashboard", method = RequestMethod.GET)
 	public String prtgDashboard(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -460,7 +476,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/topography", method = RequestMethod.GET)
     public String prtgTopography(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -471,7 +487,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/alarmSummary", method = RequestMethod.GET)
     public String prtgAlarmSummary(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -482,7 +498,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/netFlowSummary", method = RequestMethod.GET)
 	public String prtgNetFlowSummary(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -493,7 +509,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/netFlowOutput", method = RequestMethod.GET)
     public String prtgNetFlowOutput(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -504,7 +520,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/loopSearch", method = RequestMethod.GET)
     public String prtgLoopSearch(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -515,7 +531,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/netFlowOutput/core", method = RequestMethod.GET)
     public String prtgNetFlowOutputCore(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -526,7 +542,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/deviceFailure", method = RequestMethod.GET)
 	public String prtgDeviceFailure(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -537,7 +553,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/abnormalTraffic", method = RequestMethod.GET)
 	public String prtgAbnormalTraffic(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -548,7 +564,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/firewallOutput", method = RequestMethod.GET)
     public String prtgFirewallOutput(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -559,7 +575,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/email/update", method = RequestMethod.GET)
     public String prtgEmailUpdate(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);
@@ -570,7 +586,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/abnormalHis", method = RequestMethod.GET)
 	public String prtgAbnormalHis(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			init(model);
+			init(model, request);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -581,7 +597,7 @@ public class PrtgController extends BaseController {
 	@RequestMapping(value = "/vlanSwitch", method = RequestMethod.GET)
     public String prtgVlanSwitch(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
         try {
-            init(model);
+            init(model, request);
 
         } catch (Exception e) {
             log.error(e.toString(), e);

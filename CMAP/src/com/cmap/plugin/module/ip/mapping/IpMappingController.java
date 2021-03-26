@@ -80,6 +80,7 @@ public class IpMappingController extends BaseController {
             log.error(e.toString(), e);
 
         } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
         return "plugin/module_ip_mapping_record";
     }
@@ -102,6 +103,7 @@ public class IpMappingController extends BaseController {
 
         } finally {
             initMenu(model, request);
+            behaviorLog(request.getRequestURI(), request.getQueryString());
         }
         return "plugin/module_ip_mapping_change";
     }
@@ -169,6 +171,8 @@ public class IpMappingController extends BaseController {
         } catch (ServiceLayerException sle) {
 		} catch (Exception e) {
             log.error(e.toString(), e);
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
 
         return new DatatableResponse(total, dataList, filterdTotal);
@@ -232,6 +236,8 @@ public class IpMappingController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 
@@ -259,6 +265,8 @@ public class IpMappingController extends BaseController {
 
         } catch (Exception e) {
             log.error(e.toString(), e);
+        } finally {
+        	behaviorLog(request.getRequestURI(), request.getQueryString());
         }
 
         return null;

@@ -59,6 +59,9 @@ public class SysMailDAOImpl extends BaseDaoHibernate implements SysMailDAO {
             if (StringUtils.isNotBlank(setting.getMailBcc())) {
                 retDAOVO.setMailBcc(setting.getMailBcc().split(","));
             }
+            if (StringUtils.isNotBlank(setting.getMailAttFilePath())) {
+                retDAOVO.setMailAttFilePath(setting.getMailAttFilePath());
+            }
             retDAOVO.setRemark(setting.getRemark());
         }
 

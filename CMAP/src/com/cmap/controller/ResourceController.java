@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class ResourceController extends BaseController {
     private ResourceService resourceService;
 
     @RequestMapping(method=RequestMethod.GET, value="/download/{id}")
-    public void download(Model model, @PathVariable("id") String fileId, HttpServletResponse response) throws ServletException, IOException {
+    public void download(Model model, @PathVariable("id") String fileId, HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException {
         /*
          * Big thanks to BalusC for this part
          * cf. his post on http://balusc.blogspot.ch/2007/04/imageservlet.html
@@ -93,6 +94,7 @@ public class ResourceController extends BaseController {
             // Gently close streams.
             close(output);
             close(input);
+            behaviorLog(request.getRequestURI(), request.getQueryString());
         }
     }
 

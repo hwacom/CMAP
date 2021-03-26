@@ -34,7 +34,9 @@ public class ClusterMigrateController extends BaseController {
 
         } catch (Exception e) {
             log.error(e.toString(), e);
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
 
         return "plugin/module_cluster_migrate";
     }
@@ -49,7 +51,9 @@ public class ClusterMigrateController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             retVal = "ERROR";
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
 
         return retVal;
     }
@@ -66,7 +70,9 @@ public class ClusterMigrateController extends BaseController {
 
         } catch (Exception e) {
             log.error(e.toString(), e);
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
         return "plugin/module_cluster_migrate";
     }
 
@@ -84,7 +90,9 @@ public class ClusterMigrateController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
             return "E";
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
         return retVO.getProcessResultFlag();
     }
 
@@ -101,7 +109,9 @@ public class ClusterMigrateController extends BaseController {
 
         } catch (Exception e) {
             return "E";
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
         return retVO.getProcessResultFlag();
     }
 
@@ -118,7 +128,9 @@ public class ClusterMigrateController extends BaseController {
 
         } catch (Exception e) {
             return "E";
-        }
+        } finally {
+			behaviorLog(request.getRequestURI(), request.getQueryString());
+		}
         return retVO.getProcessResultFlag();
     }
 
@@ -158,7 +170,8 @@ public class ClusterMigrateController extends BaseController {
                 app.putData("PROCESS_RESULT_MSG", retVO.getProcessResultMsg());
                 app.putData("PROCESS_MSG", retVO.getProcessRemark());
             }
-
+            behaviorLog(request.getRequestURI(), request.getQueryString());
+            
             return app;
         }
     }

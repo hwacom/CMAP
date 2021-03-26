@@ -32,8 +32,8 @@ import com.cmap.model.MibOidMapping;
 import com.cmap.plugin.module.ip.maintain.IpMaintainDAO;
 import com.cmap.plugin.module.ip.maintain.IpMaintainServiceVO;
 import com.cmap.plugin.module.ip.maintain.ModuleIpDataSetting;
-import com.cmap.plugin.module.netflow.NetFlowService;
-import com.cmap.plugin.module.netflow.NetFlowVO;
+import com.cmap.plugin.module.netflowpoller.NetFlowTraceService;
+import com.cmap.plugin.module.netflowpoller.NetFlowTraceVO;
 import com.cmap.service.DeviceService;
 import com.cmap.service.MibService;
 import com.cmap.service.impl.CommonServiceImpl;
@@ -58,7 +58,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
     private IpMaintainDAO ipMaintainDAO;
 
     @Autowired
-    private NetFlowService netFlowService;
+    private NetFlowTraceService netFlowTraceService;
 
     @Autowired
 	private DeviceService deviceService;
@@ -686,7 +686,7 @@ public class IpMappingServiceImpl extends CommonServiceImpl implements IpMapping
 		String msg = "";
 		try {
 			// Step 1. 先取得該筆 NET_FLOW 資料
-			NetFlowVO nfVO = netFlowService.findNetFlowRecordByGroupIdAndDataId(groupId, dataId, fromDateTime);
+			NetFlowTraceVO nfVO = netFlowTraceService.findNetFlowRecordByGroupIdAndDataId(groupId, dataId, fromDateTime);
 
 			if (nfVO == null) {
 				// 若查不到 NET_FLOW 則無法繼續流程

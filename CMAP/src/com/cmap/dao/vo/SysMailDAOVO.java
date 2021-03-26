@@ -13,6 +13,8 @@ public class SysMailDAOVO {
     private String remark;
 
     private String mailContent;
+    
+    private String mailAttFilePath;
 
     public String getSubject() {
         return subject;
@@ -68,4 +70,10 @@ public class SysMailDAOVO {
     public void setSettingCode(String settingCode) {
         this.settingCode = settingCode;
     }
+	public String getMailAttFilePath() {
+		return mailAttFilePath;
+	}
+	public void setMailAttFilePath(String mailAttFilePath) {
+		this.mailAttFilePath = mailAttFilePath;
+	}
 }
