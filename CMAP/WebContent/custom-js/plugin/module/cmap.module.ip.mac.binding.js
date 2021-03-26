@@ -167,8 +167,6 @@ function findIpMacBoundRecordData(statusFlag) {
             },
             */
 			"drawCallback" : function(settings) {
-				resultTable_ipMacBoundRecord.columns( [6] ).visible( false );
-				resultTable_ipMacBoundRecord.columns( [14] ).visible( false );
 				//$.fn.dataTable.tables( { visible: true, api: true } ).columns.adjust();
 				$("div.dataTables_length").parent().removeClass('col-sm-12');
 				$("div.dataTables_length").parent().addClass('col-sm-6');
@@ -184,11 +182,14 @@ function findIpMacBoundRecordData(statusFlag) {
 				
 				var pathname = window.location.pathname;
 				var lastPath = pathname.substring(pathname.lastIndexOf('/'), pathname.length);
+				//控制欄位是否要顯示
 				if (lastPath === "/ipMacBinding") {
 					$('[data-field="status"]').hide();
 					$('[data-field="openTime"]').hide();
 					$('[data-field="openReason"]').hide();
 					$('[data-field="openBy"]').hide();
+					$('[data-field="port"]').hide();
+					$('[data-field="scriptName"]').hide();
 					
 					recordSectionRadioBoxOnChangeEvent();
 					
@@ -216,7 +217,8 @@ function findIpMacBoundRecordData(statusFlag) {
 				$('td:eq(14)', row).attr('data-field', 'scriptName');
 			},
 			"columns" : [
-				{},{},
+				{},
+				{},
 				{ "data" : "groupName" , "className" : "left" },
 				{ "data" : "ipAddress" , "className" : "left" },
 				{ "data" : "ipDesc" , "className" : "left" },
