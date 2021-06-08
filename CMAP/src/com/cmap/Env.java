@@ -585,7 +585,7 @@ public class Env {
 			Step.CLOSE_DEVICE_CONNECTION,
 //			Step.CONNECT_FILE_SERVER_4_UPLOAD,
 			Step.COMPARE_CONTENTS,
-			Step.ANALYZE_CONFIG_INFO,
+//			Step.ANALYZE_CONFIG_INFO, //2021-06-08 Alvin removed, because PRTG powershell sensor replaced
 			Step.COMPOSE_OUTPUT_VO,
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
 			Step.VERSION_DIFF_NOTIFY
@@ -607,7 +607,7 @@ public class Env {
 			Step.CONNECT_FILE_SERVER_4_UPLOAD,
 			Step.LOGIN_FILE_SERVER_4_UPLOAD,
 			Step.COMPARE_CONTENTS,
-			Step.ANALYZE_CONFIG_INFO,
+//			Step.ANALYZE_CONFIG_INFO,	//2021-06-08 Alvin removed, because PRTG powershell sensor replaced
 			Step.COMPOSE_OUTPUT_VO,
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
             Step.VERSION_DIFF_NOTIFY
