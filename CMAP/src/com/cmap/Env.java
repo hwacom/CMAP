@@ -76,6 +76,8 @@ public class Env {
 	public static String SHOW_MENU_ITEM_LOOP_LOOP;				             // 異常告警 > LOOP迴圈
 	public static String SHOW_MENU_ITEM_DEVICE_FAILURE;			             // 異常告警 > 設備故障
 	public static String SHOW_MENU_ITEM_ABNORMAL_TRAFFIC;		             // 異常告警 > 流量異常
+	public static String SHOW_MENU_ITEM_PLUGIN_ALARM_SUMMARY;		         // 異常告警 > 警報總覽
+	public static String SHOW_MENU_ITEM_PLUGIN_TICKETS;		          		 // 異常告警 > 工單查詢
 	public static String SHOW_MENU_ITEM_OTHER_EXCEPTION;		             // 異常告警 > 其他異常
 
 	public static String SHOW_MENU_TREE_PLUGIN;					             // 資安通報
@@ -87,7 +89,8 @@ public class Env {
 	public static String SHOW_MENU_ITEM_MAC_OPEN_BLOCK;			             // 資安通報 > 網卡MAC開通/封鎖
 	public static String SHOW_MENU_ITEM_MAC_BLOCKED_RECORD;                  // 資安通報 > MAC封鎖紀錄查詢
 	public static String SHOW_MENU_ITEM_PLUGIN_FIREWALL;                     // 資安通報 > 防火牆LOG查詢
-
+	public static String SHOW_MENU_ITEM_CIRCUIT_E1_OPEN_RECORD;				 // 資安通報 > E1電路開通紀錄
+	
     public static String SHOW_MENU_TREE_ABNORMAL_MANAGEMENT;                 // 障礙管理
     public static String SHOW_MENU_ITEM_ABNORMAL_REPORT;                     // 障礙管理 > 管理報表
 
@@ -543,6 +546,17 @@ public class Env {
 	public static String PASSWORD_VALID_SETTING_VALIDITY_PERIOD;		//密碼使用週期
 	
 	/**
+	 * HA機制控制項
+	 */
+	public static String HIGH_AVAILABILITY_FLAG;
+	//HA啟用ip
+	public static String HIGH_AVAILABILITY_ALIVE_SERVER_IP;
+	//HA主設備IP
+	public static String HIGH_AVAILABILITY_MASTER_SERVER_IP;
+	//HA備援設備IP
+	public static List<String> HIGH_AVAILABILITY_SLAVE_SERVER_IP = new ArrayList<>();
+
+	/**
 	 * 執行指定腳本流程
 	 */
 	public static final Step[] SEND_SCRIPT = new Step[] {
@@ -609,7 +623,7 @@ public class Env {
 			Step.CLOSE_DEVICE_CONNECTION,
 //			Step.CONNECT_FILE_SERVER_4_UPLOAD,
 			Step.COMPARE_CONTENTS,
-			Step.ANALYZE_CONFIG_INFO,
+//			Step.ANALYZE_CONFIG_INFO, //2021-06-08 Alvin remove step (Reason: PRTG powershell script replaced it)
 			Step.COMPOSE_OUTPUT_VO,
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
 			Step.VERSION_DIFF_NOTIFY
@@ -631,7 +645,7 @@ public class Env {
 			Step.CONNECT_FILE_SERVER_4_UPLOAD,
 			Step.LOGIN_FILE_SERVER_4_UPLOAD,
 			Step.COMPARE_CONTENTS,
-			Step.ANALYZE_CONFIG_INFO,
+//			Step.ANALYZE_CONFIG_INFO, //2021-06-08 Alvin remove step (Reason: PRTG powershell script replaced it)
 			Step.COMPOSE_OUTPUT_VO,
 			Step.RECORD_DB_OF_CONFIG_VERSION_INFO,
             Step.VERSION_DIFF_NOTIFY
