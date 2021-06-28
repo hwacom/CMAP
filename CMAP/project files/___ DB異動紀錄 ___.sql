@@ -11523,3 +11523,629 @@ INSERT INTO `sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`,
 
 INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
 (null, 'new.login.password', '新密碼', 'zh_TW');
+
+
+
+/*#################################################################################################################################################################################
+Y210330 - Owen 新增工單查詢功能
+#################################################################################################################################################################################*/
+
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('F4E1F1BB-003A-48A1-803F-3E9D14A09519', 'TICKET_STATUS', '開啟', 'OPEN', 1, '工單查詢 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('F7C18B29-0A34-4180-9EDE-71CF1B3D5396', 'TICKET_STATUS', '已解決', 'SOVLED', 2, '工單查詢 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('E1E34DB4-DBC9-4000-A42E-C2E7C87A6C05', 'TICKET_STATUS', '已結案', 'FINISH', 3, '工單查詢 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('19AD63BA-252E-45A3-8047-A68C52D99DE7', 'ALARM_STATUS', 'UP', 'UP', 1, '警報總覽 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('9C9BECE9-EB4A-449C-B930-9DB432F7E528', 'ALARM_STATUS', 'WARNING', 'WARNING', 2, '警報總覽 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('6B12C89D-1F9F-4351-91A2-FB3FC10EE421', 'ALARM_STATUS', 'ERROR', 'ERROR', 3, '警報總覽 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('D0B6368C-0DCF-4586-AB74-9AA4BFA93183', 'ALARM_STATUS', 'UNUSUAL', 'UNUSUAL', 4, '警報總覽 >> 狀態');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('85C32288-D18D-44A4-AA5F-E63A037985DC', 'ALARM_SENSOR_TYPE', 'Type A', 'Type A', 1, '警報總覽 >> 警報類型');
+INSERT INTO `menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`, `REMARK`) VALUES 
+('D2FB14F5-B059-440E-A1F9-EEC2C06B28C7', 'ALARM_SENSOR_TYPE', 'Type B', 'Type B', 2, '警報總覽 >> 警報類型');
+
+
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('DA2CD29F-2F6B-4D32-9CF7-85C46D863997', 'INV_DEVICE_TYPE', 'Server', 'Server', '1');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('05D37573-3812-4E48-98A4-7E80F0029EE3', 'INV_DEVICE_TYPE', 'VM', 'VM', '2');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('54078C40-ECFB-45E9-892E-8E40F5FAF035', 'INV_DEVICE_TYPE', 'Storage', 'storage', '3');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('FC56DD1F-76E0-41BB-A443-21769E3407EC', 'INV_DEVICE_TYPE', 'UPS', 'ups', '4');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('417595EF-B2B8-4B94-A76F-A3D53C6A567D', 'INV_DEVICE_TYPE', 'Cell', 'cell', '5');
+
+
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.tickets', '工單查詢', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary', '警報總覽(新)', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.owner', '權責人員', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.back', '返回查詢', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.priority', '優先級', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.listId', '工單號碼', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.subject', '主題', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.history', '歷史紀錄', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.ticket.forward', '重新分派', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.log', '歷程記錄', 'zh_TW');
+
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.sensor.name', '感測器名稱', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.sensor.type', '警報類型', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.alarm.time', '警報時間', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.close.time', '結案時間', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.alarm.status', '警報等級', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.last.value', '最後監控數值', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.create.ticket', '新增工單', 'zh_TW');//remove??
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.update.status', '異動警報狀態', 'zh_TW');//remove??
+
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.alarm.data.status.active', '恢復警報', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.alarm.data.status.doing', '開立工單', 'zh_TW');
+INSERT INTO `i18n` (`i18n_id`, `I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES
+(null, 'func.plugin.alarm.summary.alarm.data.status.finish', '封存', 'zh_TW');
+
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('2318AACB-938B-4FAF-8ADA-F36021C92B1A', 'SHOW_MENU_ITEM_PLUGIN_TICKETS', 'N', '[選單項目] 異常告警 > 工單查詢');
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('17124F5A-CBDF-441B-973D-5F2CF9DAF5C9', 'SHOW_MENU_ITEM_PLUGIN_ALARM_SUMMARY', 'N', '[選單項目] 異常告警 > 警報總覽');
+
+ALTER TABLE `user_right_setting`
+	ADD COLUMN `EMAIL` VARCHAR(100) NULL DEFAULT NULL AFTER `PASSWORD`;
+
+	
+CREATE TABLE `module_ticket_list` (
+	`LIST_ID` INT(11) NOT NULL AUTO_INCREMENT,
+	`ALARM_ID` VARCHAR(36) NOT NULL,
+	`STATUS` VARCHAR(10) NOT NULL DEFAULT 'OPEN' COMMENT '狀態: OPEN、SOLVED、CLOSED',
+	`OWNER_TYPE` VARCHAR(1) NOT NULL COMMENT 'G: group; U: user',
+	`OWNER` VARCHAR(40) NOT NULL,
+	`SUBJECT` VARCHAR(10) NOT NULL DEFAULT '' COMMENT '主旨',
+	`MESSAGE` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '訊息',
+	`PRIORITY` VARCHAR(1) NOT NULL DEFAULT '9' COMMENT '優先度:1~9',
+	`REMARK` VARCHAR(300) NULL DEFAULT NULL,
+	`MAIL_FLAG` VARCHAR(1) NOT NULL DEFAULT 'N',
+	`EXEC_FLAG` VARCHAR(1) NOT NULL DEFAULT 'N',
+	`CREATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`CREATE_BY` VARCHAR(50) NOT NULL DEFAULT 'SYS',
+	`UPDATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NOT NULL DEFAULT 'SYS',
+	PRIMARY KEY (`LIST_ID`)
+)
+COMMENT='工單'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+AUTO_INCREMENT=13
+;
+CREATE TABLE `module_ticket_detail` (
+	`DETAIL_ID` VARCHAR(36) NOT NULL,
+	`LIST_ID` INT(11) NOT NULL DEFAULT 0,
+	`DETAIL_OWNER` VARCHAR(50) NOT NULL COMMENT '更新時負責人',
+	`CONTENT` VARCHAR(300) NOT NULL,
+	`CREATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`CREATE_BY` VARCHAR(50) NOT NULL,
+	PRIMARY KEY (`DETAIL_ID`),
+	INDEX `LIST_ID` (`LIST_ID`)
+)
+COMMENT='明細紀錄'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+CREATE TABLE `module_alarm_summary` (
+	`ALARM_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`GROUP_ID` VARCHAR(32) NOT NULL,
+	`GROUP_NAME` VARCHAR(100) NULL DEFAULT NULL,
+	`DEVICE_ID` VARCHAR(32) NOT NULL,
+	`DEVICE_NAME` VARCHAR(100) NULL DEFAULT NULL,
+	`SENSOR_ID` VARCHAR(32) NOT NULL,
+	`SENSOR_NAME` VARCHAR(100) NULL DEFAULT NULL,
+	`SENSOR_TYPE` VARCHAR(100) NULL DEFAULT NULL,
+	`ALARM_DATA_STATUS` VARCHAR(10) NOT NULL DEFAULT 'active' COMMENT '狀態: active、doing、finish',
+	`ALARM_STATUS` VARCHAR(10) NULL DEFAULT NULL COMMENT 'SENSOR狀態',
+	`ALARM_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp() COMMENT '異常發生時間',
+	`CLOSE_TIME` TIMESTAMP NULL DEFAULT NULL COMMENT '結案時間',	
+	`LAST_VALUE` VARCHAR(10) NOT NULL DEFAULT '' COMMENT '最後監控數值',
+	`MESSAGE` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '警報訊息',
+	`PRIORITY` VARCHAR(1) NOT NULL DEFAULT '9' COMMENT '優先度:1~9',
+	`REMARK` VARCHAR(300) NULL DEFAULT NULL,
+	`UPDATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NOT NULL DEFAULT 'SYS',
+	PRIMARY KEY (`ALARM_ID`),
+	UNIQUE INDEX `UK1` (`SENSOR_ID`, `ALARM_TIME`)
+)
+COMMENT='警報總覽'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+AUTO_INCREMENT=11
+;
+CREATE TABLE `module_alarm_summary_log` (
+	`LOG_ID` VARCHAR(36) NOT NULL,
+	`ALARM_ID` BIGINT(20),
+	`CONTENT` VARCHAR(300) NOT NULL,
+	`CREATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`CREATE_BY` VARCHAR(50) NOT NULL,
+	PRIMARY KEY (`LOG_ID`),
+	INDEX `ALARM_ID` (`ALARM_ID`)
+)
+COMMENT='警報明細紀錄'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+CREATE TABLE `module_alarm_summary_history` (
+	`ALARM_ID` BIGINT(20) NOT NULL AUTO_INCREMENT,
+	`GROUP_ID` VARCHAR(32) NOT NULL,
+	`GROUP_NAME` VARCHAR(100) NULL DEFAULT NULL,
+	`DEVICE_ID` VARCHAR(32) NOT NULL,
+	`DEVICE_NAME` VARCHAR(100) NULL DEFAULT NULL,
+	`SENSOR_ID` VARCHAR(32) NOT NULL,
+	`SENSOR_NAME` VARCHAR(100) NULL DEFAULT NULL,
+	`SENSOR_TYPE` VARCHAR(100) NULL DEFAULT NULL,
+	`ALARM_DATA_STATUS` VARCHAR(10) NOT NULL DEFAULT 'active' COMMENT '狀態: active、doing、finish',
+	`ALARM_STATUS` VARCHAR(10) NULL DEFAULT NULL COMMENT 'SENSOR狀態',
+	`ALARM_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp() COMMENT '異常發生時間',
+	`CLOSE_TIME` TIMESTAMP NULL DEFAULT NULL COMMENT '結案時間',
+	`LAST_VALUE` VARCHAR(10) NOT NULL DEFAULT '' COMMENT '最後監控數值',
+	`MESSAGE` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '警報訊息',
+	`PRIORITY` VARCHAR(1) NOT NULL DEFAULT '9' COMMENT '優先度:1~9',
+	`REMARK` VARCHAR(300) NULL DEFAULT NULL,
+	`UPDATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NOT NULL DEFAULT 'SYS',
+	PRIMARY KEY (`ALARM_ID`),
+	UNIQUE INDEX `UK1` (`SENSOR_ID`, `ALARM_TIME`)
+)
+COMMENT='警報總覽'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+AUTO_INCREMENT=11
+;
+
+
+
+/*#################################################################################################################################################################################
+Y210428 - Owen 電路開通內容調整
+#################################################################################################################################################################################*/
+
+/*
+INSERT INTO cmap.module_circuit_diagram_setting
+SELECT null, di.E1GW_IP, dpi.PORT_ID , 'N', NULL, SYSDATE(), 'SYS', SYSDATE(), 'SYS'
+FROM cmap.module_circuit_diagram_info di LEFT JOIN cmap.device_port_info dpi ON dpi.DEVICE_MODEL='Advantech' 
+*/
+drop table `module_circuit_diagram_info`;
+CREATE TABLE `module_circuit_diagram_info` (
+	`id` INT(4) NOT NULL AUTO_INCREMENT,
+	`CIRCLE_ID` INT(2) NOT NULL DEFAULT 0 COMMENT '區域環ID',
+	`CIRCLE_NAME` VARCHAR(10) NOT NULL COMMENT '區域環名稱',
+	`STATION_NAME` VARCHAR(20) NOT NULL COMMENT '車站名稱',
+	`STATION_ENG_NAME` VARCHAR(20) NOT NULL,
+	`NE_NAME` VARCHAR(30) NOT NULL COMMENT '設備名稱',
+	`E1GW_IP` VARCHAR(20) NOT NULL COMMENT '設備IP',
+	`SR_PREFIX_SID` VARCHAR(5) NOT NULL COMMENT '設備SID',
+	`HOSTNAME` VARCHAR(30) NOT NULL COMMENT 'Local Area CSR Primary Path',
+	`LOCAL_AREA_CSR_IP` VARCHAR(20) NOT NULL COMMENT 'Local Area CSR IP',
+	`LOCAL_AREA_CSR_SR_SID` VARCHAR(5) NOT NULL COMMENT 'Local Area CSR SID',
+	`REMARK` VARCHAR(200) NULL DEFAULT NULL,
+	`DELETE_FLAG` VARCHAR(1) NOT NULL DEFAULT 'N' COMMENT '刪除註記',
+	`DELETE_TIME` TIMESTAMP NULL DEFAULT NULL COMMENT '刪除時間',
+	`DELETE_BY` VARCHAR(20) NULL DEFAULT NULL COMMENT '刪除人',
+	`CREATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`CREATE_BY` VARCHAR(100) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `SR_PREFIX_SID` (`SR_PREFIX_SID`)
+)
+COMMENT='電路圖設備資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=228
+;
+
+drop table `module_circuit_diagram_setting`;
+CREATE TABLE `module_circuit_diagram_setting` (
+	`setting_id` INT(8) NOT NULL AUTO_INCREMENT,
+	`SR_PREFIX_SID` VARCHAR(5) NOT NULL COMMENT '設備SID',
+	`E1GW_IP` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '設備IP',
+	`PORT_NUMBER` VARCHAR(5) NOT NULL,
+	`USED_FLAG` VARCHAR(1) NOT NULL,
+	`REMARK` VARCHAR(50) NULL DEFAULT NULL,
+	`CREATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp() COMMENT '資料建立時間',
+	`CREATE_BY` VARCHAR(20) NOT NULL DEFAULT 'SYS' COMMENT '資料建立人員',
+	`UPDATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp() COMMENT '資料最後異動時間',
+	`UPDATE_BY` VARCHAR(20) NOT NULL DEFAULT 'SYS' COMMENT '資料最後異動人員',
+	PRIMARY KEY (`setting_id`)
+)
+COMMENT='電路圖設備設定資訊(Port)'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=2730
+;
+
+CREATE TABLE `module_circuit_e1open_list` (
+	`LIST_ID` VARCHAR(36) NOT NULL,
+	`DEVICE_ID` VARCHAR(32) NOT NULL,
+	`CIRCLE_NAME` VARCHAR(10) NOT NULL COMMENT '區域環名稱',
+	`STATION_NAME` VARCHAR(20) NOT NULL COMMENT '車站名稱',
+	`STATION_ENG_NAME` VARCHAR(20) NOT NULL,
+	`NE_NAME` VARCHAR(30) NOT NULL COMMENT '設備名稱',
+	`SOURCE_SID` VARCHAR(5) NOT NULL COMMENT '起始端設備SID',
+	`DESTINATION_SID` VARCHAR(5) NOT NULL COMMENT '目的端設備SID',
+	`LOCAL_AREA_CSR_IP` VARCHAR(20) NOT NULL COMMENT '起始端Local Area CSR IP',
+	`REMOTE_AREA_CSR_IP` VARCHAR(20) NOT NULL COMMENT '目的端Local Area CSR IP',
+	`SOURCE_E1GW_IP` VARCHAR(20) NULL DEFAULT NULL COMMENT '起始端設備IP',
+	`DESTINATION_E1GW_IP` VARCHAR(20) NULL DEFAULT NULL COMMENT '目的端設備IP',
+	`SOURCE_PORT_NUMBER` VARCHAR(3) NULL DEFAULT NULL COMMENT '起始端設備Port',
+	`DESTINATION_PORT_NUMBER` VARCHAR(3) NULL DEFAULT NULL COMMENT '目的端設備Port',
+	`REMARK` TEXT NULL DEFAULT NULL COMMENT '指令內容',
+	`CREATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`CREATE_BY` VARCHAR(50) NOT NULL DEFAULT 'SYS',
+	`UPDATE_TIME` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NOT NULL DEFAULT 'SYS',
+	PRIMARY KEY (`LIST_ID`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+ROW_FORMAT=DYNAMIC
+;
+
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('02166318-9D3B-4F39-B75F-CD4312A8BB46', 'SHOW_MENU_ITEM_CIRCUIT_E1_OPEN_RECORD', 'N', '[選單項目] 資安通報 > E1電路開通紀錄');
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('A995D487-5EB6-4A0A-87C0-95BDF2DC4331', 'HIGH_AVAILABILITY_FLAG', 'N', 'HA Flag');
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('96A18AAF-BA65-49C8-AA95-784E076DE8CF', 'HIGH_AVAILABILITY_ALIVE_SERVER_IP', '192.168.0.1', 'HA啟用ip');
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('A3F43D8C-6E0A-48F2-B5AC-D697DED65C6A', 'HIGH_AVAILABILITY_MASTER_SERVER_IP', '192.168.0.1', 'HA主設備IP');
+INSERT INTO `cmap`.`sys_config_setting` (`SETTING_ID`, `SETTING_NAME`, `SETTING_VALUE`, `SETTING_REMARK`) VALUES 
+('6D4B4C70-2B9C-4F20-B8F9-3036D66351DB', 'HIGH_AVAILABILITY_SLAVE_SERVER_IP', '192.168.0.2', 'HA備援設備IP');
+
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.circuit.e1.open.record', 'E1電路開通紀錄', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.circleName', '環狀線名稱', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.stationName', '車站名稱', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.stationEngName', '車站英文名稱', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.neName', '設備名稱', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.srcSid', '起始端設備SID', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.dstSid', '目的端設備SID', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.localCsrIp', '起始端CSR IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.remoteCsrIp', '目的端CSR IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.srcE1gwIp', '起始端設備IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.dstE1gwIp', '目的端設備IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.scrPortNumber', '起始端設備Port', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.circuit.e1.open.dstPortNumber', '目的端設備Port', 'zh_TW');
+
+/*#################################################################################################################################################################################
+Y210519 - Owen 資產清冊功能擴增
+#################################################################################################################################################################################*/
+
+ALTER TABLE `inventory_info`
+	ADD COLUMN `STATUS` VARCHAR(10) NULL DEFAULT NULL COMMENT '狀態' AFTER `MANUFACTURE_DATE`,
+	ADD COLUMN `SYNC_FLAG` VARCHAR(1) NULL DEFAULT 'N' COMMENT '自動更新註記' AFTER `STATUS`,
+	ADD COLUMN `DIFFERENCE_COMPARISON` TEXT NULL DEFAULT NULL COMMENT '差異比對結果' AFTER `SYNC_FLAG`,
+	ADD COLUMN `UPLOAD_TIME` TIMESTAMP NULL DEFAULT NULL COMMENT '外部上傳時間' AFTER `DIFFERENCE_COMPARISON`,
+	ADD COLUMN `CUSTODIAN` VARCHAR(50) NULL DEFAULT NULL COMMENT '保管人' AFTER `UPLOAD_TIME`,
+	ADD COLUMN `DEPARTMENT` VARCHAR(100) NULL DEFAULT NULL COMMENT '管理者部門' AFTER `CUSTODIAN`,
+	ADD COLUMN `USER` VARCHAR(50) NULL DEFAULT NULL COMMENT '使用者' AFTER `DEPARTMENT`,
+	ADD COLUMN `DELETE_FLAG` VARCHAR(1) NULL DEFAULT NULL COMMENT '刪除註記' AFTER `REMARK`,
+	ADD COLUMN `DELETE_TIME` TIMESTAMP NULL DEFAULT current_timestamp() COMMENT '刪除時間' AFTER `DELETE_FLAG`,
+	ADD COLUMN `DELETE_BY` VARCHAR(50) NULL DEFAULT NULL COMMENT '刪除人員' AFTER `DELETE_TIME`,
+	ADD COLUMN `DELETE_RSN` VARCHAR(200) NULL DEFAULT NULL COMMENT '刪除原因' AFTER `DELETE_BY`,
+	DROP COLUMN  `MODIFY_FLAG`;
+
+CREATE TABLE `module_inventory_info` (
+	`DEVICE_ID` VARCHAR(8) NOT NULL COMMENT '設備ID',
+	`PROBE` VARCHAR(50) NULL DEFAULT NULL COMMENT '所屬 Probe',
+	`GROUP_NAME` VARCHAR(50) NULL DEFAULT NULL COMMENT '所屬群組',
+	`DEVICE_NAME` VARCHAR(100) NULL DEFAULT NULL COMMENT '設備名稱',
+	`DEVICE_IP` VARCHAR(20) NULL DEFAULT NULL COMMENT '設備IP',
+	`DEIVCE_TYPE` VARCHAR(20) NULL DEFAULT NULL COMMENT '設備類型',
+	`BRAND` VARCHAR(20) NULL DEFAULT NULL COMMENT '設備廠牌',
+	`MODEL` VARCHAR(50) NULL DEFAULT NULL COMMENT '設備型號',
+	`SYSTEM_VERSION` VARCHAR(255) NULL DEFAULT NULL COMMENT '軟體版本',
+	`SERIAL_NUMBER` VARCHAR(50) NULL DEFAULT NULL COMMENT '序號',
+	`MANUFACTURE_DATE` VARCHAR(10) NULL DEFAULT NULL COMMENT '出廠日期',
+	`STATUS` VARCHAR(10) NULL DEFAULT NULL COMMENT '狀態',
+	`SYNC_FLAG` VARCHAR(1) NULL DEFAULT 'N' COMMENT '自動更新註記',
+	`DIFFERENCE_COMPARISON` TEXT NULL DEFAULT NULL COMMENT '差異比對結果',
+	`UPLOAD_TIME` TIMESTAMP NULL DEFAULT NULL COMMENT '外部上傳時間',
+	`CUSTODIAN` VARCHAR(50) NULL DEFAULT NULL COMMENT '保管人',
+	`DEPARTMENT` VARCHAR(100) NULL DEFAULT NULL COMMENT '管理者部門',
+	`USER` VARCHAR(50) NULL DEFAULT NULL COMMENT '使用者',
+	`REMARK` VARCHAR(10) NULL DEFAULT NULL COMMENT '備註',
+	`DELETE_FLAG` VARCHAR(1) NULL DEFAULT NULL COMMENT '刪除註記',
+	`DELETE_TIME` TIMESTAMP NULL DEFAULT current_timestamp() COMMENT '刪除時間',
+	`DELETE_BY` VARCHAR(50) NULL DEFAULT NULL COMMENT '刪除人員',
+	`DELETE_RSN` VARCHAR(200) NULL DEFAULT NULL COMMENT '刪除原因',
+	`CREATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`CREATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	`UPDATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`DEVICE_ID`)
+)
+COMMENT='設備型號資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+
+INSERT INTO cmap.module_inventory_info
+SELECT * FROM cmap.inventory_info;
+
+
+CREATE TABLE `module_inventory_info_server_detail` (
+	`DEVICE_ID` VARCHAR(8) NOT NULL COMMENT '設備ID',
+	`SITE` VARCHAR(100) NULL DEFAULT NULL COMMENT 'SITE',
+	`SITE_MOD_RSN` TEXT NULL DEFAULT NULL COMMENT 'SITE 修改原因',
+	`ACCET_NUMBER` VARCHAR(20) NULL DEFAULT NULL COMMENT '資產編號',
+	`CLASS_USE` VARCHAR(10) NULL DEFAULT NULL COMMENT '使用別',
+	`CLASSUSE_MOD_RSN` TEXT NULL DEFAULT NULL COMMENT '使用別修改原因',
+	`STATUS_MOD_RSN` TEXT NULL DEFAULT NULL COMMENT '狀態修改原因',
+	`CLASS_PRIMARY` VARCHAR(10) NULL DEFAULT NULL COMMENT '主分類',
+	`ISDMZ` VARCHAR(1) NULL DEFAULT NULL COMMENT '是否為DMZ server',
+	`IDC_ID` VARCHAR(60) NULL DEFAULT NULL COMMENT '實體機房',
+	`RACK_ID` VARCHAR(30) NULL DEFAULT NULL COMMENT '實體機櫃',
+	`ENCLOSURE_NO` VARCHAR(10) NULL DEFAULT NULL COMMENT 'ENCLOSURE NO',
+	`FROM_RACK_UNIT` VARCHAR(3) NULL DEFAULT NULL COMMENT '實體設備佔用機房機櫃起始號碼',
+	`TO_RACK_UNIT` VARCHAR(3) NULL DEFAULT NULL COMMENT '實體設備佔用機房機櫃結束號碼',
+	`OS_NAME` VARCHAR(10) NULL DEFAULT NULL COMMENT '作業系統名稱',
+	`OS_VERSION` VARCHAR(20) NULL DEFAULT NULL COMMENT '作業系統版本',
+	`OS_BIT` VARCHAR(10) NULL DEFAULT NULL COMMENT '作業系統位元',
+	`MACHINE_TYPE` VARCHAR(20) NULL DEFAULT NULL COMMENT '實體的 PID 或 M/P',
+	`CPU_SPECIFICATION` VARCHAR(50) NULL DEFAULT NULL COMMENT 'CPU規格',
+	`CPU_CORE` VARCHAR(2) NULL DEFAULT NULL COMMENT '單一CPU核心數',
+	`CPU_SPEED` VARCHAR(20) NULL DEFAULT NULL COMMENT 'CPU速度',
+	`CPU_AMOUNT` VARCHAR(2) NULL DEFAULT NULL COMMENT 'CPU顆數',
+	`MEMORY_SPECIFICATION` VARCHAR(30) NULL DEFAULT NULL COMMENT '記憶體規格',
+	`MEMORY_SIZE` VARCHAR(30) NULL DEFAULT NULL COMMENT '記憶體總容量(GB)',
+	`HD_SPECIFICATION` VARCHAR(10) NULL DEFAULT NULL COMMENT '內建硬碟規格',
+	`PUBLIC_LAN_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'PUBLIC_LAN_IP',
+	`CLUSTER_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'CLUSTER_IP',
+	`BACKUP_LAN_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'BACKUP_LAN_IP',
+	`PRIVATE_LAN_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'PRIVATE_LAN_IP',
+	`MANAGER` VARCHAR(15) NULL DEFAULT NULL COMMENT '管理者',
+	`MANAGER2` VARCHAR(15) NULL DEFAULT NULL COMMENT '管理者2',
+	`BUY_DATE` VARCHAR(10) NULL DEFAULT NULL COMMENT '購入取得日期',
+	`START_DATE` VARCHAR(10) NULL DEFAULT NULL COMMENT '啟用日期',
+	`WEDATE` VARCHAR(10) NULL DEFAULT NULL COMMENT '保固期滿日期',
+	`INSERT_RSN` TEXT NULL DEFAULT NULL COMMENT '新增原因',
+	`SERVICE_TYPE` VARCHAR(30) NULL DEFAULT NULL COMMENT '服務類別',
+	`BIOS_FIRMWARE` VARCHAR(60) NULL DEFAULT NULL COMMENT 'BIOS firmware 版本',
+	`MANAGEMENT_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'Management IP',
+	`UPDATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`DEVICE_ID`)
+)
+COMMENT='實體主機明細資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+CREATE TABLE `module_inventory_info_vm_detail` (
+	`DEVICE_ID` VARCHAR(8) NOT NULL COMMENT '設備ID',
+	`SITE` VARCHAR(100) NULL DEFAULT NULL COMMENT 'SITE',
+	`SITE_MOD_RSN` TEXT NULL DEFAULT NULL COMMENT 'SITE 修改原因',
+	`CLASS_USE` VARCHAR(10) NULL DEFAULT NULL COMMENT '使用別',
+	`CLASSUSE_MOD_RSN` TEXT NULL DEFAULT NULL COMMENT '使用別修改原因',
+	`CLASS_PRIMARY` VARCHAR(10) NULL DEFAULT NULL COMMENT '主分類',
+	`ISDMZ` VARCHAR(1) NULL DEFAULT NULL COMMENT '是否為DMZ server',
+	`OS_NAME` VARCHAR(10) NULL DEFAULT NULL COMMENT '作業系統名稱',
+	`OS_VERSION` VARCHAR(20) NULL DEFAULT NULL COMMENT '作業系統版本',
+	`OS_BIT` VARCHAR(10) NULL DEFAULT NULL COMMENT '作業系統位元',
+	`CPU_AMOUNT` VARCHAR(2) NULL DEFAULT NULL COMMENT 'CPU顆數',
+	`MEMORY_SIZE` VARCHAR(30) NULL DEFAULT NULL COMMENT '記憶體總容量(GB)',
+	`HD_SPECIFICATION` VARCHAR(10) NULL DEFAULT NULL COMMENT '內建硬碟規格',
+	`TAPE_SPECIFICATION` VARCHAR(50) NULL DEFAULT NULL COMMENT '磁帶機規格',
+	`HD_SIZE` VARCHAR(30) NULL DEFAULT NULL COMMENT '硬碟空間',
+	`PUBLIC_LAN_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'PUBLIC_LAN_IP',
+	`BACKUP_LAN_IP` VARCHAR(15) NULL DEFAULT NULL COMMENT 'BACKUP_LAN_IP',
+	`MANAGER` VARCHAR(15) NULL DEFAULT NULL COMMENT '管理者',
+	`MANAGER2` VARCHAR(15) NULL DEFAULT NULL COMMENT '管理者2',
+	`SERVICE_TYPE` VARCHAR(30) NULL DEFAULT NULL COMMENT '服務類別',
+	`BUILDING` VARCHAR(50) NULL DEFAULT NULL COMMENT 'BUILDING',
+	`HYPERVISOR` VARCHAR(50) NULL DEFAULT NULL COMMENT 'HYPERVISOR',
+	`UPDATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`DEVICE_ID`)
+)
+COMMENT='虛擬主機明細資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+CREATE TABLE `module_inventory_info_storage_detail` (
+	`DEVICE_ID` VARCHAR(8) NOT NULL COMMENT '設備ID',
+	`IDC_ID` VARCHAR(60) NULL DEFAULT NULL COMMENT '實體機房',
+	`SITE` VARCHAR(100) NULL DEFAULT NULL COMMENT 'SITE',
+	`RACK_ID` VARCHAR(20) NULL DEFAULT NULL COMMENT '實體機櫃',
+	`FROMRACKUNIT` VARCHAR(10) NULL DEFAULT NULL COMMENT 'FROM RACK UNIT',
+	`TORACKUNIT` VARCHAR(10) NULL DEFAULT NULL COMMENT 'TO RACK UNIT',
+	`DESCRIPTIONS` VARCHAR(200) NULL DEFAULT NULL COMMENT '用途描述',
+	`CLASS_USE` VARCHAR(10) NULL DEFAULT NULL COMMENT '使用別',
+	`STORAGE_TYPE` VARCHAR(20) NULL DEFAULT NULL COMMENT '使用類別',
+	`PROTOCAL_LINK` VARCHAR(100) NULL DEFAULT NULL COMMENT 'PROTOCAL LINK',
+	`CONTROL_FIRMWARE` VARCHAR(50) NULL DEFAULT NULL COMMENT 'CONTROL FIRMWARE',
+	`ACCET_NUMBER` VARCHAR(20) NULL DEFAULT NULL COMMENT '資產編號',
+	`BUY_DATE` VARCHAR(10) NULL DEFAULT NULL COMMENT '購入取得日期',
+	`TOTAL_SPACE` VARCHAR(10) NULL DEFAULT NULL COMMENT '總空間',
+	`USED_SPACE` VARCHAR(10) NULL DEFAULT NULL COMMENT '已使用空間',
+	`LEFT_SPACE` VARCHAR(10) NULL DEFAULT NULL COMMENT '剩餘可使用空間',
+	`UPDATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`DEVICE_ID`)
+)
+COMMENT='儲存設備明細資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+CREATE TABLE `module_inventory_info_ups_detail` (
+	`DEVICE_ID` VARCHAR(8) NOT NULL COMMENT '設備ID',
+	`SITE` VARCHAR(100) NULL DEFAULT NULL COMMENT 'SITE',
+	`BUILDING` VARCHAR(100) NULL DEFAULT NULL COMMENT 'BUILDING',
+	`KVA` VARCHAR(100) NULL DEFAULT NULL COMMENT 'KVA',
+	`IDC_NAME` VARCHAR(100) NULL DEFAULT NULL COMMENT 'IDC_NAME',
+	`BUY_DATE` VARCHAR(10) NULL DEFAULT NULL COMMENT 'BUY_DATE',
+	`UPDATE_TIME` TIMESTAMP NULL DEFAULT current_timestamp(),
+	`UPDATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`DEVICE_ID`)
+)
+COMMENT='不斷電系統明細資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+drop table `inventory_info_cell_detail`;
+CREATE TABLE `module_inventory_info_cell_detail` (
+	`DEVICE_ID` VARCHAR(8) NOT NULL COMMENT '設備ID',
+	`FREQUENCY_BAND` VARCHAR(50) NULL DEFAULT NULL,
+	`AMF_IP_ADDRESS` VARCHAR(50) NULL DEFAULT NULL,
+	`ENODEB_TYPE` VARCHAR(50) NULL DEFAULT NULL,
+	`GNB_ID` VARCHAR(50) NULL DEFAULT NULL,
+	`CELL_IDENTITY` VARCHAR(50) NULL DEFAULT NULL,
+	`PHYSICAL_CELL_GROUP_ID` VARCHAR(50) NULL DEFAULT NULL,
+	`PHYSICAL_CELL_ID` VARCHAR(50) NULL DEFAULT NULL,
+	`PLMN` VARCHAR(50) NULL DEFAULT NULL,
+	`ARFCN` VARCHAR(50) NULL DEFAULT NULL,
+	`BAND_WIDTH` VARCHAR(50) NULL DEFAULT NULL,
+	`CURRENT_TX_POWER` VARCHAR(50) NULL DEFAULT NULL,
+	`REMARK` VARCHAR(10) NULL DEFAULT NULL COMMENT '',
+	`CREATE_TIME` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`CREATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	`UPDATE_TIME` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`UPDATE_BY` VARCHAR(50) NULL DEFAULT 'SYS',
+	PRIMARY KEY (`DEVICE_ID`)
+)
+COMMENT='設備基地台明細資訊'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+DELETE FROM cmap.i18n  WHERE I18N_KEY LIKE 'inventory.%' or I18N_KEY LIKE '%.inventory';
+
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory', '資產清冊查詢', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.sample.download', '匯入範例檔案下載', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.manufacture.deleteRsn', '刪除原因', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.sync.flag', '自動更新', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.diffrence.comparison', '差異比對結果', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.north.flag', '北向上傳', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.upload.time', '外部上傳時間', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.custodian', '保管人', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.department', '部門', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.user', '使用者', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.probe', '所屬Probe', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.type', '設備類型', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.brand', '設備廠牌', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.serial.number', '序號', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.manufacture.date', '出廠日期', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.showDetail', '查看明細', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.query.modify.only', '僅查詢已編輯紀錄', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.query.diff.only', '僅查詢有差異的資產內容', 'zh_TW');
+
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.deviceId', '設備ID', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.site', 'SITE', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.accetNumber', '資產編號', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.amfIpAddress', 'amfIpAddress', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.arfcn', 'arfcn', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.backupLanIp', 'BACKUP LAN IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.bandWidth', 'bandWidth', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.biosFirmware', 'BIOS firmware 版本', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.building', 'BUILDING', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.buyDate', '購入取得日期', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.cellIdentity', 'cellIdentity', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.classPrimary', '主分類', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.classUse', '使用別', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.classUseModRsn', '使用別修改原因', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.clusterIp', 'CLUSTER IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.controlFirmware', 'CONTROL FIRMWARE', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.cpuAmount', 'CPU顆數', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.cpuCore', '單一CPU核心數', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.cpuSpecification', 'CPU規格', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.cpuSpeed', 'CPU速度', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.currentTxPower', 'currentTxPower', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.descriptions', '用途描述', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.enclosureNo', 'ENCLOSURE NO', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.enodebType', 'enodebType', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.frequencyBand', 'frequencyBand', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.fromRackUnit', '實體設備佔用機房機櫃起始號碼', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.gnbId', 'gnbId', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.hdSize', '硬碟空間', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.hdSpecification', '內建硬碟規格', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.hypervisor', 'HYPERVISOR', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.idcId', '實體機房', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.idcName', 'IDC NAME', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.insertRsn', '新增原因', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.isdmz', '是否為DMZ server', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.kva', 'KVA', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.leftSpace', '剩餘可使用空間', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.machineType', '實體的 PID 或 M/P', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.managementIp', 'Management IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.manager', '管理者', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.manager2', '管理者2', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.memorySize', '記憶體總容量(GB)', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.memorySpecification', '記憶體規格', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.osBit', '作業系統位元', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.osName', '作業系統名稱', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.osVersion', '作業系統版本', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.physicalCellGroupId', 'physicalCellGroupId', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.physicalCellId', 'physicalCellId', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.plmn', 'plmn', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.privateLanIp', 'PRIVATE LAN IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.protocalLink', 'PROTOCAL LINK', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.publicLanIp', 'PUBLIC LAN IP', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.rackId', '實體機櫃', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.serviceType', '服務類別', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.siteModRsn', 'SITE 修改原因', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.startDate', '啟用日期', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.statusModRsn', '狀態修改原因', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.storageType', '使用類別', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.tapeSpecification', '磁帶機規格', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.toRackUnit', '實體設備佔用機房機櫃結束號碼', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.totalSpace', '總空間', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.updateBy', '更新人員', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.updateTime', '更新時間', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.usedSpace', '已使用空間', 'zh_TW');
+INSERT INTO `cmap`.`i18n` (`I18N_KEY`, `I18N_VALUE`, `LOCALE_COUNTRY`) VALUES ('func.plugin.inventory.detail.weDate', '保固期滿日期', 'zh_TW');
+
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('91F08072-D1B0-4930-A2F0-389B791E1218', 'INV_STATUS', '使用中', '使用中', '1');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('9EE57F84-1E83-4F44-AF38-83BAC94FE7E8', 'INV_STATUS', '備品', '備品', '2');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('0F4F8E6F-42F2-4C0F-97B8-AFF566940A46', 'INV_STATUS', '庫存', '庫存', '3');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('99C2B4C3-A108-4636-BFA9-8A2F1460D15C', 'INV_STATUS', '閒置', '閒置', '4');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('F722C3F7-CAB0-4EB0-B1FE-C2A40EC4589C', 'INV_STATUS', '待報廢', '待報廢', '5');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('A4914883-D36C-469E-9E86-2A8F27315ADB', 'INV_STATUS', '待維修', '待維修', '6');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('7ACC9F4D-4A5A-4DA9-81A8-D2988F5364D8', 'INV_USERS', '使用者1', '使用者1', '1');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('D8F27F98-DF57-48EC-A5CF-D752FA7CE591', 'INV_USERS', '使用者2', '使用者2', '2');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('E9073D5E-59BB-4096-A556-5B4B68D3274C', 'INV_DEP', '部門1', '部門1', '1');
+INSERT INTO `cmap`.`menu_item` (`MENU_ITEM_ID`, `MENU_CODE`, `OPTION_LABEL`, `OPTION_VALUE`, `OPTION_ORDER`) VALUES 
+('581DB211-58DD-4723-8201-7825CDFC8652', 'INV_DEP', '部門2', '部門2', '2');
+
