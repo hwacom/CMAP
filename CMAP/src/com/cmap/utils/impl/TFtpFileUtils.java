@@ -100,8 +100,12 @@ public class TFtpFileUtils implements FileUtils {
 	public boolean uploadFiles(String fileName, InputStream inputStream) throws Exception {
 		try {
 			log.info("[uploadFiles] >> tftp.sendFile");
-			tftp.sendFile(fileName, TFTP.BINARY_MODE, inputStream, hostIp, 69);
-			log.info("[uploadFiles] >> tftp.sendFile success!!");
+			if (hostPort != null) {
+				tftp.sendFile(fileName, TFTP.BINARY_MODE, inputStream, hostIp, hostPort);
+			} else {
+				tftp.sendFile(fileName, TFTP.BINARY_MODE, inputStream, hostIp);
+			}
+			log.info("[uploadFiles] >> tftp.sendFile success!!("+hostIp+":"+hostPort+")");
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
