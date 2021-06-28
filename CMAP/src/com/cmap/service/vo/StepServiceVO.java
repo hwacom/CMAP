@@ -23,6 +23,7 @@ public class StepServiceVO extends CommonServiceVO {
 	private List<String> cmdOutputList;
 
 	private String deviceListId;
+	private String deviceId;
 	private String restoreVersionId;           // 要還原的版本號
 	private List<String> restoreContentList;   // 要還原的組態內容
 	private String restoreVersionConfigPath;   // 要還原的組態版本在設備的哪個路徑 (for VM切換，ePDG config已先放在設備內)
@@ -203,6 +204,14 @@ public class StepServiceVO extends CommonServiceVO {
 
 	public void setRestoreContentList(List<String> restoreContentList) {
 		this.restoreContentList = restoreContentList;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 
 	public String getDeviceListId() {

@@ -1165,7 +1165,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
 	 * @throws ServiceLayerException
 	 */
 	private void insertConfig2BackupHost(VmSwitchVO vmSwitchVO, DeviceList deviceList) throws ServiceLayerException {
-	    final String deviceListId = deviceList.getDeviceListId();
+	    final String deviceId = deviceList.getDeviceId();
         final List<String> newConfigList = vmSwitchVO.getNewConfigList();
 
 	    String errorMsg = "";
@@ -1197,7 +1197,7 @@ public class VmSwitchServiceImpl extends CommonServiceImpl implements VmSwitchSe
             sVO.setExpectedTerminalSymbol("#");
             cmdList.add(sVO);
 
-	        retVO = stepService.doCommands(ConnectionMode.SSH, deviceListId, null, cmdList, false, triggerBy, logKey);
+	        retVO = stepService.doCommands(ConnectionMode.SSH, deviceId, null, cmdList, false, triggerBy, logKey);
 
 	        Result result = retVO.getResult();
 

@@ -14,9 +14,9 @@ public class InventoryInfoVO extends CommonServiceVO {
 	private String queryDeviceName;
 	private String queryDeviceType;
 	private String queryGroupName;//For自定義群組
-	private String queryBrand;
+	private String queryIP;
 	private String queryModel;
-	private boolean queryModifyOnly;
+	private boolean queryDiffOnly;
 	
 	private String deviceId;
 	private String probe;
@@ -34,7 +34,20 @@ public class InventoryInfoVO extends CommonServiceVO {
 	private String systemVersion;
 	private String serialNumber;
 	private String manufactureDate;
+	private String status;
+	private String syncFlag;
+	private String diffrenceComparison;
+	private Timestamp uploadTime;
+	private String uploadTimeStr;
+	private String custodian;
+	private String department;
+	private String user;
+	private String northFlag;
 	private String remark;
+	private String deleteFlag;
+	private Timestamp deleteTime;
+	private String deleteBy;
+	private String deleteRsn;
 	private Timestamp createTime;
 	private String createTimeStr;
 	private String createBy;
@@ -54,62 +67,17 @@ public class InventoryInfoVO extends CommonServiceVO {
 	private String modifySystemVersion;
 	private String modifySerialNumber;
 	private String modifyManufactureDate;
+	private String modifyStatus;
+	private String modifySyncFlag;
+	private String modifyCustodian;
+	private String modifyDepartment;
+	private String modifyUser;
+	private String modifyNorthFlag;
+	private String modifyRemark;
 	
 	public InventoryInfoVO() {
 		super();
 		// TODO Auto-generated constructor stub
-	}
-
-	public InventoryInfoVO(String queryDevice, List<String> queryDeviceList, String queryProbe, String queryDeviceName,
-			String queryDeviceType, String queryGroupName, String queryBrand, String queryModel,
-			boolean queryModifyOnly, String deviceId, String probe, String groupName, String groupName1,
-			String groupName2, String groupName3, String groupName4, String deviceName, String deviceIp,
-			String deviceType, String brand, String model, String systemVersion, String serialNumber,
-			String manufactureDate, String remark, Timestamp createTime, String createTimeStr, String createBy,
-			Timestamp updateTime, String updateBy, String modifyProbe, String modifyGroup, String modifyDeviceName,
-			String modifyDeviceIp, String modifyDeviceType, String modifyBrand, String modifyModel,
-			String modifySystemVersion, String modifySerialNumber, String modifyManufactureDate) {
-		super();
-		this.queryDevice = queryDevice;
-		this.queryDeviceList = queryDeviceList;
-		this.queryProbe = queryProbe;
-		this.queryDeviceName = queryDeviceName;
-		this.queryDeviceType = queryDeviceType;
-		this.queryGroupName = queryGroupName;
-		this.queryBrand = queryBrand;
-		this.queryModel = queryModel;
-		this.queryModifyOnly = queryModifyOnly;
-		this.deviceId = deviceId;
-		this.probe = probe;
-		this.groupName = groupName;
-		this.groupName1 = groupName1;
-		this.groupName2 = groupName2;
-		this.groupName3 = groupName3;
-		this.groupName4 = groupName4;
-		this.deviceName = deviceName;
-		this.deviceIp = deviceIp;
-		this.deviceType = deviceType;
-		this.brand = brand;
-		this.model = model;
-		this.systemVersion = systemVersion;
-		this.serialNumber = serialNumber;
-		this.manufactureDate = manufactureDate;
-		this.remark = remark;
-		this.createTime = createTime;
-		this.createTimeStr = createTimeStr;
-		this.createBy = createBy;
-		this.updateTime = updateTime;
-		this.updateBy = updateBy;
-		this.modifyProbe = modifyProbe;
-		this.modifyGroup = modifyGroup;
-		this.modifyDeviceName = modifyDeviceName;
-		this.modifyDeviceIp = modifyDeviceIp;
-		this.modifyDeviceType = modifyDeviceType;
-		this.modifyBrand = modifyBrand;
-		this.modifyModel = modifyModel;
-		this.modifySystemVersion = modifySystemVersion;
-		this.modifySerialNumber = modifySerialNumber;
-		this.modifyManufactureDate = modifyManufactureDate;
 	}
 
 	public String getQueryDevice() {
@@ -160,12 +128,12 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.queryGroupName = queryGroupName;
 	}
 
-	public String getQueryBrand() {
-		return queryBrand;
+	public String getQueryIP() {
+		return queryIP;
 	}
 
-	public void setQueryBrand(String queryBrand) {
-		this.queryBrand = queryBrand;
+	public void setQueryIP(String queryIP) {
+		this.queryIP = queryIP;
 	}
 
 	public String getQueryModel() {
@@ -176,12 +144,12 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.queryModel = queryModel;
 	}
 
-	public boolean isQueryModifyOnly() {
-		return queryModifyOnly;
+	public boolean isQueryDiffOnly() {
+		return queryDiffOnly;
 	}
 
-	public void setQueryModifyOnly(boolean queryModifyOnly) {
-		this.queryModifyOnly = queryModifyOnly;
+	public void setQueryDiffOnly(boolean queryDiffOnly) {
+		this.queryDiffOnly = queryDiffOnly;
 	}
 
 	public String getDeviceId() {
@@ -304,12 +272,116 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.manufactureDate = manufactureDate;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getSyncFlag() {
+		return syncFlag;
+	}
+
+	public void setSyncFlag(String syncFlag) {
+		this.syncFlag = syncFlag;
+	}
+
+	public String getDiffrenceComparison() {
+		return diffrenceComparison;
+	}
+
+	public void setDiffrenceComparison(String diffrenceComparison) {
+		this.diffrenceComparison = diffrenceComparison;
+	}
+
+	public Timestamp getUploadTime() {
+		return uploadTime;
+	}
+
+	public void setUploadTime(Timestamp uploadTime) {
+		this.uploadTime = uploadTime;
+	}
+
+	public String getUploadTimeStr() {
+		return uploadTimeStr;
+	}
+
+	public void setUploadTimeStr(String uploadTimeStr) {
+		this.uploadTimeStr = uploadTimeStr;
+	}
+
+	public String getCustodian() {
+		return custodian;
+	}
+
+	public void setCustodian(String custodian) {
+		this.custodian = custodian;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getNorthFlag() {
+		return northFlag;
+	}
+
+	public void setNorthFlag(String northFlag) {
+		this.northFlag = northFlag;
+	}
+
 	public String getRemark() {
 		return remark;
 	}
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public String getDeleteFlag() {
+		return deleteFlag;
+	}
+
+	public void setDeleteFlag(String deleteFlag) {
+		this.deleteFlag = deleteFlag;
+	}
+
+	public Timestamp getDeleteTime() {
+		return deleteTime;
+	}
+
+	public void setDeleteTime(Timestamp deleteTime) {
+		this.deleteTime = deleteTime;
+	}
+
+	public String getDeleteBy() {
+		return deleteBy;
+	}
+
+	public void setDeleteBy(String deleteBy) {
+		this.deleteBy = deleteBy;
+	}
+
+	public String getDeleteRsn() {
+		return deleteRsn;
+	}
+
+	public void setDeleteRsn(String deleteRsn) {
+		this.deleteRsn = deleteRsn;
 	}
 
 	public Timestamp getCreateTime() {
@@ -432,4 +504,60 @@ public class InventoryInfoVO extends CommonServiceVO {
 		this.modifyManufactureDate = modifyManufactureDate;
 	}
 
+	public String getModifyStatus() {
+		return modifyStatus;
+	}
+
+	public void setModifyStatus(String modifyStatus) {
+		this.modifyStatus = modifyStatus;
+	}
+
+	public String getModifySyncFlag() {
+		return modifySyncFlag;
+	}
+
+	public void setModifySyncFlag(String modifySyncFlag) {
+		this.modifySyncFlag = modifySyncFlag;
+	}
+
+	public String getModifyCustodian() {
+		return modifyCustodian;
+	}
+
+	public void setModifyCustodian(String modifyCustodian) {
+		this.modifyCustodian = modifyCustodian;
+	}
+
+	public String getModifyDepartment() {
+		return modifyDepartment;
+	}
+
+	public void setModifyDepartment(String modifyDepartment) {
+		this.modifyDepartment = modifyDepartment;
+	}
+
+	public String getModifyUser() {
+		return modifyUser;
+	}
+
+	public void setModifyUser(String modifyUser) {
+		this.modifyUser = modifyUser;
+	}
+
+	public String getModifyNorthFlag() {
+		return modifyNorthFlag;
+	}
+
+	public void setModifyNorthFlag(String modifyNorthFlag) {
+		this.modifyNorthFlag = modifyNorthFlag;
+	}
+
+	public String getModifyRemark() {
+		return modifyRemark;
+	}
+
+	public void setModifyRemark(String modifyRemark) {
+		this.modifyRemark = modifyRemark;
+	}
+	
 }

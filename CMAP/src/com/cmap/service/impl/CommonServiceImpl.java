@@ -72,6 +72,7 @@ import com.cmap.service.vo.PrtgUserGroupDetailVO;
 import com.cmap.service.vo.PrtgUserGroupMainVO;
 import com.cmap.service.vo.PrtgUserSensorDetailVO;
 import com.cmap.service.vo.PrtgUserSensorMainVO;
+import com.cmap.service.vo.UserRightServiceVO;
 import com.cmap.utils.ApiUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1161,7 +1162,7 @@ public class CommonServiceImpl implements CommonService {
 	}
 
 	@Override
-	public Map<String, String> findPrtgAccountMappingList(String account) {
+	public Map<String, String> findUserGroupList(String account) {
 		List<PrtgAccountMapping> result = new ArrayList<>();
 		Map<String, String> retMap = new HashMap<>();
 
@@ -1186,6 +1187,28 @@ public class CommonServiceImpl implements CommonService {
 		return retMap;
 	}
 
+	@Override
+	public Map<String, String> findUserList(String account) {
+		List<UserRightSetting> result = new ArrayList<>();
+		Map<String, String> retMap = new HashMap<>();
+
+		try {
+			UserRightServiceVO vo = new UserRightServiceVO();
+			if (StringUtils.isNotBlank(account)) {
+				vo.setAccount(account);
+			}
+
+			result = userDAO.findUserRightSettingByVO(vo, null, null);
+			
+			for (UserRightSetting mapping : result) {
+				retMap.put(mapping.getAccount(), mapping.getUserName().concat("(").concat(mapping.getAccount()).concat(")"));
+			}
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+		return retMap;
+	}
+	
 	@Override
 	public Map<String, String> getDeviceModelMap(String prtgAccount) {
 		Map<String, String> retMap = null;

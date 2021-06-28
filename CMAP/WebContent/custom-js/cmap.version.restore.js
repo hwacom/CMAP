@@ -37,9 +37,9 @@ function resetTrBgColor() {
 }
 
 function showRestorePanel() {
-	var deviceListId = $('[type=radio]:checked').val();
+	var deviceId = $('[type=radio]:checked').val();
 	
-	if (deviceListId == null || (deviceListId != null && deviceListId.trim().length == 0)) {
+	if (deviceId == null || (deviceId != null && deviceId.trim().length == 0)) {
 		alert("請先選擇要還原的設備");
 		
 	} else {
@@ -47,7 +47,7 @@ function showRestorePanel() {
 		$.ajax({
 			url : _ctx + '/version/getVersionRecords.json',
 			data : {
-				"deviceListId" : deviceListId
+				"deviceId" : deviceId
 			},
 			type : "POST",
 			dataType : 'json',
@@ -65,7 +65,7 @@ function showRestorePanel() {
 					$.each(obj, function(key, vo) {
 						$("#viewScriptModal_versionSelect")
 							.append($("<option></option>")
-											.attr("value", vo.deviceListId+"@~"+vo.versionId)
+											.attr("value", vo.deviceId+"@~"+vo.versionId)
 											.text("(" + idx + ") " + vo.configVersion));
 						idx++;
 					});
@@ -101,14 +101,14 @@ function doRestoreGo() {
 		alert("請先選擇要還原的版本號");
 		
 	} else {
-		var deviceListId = selectVal.split("@~")[0];
+		var deviceId = selectVal.split("@~")[0];
 		var versionId = selectVal.split("@~")[1];
 		
 		// 查找要還原的設備備份歷史紀錄
 		$.ajax({
 			url : _ctx + '/version/restore/execute',
 			data : {
-				"deviceListId" : deviceListId,
+				"deviceId" : deviceId,
 				"versionId" : versionId
 			},
 			type : "POST",

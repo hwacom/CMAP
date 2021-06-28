@@ -138,7 +138,14 @@ public interface CommonService {
 	 * @param prtgAccount
 	 * @return
 	 */
-	public Map<String, String> findPrtgAccountMappingList(String prtgAccount);
+	public Map<String, String> findUserGroupList(String prtgAccount);
 
 	public Map<String, String> getDeviceModelMap(String prtgAccount);
+
+	/**
+	 * 查詢user列表(user_right_setting)
+	 * @param account
+	 * @return
+	 */
+	Map<String, String> findUserList(String account);
 }

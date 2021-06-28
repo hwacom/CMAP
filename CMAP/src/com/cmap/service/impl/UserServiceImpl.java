@@ -166,8 +166,13 @@ public class UserServiceImpl implements UserService {
 			//2021-01-18 Alvin modified 改pkey id找資料,找不到才新增Entity to add
 			if(urVO.getId()!=null)
 				entity = userDAO.findUserRightSetting(urVO.getId()); //update case
-			else
-				entity = null; //create case
+			else {
+				entity = userDAO.findUserRightSetting(urVO.getAccount(), urVO.getLoginMode());
+				if(entity != null) {
+					throw new ServiceLayerException("該帳號已存在，請勿重複建立!!");
+				}
+			}
+				
 			 //2021-01-15 Alvin modified 改抓取目前登入者的帳號+名稱
 			final String account = SecurityUtil.getSecurityUser().getUser().getUserName();
 			final String username = SecurityUtil.getSecurityUser().getUsername()+"("+account+")";

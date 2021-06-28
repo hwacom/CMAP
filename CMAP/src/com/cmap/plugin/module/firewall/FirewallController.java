@@ -84,7 +84,7 @@ public class FirewallController extends BaseController {
 
             model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
             
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
 
@@ -174,7 +174,7 @@ public class FirewallController extends BaseController {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -301,7 +301,7 @@ public class FirewallController extends BaseController {
             app.putData(Constants.APP_DATA_KEY_FILTERED_COUNT, retVal);
             return app;
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -445,7 +445,7 @@ public class FirewallController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
 
         return new DatatableResponse(total, dataList, filteredTotal, null, totalFlow);

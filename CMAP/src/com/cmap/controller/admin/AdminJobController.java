@@ -46,7 +46,7 @@ public class AdminJobController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)
@@ -314,7 +314,7 @@ public class AdminJobController extends BaseController {
 			@RequestParam(name="order[0][dir]", required=false, defaultValue="") String orderDirection) {
 
 		long total = 0;
-		long filterdTotal = 0;
+//		long filterdTotal = 0;
 		List<JobServiceVO> dataList = new ArrayList<>();
 		JobServiceVO jsVO;
 		try {
@@ -330,11 +330,7 @@ public class AdminJobController extends BaseController {
 				jsVO.setOrderDirection(orderDirection);
 			}
 
-			filterdTotal = jobService.countJobInfoByVO(jsVO);
-
-			if (filterdTotal > 0) {
-				dataList = jobService.findJobInfoByVO(jsVO);
-			}
+			dataList = jobService.findJobInfoByVO(jsVO);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -343,7 +339,7 @@ public class AdminJobController extends BaseController {
 			init(model, request);
 		}
 
-		return new DatatableResponse(total, dataList, filterdTotal);
+		return new DatatableResponse(total, dataList, new Long(dataList.size()));
 	}
 
 	@RequestMapping(value = "getJobDetails.json", method = RequestMethod.POST)

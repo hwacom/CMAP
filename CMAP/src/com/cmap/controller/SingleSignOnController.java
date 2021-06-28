@@ -83,18 +83,18 @@ public class SingleSignOnController extends BaseController {
     			if(acctInfoList.size()==1) {
     				schoolId = acctInfoList.get(0).get("schoolId");
     				schoolName = acctInfoList.get(0).get("schoolName");
-        			request.getSession().setAttribute(Constants.OIDC_SUB, schoolId);
+        			request.getSession().setAttribute(Constants.USERACCOUNT, schoolId);
         			request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
-        			request.getSession().setAttribute(Constants.OIDC_USER_NAME, schoolName);
+        			request.getSession().setAttribute(Constants.USERNAME, schoolName);
         			request.getSession().setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, schoolName);
         			log.info(schoolName+"("+schoolId+") auth by SSO success.");
     			}else if(acctInfoList.size()>1) {
         			//TODO 新增選擇器流程及UI
     				schoolId = acctInfoList.get(0).get("schoolId");
     				schoolName = acctInfoList.get(0).get("schoolName");
-        			request.getSession().setAttribute(Constants.OIDC_SUB, schoolId);
+        			request.getSession().setAttribute(Constants.USERACCOUNT, schoolId);
         			request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
-        			request.getSession().setAttribute(Constants.OIDC_USER_NAME, schoolName);
+        			request.getSession().setAttribute(Constants.USERNAME, schoolName);
         			request.getSession().setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, schoolName);
         			//TODO 新增選擇器流程及UI
         			log.info(schoolName+"("+schoolId+") auth by SSO success.");
@@ -124,7 +124,7 @@ public class SingleSignOnController extends BaseController {
             log.error(e.toString(), e);
             return "redirect:/loginOIDC_NTPC";
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 }

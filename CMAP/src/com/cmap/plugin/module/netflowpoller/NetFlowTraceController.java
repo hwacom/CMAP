@@ -85,7 +85,7 @@ public class NetFlowTraceController extends BaseController {
 
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
 			
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -218,7 +218,7 @@ public class NetFlowTraceController extends BaseController {
             app.putData(Constants.APP_DATA_KEY_TTL_TRAFFIC, retVal);
             return app;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 	}
 
@@ -315,7 +315,7 @@ public class NetFlowTraceController extends BaseController {
             app.putData(Constants.APP_DATA_KEY_FILTERED_COUNT, retVal);
             return app;
         } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
     }
 
@@ -378,7 +378,7 @@ public class NetFlowTraceController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 
 		return new DatatableResponse(total, dataList, filteredTotal, null, totalFlow);
@@ -530,7 +530,7 @@ public class NetFlowTraceController extends BaseController {
 	        AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 	}
 }

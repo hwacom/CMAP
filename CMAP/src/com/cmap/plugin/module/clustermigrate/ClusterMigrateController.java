@@ -1,8 +1,10 @@
 package com.cmap.plugin.module.clustermigrate;
 
 import java.security.Principal;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.annotation.Log;
 import com.cmap.controller.BaseController;
@@ -35,7 +38,7 @@ public class ClusterMigrateController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
 		}
 
         return "plugin/module_cluster_migrate";
@@ -52,7 +55,7 @@ public class ClusterMigrateController extends BaseController {
             log.error(e.toString(), e);
             retVal = "ERROR";
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
         return retVal;
@@ -71,7 +74,7 @@ public class ClusterMigrateController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
         return "plugin/module_cluster_migrate";
     }
@@ -91,7 +94,7 @@ public class ClusterMigrateController extends BaseController {
             log.error(e.toString(), e);
             return "E";
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
         return retVO.getProcessResultFlag();
     }
@@ -110,7 +113,7 @@ public class ClusterMigrateController extends BaseController {
         } catch (Exception e) {
             return "E";
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
         return retVO.getProcessResultFlag();
     }
@@ -129,7 +132,7 @@ public class ClusterMigrateController extends BaseController {
         } catch (Exception e) {
             return "E";
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
         return retVO.getProcessResultFlag();
     }
@@ -170,7 +173,7 @@ public class ClusterMigrateController extends BaseController {
                 app.putData("PROCESS_RESULT_MSG", retVO.getProcessResultMsg());
                 app.putData("PROCESS_MSG", retVO.getProcessRemark());
             }
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
             
             return app;
         }

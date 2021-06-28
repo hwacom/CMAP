@@ -1,9 +1,13 @@
 package com.cmap.service.impl.jobs;
 
+import java.io.InputStream;
+import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
@@ -15,7 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cmap.Constants;
 import com.cmap.Env;
+import com.cmap.configuration.hibernate.ConnectionFactory;
 import com.cmap.dao.SysJobLogDAO;
 import com.cmap.model.SysJobLog;
 import com.cmap.utils.impl.ApplicationContextUtil;
@@ -93,5 +99,30 @@ public class BaseJobImpl {
 				log.error(e.toString(), e);
 			}
 		}
+	}
+	
+	protected boolean checkDistributionSetting(JobExecutionContext context) throws Exception {
+		JobDataMap jMap = context.getJobDetail().getJobDataMap();
+
+		if (StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
+			String disGroupId = jMap.getString(Constants.QUARTZ_PARA_DISTRIBUTED_GROUP_ID);
+
+			Properties prop = new Properties();
+			final String propFileName = "distributed_setting.properties";
+			InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
+			prop.load(inputStream);
+
+			if (!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), disGroupId)) {
+				return false;
+			}
+		}
+		
+		//Owen 20210504 增加HA架構Primary Server IP 判斷
+		if (StringUtils.equalsIgnoreCase(Env.HIGH_AVAILABILITY_FLAG, Constants.DATA_Y)
+				&& !StringUtils.equals(InetAddress.getLocalHost().getHostAddress(), Env.HIGH_AVAILABILITY_ALIVE_SERVER_IP)) {
+			return false;
+		}
+		
+		return true;
 	}
 }

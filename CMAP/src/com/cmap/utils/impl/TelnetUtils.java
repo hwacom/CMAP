@@ -77,7 +77,8 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 	public boolean login(final String account, final String password, final String enable, ConfigInfoVO ciVO)
 			throws Exception {
 		String output = "";
-
+		String enableString = "enable";
+		
 		output = readUntil(Arrays.asList(":"), 0);
 
 		if (StringUtils.isNotBlank(output)) {
@@ -111,13 +112,16 @@ public class TelnetUtils extends CommonUtils implements ConnectUtils {
 				for (String text : Env.TELNET_LOGIN_ENABLE_TEXT) { // 判斷是否包含需要enable字元
 					if (output.toLowerCase().endsWith(text)) {
 						actionFlag = true;
+						if(!StringUtils.equals(text, ">")) {//DLINK 等其他設備需下enable admin指令
+							enableString = "enable admin";
+						}
 						log.debug("telnet login need enable");
 						break;
 					}
 				}
 
 				if (actionFlag) {
-					write("enable");
+					write(enableString);
 					output = readUntil(Arrays.asList(":"), 1000);
 
 					if (StringUtils.isNotBlank(output)) {

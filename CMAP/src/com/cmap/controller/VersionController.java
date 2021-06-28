@@ -81,7 +81,7 @@ public class VersionController extends BaseController {
 
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
 			
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -166,7 +166,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -228,7 +228,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -263,7 +263,7 @@ public class VersionController extends BaseController {
             log.error(e.toString(), e);
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
 
         return "version/version_diff_view";
@@ -294,7 +294,7 @@ public class VersionController extends BaseController {
 			log.error(e.toString(), e);
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new AppResponse(HttpServletResponse.SC_OK, "刪除成功");
@@ -431,7 +431,7 @@ public class VersionController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -495,7 +495,7 @@ public class VersionController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -540,13 +540,13 @@ public class VersionController extends BaseController {
 
 		VersionServiceVO retVO;
 		try {
-			List<String> deviceListIDs = new ArrayList<>();
+			List<String> deviceIDs = new ArrayList<>();
 			String configType = jsonData.findValue("configType") != null ? jsonData.findValue("configType").asText() : null;
-			for (JsonNode jn : jsonData.findValues("deviceListId")) {
-				deviceListIDs.add(jn.asText());
+			for (JsonNode jn : jsonData.findValues("deviceId")) {
+				deviceIDs.add(jn.asText());
 			}
 
-			retVO = versionService.backupConfig(configType, deviceListIDs, false, null);
+			retVO = versionService.backupConfig(configType, deviceIDs, false, null);
 
 			return new AppResponse(HttpServletResponse.SC_OK, retVO.getRetMsg());
 
@@ -556,7 +556,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "備份失敗，請重新操作");
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -605,7 +605,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "備份失敗，請重新操作");
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -620,7 +620,7 @@ public class VersionController extends BaseController {
 	 */
 	@RequestMapping(value = "/restore/execute", method = RequestMethod.POST)
 	public @ResponseBody AppResponse doRestore(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(name="deviceListId", required=true) String deviceListId,
+			@RequestParam(name="deviceId", required=true) String deviceId,
 			@RequestParam(name="versionId", required=true) String versionId) {
 
 		VersionServiceVO retVO;
@@ -629,11 +629,11 @@ public class VersionController extends BaseController {
 			//vsVO.setDeviceListId("2c9e98c46850c32d016850c60c310003");		// NK-ePDG-HeNBGW-01
 			//vsVO.setRestoreVersionId("40283a816893791101689380d893001c");	// 2019-01-29 16:08
 
-			vsVO.setDeviceListId(deviceListId);
+			vsVO.setDeviceId(deviceId);
 			vsVO.setRestoreVersionId(versionId);
 
 			String userName = SecurityUtil.getSecurityUser().getUsername();
-			String reason = "組態設定還原(設備ID:" + deviceListId + ",版本ID:" + versionId + ")";
+			String reason = "組態設定還原(設備ID:" + deviceId + ",版本ID:" + versionId + ")";
 			retVO = versionService.restoreConfig(
 					RestoreMethod.FTP, Constants.RESTORE_TYPE_BACKUP_RESTORE, vsVO, userName, reason);
 
@@ -645,7 +645,7 @@ public class VersionController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "還原失敗，請重新操作");
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -744,7 +744,7 @@ public class VersionController extends BaseController {
             AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
     }
 }

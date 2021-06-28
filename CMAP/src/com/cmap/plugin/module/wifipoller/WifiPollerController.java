@@ -102,7 +102,7 @@ public class WifiPollerController extends BaseController {
 
 		} finally {
 			initMenu(model, request);
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 		return "plugin/module_wifi_poller";
 	}
@@ -151,7 +151,7 @@ public class WifiPollerController extends BaseController {
             app.putData(Constants.APP_DATA_KEY_FILTERED_COUNT, retVal);
             return app;
         } finally {
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
 	}
 	
@@ -204,7 +204,7 @@ public class WifiPollerController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
 
 		return new DatatableResponse(total, dataList, filteredTotal, null, totalFlow);
@@ -302,7 +302,7 @@ public class WifiPollerController extends BaseController {
     			log.error(e.toString(), e);
     			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
     		} finally {
-                behaviorLog(request.getRequestURI(), request.getQueryString());
+                behaviorLog(request);
             }
     }
 	

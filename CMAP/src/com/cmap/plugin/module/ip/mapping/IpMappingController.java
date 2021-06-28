@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.cmap.AppResponse;
 import com.cmap.DatatableResponse;
 import com.cmap.Env;
@@ -80,7 +83,7 @@ public class IpMappingController extends BaseController {
             log.error(e.toString(), e);
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
         return "plugin/module_ip_mapping_record";
     }
@@ -103,7 +106,7 @@ public class IpMappingController extends BaseController {
 
         } finally {
             initMenu(model, request);
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
         return "plugin/module_ip_mapping_change";
     }
@@ -172,7 +175,7 @@ public class IpMappingController extends BaseController {
 		} catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
 
         return new DatatableResponse(total, dataList, filterdTotal);
@@ -237,7 +240,7 @@ public class IpMappingController extends BaseController {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -266,7 +269,7 @@ public class IpMappingController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
 
         return null;

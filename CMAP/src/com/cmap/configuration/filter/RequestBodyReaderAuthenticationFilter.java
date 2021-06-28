@@ -52,85 +52,6 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 	public RequestBodyReaderAuthenticationFilter() {
 	}
 
-	private void loginAuthByCM(HttpServletRequest request, String username, String password, String loginMode) {
-		try {
-			final String ipAddr = SecurityUtil.getIpAddr(request);
-			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
-			
-			UserRightSetting userRight = userService.getUserRightSetting(username, loginMode);
-			
-			if(userRight == null) {
-				throw new ServiceLayerException("使用者登入資訊錯誤!!");
-			}
-
-			/**
-			 * 增加錯誤5次鎖定15分以上
-			 * 90天密碼到期鎖定
-			 */
-			UserBehaviorLog entity = new UserBehaviorLog();
-			entity.setLogId(UUID.randomUUID().toString());
-			entity.setUserAccount(userRight.getAccount());
-			entity.setUserName(userRight.getUserName());
-			entity.setTargetPath(request.getRequestURI());
-			entity.setDescription(null);
-			entity.setBehaviorTime(new Timestamp((new Date()).getTime()));
-			
-			if (StringUtils.equalsIgnoreCase(userRight.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) && !StringUtils
-					.equals(StringUtils.upperCase(EncryptUtils.getSha256(password)), userRight.getPassword())) {
-				log.debug("for debug 1 = " + StringUtils.upperCase(EncryptUtils.getSha256(password))+ 
-						", 2 = " + userRight.getPassword() + ", 3 = " + password);	
-				
-				entity.setBehavior(BehaviorType.LOGIN_FAIL_PW.toString());
-				userService.saveOrUpdateEntity(entity);
-				
-				throw new ServiceLayerException("使用者登入資訊錯誤!!");
-			}
-			
-			PrtgAccountMapping mapping = prtgService.getMappingByAccount(userRight.getUserGroup());
-			
-			if(mapping == null) {
-				entity.setBehavior(BehaviorType.LOGIN_FAIL_AUTH.toString());
-				userService.saveOrUpdateEntity(entity);
-				
-				throw new ServiceLayerException("使用者登入資訊錯誤!!");
-			}
-			
-			String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
-			
-			ApiUtils prtgApiUtils = new PrtgApiUtils();
-			boolean loginSuccess = prtgApiUtils.login(request, mapping.getPrtgAccount(), adminPass);
-
-			if (loginSuccess) {
-				if(!userService.checkPWRetryTimes(userRight.getAccount())) {
-					throw new ServiceLayerException("登入錯誤次數超過限制，帳號鎖定"+Env.PASSWORD_VALID_SETTING_LOCK_TIME+"分鐘，請稍後在試!!");
-				}
-				
-				request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
-				request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
-				request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight.getUserName());
-				request.getSession().setAttribute(Constants.OIDC_SUB, username);
-				request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
-				
-	            SysLoginInfo info = new SysLoginInfo();
-	            info.setSessionId(request.getSession().getId());
-	            info.setIpAddr(ipAddr);
-	            info.setAccount(username);
-	            info.setUserName(userRight.getUserName());
-	            info.setLoginTime(new Timestamp((new Date()).getTime()));
-	            sysLoginInfoDAO.saveSysLoginInfo(info);
-			}else {
-				entity.setBehavior(BehaviorType.LOGIN_FAIL_AUTH.toString());
-				userService.saveOrUpdateEntity(entity);
-			}
-
-		} catch (AuthenticateException ae) {
-			log.error(ae.toString());
-
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-		}
-	}
-
 	/**
 	 * 攔截登入表單，進行PRTG驗證
 	 */
@@ -149,7 +70,8 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		String username = obtainUsername(request);
 		String password = obtainPassword(request);
 
-		request.getSession().setAttribute(Constants.USERNAME, username);
+		request.getSession().setAttribute(Constants.USERACCOUNT, username);
+		request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
 		request.getSession().setAttribute(Constants.PASSWORD, password);
 		request.getSession().setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
@@ -211,9 +133,11 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 				if (loginSuccess) {
 					request.getSession().setAttribute(Constants.USERROLE, userRight != null && StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
 					request.getSession().setAttribute(Constants.ISADMIN, userRight != null && StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
-					request.getSession().setAttribute(Constants.OIDC_USER_NAME, userRight != null ?userRight.getUserName():username);
-					request.getSession().setAttribute(Constants.OIDC_SUB, username);
+					request.getSession().setAttribute(Constants.USERNAME, userRight != null ?userRight.getUserName():username);
+					request.getSession().setAttribute(Constants.USERACCOUNT, username);
 					request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
+					request.getSession().setAttribute(Constants.USERGROUP, mapping.getPrtgUsername());
+					request.getSession().setAttribute(Constants.USEREMAIL, Objects.toString(userRight.getEmail(), ""));
 					request.getSession().setAttribute("LDAP_AUTH_RESULT", true);
 					
 		            SysLoginInfo info = new SysLoginInfo();
@@ -224,6 +148,88 @@ public class RequestBodyReaderAuthenticationFilter extends UsernamePasswordAuthe
 		            info.setLoginTime(new Timestamp((new Date()).getTime()));
 		            sysLoginInfoDAO.saveSysLoginInfo(info);
 				}
+			}
+
+		} catch (AuthenticateException ae) {
+			log.error(ae.toString());
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+	}
+	
+
+	private void loginAuthByCM(HttpServletRequest request, String username, String password, String loginMode) {
+		try {
+			final String ipAddr = SecurityUtil.getIpAddr(request);
+			request.getSession().setAttribute(Constants.IP_ADDR, ipAddr);
+			
+			UserRightSetting userRight = userService.getUserRightSetting(username, loginMode);
+			
+			if(userRight == null) {
+				throw new ServiceLayerException("使用者登入資訊錯誤!!");
+			}
+
+			/**
+			 * 增加錯誤5次鎖定15分以上
+			 * 90天密碼到期鎖定
+			 */
+			UserBehaviorLog entity = new UserBehaviorLog();
+			entity.setLogId(UUID.randomUUID().toString());
+			entity.setUserAccount(userRight.getAccount());
+			entity.setUserName(userRight.getUserName());
+			entity.setTargetPath(request.getRequestURI());
+			entity.setDescription(null);
+			entity.setBehaviorTime(new Timestamp((new Date()).getTime()));
+			
+			if (StringUtils.equalsIgnoreCase(userRight.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) && !StringUtils
+					.equals(StringUtils.upperCase(EncryptUtils.getSha256(password)), userRight.getPassword())) {
+				log.debug("for debug 1 = " + StringUtils.upperCase(EncryptUtils.getSha256(password))+ 
+						", 2 = " + userRight.getPassword() + ", 3 = " + password);	
+				
+				entity.setBehavior(BehaviorType.LOGIN_FAIL_PW.toString());
+				userService.saveOrUpdateEntity(entity);
+				
+				throw new ServiceLayerException("使用者登入資訊錯誤!!");
+			}
+			
+			PrtgAccountMapping mapping = prtgService.getMappingByAccount(userRight.getUserGroup());
+			
+			if(mapping == null) {
+				entity.setBehavior(BehaviorType.LOGIN_FAIL_AUTH.toString());
+				userService.saveOrUpdateEntity(entity);
+				
+				throw new ServiceLayerException("使用者登入資訊錯誤!!");
+			}
+			
+			String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
+			
+			ApiUtils prtgApiUtils = new PrtgApiUtils();
+			boolean loginSuccess = prtgApiUtils.login(request, mapping.getPrtgAccount(), adminPass);
+
+			if (loginSuccess) {
+				if(!userService.checkPWRetryTimes(userRight.getAccount())) {
+					throw new ServiceLayerException("登入錯誤次數超過限制，帳號鎖定"+Env.PASSWORD_VALID_SETTING_LOCK_TIME+"分鐘，請稍後在試!!");
+				}
+				
+				request.getSession().setAttribute(Constants.USERROLE, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?Constants.USERROLE_ADMIN:Constants.USERROLE_USER);
+				request.getSession().setAttribute(Constants.ISADMIN, StringUtils.equals(userRight.getIsAdmin(), Constants.DATA_Y)?true:false);
+				request.getSession().setAttribute(Constants.USERNAME, userRight != null ?userRight.getUserName():username);
+				request.getSession().setAttribute(Constants.USERACCOUNT, username);
+				request.getSession().setAttribute(Constants.OIDC_SCHOOL_ID, username);
+				request.getSession().setAttribute(Constants.USERGROUP, mapping.getPrtgUsername());				
+				request.getSession().setAttribute(Constants.USEREMAIL, Objects.toString(userRight.getEmail(), ""));
+				
+	            SysLoginInfo info = new SysLoginInfo();
+	            info.setSessionId(request.getSession().getId());
+	            info.setIpAddr(ipAddr);
+	            info.setAccount(username);
+	            info.setUserName(userRight.getUserName());
+	            info.setLoginTime(new Timestamp((new Date()).getTime()));
+	            sysLoginInfoDAO.saveSysLoginInfo(info);
+			}else {
+				entity.setBehavior(BehaviorType.LOGIN_FAIL_AUTH.toString());
+				userService.saveOrUpdateEntity(entity);
 			}
 
 		} catch (AuthenticateException ae) {

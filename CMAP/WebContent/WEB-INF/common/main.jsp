@@ -383,6 +383,7 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [vlan切換] END -->
+	                    	                	
 	                </ul>
 		          </li>
 	          </c:if>
@@ -532,6 +533,28 @@
 						</c:if>	 
 						<!-- [流量異常] END -->
 						
+	                    <!-- [警報總覽] START -->
+				        <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_ALARM_SUMMARY eq __SHOW__}">
+				        	<li class="subMenu-item">
+		                    	<a id="mp_alarmSummary2" href="${pageContext.request.contextPath}/plugin/module/alarmSummary">
+		                    	  <span data-feather="alert-triangle"></span>
+		                    	  	<span><spring:message code="func.plugin.alarm.summary" /></span>
+		                    	</a>
+		                    </li>
+				        </c:if>
+				        <!-- [警報總覽] END -->
+				        
+	                	<!-- [工單查詢] END -->
+	                    <c:if test="${Env.SHOW_MENU_ITEM_PLUGIN_TICKETS eq __SHOW__}">
+	                		<li class="subMenu-item">
+		                    	<a id="mp_tickets" href="${pageContext.request.contextPath}/plugin/module/tickets">
+		                    	  <span data-feather="clipboard"></span> 
+		                    	  	<span><spring:message code="func.plugin.tickets" /></span>
+		                    	</a>
+		                    </li>
+	                	</c:if>
+	                	<!-- [工單查詢] END -->
+	                	
 						<!-- [其他異常] START -->                   
 						<c:if test="${Env.SHOW_MENU_ITEM_OTHER_EXCEPTION eq __SHOW__}">
 							<li class="subMenu-item">
@@ -663,6 +686,17 @@
 		                    </li>
 	                    </c:if>
 	                    <!-- [封鎖清單] END -->
+	                    
+	                    <!-- [電路開通清單] START -->
+                    	<c:if test="${Env.SHOW_MENU_ITEM_CIRCUIT_E1_OPEN_RECORD eq __SHOW__}">
+	                    	<li class="subMenu-item">
+		                    	<a id="cm_circuitE1OpenRecord" href="${pageContext.request.contextPath}/circuit/circuitE1OpenRecord">
+		                    	  <span data-feather="clipboard"></span>
+		                    	  	<span><spring:message code="func.circuit.e1.open.record" /></span>
+		                    	</a>
+		                    </li>
+	                    </c:if>
+	                    <!-- [電路開通清單] END -->
 	                </ul>
 		      	</li>
               </c:if>
@@ -780,9 +814,9 @@
 		                	<sec:authorize access="hasAnyRole('ROLE_ADMIN')">
 		                    <c:if test="${Env.SHOW_MENU_ITEM_BK_INVENTORY eq __SHOW__}">
 		                		<li class="subMenu-item">
-			                    	<a id="bk_inventory" href="${pageContext.request.contextPath}/admin/inventory">
+			                    	<a id="bk_inventory" href="${pageContext.request.contextPath}/plugin/module/inventory">
 			                    	  <span data-feather="package"></span> 
-			                    	  	<span><spring:message code="func.inventory" /></span>
+			                    	  	<span><spring:message code="func.plugin.inventory" /></span>
 			                    	</a>
 			                    </li>
 		                	</c:if>

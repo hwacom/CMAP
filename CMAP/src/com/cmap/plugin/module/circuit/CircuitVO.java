@@ -1,24 +1,22 @@
 package com.cmap.plugin.module.circuit;
 
-import com.cmap.service.vo.CommonServiceVO;
+import java.util.List;
 
-public class CircuitVO extends CommonServiceVO {
+public class CircuitVO {
 
     private String queryCircleId;
-    private String queryType;
-    private String queryName;
-    private String queryIp;
-    private String queryNode;
+    private String queryStationEngName;
+    private String queryNeName;
+    private List<String> queryE1gwIpList;
+    private List<String> querySrPrefixSidList;
     
-    private String circleId;
-    private String circleName;
-    private String type;
-    private String name;
-    private String e1Name;
-    private String e1Ip;
+    private String statinEngName;
+    private String neName;
+    private String e1gwIp;
+    private String srPrefixSid;
+    private String localAreaCsrIp;
+    private String portNumber;
     private String remark;
-    private String settingName;
-    private String settingValue;
 	    
 	private boolean isAdmin = false;
 
@@ -30,84 +28,84 @@ public class CircuitVO extends CommonServiceVO {
 		this.queryCircleId = queryCircleId;
 	}
 
-	public String getQueryType() {
-		return queryType;
+	public String getQueryStationEngName() {
+		return queryStationEngName;
 	}
 
-	public void setQueryType(String queryType) {
-		this.queryType = queryType;
+	public void setQueryStationEngName(String queryStationEngName) {
+		this.queryStationEngName = queryStationEngName;
 	}
 
-	public String getQueryName() {
-		return queryName;
+	public String getQueryNeName() {
+		return queryNeName;
 	}
 
-	public void setQueryName(String queryName) {
-		this.queryName = queryName;
+	public void setQueryNeName(String queryNeName) {
+		this.queryNeName = queryNeName;
+	}
+	
+	public List<String> getQueryE1gwIpList() {
+		return queryE1gwIpList;
 	}
 
-	public String getQueryIp() {
-		return queryIp;
+	public void setQueryE1gwIpList(List<String> queryE1gwIpList) {
+		this.queryE1gwIpList = queryE1gwIpList;
 	}
 
-	public void setQueryIp(String queryIp) {
-		this.queryIp = queryIp;
+	public List<String> getQuerySrPrefixSidList() {
+		return querySrPrefixSidList;
+	}
+	
+	public void setQuerySrPrefixSidList(List<String> querySrPrefixSidList) {
+		this.querySrPrefixSidList = querySrPrefixSidList;
+	}
+	
+	public String getStatinEngName() {
+		return statinEngName;
 	}
 
-	public String getQueryNode() {
-		return queryNode;
+	public void setStatinEngName(String statinEngName) {
+		this.statinEngName = statinEngName;
 	}
 
-	public void setQueryNode(String queryNode) {
-		this.queryNode = queryNode;
+	public String getNeName() {
+		return neName;
 	}
 
-	public String getCircleId() {
-		return circleId;
+	public void setNeName(String neName) {
+		this.neName = neName;
 	}
 
-	public void setCircleId(String circleId) {
-		this.circleId = circleId;
+	public String getE1gwIp() {
+		return e1gwIp;
 	}
 
-	public String getCircleName() {
-		return circleName;
+	public void setE1gwIp(String e1gwIp) {
+		this.e1gwIp = e1gwIp;
 	}
 
-	public void setCircleName(String circleName) {
-		this.circleName = circleName;
+	public String getSrPrefixSid() {
+		return srPrefixSid;
 	}
 
-	public String getType() {
-		return type;
+	public void setSrPrefixSid(String srPrefixSid) {
+		this.srPrefixSid = srPrefixSid;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public String getLocalAreaCsrIp() {
+		return localAreaCsrIp;
 	}
 
-	public String getName() {
-		return name;
+	public void setLocalAreaCsrIp(String localAreaCsrIp) {
+		this.localAreaCsrIp = localAreaCsrIp;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getPortNumber() {
+		return portNumber;
 	}
 
-	public String getE1Name() {
-		return e1Name;
-	}
-
-	public void setE1Name(String e1Name) {
-		this.e1Name = e1Name;
-	}
-
-	public String getE1Ip() {
-		return e1Ip;
-	}
-
-	public void setE1Ip(String e1Ip) {
-		this.e1Ip = e1Ip;
+	public void setPortNumber(String portNumber) {
+		this.portNumber = portNumber;
 	}
 
 	public String getRemark() {
@@ -118,22 +116,6 @@ public class CircuitVO extends CommonServiceVO {
 		this.remark = remark;
 	}
 
-	public String getSettingName() {
-		return settingName;
-	}
-
-	public void setSettingName(String settingName) {
-		this.settingName = settingName;
-	}
-
-	public String getSettingValue() {
-		return settingValue;
-	}
-
-	public void setSettingValue(String settingValue) {
-		this.settingValue = settingValue;
-	}
-
 	public boolean isAdmin() {
 		return isAdmin;
 	}
@@ -141,5 +123,5 @@ public class CircuitVO extends CommonServiceVO {
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
-	
+
 }

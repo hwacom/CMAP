@@ -37,6 +37,9 @@ public class UserRightSetting implements java.io.Serializable {
 	@Column(name = "PASSWORD", nullable = true)
 	private String password;
 	
+	@Column(name = "EMAIL", nullable = true)
+	private String email;
+	
 	@Column(name = "LAST_PW_UPDATE_TIME", nullable = true)
 	private Timestamp lastPWUpdateTime;
 	
@@ -80,15 +83,16 @@ public class UserRightSetting implements java.io.Serializable {
 		super();
 	}
 
-	public UserRightSetting(String id, String account, String userName, String password, Timestamp lastPWUpdateTime,
-			String pWRecord, String isAdmin, String userGroup, String loginMode, String remark, String deleteFlag,
-			Timestamp deleteTime, String deleteBy, Timestamp createTime, String createBy, Timestamp updateTime,
-			String updateBy) {
+	public UserRightSetting(String id, String account, String userName, String password, String email,
+			Timestamp lastPWUpdateTime, String pWRecord, String isAdmin, String userGroup, String loginMode,
+			String remark, String deleteFlag, Timestamp deleteTime, String deleteBy, Timestamp createTime,
+			String createBy, Timestamp updateTime, String updateBy) {
 		super();
 		this.id = id;
 		this.account = account;
 		this.userName = userName;
 		this.password = password;
+		this.email = email;
 		this.lastPWUpdateTime = lastPWUpdateTime;
 		PWRecord = pWRecord;
 		this.isAdmin = isAdmin;
@@ -134,6 +138,14 @@ public class UserRightSetting implements java.io.Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public Timestamp getLastPWUpdateTime() {

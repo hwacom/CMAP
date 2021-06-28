@@ -101,13 +101,13 @@ public interface VersionService {
 	/**
 	 * 備份流程方法
 	 * @param configType
-	 * @param deviceListIDs
+	 * @param deviceIDs
 	 * @param jobTrigger
 	 * @param triggerName
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName)
+	public VersionServiceVO backupConfig(String configType, List<String> deviceIDs, boolean jobTrigger, String triggerName)
 	        throws ServiceLayerException;
 	
 	/**

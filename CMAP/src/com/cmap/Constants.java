@@ -2,6 +2,7 @@ package com.cmap;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+
 import com.cmap.comm.enums.ConnectionMode;
 
 public class Constants {
@@ -14,6 +15,9 @@ public class Constants {
 	public static final String SYS = "SYS";
 	public static final String PREVIOUS_URL = "PREVIOUS_URL";
 	public static final String USERNAME = "username";
+	public static final String USERGROUP = "usergroup";
+	public static final String USERACCOUNT = "useraccount";
+	public static final String USEREMAIL = "useremail";
 	public static final String PASSWORD = "password";
 	public static final String PASSHASH = "passhash";
 	public static final String IP_ADDR = "ipAddr";
@@ -55,6 +59,7 @@ public class Constants {
 	public static final SimpleDateFormat FORMAT_YYYY_MM_DD_NOSYMBOL = new SimpleDateFormat("yyyyMMdd");
 
 	public static final SimpleDateFormat FORMAT_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	public static final SimpleDateFormat FORMAT2_YYYYMMDD_HH24MISS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static final SimpleDateFormat FORMAT_YYYYMMDD_HH24MI = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 	public static final SimpleDateFormat FORMAT_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
 	public static final SimpleDateFormat FORMAT_HH24_MI_SS = new SimpleDateFormat("HH:mm:ss");
@@ -398,8 +403,8 @@ public class Constants {
 	public static final String OIDC_OPEN_2_ID = "OIDC_OPEN_2_ID";
 	public static final String OIDC_SUB = "OIDC_SUB";
 	public static final String OIDC_SCHOOL_ID = "OIDC_SCHOOL_ID";
-	public static final String OIDC_EMAIL = "OIDC_EMAIL";
-	public static final String OIDC_USER_NAME = "OIDC_USER_NAME";
+//	public static final String OIDC_EMAIL = "OIDC_EMAIL";
+//	public static final String OIDC_USER_NAME = "OIDC_USER_NAME";
 
 	public static final String APACHE_TOMCAT_SESSION_USER_NAME = "user";
 
@@ -409,6 +414,17 @@ public class Constants {
 	public static final String PRTG_LOGIN_ACCOUNT = "PRTG_LOGIN_ACCOUNT";
 	public static final String PRTG_LOGIN_PASSWORD = "PRTG_LOGIN_PASSWORD";
 
+	/**
+	 * 警報狀態
+	 */
+	public static final String ALARM_SUMMARY_DATA_STATUS_ACTIVE = "active";
+	public static final String ALARM_SUMMARY_DATA_STATUS_DOING = "doing";
+	public static final String ALARM_SUMMARY_DATA_STATUS_FINISH = "finish";
+	public static final String ALARM_SUMMARY_ALARM_STATUS_UP = "UP";
+	public static final String ALARM_SUMMARY_ALARM_STATUS_WARNING = "WARNING";
+	public static final String ALARM_SUMMARY_ALARM_STATUS_ERROR = "ERROR";
+	public static final String ALARM_SUMMARY_ALARM_STATUS_UNUSUAL = "UNUSUAL";
+	
 	public static final String[] NATIVE_FIELD_NAME_FOR_VERSION = new String[] {
 			"version_id", "group_id", "group_name", "device_id", "device_name", "device_model", "config_type", "config_version", "file_full_name", "create_time"
 	};

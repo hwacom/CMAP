@@ -58,7 +58,6 @@ public class CustomLogoutHandler implements LogoutHandler {
 				//TODO 清除session認證資訊(確認是否所有OIDC都要清?)
 				request.getSession().removeAttribute(Constants.OIDC_SUB);
 				request.getSession().removeAttribute(Constants.OIDC_SCHOOL_ID);
-				request.getSession().removeAttribute(Constants.OIDC_USER_NAME);
 				request.getSession().removeAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME);
 				log.info(schoolName+"("+schoolId+") logout from SSO success.");
 			}

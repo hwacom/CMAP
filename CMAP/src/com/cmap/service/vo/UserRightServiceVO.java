@@ -16,6 +16,7 @@ public class UserRightServiceVO extends CommonServiceVO {
 	private String account;
 	private String userName;
 	private String password;
+	private String email;
 	private String isAdmin;
 	private String userGroup;
 	private String userGroupStr;
@@ -76,6 +77,12 @@ public class UserRightServiceVO extends CommonServiceVO {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	public String getIsAdmin() {
 		return isAdmin;

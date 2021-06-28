@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cmap.Constants;
@@ -31,6 +32,7 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
     private SessionFactory quartzSessionFactory;
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
 	public long countQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select count(*) ")
@@ -41,10 +43,10 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 		  .append(" and qt.triggerGroup = qct.triggerGroup ");
 		
 		Session session = null;
-		if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
+		if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)
+				|| StringUtils.equalsIgnoreCase(Env.HIGH_AVAILABILITY_FLAG, Constants.DATA_Y)) {
 			session = quartzSessionFactory.openSession();//getCurrentSession();
-			
-		}else {
+        } else {
 			 session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		}
 //		
@@ -54,6 +56,7 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 	}
 	
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
 	public List<Object[]> findQuartzDataByDAOVO(QuartzDAOVO daoVO) throws Exception {
 		StringBuffer sb = new StringBuffer();
 		sb.append(" select qt, qct, qjd")
@@ -98,7 +101,15 @@ public class QuartzDAOImpl extends BaseDaoHibernate implements QuartzDAO {
 			sb.append(" order by qt.prevFireTime desc ");
 		}
 		
-		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		Session session;
+		
+		if (StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y) && !quartzSessionFactory.getCurrentSession().getTransaction().isActive()) {
+			session = quartzSessionFactory.openSession();
+        } else {
+			 session = getHibernateTemplate().getSessionFactory().getCurrentSession();
+		}
+		
+//		Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
 		
 	    Query<?> q = session.createQuery(sb.toString());
 	    

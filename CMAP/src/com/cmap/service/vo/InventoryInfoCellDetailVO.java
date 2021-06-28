@@ -23,11 +23,7 @@ public class InventoryInfoCellDetailVO extends CommonServiceVO {
 	private String arfcn;
 	private String bandWidth;
 	private String currentTxPower;
-	private String modifyFlag;	
 	private String remark;
-	private Timestamp createTime;
-	private String createTimeStr;
-	private String createBy;
 	private Timestamp updateTime;
 	private String updateBy;
 		
@@ -39,8 +35,7 @@ public class InventoryInfoCellDetailVO extends CommonServiceVO {
 	public InventoryInfoCellDetailVO(String queryDevice, List<String> queryDeviceList, String deviceId,
 			String frequencyBand, String amfIpAddress, String enodebType, String gnbId, String cellIdentify,
 			String physicalCellGroupId, String physicalCellId, String plmn, String arfcn, String bandWidth,
-			String currentTxPower, String modifyFlag, String remark, Timestamp createTime, String createTimeStr,
-			String createBy, Timestamp updateTime, String updateBy) {
+			String currentTxPower, String remark, Timestamp updateTime, String updateBy) {
 		super();
 		this.queryDevice = queryDevice;
 		this.queryDeviceList = queryDeviceList;
@@ -56,11 +51,7 @@ public class InventoryInfoCellDetailVO extends CommonServiceVO {
 		this.arfcn = arfcn;
 		this.bandWidth = bandWidth;
 		this.currentTxPower = currentTxPower;
-		this.modifyFlag = modifyFlag;
 		this.remark = remark;
-		this.createTime = createTime;
-		this.createTimeStr = createTimeStr;
-		this.createBy = createBy;
 		this.updateTime = updateTime;
 		this.updateBy = updateBy;
 	}
@@ -177,44 +168,12 @@ public class InventoryInfoCellDetailVO extends CommonServiceVO {
 		this.currentTxPower = currentTxPower;
 	}
 
-	public String getModifyFlag() {
-		return modifyFlag;
-	}
-
-	public void setModifyFlag(String modifyFlag) {
-		this.modifyFlag = modifyFlag;
-	}
-
 	public String getRemark() {
 		return remark;
 	}
 
 	public void setRemark(String remark) {
 		this.remark = remark;
-	}
-
-	public Timestamp getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(Timestamp createTime) {
-		this.createTime = createTime;
-	}
-
-	public String getCreateTimeStr() {
-		return createTimeStr;
-	}
-
-	public void setCreateTimeStr(String createTimeStr) {
-		this.createTimeStr = createTimeStr;
-	}
-
-	public String getCreateBy() {
-		return createBy;
-	}
-
-	public void setCreateBy(String createBy) {
-		this.createBy = createBy;
 	}
 
 	public Timestamp getUpdateTime() {

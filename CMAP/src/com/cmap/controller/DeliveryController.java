@@ -95,7 +95,7 @@ public class DeliveryController extends BaseController {
 
 		} finally {
 			initMenu(model, request);
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return "delivery/delivery_record";
@@ -148,7 +148,7 @@ public class DeliveryController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -181,7 +181,7 @@ public class DeliveryController extends BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -213,7 +213,7 @@ public class DeliveryController extends BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -239,7 +239,7 @@ public class DeliveryController extends BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -284,7 +284,7 @@ public class DeliveryController extends BaseController {
 		} catch (Exception e) {
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -309,7 +309,7 @@ public class DeliveryController extends BaseController {
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "查找供裝紀錄發生錯誤，請重新操作");
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 	

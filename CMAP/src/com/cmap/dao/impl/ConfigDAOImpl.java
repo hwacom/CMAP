@@ -145,7 +145,7 @@ public class ConfigDAOImpl extends BaseDaoHibernate implements ConfigDAO {
 		  .append(" and dl.deleteFlag = '").append(Constants.DATA_MARK_NOT_DELETE).append("' ");
 		
 		if (StringUtils.isNotBlank(cviDAOVO.getQueryConfigType())) {
-			sb.append("	and cvi.config_Type = :configType ");
+			sb.append("	and cvi.configType = :configType ");
 		}
 		  
 		sb.append(" and (cvi.deviceId, cvi.createTime) IN ( ")

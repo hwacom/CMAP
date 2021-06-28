@@ -3,19 +3,20 @@ package com.cmap.utils.impl;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.tftp.TFTP;
 import org.apache.commons.net.tftp.TFTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.cmap.Env;
 import com.cmap.service.vo.ConfigInfoVO;
 import com.cmap.utils.FileUtils;

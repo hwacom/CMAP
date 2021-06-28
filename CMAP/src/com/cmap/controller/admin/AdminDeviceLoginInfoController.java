@@ -46,7 +46,7 @@ public class AdminDeviceLoginInfoController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)
@@ -68,7 +68,7 @@ public class AdminDeviceLoginInfoController extends BaseController {
 			
 			init(model, request);
 			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
-			model.addAttribute("userGroupList", getUserRightGroup(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserUnit()));
+			model.addAttribute("userGroupList", getUserGroupList(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserName()));
 			
 			Map<String, String> enableBackupList = new HashMap<String, String>();
 			Map<String, String> connectModeList = new HashMap<String, String>();

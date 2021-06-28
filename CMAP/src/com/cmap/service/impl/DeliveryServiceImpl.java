@@ -146,7 +146,6 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 			try {
 				String groupName;
 				String deviceName;
-				String deviceListId;
 
 				if (deviceInfo == null || (deviceInfo != null && deviceInfo.isEmpty())) {
 					DeviceList deviceList = deviceDAO.findDeviceListByGroupAndDeviceId(null, deviceId);
@@ -157,12 +156,10 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 
 					groupName = deviceList.getGroupName();
 					deviceName = deviceList.getDeviceName();
-					deviceListId = deviceList.getDeviceListId();
 
 				} else {
 					groupName = "N/A";
 					deviceName = deviceInfo.get(Constants.DEVICE_NAME);
-					deviceListId = null;
 				}
 
 				String script = actionScript;
@@ -193,7 +190,7 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				// Step 3.呼叫共用執行腳本
 				StepServiceVO processVO = null;
 				try {
-					processVO = stepService.doScript(connectionMode, deviceListId, deviceInfo, scriptInfo, varMapList,
+					processVO = stepService.doScript(connectionMode, deviceId, deviceInfo, scriptInfo, varMapList,
 							sysTrigger, triggerBy, triggerRemark, reason);
 
 					masterVO.getDetailVO().addAll(processVO.getPsVO().getDetailVO());
@@ -248,13 +245,13 @@ public class DeliveryServiceImpl extends CommonServiceImpl implements DeliverySe
 				msg = "供裝成功";
 
 			} else if (failedCount == 1) {
-				msg = "供裝失敗";
+				msg = "供裝失敗error";
 			}
 
 		} else {
 			msg = "選定供裝 {0} 筆設備: 成功 {1} 筆；失敗 {2} 筆";
 			args = new String[] { String.valueOf(deviceCount), String.valueOf(successCount),
-					String.valueOf(failedCount) };
+					((deviceCount != successCount ? "error " : "").concat(String.valueOf(failedCount))) };
 		}
 
 		masterVO.setEndTime(new Date());

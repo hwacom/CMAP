@@ -140,8 +140,9 @@ public class ConsumerCYController extends BaseController implements ServletConfi
             String username = new String(request.getParameter("openid.sreg.fullname").getBytes("ISO-8859-1"),"UTF-8");
             
             session.setAttribute(Constants.OIDC_SUB, account);
+            session.setAttribute(Constants.USERACCOUNT, account);
             session.setAttribute(Constants.OIDC_SCHOOL_ID, account);
-            session.setAttribute(Constants.OIDC_USER_NAME, username);
+            session.setAttribute(Constants.USERNAME, username);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
             boolean canAccess = checkUserCanOrNotAccess(request, account, Constants.LOGIN_AUTH_MODE_OIDC_CHIAYI, null);

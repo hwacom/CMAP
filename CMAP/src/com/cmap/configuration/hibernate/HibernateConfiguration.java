@@ -106,7 +106,18 @@ public class HibernateConfiguration {
     @Qualifier(value = "quartzSessionFactory")
     public LocalSessionFactoryBean quartzSessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(quartzDataSource());
+		ComboPooledDataSource dataSource = new ComboPooledDataSource();
+		try {
+			dataSource.setDriverClass(environment.getRequiredProperty("org.quartz.dataSource.qzDS.driver"));
+			dataSource.setJdbcUrl(environment.getRequiredProperty("org.quartz.dataSource.qzDS.URL"));
+			dataSource.setUser(environment.getRequiredProperty("org.quartz.dataSource.qzDS.user"));
+			dataSource.setPassword(environment.getRequiredProperty("org.quartz.dataSource.qzDS.password"));
+			dataSource.setTestConnectionOnCheckin(new Boolean(environment.getRequiredProperty("org.quartz.dataSource.qzDS.testConnectionOnCheckin")));
+			
+		} catch (IllegalStateException | PropertyVetoException e) {
+			log.error(e.toString(), e);
+		}
+        sessionFactory.setDataSource(dataSource);
         sessionFactory.setPackagesToScan(new String[] { "com.cmap.model", "com.cmap.plugin.module" });
         sessionFactory.setHibernateProperties(hibernateProperties());
         sessionFactory.setEntityInterceptor(new HibernateInterceptor());
@@ -129,6 +140,7 @@ public class HibernateConfiguration {
             dataSource.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.max_statements")));
             dataSource.setIdleConnectionTestPeriod(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.idle_connection_test_period")));
             dataSource.setCheckoutTimeout(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.timeout")));
+            dataSource.setTestConnectionOnCheckout(new Boolean(environment.getRequiredProperty("hibernate.c3p0.test_connection_on_checkout")));
             dataSource.setStatementCacheNumDeferredCloseThreads(
                     Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.statement_cache_num_deferred_close_threads")));
             dataSource.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.acquire_increment")));
@@ -149,43 +161,6 @@ public class HibernateConfiguration {
         return dataSource;
     }
 
-    @Bean
-    public DataSource quartzDataSource() {
-        ComboPooledDataSource dataSource = new ComboPooledDataSource();
-        try {
-        	dataSource.setDriverClass(environment.getRequiredProperty("org.quartz.dataSource.qzDS.driver"));
-			dataSource.setJdbcUrl(environment.getRequiredProperty("org.quartz.dataSource.qzDS.URL"));
-			dataSource.setUser(environment.getRequiredProperty("org.quartz.dataSource.qzDS.user"));
-			dataSource.setPassword(environment.getRequiredProperty("org.quartz.dataSource.qzDS.password"));
-			dataSource.setMaxPoolSize(Integer.parseInt(environment.getRequiredProperty("org.quartz.dataSource.qzDS.maxConnections")));
-			dataSource.setTestConnectionOnCheckin(new Boolean(environment.getRequiredProperty("org.quartz.dataSource.qzDS.testConnectionOnCheckin")));			
-            dataSource.setMinPoolSize(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.min_pool_size")));
-            dataSource.setInitialPoolSize(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.initial_pool_size")));
-            dataSource.setMaxIdleTime(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.max_idle_time")));
-            dataSource.setAcquireRetryAttempts(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.acquire_retry_attempts")));
-            dataSource.setMaxStatements(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.max_statements")));
-            dataSource.setIdleConnectionTestPeriod(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.idle_connection_test_period")));
-            dataSource.setCheckoutTimeout(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.timeout")));
-            dataSource.setStatementCacheNumDeferredCloseThreads(
-                    Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.statement_cache_num_deferred_close_threads")));
-            dataSource.setAcquireIncrement(Integer.parseInt(environment.getRequiredProperty("hibernate.c3p0.acquire_increment")));
-            dataSource.setBreakAfterAcquireFailure(new Boolean(environment.getRequiredProperty("hibernate.c3p0.break_after_acquire_failure")));
-            dataSource.setPreferredTestQuery(environment.getRequiredProperty("hibernate.c3p0.preferred_test_query"));
-
-        } catch (IllegalStateException | PropertyVetoException e) {
-            log.error(e.toString(), e);
-        }
-
-        /*
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
-        dataSource.setUrl(environment.getRequiredProperty("jdbc.url"));
-        dataSource.setUsername(environment.getRequiredProperty("jdbc.username"));
-        dataSource.setPassword(environment.getRequiredProperty("jdbc.password"));
-        */
-        return dataSource;
-    }
-    
     private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));

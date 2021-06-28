@@ -100,7 +100,7 @@ public class ProvisionController extends BaseController {
 			}
             return jsonString;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 
 	    return jsonString;
@@ -146,7 +146,7 @@ public class ProvisionController extends BaseController {
 			}
             return jsonString;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 
 	    return jsonString;
@@ -205,7 +205,7 @@ public class ProvisionController extends BaseController {
 			}
 	        return jsonString;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 
 		return jsonString;
@@ -251,7 +251,7 @@ public class ProvisionController extends BaseController {
 			}
             return jsonString;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 
 	    return jsonString;
@@ -334,7 +334,7 @@ public class ProvisionController extends BaseController {
             AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
         } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
     }
 }

@@ -94,7 +94,7 @@ public class ResourceController extends BaseController {
             // Gently close streams.
             close(output);
             close(input);
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
 

@@ -58,28 +58,29 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 	private ScriptTypeDAO scriptTypeDAO;
 	
 	@Override
-	public List<ScriptServiceVO> loadDefaultScript(String deviceListId, ScriptType scriptType) throws ServiceLayerException {
+	public List<ScriptServiceVO> loadDefaultScript(String deviceId, ScriptType scriptType) throws ServiceLayerException {
 		
 		DeviceList device = null;
-		if (!StringUtils.equals(deviceListId, Constants.DATA_STAR_SYMBOL)) {
-			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
+		String queryModel = Constants.DATA_STAR_SYMBOL;
+		if (!StringUtils.equals(deviceId, Constants.DATA_STAR_SYMBOL)) {
+			device = deviceDAO.findDeviceListByGroupAndDeviceId(null, deviceId);
 		}
 
-		if(device == null) {
-			log.info("get device null by id = " + deviceListId);
+		if(device != null) {
+			queryModel = device.getDeviceModel();
 		}
 		
-		ScriptInfo info = loadDefaultScriptInfo(device != null?device.getDeviceModel():Constants.DATA_STAR_SYMBOL, scriptType.toString(), null);
+		ScriptInfo info = loadDefaultScriptInfo(queryModel, scriptType.toString(), null);
 		
 		if (info == null) {
-        	throw new ServiceLayerException("未設定[" + scriptType + "]預設腳本");
+        	throw new ServiceLayerException("MODEL " + queryModel + " 未設定[" + scriptType + "]預設腳本");
         }
 		
 		List<ScriptStepDAOVO> daovoList = scriptStepActionDAO.findScriptStepByScriptInfoIdOrScriptCode(null, info.getScriptCode());
 
 		List<ScriptServiceVO> script = new ArrayList<>();
 		if (daovoList == null || (daovoList != null && daovoList.isEmpty())) {
-			throw new ServiceLayerException("未設定[" + scriptType + "]預設腳本");
+			throw new ServiceLayerException("MODEL " + queryModel + " 未設定[" + scriptType + "]預設腳本");
 		} else {
 			ScriptServiceVO ssVO;
 			for (ScriptStepDAOVO daovo : daovoList) {
@@ -102,13 +103,13 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
     		ScriptInfo scriptInfo = new ScriptInfo();
     		BeanUtils.copyProperties(vo, scriptInfo);
     		retEntity.add(scriptInfo);
-    	}
-
-        if(retEntity.isEmpty()) {
+    	}else {
+    		log.info("get default script info by deviceModel = " + deviceModel + " and scriptType = " + scriptType);
         	retEntity = scriptInfoDAO.findScriptInfoByScriptTypeCode(scriptType, deviceModel);
         }
         
         if(retEntity.isEmpty() || retEntity == null) {
+        	log.info("get default script info by deviceModel = " + deviceModel + " and scriptType = " + scriptType);
         	retEntity = scriptInfoDAO.findScriptInfoByScriptTypeCode(scriptType, Constants.DATA_STAR_SYMBOL);
         }
         
@@ -134,12 +135,12 @@ public class ScriptServiceImpl extends CommonServiceImpl implements ScriptServic
 			ScriptInfo scriptInfo = scriptInfoDAO.findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, deviceModel);
 
 			if (scriptInfo == null) {
-				log.info("get default script info null by deviceModel = " + deviceModel + " and scriptType = " + scriptType);				
 				if (!StringUtils.equals(deviceModel, Constants.DATA_STAR_SYMBOL)) {
 					return findDefaultScriptInfoByScriptTypeAndDeviceModel(scriptType, Constants.DATA_STAR_SYMBOL);
 				}
 
 			} else {
+				log.info("get default script info mapping by deviceModel = " + deviceModel + " and scriptType = " + scriptType);
 				retVO = new ScriptServiceVO();
 				BeanUtils.copyProperties(scriptInfo, retVO);
 			}

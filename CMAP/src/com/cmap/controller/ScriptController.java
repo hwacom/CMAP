@@ -51,7 +51,7 @@ public class ScriptController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 	
 	@RequestMapping(value = "", method = RequestMethod.GET)
@@ -71,7 +71,7 @@ public class ScriptController extends BaseController {
 			model.addAttribute("scriptTypeList", scriptTypeMap);
 			model.addAttribute("deviceModelList", getDeviceModelMap((String)request.getSession().getAttribute("PRTG_LOGIN_ACCOUNT")));
 			
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return "script/script_main";
@@ -128,7 +128,7 @@ public class ScriptController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);
@@ -180,7 +180,7 @@ public class ScriptController extends BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 	
@@ -203,7 +203,7 @@ public class ScriptController extends BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, "資料取得異常");
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 	
@@ -223,9 +223,15 @@ public class ScriptController extends BaseController {
 			List<ScriptInfo> ssVO = scriptService.getScriptInfoByScriptTypeCode(scriptType, null);
 			
 			int maxidx = 1;
+			Object code;
 			for(ScriptInfo info : ssVO) {
-				if(maxidx < Integer.valueOf(info.getScriptCode().replace(scriptType, ""))) {
-					maxidx = Integer.valueOf(info.getScriptCode().replace(scriptType, ""));
+				code = info.getScriptCode().replace(scriptType, "");
+				if(code instanceof Number) {
+					if(maxidx < Integer.valueOf((String)code)) {
+						maxidx = Integer.valueOf((String)code);
+					}
+				} else {
+					maxidx = ssVO.size();
 				}
 			}
 			String count = ssVO == null? "001": String.format("%03d", maxidx+1);
@@ -239,7 +245,7 @@ public class ScriptController extends BaseController {
 			log.error(e.toString(), e);
 			return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, commonErrorMsg);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 	

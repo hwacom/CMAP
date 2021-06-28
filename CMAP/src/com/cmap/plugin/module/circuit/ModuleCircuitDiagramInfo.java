@@ -25,17 +25,29 @@ public class ModuleCircuitDiagramInfo implements java.io.Serializable {
     @Column(name = "CIRCLE_NAME", nullable = false)
     private String circleName;
 
-    @Column(name = "TYPE", nullable = false)
-    private String type;
+    @Column(name = "STATION_NAME", nullable = false)
+    private String stationName;
     
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "STATION_ENG_NAME", nullable = false)
+    private String stationEngName;
     
-    @Column(name = "E1", nullable = false)
-    private String e1Name;
+    @Column(name = "NE_NAME", nullable = false)
+    private String neName;
     
-    @Column(name = "E1_IP", nullable = true)
-    private String e1Ip;
+    @Column(name = "E1GW_IP", nullable = true)
+    private String e1gwIp;
+    
+    @Column(name = "SR_PREFIX_SID", nullable = true)
+    private String srPrefixSid;
+
+    @Column(name = "HOSTNAME", nullable = true)
+    private String hostname;
+    
+    @Column(name = "LOCAL_AREA_CSR_IP", nullable = true)
+    private String localAreaCsrIp;
+    
+    @Column(name = "LOCAL_AREA_CSR_SR_SID", nullable = true)
+    private String localAreaCsrSrSid;
     
     @Column(name = "remark", nullable = true)
     private String remark;
@@ -59,17 +71,22 @@ public class ModuleCircuitDiagramInfo implements java.io.Serializable {
 		super();
 	}
 
-	public ModuleCircuitDiagramInfo(String id, String circleId, String circleName, String type, String name,
-			String e1Name, String e1Ip, String remark, String deleteFlag, Timestamp deleteTime, String deleteBy,
-			Timestamp createTime, String createBy) {
+	public ModuleCircuitDiagramInfo(String id, String circleId, String circleName, String stationName,
+			String stationEngName, String neName, String e1gwIp, String srPrefixSid, String hostname,
+			String localAreaCsrIp, String localAreaCsrSrSid, String remark, String deleteFlag, Timestamp deleteTime,
+			String deleteBy, Timestamp createTime, String createBy) {
 		super();
 		this.id = id;
 		this.circleId = circleId;
 		this.circleName = circleName;
-		this.type = type;
-		this.name = name;
-		this.e1Name = e1Name;
-		this.e1Ip = e1Ip;
+		this.stationName = stationName;
+		this.stationEngName = stationEngName;
+		this.neName = neName;
+		this.e1gwIp = e1gwIp;
+		this.srPrefixSid = srPrefixSid;
+		this.hostname = hostname;
+		this.localAreaCsrIp = localAreaCsrIp;
+		this.localAreaCsrSrSid = localAreaCsrSrSid;
 		this.remark = remark;
 		this.deleteFlag = deleteFlag;
 		this.deleteTime = deleteTime;
@@ -102,36 +119,68 @@ public class ModuleCircuitDiagramInfo implements java.io.Serializable {
 		this.circleName = circleName;
 	}
 
-	public String getType() {
-		return type;
+	public String getStatinName() {
+		return stationName;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setStatinName(String stationName) {
+		this.stationName = stationName;
 	}
 
-	public String getName() {
-		return name;
+	public String getStatinEngName() {
+		return stationEngName;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setStatinEngName(String stationEngName) {
+		this.stationEngName = stationEngName;
 	}
 
-	public String getE1Name() {
-		return e1Name;
+	public String getNeName() {
+		return neName;
 	}
 
-	public void setE1Name(String e1Name) {
-		this.e1Name = e1Name;
+	public void setNeName(String neName) {
+		this.neName = neName;
 	}
 
-	public String getE1Ip() {
-		return e1Ip;
+	public String getE1gwIp() {
+		return e1gwIp;
 	}
 
-	public void setE1Ip(String e1Ip) {
-		this.e1Ip = e1Ip;
+	public void setE1gwIp(String e1gwIp) {
+		this.e1gwIp = e1gwIp;
+	}
+
+	public String getSrPrefixSid() {
+		return srPrefixSid;
+	}
+
+	public void setSrPrefixSid(String srPrefixSid) {
+		this.srPrefixSid = srPrefixSid;
+	}
+
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	public String getLocalAreaCsrIp() {
+		return localAreaCsrIp;
+	}
+
+	public void setLocalAreaCsrIp(String localAreaCsrIp) {
+		this.localAreaCsrIp = localAreaCsrIp;
+	}
+
+	public String getLocalAreaCsrSrSid() {
+		return localAreaCsrSrSid;
+	}
+
+	public void setLocalAreaCsrSrSid(String localAreaCsrSrSid) {
+		this.localAreaCsrSrSid = localAreaCsrSrSid;
 	}
 
 	public String getRemark() {

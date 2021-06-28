@@ -254,19 +254,27 @@ public class SshUtils extends CommonUtils implements ConnectUtils {
 		    	for (String text : Env.TELNET_LOGIN_ENABLE_TEXT) { // 判斷是否包含需要enable字元
 		    		if(actionFlag) break;
 		    		try {
+		    			log.debug("try read '"+text+"'.");
 		    			expect.expect(contains(text));//嘗試是否需enable字元
-		    			expect.sendLine("enable");
+		    			if(!StringUtils.equals(text, ">")) {//DLINK 等其他設備需下enable admin指令
+		    				expect.sendLine("enable admin");
+		    			}else {
+		    				expect.sendLine("enable");
+		    			}
 		    			actionFlag = true;
 		    			try {
-		    				expect.expect(contains("Password:"));
+		    				log.debug("try read password.");
+		    				expect.expect(contains("assword:"));//有些設備P是小寫，移除第一個字
 		    				expect.sendLine(enable);
 		    			}catch (Exception e) {
+		    				log.debug("try read password fail, send account & password.");
 		    				expect.sendLine(account);
-		    				expect.expect(contains("Password:"));
+		    				expect.expect(contains("assword:"));
 		    				expect.sendLine(enable);
 						}
 		    		}catch (Exception e) {
 						// nothing
+		    			log.info("expect '"+text+"' read not exists.");
 					}			    		
 				}			    
 				

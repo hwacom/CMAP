@@ -264,8 +264,9 @@ public class OidcController extends BaseController {
         log.info("UserInfoSuccessResponse: " + jsonStr);
 
         session.setAttribute(Constants.OIDC_USER_INFO_JSON, jsonStr);
-        session.setAttribute(Constants.OIDC_USER_NAME, userName);
-        session.setAttribute(Constants.OIDC_EMAIL, email);
+        session.setAttribute(Constants.USERACCOUNT, userName);
+        session.setAttribute(Constants.USERNAME, userName);
+        session.setAttribute(Constants.USEREMAIL, email);
 
         session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, userName);  // for Apache Tomcat admin session page show "Guessed User name"
 
@@ -308,7 +309,8 @@ public class OidcController extends BaseController {
 
         session.setAttribute(Constants.OIDC_OPEN_2_ID, oidcOpen2Id);
         session.setAttribute(Constants.OIDC_SUB, claimsSet.getSubject());	// 取得Subject值做為識別, 進行帳號識別
-
+        session.setAttribute(Constants.USERACCOUNT, claimsSet.getSubject());
+        
         return getEduInfo(model, principal, request, response);
 	}
 
@@ -359,6 +361,7 @@ public class OidcController extends BaseController {
 
         session.setAttribute(Constants.OIDC_EDU_INFO_JSON, root.toString());
         session.setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
+        session.setAttribute(Constants.USERACCOUNT, schoolId);
 
         boolean canAccess = checkUserCanOrNotAccess(request, schoolId, Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI, roles);
 

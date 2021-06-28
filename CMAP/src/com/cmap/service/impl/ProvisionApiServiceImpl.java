@@ -395,8 +395,7 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 	            return data;
 			}
 			// Step2.使用傳入的設備IP查詢設備資料,非納管設備則視為例外
-			List<String> deviceListIds = new ArrayList<>(); //配合原有backupConfig規格封裝為deviceListIds(但其實一次只會放一個IP)
-			String deviceIds = null;
+			List<String> deviceIds = new ArrayList<>(); //配合原有backupConfig規格封裝為deviceIds(但其實一次只會放一個IP)
 			DeviceList dlEntity = null;
 			
 			VersionServiceVO retVO = null;
@@ -409,10 +408,9 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 				return data;
 			}
 			log.debug("deviceDAO.findDeviceListByDeviceIp done");
-			deviceListIds.add(dlEntity.getDeviceListId());
-			deviceIds = deviceIds == null? dlEntity.getDeviceId() : deviceIds.concat(Env.COMM_SEPARATE_SYMBOL).concat(dlEntity.getDeviceId());
+			deviceIds.add(dlEntity.getDeviceId());
 			// 傳入設備異動者資訊
-			retVO = versionService.backupConfig(configType, deviceListIds, false, Constants.SYSLOG_BK_TRIGGER_NAME, deviceUserName, deviceIp);
+			retVO = versionService.backupConfig(configType, deviceIds, false, Constants.SYSLOG_BK_TRIGGER_NAME, deviceUserName, deviceIp);
 			log.debug("versionService.backupConfig done");
 			ProvisionApiAccessLog paal = new ProvisionApiAccessLog();
 			String checkHash = StringUtils.upperCase(EncryptUtils.getSha256(deviceUserName.concat(new Date().toString())));
@@ -424,7 +422,7 @@ public class ProvisionApiServiceImpl extends CommonServiceImpl implements Provis
 			paal.setAccessTime(new Timestamp((new Date()).getTime()));
 			paal.setActionTime(new Timestamp((new Date()).getTime()));
 			paal.setAction("DONE");
-			paal.setDeviceIds(deviceIds);
+			paal.setDeviceIds(deviceIds.get(0));
 			paal.setScriptCode("");
 			paal.setVarKey("");
 			log.debug("ProvisionApiAccessLog.userName = " + Constants.SYSLOG_BK_TRIGGER_NAME);

@@ -48,7 +48,7 @@ public class AdminUserRightController extends BaseController {
 
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)
@@ -64,7 +64,7 @@ public class AdminUserRightController extends BaseController {
 			boolean isAdmin = (boolean)request.getSession().getAttribute(Constants.ISADMIN);
 			
 			Map<String, String> retMap = new LinkedHashMap<>();
-			Map<String, String> typeMap = getUserRightGroup(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserUnit());
+			Map<String, String> typeMap = getUserGroupList(isAdmin?null:SecurityUtil.getSecurityUser().getUser().getUserName());
 			/*
 			 * 排序設定處理
 			 */
@@ -167,7 +167,8 @@ public class AdminUserRightController extends BaseController {
 				urVO.setLoginMode(modeIt != null && modeIt.hasNext() ? modeIt.next().asText() : null);
 				urVO.setRemark(remarkIt != null && remarkIt.hasNext() ? remarkIt.next().asText() : null);
 				
-				if(StringUtils.equals(urVO.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) || StringUtils.isBlank(urVO.getLoginMode())){
+				if(StringUtils.equals(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_FLAG) 
+						&& (StringUtils.equals(urVO.getLoginMode(), Constants.LOGIN_AUTH_MODE_CM) || StringUtils.isBlank(urVO.getLoginMode()))){
 					List<String> errorList = isValid(urVO.getPassword());
 					
 					if(errorList.size() > 0) {

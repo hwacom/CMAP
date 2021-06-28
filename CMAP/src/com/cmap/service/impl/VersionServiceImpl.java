@@ -435,7 +435,7 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 					log.debug("Debug check: contentList is not null, size =  "+contentList.size());
 				} catch (Exception e) {
 					log.error("Files reading is fail, targetFileName = " + targetFileName);
-					e.printStackTrace();
+					log.error(e.toString(), e);
 				}
 
 			}else {
@@ -635,7 +635,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		List<String> contentRevList = new ArrayList<>();
 		List<VersionServiceVO> retOriList = null;
 		List<VersionServiceVO> retRevList = null;
-
+		boolean versionFlag = true;
+		
 		try {
 			
 			
@@ -743,8 +744,9 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 		            }
 
 					if (cList != null && !cList.isEmpty()) {
-						if (contentOriList.isEmpty()) {
+						if (versionFlag) {
 							contentOriList = cList;
+							versionFlag = false;
 							log.debug("for debug contentOriList = " +  String.join("," ,cList.toString()));
 							retVO.setVersionOri(vsVO.getConfigVersion());
 						} else {
@@ -754,8 +756,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 						}
 
 					} else {
-						if (contentOriList.isEmpty()) {
-							contentOriList = new ArrayList<>();
+						if (versionFlag) {
+							versionFlag = false;
 							log.error("檔案1取得異常，或取得檔案為空, filepath = " + targetFileName);
 							retVO.setVersionOri(vsVO.getConfigVersion());
 						} else {
@@ -870,10 +872,10 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	}
 
 	@Override
-	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName) {
+	public VersionServiceVO backupConfig(String configType, List<String> deviceIDs, boolean jobTrigger, String triggerName) {
 		ProvisionServiceVO masterVO = new ProvisionServiceVO();
 		VersionServiceVO retVO = new VersionServiceVO();
-		final int totalCount = deviceListIDs.size();
+		final int totalCount = deviceIDs.size();
 		retVO.setJobExcuteResultRecords(Integer.toString(totalCount));
 
 		int successCount = 0;
@@ -887,8 +889,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			masterVO.setUserName(jobTrigger ? Env.USER_NAME_JOB : (StringUtils.isBlank(triggerName)?SecurityUtil.getSecurityUser().getUsername():triggerName));
 
 			StepServiceVO ssVO;
-			for (String deviceListId : deviceListIDs) {
-				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
+			for (String deviceId : deviceIDs) {
+				ssVO = stepService.doBackupStep(deviceId, jobTrigger);
 
 				if(ssVO != null) {
 					masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
@@ -901,9 +903,9 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				}				
 			}
 
-			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
+			if ((successCount == deviceIDs.size() || noDiffCount == deviceIDs.size()) && errorCount == 0) {
 				retVO.setJobExcuteResult(BaseJobImpl.Result.SUCCESS);
-			} else if (errorCount == deviceListIDs.size()) {
+			} else if (errorCount == deviceIDs.size()) {
 				retVO.setJobExcuteResult(BaseJobImpl.Result.FAILED);
 			} else {
 				retVO.setJobExcuteResult(BaseJobImpl.Result.PARTIAL_SUCCESS);
@@ -958,10 +960,10 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 	}
 	
 	@Override
-	public VersionServiceVO backupConfig(String configType, List<String> deviceListIDs, boolean jobTrigger, String triggerName, String deviceUsername, String deviceIp) {
+	public VersionServiceVO backupConfig(String configType, List<String> deviceIDs, boolean jobTrigger, String triggerName, String deviceUsername, String deviceIp) {
 		ProvisionServiceVO masterVO = new ProvisionServiceVO();
 		VersionServiceVO retVO = new VersionServiceVO();
-		final int totalCount = deviceListIDs.size();
+		final int totalCount = deviceIDs.size();
 		retVO.setJobExcuteResultRecords(Integer.toString(totalCount));
 
 		int successCount = 0;
@@ -977,8 +979,8 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 			masterVO.setUserIp(deviceIp);
 			masterVO.setTriggerName(triggerName); //provision_log_detail.create_by參考此項
 			StepServiceVO ssVO;
-			for (String deviceListId : deviceListIDs) {
-				ssVO = stepService.doBackupStep(deviceListId, jobTrigger);
+			for (String deviceId : deviceIDs) {
+				ssVO = stepService.doBackupStep(deviceId, jobTrigger);
 
 				if(ssVO != null) {
 					masterVO.getDetailVO().addAll(ssVO.getPsVO().getDetailVO());
@@ -991,9 +993,9 @@ public class VersionServiceImpl extends CommonServiceImpl implements VersionServ
 				}
 			}
 
-			if ((successCount == deviceListIDs.size() || noDiffCount == deviceListIDs.size()) && errorCount == 0) {
+			if ((successCount == deviceIDs.size() || noDiffCount == deviceIDs.size()) && errorCount == 0) {
 				retVO.setJobExcuteResult(BaseJobImpl.Result.SUCCESS);
-			} else if (errorCount == deviceListIDs.size()) {
+			} else if (errorCount == deviceIDs.size()) {
 				retVO.setJobExcuteResult(BaseJobImpl.Result.FAILED);
 			} else {
 				retVO.setJobExcuteResult(BaseJobImpl.Result.PARTIAL_SUCCESS);

@@ -12,12 +12,12 @@ public interface ScriptService {
 
     /**
      * 取得預設腳本資料並替換掉指令中參數部分，回傳替換好的指令List(備份、還原)
-     * @param deviceListId
+     * @param deviceId
      * @param type
      * @return
      * @throws ServiceLayerException
      */
-	public List<ScriptServiceVO> loadDefaultScript(String deviceListId, ScriptType type) throws ServiceLayerException;
+	public List<ScriptServiceVO> loadDefaultScript(String deviceId, ScriptType type) throws ServiceLayerException;
 
 	/**
 	 * 取得預設腳本的 Script_Info 資料

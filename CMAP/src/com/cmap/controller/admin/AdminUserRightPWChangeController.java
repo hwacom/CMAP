@@ -33,7 +33,7 @@ public class AdminUserRightPWChangeController extends BaseController {
 		model.addAttribute("userId", user.getId());
 		model.addAttribute("userAccount", user.getAccount());
 		model.addAttribute("userName", user.getUserName());
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 
 	@RequestMapping(value = "main", method = RequestMethod.GET)

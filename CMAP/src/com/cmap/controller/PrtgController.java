@@ -40,7 +40,7 @@ public class PrtgController extends BaseController {
 	private void init(Model model, HttpServletRequest request) {
 		model.addAttribute("PRTG_IP_ADDR", Env.PRTG_SERVER_IP);
 		model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 
 //	private String sendLogin(HttpServletRequest request, HttpServletResponse response) {
@@ -141,7 +141,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -160,7 +160,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -195,7 +195,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -214,7 +214,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -233,7 +233,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -264,7 +264,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -283,7 +283,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -302,7 +302,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -321,7 +321,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 	
@@ -340,7 +340,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 	
@@ -359,7 +359,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -378,7 +378,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -397,7 +397,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -416,7 +416,7 @@ public class PrtgController extends BaseController {
 			return new AppResponse(super.getLineNumber(), e.getMessage());
 
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 	
@@ -435,7 +435,7 @@ public class PrtgController extends BaseController {
             return new AppResponse(super.getLineNumber(), e.getMessage());
 
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 	

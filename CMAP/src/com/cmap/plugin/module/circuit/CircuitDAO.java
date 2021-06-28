@@ -13,19 +13,26 @@ public interface CircuitDAO extends BaseDAO {
      * @param pageLength
      * @return 
      */
-    public List<ModuleCircuitE1OpenList> findModuleE1OpenList(CircuitVO cVO);
+    public List<ModuleCircuitE1OpenList> findModuleE1OpenList(CircuitOpenListVO cVO);
+
+    /**
+     * 取得符合條件資料 For API查詢
+     * @param cVO
+     * @return
+     */
+    public List<Object[]> findModuleInfoAndList(CircuitVO cVO);
 
     /**
      * 取得符合條件資料
      * @param cVO
      * @return
      */
-    public List<ModuleCircuitDiagramInfo> findModuleInfo(CircuitVO cVO);
-
-	void saveOrUpdateSetting(List<ModuleCircuitDiagramSetting> entities);
-
-	public List<ModuleCircuitDiagramSetting> findModuleSettingByIp(String e1Ip);
-
-	void deleteSetting(String e1Ip);
+    public List<ModuleCircuitDiagramInfo> findModuleInfoAndListByVO(CircuitVO cVO);
+	
+    public List<ModuleCircuitDiagramSetting> findModuleCircuitDiagramSetting(CircuitOpenListVO cVO);
     
+    public void saveOrUpdateCircuitData(List<Object> entityList);
+
+    public void deleteCircuitData(List<Object> entities);
+
 }

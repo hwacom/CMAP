@@ -63,11 +63,11 @@ public class AdminLoginInfoController extends BaseController {
 			model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
 		}
-		behaviorLog(request.getRequestURI(), request.getQueryString());
+		behaviorLog(request);
 	}
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public String netFlow(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
+	public String main(Model model, Principal principal, HttpServletRequest request, HttpServletResponse response) {
 		try {
 
 		} catch (Exception e) {
@@ -114,7 +114,7 @@ public class AdminLoginInfoController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filteredTotal, null, "");
@@ -197,7 +197,7 @@ public class AdminLoginInfoController extends BaseController {
 	        AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
 	    } finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 		}
 	}
 }

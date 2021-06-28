@@ -74,7 +74,7 @@ public class NetFlowStatisticsController extends BaseController {
             model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
             model.addAttribute("timeout", Env.TIMEOUT_4_NET_FLOW_QUERY);
             
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
 
@@ -184,7 +184,7 @@ public class NetFlowStatisticsController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
 
         return new DatatableResponse(total, dataList, filterdTotal, null, totalFlow);
@@ -245,7 +245,7 @@ public class NetFlowStatisticsController extends BaseController {
             AppResponse app = new AppResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, "ERROR");
             return app;
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
     }
 
@@ -296,7 +296,7 @@ public class NetFlowStatisticsController extends BaseController {
         } catch (Exception e) {
             log.error(e.toString(), e);
         } finally {
-        	behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
         }
 
         return new DatatableResponse(total, dataList, filterdTotal, null, totalFlow);

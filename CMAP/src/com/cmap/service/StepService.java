@@ -23,11 +23,11 @@ public interface StepService {
 	/**
 	 * 設備組態備份流程
 	 * (Device >> Server Local File)
-	 * @param deviceListId
+	 * @param deviceId
 	 * @param jobTrigger
 	 * @return
 	 */
-	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger);
+	public StepServiceVO doBackupStep(String deviceId, boolean jobTrigger);
 
 	/**
 	 * 組態備份檔異地備份流程
@@ -52,7 +52,7 @@ public interface StepService {
 	/**
 	 * 供裝派送流程 by 指定腳本
 	 * @param connectionMode
-	 * @param deviceListId
+	 * @param deviceId
 	 * @param deviceInfo
 	 * @param scriptInfo
 	 * @param varMap
@@ -64,7 +64,7 @@ public interface StepService {
 	 */
 	public StepServiceVO doScript(
 			ConnectionMode connectionMode,
-			String deviceListId,
+			String deviceId,
 			Map<String, String> deviceInfo,
 			ScriptInfo scriptInfo,
 			List<Map<String, String>> varMapList,
@@ -76,7 +76,7 @@ public interface StepService {
 	/**
 	 * 供裝派送流程 (不指定腳本，由呼叫端傳入要供裝的命令集)
 	 * @param connectionMode
-	 * @param deviceListId
+	 * @param deviceId
 	 * @param deviceInfo
 	 * @param cmdList
 	 * @param sysTrigger
@@ -86,7 +86,7 @@ public interface StepService {
 	 */
 	public StepServiceVO doCommands(
 	        ConnectionMode connectionMode,
-            String deviceListId,
+            String deviceId,
             Map<String, String> deviceInfo,
             List<ScriptServiceVO> cmdList,
             boolean sysTrigger,

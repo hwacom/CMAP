@@ -42,9 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		
 		final boolean isAdmin = session.getAttribute(Constants.ISADMIN) != null
 									? (boolean)session.getAttribute(Constants.ISADMIN) : false;
-		final String passhash = (String)session.getAttribute(Constants.PASSHASH);
-		final String prtgLoginAccount  = (String)session.getAttribute(Constants.PRTG_LOGIN_ACCOUNT);
-		final String prtgLoginPassword  = (String)session.getAttribute(Constants.PRTG_LOGIN_PASSWORD);
+		final String passhash = Objects.toString(session.getAttribute(Constants.PASSHASH), "");
 		final Object error = session.getAttribute(Constants.ERROR);
 
 		if (error != null && error instanceof ConnectTimeoutException) {
@@ -55,17 +53,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			throw new UsernameNotFoundException("帳號或密碼輸入錯誤");
 		}
 		
-		final String userChineseName = (String)session.getAttribute(Constants.OIDC_USER_NAME);
-		final String userUnit = (String)session.getAttribute(Constants.OIDC_SCHOOL_ID);
-		final String email = (String)session.getAttribute(Constants.OIDC_EMAIL);
-		final String oidcSub = (String)session.getAttribute(Constants.OIDC_SUB);
-		final String password = (String)session.getAttribute(Constants.PASSWORD);
-		final String ipAddr = (String)session.getAttribute(Constants.IP_ADDR);
 		final String role = (String)session.getAttribute(Constants.USERROLE);
-//		final String schoolId = (String)session.getAttribute(Constants.OIDC_SCHOOL_ID);
 		final String[] roles = StringUtils.isNotBlank(role) ? role.split(Env.COMM_SEPARATE_SYMBOL) : null;
 
-		User user = new User(username, userChineseName, userUnit, email, prtgLoginAccount, prtgLoginPassword,
+		final String userChineseName = Objects.toString(session.getAttribute(Constants.USERNAME), "");
+		final String userGroup = Objects.toString(session.getAttribute(Constants.USERGROUP), "");
+		final String userUnit = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), "");
+		final String email = Objects.toString(session.getAttribute(Constants.USEREMAIL), "");
+		final String ipAddr = Objects.toString(session.getAttribute(Constants.IP_ADDR), "unknow");
+		final String prtgLoginAccount = Objects.toString(session.getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
+		final String prtgLoginPassword = Objects.toString(session.getAttribute(Constants.PRTG_LOGIN_PASSWORD), "");
+		final String oidcSub = Objects.toString(session.getAttribute(Constants.OIDC_SUB), "");
+		final String password = Objects.toString(session.getAttribute(Constants.PASSWORD), "");
+		
+		User user = new User(username, userChineseName, userGroup, userUnit, email, prtgLoginAccount, prtgLoginPassword,
 				oidcSub, password, passhash, ipAddr, roles);
 
 		boolean accountEnabled = true;

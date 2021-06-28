@@ -19,15 +19,18 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
     @Column(name = "setting_id", unique = true)
     private String settingId;
 
-    @Column(name = "E1_IP", nullable = true)
-    private String e1Ip;
+    @Column(name = "SR_PREFIX_SID", nullable = true)
+    private String srPrefixSid;
+    
+    @Column(name = "E1GW_IP", nullable = true)
+    private String e1gwIp;
 
-    @Column(name = "E1_NODE", nullable = false)
-    private String e1Node;
-
-    @Column(name = "PORT", nullable = false)
+    @Column(name = "PORT_NUMBER", nullable = false)
     private String port;
-        
+    
+    @Column(name = "USED_FLAG", nullable = true)
+    private String usedFlag;
+    
     @Column(name = "remark", nullable = true)
     private String remark;
     	
@@ -47,13 +50,15 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 		super();
 	}
 
-	public ModuleCircuitDiagramSetting(String settingId, String e1Ip, String e1Node, String port, String remark,
-			Timestamp createTime, String createBy, Timestamp updateTime, String updateBy) {
+	public ModuleCircuitDiagramSetting(String settingId, String srPrefixSid, String e1gwIp, String port,
+			String usedFlag, String remark, Timestamp createTime, String createBy, Timestamp updateTime,
+			String updateBy) {
 		super();
 		this.settingId = settingId;
-		this.e1Ip = e1Ip;
-		this.e1Node = e1Node;
+		this.srPrefixSid = srPrefixSid;
+		this.e1gwIp = e1gwIp;
 		this.port = port;
+		this.usedFlag = usedFlag;
 		this.remark = remark;
 		this.createTime = createTime;
 		this.createBy = createBy;
@@ -69,20 +74,20 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 		this.settingId = settingId;
 	}
 
-	public String getE1Ip() {
-		return e1Ip;
+	public String getSrPrefixSid() {
+		return srPrefixSid;
 	}
 
-	public void setE1Ip(String e1Ip) {
-		this.e1Ip = e1Ip;
+	public void setSrPrefixSid(String srPrefixSid) {
+		this.srPrefixSid = srPrefixSid;
 	}
 
-	public String getE1Node() {
-		return e1Node;
+	public String getE1gwIp() {
+		return e1gwIp;
 	}
 
-	public void setE1Node(String e1Node) {
-		this.e1Node = e1Node;
+	public void setE1gwIp(String e1gwIp) {
+		this.e1gwIp = e1gwIp;
 	}
 
 	public String getPort() {
@@ -91,6 +96,14 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 
 	public void setPort(String port) {
 		this.port = port;
+	}
+
+	public String getUsedFlag() {
+		return usedFlag;
+	}
+
+	public void setUsedFlag(String usedFlag) {
+		this.usedFlag = usedFlag;
 	}
 
 	public String getRemark() {
@@ -131,10 +144,6 @@ public class ModuleCircuitDiagramSetting implements java.io.Serializable {
 
 	public void setUpdateBy(String updateBy) {
 		this.updateBy = updateBy;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 }

@@ -6,11 +6,13 @@ public class User implements Serializable {
 
 	private static final long serialVersionUID = -5010954824778186468L;
 
-	private String userName;
+	private String userName;//Account
 
 	private String userChineseName;
 
-	private String userUnit;
+	private String userGroup;
+	
+	private String userUnit;//OIDC專用
 
 	private String email;
 
@@ -34,12 +36,13 @@ public class User implements Serializable {
 		super();
 	}
 
-	public User(String userName, String userChineseName, String userUnit, String email, String prtgLoginAccount,
-			String prtgLoginPassword, String oidcSub, String password, String passhash, String ip, //String schoolId,
-			String[] roles) {
+	public User(String userName, String userChineseName, String userGroup, String userUnit, String email,
+			String prtgLoginAccount, String prtgLoginPassword, String oidcSub, String password, String passhash,
+			String ip, String[] roles) {
 		super();
 		this.userName = userName;
 		this.userChineseName = userChineseName;
+		this.userGroup = userGroup;
 		this.userUnit = userUnit;
 		this.email = email;
 		this.prtgLoginAccount = prtgLoginAccount;
@@ -48,7 +51,6 @@ public class User implements Serializable {
 		this.password = password;
 		this.passhash = passhash;
 		this.ip = ip;
-//		this.schoolId = schoolId;
 		this.roles = roles;
 	}
 
@@ -66,6 +68,14 @@ public class User implements Serializable {
 
 	public void setUserChineseName(String userChineseName) {
 		this.userChineseName = userChineseName;
+	}
+
+	public String getUserGroup() {
+		return userGroup;
+	}
+
+	public void setUserGroup(String userGroup) {
+		this.userGroup = userGroup;
 	}
 
 	public String getUserUnit() {

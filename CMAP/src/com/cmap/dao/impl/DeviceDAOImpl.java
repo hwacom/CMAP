@@ -296,7 +296,7 @@ public class DeviceDAOImpl extends BaseDaoHibernate implements DeviceDAO {
 	    	q.setParameter("deviceId", deviceId);
         }
 	    
-		return (DeviceLoginInfo) q.uniqueResult();
+		return (DeviceLoginInfo) q.setMaxResults(1).uniqueResult();
 	}
 
     @Override

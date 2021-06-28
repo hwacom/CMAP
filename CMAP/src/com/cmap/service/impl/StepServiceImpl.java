@@ -119,7 +119,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
     private BlockedRecordService blockedRecordService;
 
 	@Override
-	public StepServiceVO doBackupStep(String deviceListId, boolean jobTrigger) {
+	public StepServiceVO doBackupStep(String deviceId, boolean jobTrigger) {
 		StepServiceVO retVO = new StepServiceVO();
 
 		ProvisionServiceVO psMasterVO = new ProvisionServiceVO();
@@ -142,13 +142,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		DeviceList device = null;
 		DeviceLoginInfo loginInfo = null;
 		String deviceConfigBackupMode = Env.DEFAULT_DEVICE_CONFIG_BACKUP_MODE;
-		try {
-			device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
-			if(device == null) {
-				return null;
-			}
-			
-			loginInfo = deviceService.findDeviceLoginInfo(device.getDeviceId());
+		try {			
+			loginInfo = deviceService.findDeviceLoginInfo(deviceId);
             if (loginInfo != null ) {
             	
             	if(StringUtils.isNotBlank(loginInfo.getConfigBackupMode())) {
@@ -160,7 +155,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                 }
             }
 		}catch(NullPointerException e) {
-			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就跳過			
+			log.debug("執行備份作業deviceListId 查無device or loginInfo!");//沒有就跳過	
+		}catch (Exception e) {
+			log.error("deviceId "+deviceId+" find Device Login Info error \n"+e.getMessage(), e);
 		}
 		
 		
@@ -255,7 +252,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					switch (_step) {
 						case LOAD_DEFAULT_SCRIPT:
 							try {
-								scripts = loadDefaultScript(deviceListId, ScriptType.BACKUP);
+								scripts = loadDefaultScript(deviceId, ScriptType.BACKUP);
 
 								/*
 								 * Provision_Log_Step => for 最後寫入供裝紀錄Table使用
@@ -277,7 +274,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
-								ciVO = findDeviceConfigInfo(ciVO, deviceListId, null, deviceMode);
+								ciVO = findDeviceConfigInfo(ciVO, deviceId, null, deviceMode);
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
@@ -285,7 +282,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								 */
 								if (!retryRound) {
 									psDeviceVO = new ProvisionServiceVO();
-									psDeviceVO.setDeviceListId(deviceListId);
+									psDeviceVO.setDeviceListId(ciVO.getDeviceListId());
 									psDeviceVO.setOrderNum(1);
 									psStepVO.getDeviceVO().add(psDeviceVO); // add DeviceVO to StepVO
 
@@ -326,7 +323,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 							                }
 										}
 								}else {
-									findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
+									findDeviceLoginInfo(ciVO, ciVO.getDeviceId());
 								}
 								
 								break;
@@ -378,7 +375,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case ANALYZE_CONFIG_INFO:
 							try {
-								analyzeConfigInfo(ciVO, outputList, jobTrigger);
+//								analyzeConfigInfo(ciVO, outputList, jobTrigger);
 								break;
 
 							} catch (Exception e) {
@@ -705,8 +702,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	private List<ScriptServiceVO> loadDefaultScript(String deviceListId, ScriptType type) throws ServiceLayerException {
-		return scriptService.loadDefaultScript(deviceListId, type);
+	private List<ScriptServiceVO> loadDefaultScript(String deviceId, ScriptType type) throws ServiceLayerException {
+		return scriptService.loadDefaultScript(deviceId, type);
 	}
 
 	/**
@@ -737,19 +734,19 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	/**
 	 * [Step] 查找設備連線資訊
 	 * @param configInfoVO
-	 * @param deviceListId
+	 * @param deviceId
 	 * @param deviceInfo
 	 * @return
 	 * @throws ServiceLayerException
 	 */
-	private ConfigInfoVO findDeviceConfigInfo(ConfigInfoVO configInfoVO, String deviceListId, Map<String, String> deviceInfo, ConnectionMode connectionMode) throws ServiceLayerException {
+	private ConfigInfoVO findDeviceConfigInfo(ConfigInfoVO configInfoVO, String deviceId, Map<String, String> deviceInfo, ConnectionMode connectionMode) throws ServiceLayerException {
 		configInfoVO = new ConfigInfoVO();
 
-		if (deviceListId != null) {
-			DeviceList device = deviceDAO.findDeviceListByDeviceListId(deviceListId);
+		if (deviceId != null) {
+			DeviceList device = deviceDAO.findDeviceListByGroupAndDeviceId(null, deviceId);
 
 			if (device == null) {
-				throw new ServiceLayerException("[device_id: " + deviceListId + "] >> 查無設備資料");
+				throw new ServiceLayerException("[device_id: " + deviceId + "] >> 查無設備資料");
 			}
 
 			BeanUtils.copyProperties(device, configInfoVO);
@@ -823,14 +820,15 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	 * [Step] 查找設備連線帳密 & 連線方式(TELNET / SSH)
 	 * @throws ServiceLayerException
 	 */
-	private void findDeviceLoginInfo(ConfigInfoVO ciVO, String deviceListId, String deviceId) throws ServiceLayerException {
+	private void findDeviceLoginInfo(ConfigInfoVO ciVO, String deviceId) throws ServiceLayerException {
 	    if (StringUtils.isBlank(deviceId)) {
 	        // 若參數都未傳值則不處理
 	        return;
 	    }
-
-		DeviceLoginInfo loginInfo = deviceService.findDeviceLoginInfo(deviceId);
+	    
 		try {
+			DeviceLoginInfo loginInfo = deviceService.findDeviceLoginInfo(deviceId);
+			
 			if (loginInfo != null) {
 				if (StringUtils.isNotBlank(loginInfo.getLoginAccount())) {
 					ciVO.setAccount(new String(Base64.decode(loginInfo.getLoginAccount()), "UTF-8"));
@@ -855,13 +853,13 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					}
 				}
 			} else {
-				ciVO.setAccount(new String(Base64.decode(Env.DEFAULT_DEVICE_LOGIN_ACCOUNT), "UTF-8"));
-				ciVO.setPassword(new String(Base64.decode(Env.DEFAULT_DEVICE_LOGIN_PASSWORD), "UTF-8"));
-				ciVO.setEnablePassword(new String(Base64.decode(Env.DEFAULT_DEVICE_ENABLE_PASSWORD), "UTF-8"));
+				ciVO.setAccount(Env.DEFAULT_DEVICE_LOGIN_ACCOUNT);
+				ciVO.setPassword(Env.DEFAULT_DEVICE_LOGIN_PASSWORD);
+				ciVO.setEnablePassword(Env.DEFAULT_DEVICE_ENABLE_PASSWORD);
 				ciVO.setConnectionMode(Env.CONNECTION_MODE_OF_DELIVERY);
 			}
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			throw new ServiceLayerException("error with device id "+deviceId+" because => "+e.getMessage(), e);
 		}
 	}
 
@@ -1065,8 +1063,10 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					}
 					
 					if (Env.TFTP_SERVER_AT_LOCAL) {
-						if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {//分散式架構要將備份檔丟回core server	
-							try {
+						try {
+							//分散式架構要將備份檔丟回core server
+							if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
+							
 								Properties prop = new Properties();
 								final String propFileName = "distributed_setting.properties";
 								InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
@@ -1078,6 +1078,52 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 									coreInfoVO.setFtpIP(Env.DISTRIBUTED_CORE_IP);
 									coreInfoVO.setFtpPort(ciVO.getFtpPort());
 									coreInfoVO.settFtpPort(ciVO.gettFtpPort());
+									coreInfoVO.setConfigFileDirPath(ciVO.getConfigFileDirPath());
+									coreInfoVO.setConfigFileName(nowVersionFileName);
+									
+									FileUtils coreFileUtils = null;								
+									coreFileUtils = connect2FileServer(coreFileUtils, _mode, coreInfoVO);								
+									String configFileName = ciVO.getConfigFileDirPath().concat(nowVersionFileName);
+									configFileName = ciVO.getConfigFileDirPath().concat(ciVO.getConfigFileName());
+									
+									String targetFileName;
+									List<String> cList = new ArrayList<>();
+									if(StringUtils.isBlank(ciVO.getConfigFileDirPath()) || ciVO.getConfigFileDirPath().length() == 1) {
+										targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(File.separator).concat(nowVersionFileName);
+									}else {
+										targetFileName = Env.TFTP_LOCAL_ROOT_DIR_PATH.concat(ciVO.getConfigFileDirPath()).concat(nowVersionFileName);
+									}
+									//read file into stream, try-with-resources
+									targetFileName = targetFileName.replaceAll("/", Matcher.quoteReplacement(File.separator));
+									cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);	
+									coreInfoVO.setConfigContent(StringUtils.join(cList, "\t"));
+									coreInfoVO.setConfigType(ciVO.getConfigType());
+									coreFileUtils.uploadFiles(configFileName, IOUtils.toInputStream(String.join("\r\n", cList)));
+//									test2.upload2FTP(coreFileUtils, Arrays.asList(coreInfoVO), ConnectionMode.TFTP);
+//									test3.String cmd = "tftp -i "+Env.DISTRIBUTED_CORE_IP+" put "+targetFileName+" "+ targetFileName.replace(Env.TFTP_LOCAL_ROOT_DIR_PATH, "");
+//									Process proceso = Runtime.getRuntime().exec(cmd);
+//									Process proceso = Runtime.getRuntime().exec(new String[]{ "tftp", "-i", Env.DISTRIBUTED_CORE_IP, "put", targetFileName, targetFileName.replace(Env.TFTP_LOCAL_ROOT_DIR_PATH, "")});
+//									String line = ""; 
+//							         BufferedReader p_in = new BufferedReader(new InputStreamReader(proceso.getInputStream(), "BIG5")); 
+//							         while ((line = p_in.readLine()) != null) { 
+//							             System.out.println(line); 
+//							         } 
+//							         p_in.close(); 
+								}
+							
+							}//Owen 20210504 增加HA機制判斷
+							else if(StringUtils.equalsIgnoreCase(Env.HIGH_AVAILABILITY_FLAG, Constants.DATA_Y)) {
+								List<String> serverIpList = Env.HIGH_AVAILABILITY_SLAVE_SERVER_IP;
+								serverIpList.add(Env.HIGH_AVAILABILITY_MASTER_SERVER_IP);
+								serverIpList.remove(Env.HIGH_AVAILABILITY_ALIVE_SERVER_IP);
+								
+								ConfigInfoVO coreInfoVO = new ConfigInfoVO();
+								coreInfoVO.setFtpPort(ciVO.getFtpPort());
+								coreInfoVO.settFtpPort(ciVO.gettFtpPort());
+								
+								for(String serverIp : serverIpList) {
+									coreInfoVO.settFtpIP(serverIp);
+									coreInfoVO.setFtpIP(serverIp);
 									
 									FileUtils coreFileUtils = null;								
 									coreFileUtils = connect2FileServer(coreFileUtils, _mode, coreInfoVO);								
@@ -1095,9 +1141,9 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 									cList = Files.readAllLines(Paths.get(targetFileName), StandardCharsets.UTF_8);								
 									coreFileUtils.uploadFiles(configFileName, IOUtils.toInputStream(String.join("\r\n", cList)));
 								}
-							} catch (Exception e) {
-								log.error(e.toString(), e);//傳不上去就放棄吧
 							}
+						} catch (Exception e) {
+							log.error(e.toString(), e);//傳不上去就放棄吧
 						}
 					}
 
@@ -1657,18 +1703,22 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 					// By TFTP
 					configFileName = ciVO.getConfigFileDirPath().concat(configFileName);
 
+					if(ciVO.getConfigContent().length() > 300) {
+						ftpUtils.uploadFiles(configFileName,
+								IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8));
+						log.debug(_mode.toString() +" mode update file" + configFileName);
+					}else {
+						log.info(" ConfigContent length = " + ciVO.getConfigContent().length() +", = "+ ciVO.getConfigContent());
+						throw new ServiceLayerException("本次檔案小於3K，請檢察檔案內容, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + configFileName);
+					}
+					
+					break;
 				default:
 					break;
-				}
-
-				if(ciVO.getConfigContent().length() > 300) {
-					ftpUtils.uploadFiles(configFileName,
-							IOUtils.toInputStream(ciVO.getConfigContent(), Constants.CHARSET_UTF8));
-				}else {
-					log.info(" ConfigContent length = " + ciVO.getConfigContent().length() +", = "+ ciVO.getConfigContent());
-					throw new ServiceLayerException("本次檔案小於3K，請檢察檔案內容, REFER = "+Env.ENABLE_CONFIG_BACKUP_REFER_TEMPLATE + ", filepath = " + configFileName);
-				}				
+				}	
 			}
+		}else {
+			log.info(" ciVOList is null! ");
 		}
 		
 	}
@@ -1736,7 +1786,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	@Override
-	public StepServiceVO doScript(ConnectionMode connectionMode, String deviceListId,
+	public StepServiceVO doScript(ConnectionMode connectionMode, String deviceId,
 	        Map<String, String> deviceInfo, ScriptInfo scriptInfo, List<Map<String, String>> varMapList,
 	        boolean sysTrigger, String triggerBy, String triggerRemark, String reason) {
 
@@ -1846,7 +1896,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
-								ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo, deviceMode);
+								ciVO = findDeviceConfigInfo(ciVO, deviceId, deviceInfo, deviceMode);
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
@@ -1854,7 +1904,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								 */
 								if (!retryRound) {
 									psDeviceVO = new ProvisionServiceVO();
-									psDeviceVO.setDeviceListId(deviceListId);
+									psDeviceVO.setDeviceListId(ciVO.getDeviceListId());
 
 									if (deviceInfo != null) {
 										String deviceInfoStr = deviceInfo.get(Constants.DEVICE_IP) + Env.COMM_SEPARATE_SYMBOL + Constants.DEVICE_NAME;
@@ -1877,7 +1927,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
+								findDeviceLoginInfo(ciVO, ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {
@@ -2076,7 +2126,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 	}
 
 	@Override
-    public StepServiceVO doCommands(ConnectionMode connectionMode, String deviceListId,
+    public StepServiceVO doCommands(ConnectionMode connectionMode, String deviceId,
             Map<String, String> deviceInfo, List<ScriptServiceVO> cmdList, boolean sysTrigger,
             String triggerBy, String triggerRemark) {
 	    /*
@@ -2131,7 +2181,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                     switch (_step) {
                         case FIND_DEVICE_CONNECT_INFO:
                             try {
-                                ciVO = findDeviceConfigInfo(ciVO, deviceListId, deviceInfo, deviceMode);
+                                ciVO = findDeviceConfigInfo(ciVO, deviceId, deviceInfo, deviceMode);
                                 ciVO.setTimes(String.valueOf(round));
 
                                 /*
@@ -2139,7 +2189,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
                                  */
                                 if (!retryRound) {
                                     psDeviceVO = new ProvisionServiceVO();
-                                    psDeviceVO.setDeviceListId(deviceListId);
+                                    psDeviceVO.setDeviceListId(ciVO.getDeviceListId());
 
                                     if (deviceInfo != null) {
                                         String deviceInfoStr = deviceInfo.get(Constants.DEVICE_IP) + Env.COMM_SEPARATE_SYMBOL + Constants.DEVICE_NAME;
@@ -2162,7 +2212,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 
                         case FIND_DEVICE_LOGIN_INFO:
                             try {
-                                findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
+                                findDeviceLoginInfo(ciVO, ciVO.getDeviceId());
                                 break;
 
                             } catch (Exception e) {
@@ -2347,7 +2397,8 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 		retVO.setBeginTime(new Date());
 
 		ConnectUtils connectUtils = null;													// 連線裝置物件
-		final String deviceListId = stepServiceVO.getDeviceListId();						// 要還原的設備 Device_List.device_list_id
+//		final String deviceListId = stepServiceVO.getDeviceListId();						// 要還原的設備 Device_List.device_list_id
+		final String deviceId = stepServiceVO.getDeviceId();								// 要還原的設備 Device_List.device_id
 		final String restoreVersionId = stepServiceVO.getRestoreVersionId();				// 要還原的版本號 Config_Version_Info.version_id
 		List<String> restoreContentList = stepServiceVO.getRestoreContentList();		    // 要還原的腳本內容，若此參數有給值則只還原給定的內容部分；否則則依照給定的版本號內容做還原
 		final boolean __NEED_DOWNLOAD_RESTORE_FILE__ = restoreContentList != null ? true : false;	// 依照是否有傳入要還原的內容(restoreContentList)，決定是否需要下載要還原的組態備份檔
@@ -2545,7 +2596,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得組態還原預設腳本
 						case LOAD_DEFAULT_SCRIPT:
 							try {
-								scripts = loadDefaultScript(deviceListId, ScriptType.RES_);
+								scripts = loadDefaultScript(deviceId, ScriptType.RES_);
 								/*
 								 * Provision_Log_Step
 								 */
@@ -2570,7 +2621,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得要還原的目標設備相關連線資訊
 						case FIND_DEVICE_CONNECT_INFO:
 							try {
-								ciVO = findDeviceConfigInfo(ciVO, deviceListId, null, deviceMode);
+								ciVO = findDeviceConfigInfo(ciVO, deviceId, null, deviceMode);
 								ciVO.setTimes(String.valueOf(round));
 
 								/*
@@ -2578,7 +2629,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 								 */
 								if (!retryRound) {
 									psDeviceVO = new ProvisionServiceVO();
-									psDeviceVO.setDeviceListId(deviceListId);
+									psDeviceVO.setDeviceListId(ciVO.getDeviceListId());
 									psDeviceVO.setOrderNum(1);
 									psStepVO.getDeviceVO().add(psDeviceVO); // add DeviceVO to StepVO
 
@@ -2599,7 +2650,7 @@ public class StepServiceImpl extends CommonServiceImpl implements StepService {
 						// 取得要還原的目標設備登入資訊
 						case FIND_DEVICE_LOGIN_INFO:
 							try {
-								findDeviceLoginInfo(ciVO, deviceListId, ciVO.getDeviceId());
+								findDeviceLoginInfo(ciVO, ciVO.getDeviceId());
 								break;
 
 							} catch (Exception e) {

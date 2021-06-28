@@ -142,10 +142,10 @@ public class ConsumerController extends BaseController implements ServletConfigA
             String[] roles = new String[roleMap.size()];
             roles = roleMap.values().toArray(roles);
 
-            session.setAttribute(Constants.OIDC_SUB, account);
+            session.setAttribute(Constants.USERACCOUNT, account);
             session.setAttribute(Constants.OIDC_SCHOOL_ID, schoolId);
-            session.setAttribute(Constants.OIDC_USER_NAME, username);
-            session.setAttribute(Constants.OIDC_EMAIL, email);
+            session.setAttribute(Constants.USERNAME, username);
+            session.setAttribute(Constants.USEREMAIL, email);
             session.setAttribute(Constants.APACHE_TOMCAT_SESSION_USER_NAME, username);
 
             boolean canAccess = checkUserCanOrNotAccess(request, schoolId, Constants.LOGIN_AUTH_MODE_OIDC_NEW_TAIPEI, roles);

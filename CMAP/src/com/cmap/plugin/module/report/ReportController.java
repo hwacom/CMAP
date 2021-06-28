@@ -95,7 +95,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
 	
@@ -142,7 +142,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -170,7 +170,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -201,7 +201,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -230,7 +230,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -267,7 +267,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -307,7 +307,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -342,7 +342,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -377,7 +377,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -412,7 +412,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
     
@@ -448,7 +448,7 @@ public class ReportController extends BaseController {
             e.printStackTrace();
         } finally {
             os.flush();
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
     }
         
@@ -478,7 +478,7 @@ public class ReportController extends BaseController {
         } catch (JRException e) {
             e.printStackTrace();
         } finally {
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
         return "admin/admin_env";
     }

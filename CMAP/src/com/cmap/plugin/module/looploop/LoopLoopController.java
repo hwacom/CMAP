@@ -41,7 +41,7 @@ public class LoopLoopController extends BaseController {
 
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
 			
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 

@@ -67,7 +67,6 @@ import com.cmap.security.SecurityUser;
 import com.cmap.security.SecurityUtil;
 import com.cmap.service.CommonService;
 import com.cmap.service.UserService;
-import com.cmap.service.vo.PrtgServiceVO;
 import com.cmap.utils.ApiUtils;
 import com.cmap.utils.impl.CloseableHttpClientUtils;
 import com.cmap.utils.impl.PrtgApiUtils;
@@ -113,7 +112,7 @@ public class BaseController {
 
 	protected String loginAuthByPRTG(Model model, Principal principal, HttpServletRequest request, String userName, String loginMode) {
         HttpSession session = request.getSession();
-        PrtgServiceVO prtgVO = null;
+        Map<String, String> prtgMap = null;
         
         try {
         	UserRightSetting userRight = userService.getUserRightSetting(userName, loginMode);
@@ -121,17 +120,17 @@ public class BaseController {
         	if(userRight == null) {
 				throw new AuthenticateException("PRTG登入失敗 >> 取不到 使用者登入資訊 userName: " + userName + " )");
 			}
-			
-            prtgVO = commonService.findPrtgLoginInfo(userRight.getUserGroup());
+			        	
+        	prtgMap = commonService.findUserGroupList(userRight.getUserGroup());
 
-			if (prtgVO == null || (prtgVO != null && StringUtils.isBlank(prtgVO.getAccount()))) {
+			if (prtgMap == null || prtgMap.isEmpty()) {
 				throw new AuthenticateException("PRTG登入失敗 >> 取不到 Prtg_Account_Mapping 資料 (username: " + userRight.getUserGroup() + " )");
 			}
 
             String adminPass = new String(Base64.getDecoder().decode(Env.ADMIN_PASSWORD),Constants.CHARSET_UTF8);
             
             ApiUtils prtgApiUtils = new PrtgApiUtils();
-            boolean loginSuccess = prtgApiUtils.login(request, prtgVO.getAccount(), adminPass);
+            boolean loginSuccess = prtgApiUtils.login(request, prtgMap.get(userRight.getUserGroup()), adminPass);
 
             if (!loginSuccess) {
                 throw new AuthenticateException("PRTG登入失敗 >> prtgApiUtils.login return false");
@@ -142,11 +141,14 @@ public class BaseController {
             SysLoginInfo info = new SysLoginInfo();
             info.setSessionId(request.getSession().getId());
             info.setIpAddr(ipAddr);
-            info.setAccount((String) request.getSession().getAttribute(Constants.OIDC_SUB));
-            info.setUserName((String) request.getSession().getAttribute(Constants.OIDC_USER_NAME));
+            info.setAccount(userRight.getAccount());
+            info.setUserName(userRight.getUserName());
             info.setLoginTime(new Timestamp((new Date()).getTime()));
             sysLoginInfoDAO.saveSysLoginInfo(info);
             
+			session.setAttribute(Constants.USERGROUP, prtgMap.get(userRight.getUserGroup()));
+			request.getSession().setAttribute(Constants.USEREMAIL, Objects.toString(userRight.getEmail(), ""));
+			
             String role = Objects.toString(session.getAttribute(Constants.USERROLE), null);
 
             if (StringUtils.isBlank(role)) {
@@ -177,17 +179,17 @@ public class BaseController {
 			String[] userRoles = StringUtils.split(userRole, Env.COMM_SEPARATE_SYMBOL);
 			final String[] USER_ROLES = userRoles;
 
-			final String USER_ACCOUNT = Objects.toString(session.getAttribute(Constants.OIDC_SUB), "");
-			final String USER_NAME = Objects.toString(session.getAttribute(Constants.OIDC_USER_NAME), "");
+			final String USER_ACCOUNT = Objects.toString(session.getAttribute(Constants.USERACCOUNT), "");
+			final String USER_NAME = Objects.toString(session.getAttribute(Constants.USERNAME), "");
+			final String USER_GROUP = Objects.toString(session.getAttribute(Constants.USERGROUP), "");
 			final String USER_UNIT = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), "");
-			final String USER_EMAIL = Objects.toString(session.getAttribute(Constants.OIDC_EMAIL), "");
+			final String USER_EMAIL = Objects.toString(session.getAttribute(Constants.USEREMAIL), "");
 			final String USER_IP = Objects.toString(session.getAttribute(Constants.IP_ADDR), "unknow");
 			final String PRTG_ACCOUNT = Objects.toString(session.getAttribute(Constants.PRTG_LOGIN_ACCOUNT), "");
 			final String PRTG_PASSWORD = Objects.toString(session.getAttribute(Constants.PRTG_LOGIN_PASSWORD), "");
 			final String PRTG_PASSHASH = Objects.toString(session.getAttribute(Constants.PASSHASH), "");
 			final String OIDC_SUB = Objects.toString(session.getAttribute(Constants.OIDC_SUB), "");
-			final String OIDC_PASSWORD = Objects.toString(session.getAttribute(Constants.OIDC_SUB), "");
-//			final String OIDC_SCHOOL_ID = Objects.toString(session.getAttribute(Constants.OIDC_SCHOOL_ID), "");
+			final String PASSWORD = Objects.toString(session.getAttribute(Constants.PASSWORD), "");
 
 			List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
@@ -198,17 +200,17 @@ public class BaseController {
 			User user = new User(
 								USER_ACCOUNT,
 								USER_NAME,
+								USER_GROUP,
 								USER_UNIT,
 								USER_EMAIL,
 								PRTG_ACCOUNT,
 								PRTG_PASSWORD,
 								OIDC_SUB,
-								OIDC_PASSWORD,
+								PASSWORD,
 								PRTG_PASSHASH,
 								USER_IP,
-//								OIDC_SCHOOL_ID,
 								USER_ROLES);
-			SecurityUser securityUser = new SecurityUser(user, USER_NAME, OIDC_PASSWORD, true, true, true, true, authorities);
+			SecurityUser securityUser = new SecurityUser(user, USER_NAME, PASSWORD, true, true, true, true, authorities);
 
 	        Authentication authentication =  new UsernamePasswordAuthenticationToken(securityUser, USER_NAME, authorities);
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -295,10 +297,22 @@ public class BaseController {
 		return itemMap;
 	}
 
-	protected Map<String, String> getUserRightGroup(String account) {
+	protected Map<String, String> getUserGroupList(String account) {
 		Map<String, String> itemMap = null;
 		try {
-			itemMap = commonService.findPrtgAccountMappingList(account);
+			itemMap = commonService.findUserGroupList(account);
+
+		} catch (Exception e) {
+			log.error(e.toString(), e);
+		}
+
+		return itemMap;
+	}
+	
+	protected Map<String, String> getUserRightList(String account) {
+		Map<String, String> itemMap = null;
+		try {
+			itemMap = commonService.findUserList(account);
 
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -759,13 +773,27 @@ public class BaseController {
 	    return retVal;
 	}
 	
-	protected void behaviorLog(String uri, String params) {
+	protected void behaviorLog(HttpServletRequest request) {
 		UserBehaviorLog entity = new UserBehaviorLog();
 		entity.setLogId(UUID.randomUUID().toString());
-		entity.setUserAccount(SecurityUtil.getSecurityUser().getUser().getUserName());
-		entity.setUserName(SecurityUtil.getSecurityUser().getUsername());
-		entity.setTargetPath(uri);
-		entity.setDescription(params);
+		SecurityUser sUser = SecurityUtil.getSecurityUser();
+		try {
+			if(sUser != null) {
+				entity.setUserAccount(SecurityUtil.getSecurityUser().getUser().getUserName());
+				entity.setUserName(SecurityUtil.getSecurityUser().getUsername());
+			}else {
+				entity.setUserAccount(getIp(request));
+				entity.setUserName("");
+			}
+			
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			entity.setUserAccount("");
+			entity.setUserName("");
+		}
+		
+		entity.setTargetPath(request.getRequestURI());
+		entity.setDescription(request.getQueryString());
 		entity.setBehaviorTime(new Timestamp((new Date()).getTime()));
 		entity.setBehavior(BehaviorType.CLICK_ACTION.toString());
 		userService.saveOrUpdateEntity(entity);

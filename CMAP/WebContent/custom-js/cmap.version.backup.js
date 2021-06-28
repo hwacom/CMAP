@@ -36,7 +36,7 @@ function doBackup() {
 	
 	for (var i=0; i<checkedItem.length; i++) {
 		obj = new Object();
-		obj.deviceListId = checkedItem[i].value;
+		obj.deviceId = checkedItem[i].value;
 		checkedObjArray.push(obj);
 	}
 	
@@ -186,7 +186,7 @@ function findData(from) {
 					"searchable": false,
 					"orderable": false,
 					"render" : function(data, type, row) {
-								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.deviceListId+'>';
+								 var html = '<input type="checkbox" id="chkbox" name="chkbox" onclick="changeTrBgColor(this)" value='+row.deviceId+'>';
 								 return html;
 							 }
 				},

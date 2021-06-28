@@ -77,7 +77,7 @@ public class NetFlowController extends BaseController {
 
 			model.addAttribute("pageLength", Env.NET_FLOW_PAGE_LENGTH);
 			
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 

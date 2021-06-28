@@ -1,16 +1,12 @@
 package com.cmap.service.impl.jobs;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -20,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.cmap.Constants;
 import com.cmap.Env;
-import com.cmap.configuration.hibernate.ConnectionFactory;
 import com.cmap.service.BaseJobService;
 import com.cmap.service.StepService;
 import com.cmap.service.VersionService;
@@ -40,34 +35,21 @@ public class JobUploadBackupConfigFile2FTP extends BaseJobImpl implements BaseJo
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
-		JobDataMap jMap = context.getJobDetail().getJobDataMap();
+		final String JOB_ID = UUID.randomUUID().toString();
+		Result result = Result.SUCCESS;
+		Timestamp startTime = new Timestamp((new Date()).getTime());
+		JobServiceVO jsVO = new JobServiceVO();
 		boolean actionFlag = true;
 		String localTftpIP = null;
 		
 		try {
-			if(StringUtils.equalsIgnoreCase(Env.DISTRIBUTED_FLAG, Constants.DATA_Y)) {
-				String disGroupId = jMap.getString(Constants.QUARTZ_PARA_DISTRIBUTED_GROUP_ID);
-				
-				Properties prop = new Properties();
-				final String propFileName = "distributed_setting.properties";
-				InputStream inputStream = ConnectionFactory.class.getClassLoader().getResourceAsStream(propFileName);
-				prop.load(inputStream);
-				localTftpIP = prop.getProperty("distributed.tftp.ip");
-				if(!StringUtils.equalsAnyIgnoreCase(prop.getProperty("distributed.group.id"), disGroupId)){
-					actionFlag = false;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		if(actionFlag) {
-			final String JOB_ID = UUID.randomUUID().toString();
-			Result result = Result.SUCCESS;
-			Timestamp startTime = new Timestamp((new Date()).getTime());
-			JobServiceVO jsVO = new JobServiceVO();
-
-			try {
+			actionFlag = checkDistributionSetting(context);
+			
+			if(actionFlag) {
+				JobDataMap jMap = context.getJobDetail().getJobDataMap();
+				final String deviceId = jMap.getString(Constants.QUARTZ_PARA_DEVICE_ID);
+				final String configType = jMap.getString(Constants.QUARTZ_PARA_CONFIG_TYPE);
+			
 				if (versionService == null) {
 					versionService = (VersionService)ApplicationContextUtil.getBean("versionService");
 				}
@@ -119,16 +101,15 @@ public class JobUploadBackupConfigFile2FTP extends BaseJobImpl implements BaseJo
 
 					jsVO.setJobExcuteResultRecords(totalCount.toString());
 				}
-
-			} catch (Exception e) {
-				result = Result.FAILED;
-				log.error("JID:["+JOB_ID+"] >> "+e.toString(), e);
-
-			} finally {
-				Timestamp endTime = new Timestamp((new Date()).getTime());
-
-				super.insertSysJobLog(JOB_ID, context, result, jsVO.getJobExcuteResultRecords(), startTime, endTime, jsVO.getJobExcuteRemark());
-			}
-		}		
+			}		
+		} catch (Exception e) {
+			result = Result.FAILED;
+			log.error("JID:["+JOB_ID+"] >> "+e.toString(), e);
+	
+		} finally {
+			Timestamp endTime = new Timestamp((new Date()).getTime());
+	
+			super.insertSysJobLog(JOB_ID, context, result, jsVO.getJobExcuteResultRecords(), startTime, endTime, jsVO.getJobExcuteRemark());
+		}
 	}
 }

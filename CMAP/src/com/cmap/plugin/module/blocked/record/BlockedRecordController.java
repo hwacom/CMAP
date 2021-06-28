@@ -82,7 +82,7 @@ public class BlockedRecordController extends BaseController {
 
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
 			
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 
@@ -291,7 +291,7 @@ public class BlockedRecordController extends BaseController {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
 		}
     }
 	
@@ -398,7 +398,7 @@ public class BlockedRecordController extends BaseController {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
 		}
     }
 
@@ -502,7 +502,7 @@ public class BlockedRecordController extends BaseController {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
 		}
     }
     
@@ -610,7 +610,7 @@ public class BlockedRecordController extends BaseController {
             log.error(e.toString(), e);
             return new AppResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
 		}
     }
 
@@ -717,7 +717,7 @@ public class BlockedRecordController extends BaseController {
         } catch (Exception e) {
 
         } finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+        	behaviorLog(request);
 		}
 
         return new DatatableResponse(total, dataList, filterdTotal);
@@ -790,7 +790,7 @@ public class BlockedRecordController extends BaseController {
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		} finally {
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 
 		return new DatatableResponse(total, dataList, filterdTotal);

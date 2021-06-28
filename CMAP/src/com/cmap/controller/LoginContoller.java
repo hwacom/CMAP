@@ -1,8 +1,10 @@
 package com.cmap.controller;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Locale;
@@ -51,6 +53,7 @@ public class LoginContoller extends BaseController {
 	private String chkLoginPage(HttpServletRequest request) {
 	    HttpSession session = request.getSession();	   
 		String uri = "";
+		
 	    if (Env.LOGIN_AUTH_MODE.equals(Constants.LOGIN_AUTH_MODE_OIDC_MIAOLI)) {
 	    	uri = "redirect:/loginOIDC";
 
@@ -152,11 +155,21 @@ public class LoginContoller extends BaseController {
 	}
 	
 	private String checkPWDate(HttpServletRequest request) {
+
+		try {
+			if (StringUtils.equalsIgnoreCase(Constants.DATA_Y ,(Env.HIGH_AVAILABILITY_FLAG)) 
+					&& !StringUtils.equals(InetAddress.getLocalHost().getHostAddress(), Env.HIGH_AVAILABILITY_ALIVE_SERVER_IP)) {
+				request.getSession().setAttribute(Constants.MODEL_ATTR_LOGIN_ERROR, "請使用Primary Server入口進入系統!!");
+				return "redirect:/login";
+			}
+		} catch (UnknownHostException e2) {
+		}
+		
 		if(StringUtils.equalsIgnoreCase(Constants.DATA_Y, Env.PASSWORD_VALID_SETTING_FLAG)
 				&& !StringUtils.isBlank(Env.PASSWORD_VALID_SETTING_VALIDITY_PERIOD)) {
 			
 			Date checkDate = DateUtils.addDays(new Date(), -(Integer.parseInt(Env.PASSWORD_VALID_SETTING_VALIDITY_PERIOD)));
-			UserRightSetting userRight = userService.getUserRightSetting(request.getSession().getAttribute(Constants.OIDC_SCHOOL_ID).toString(), Constants.LOGIN_AUTH_MODE_CM);
+			UserRightSetting userRight = userService.getUserRightSetting(request.getSession().getAttribute(Constants.USERACCOUNT).toString(), Constants.LOGIN_AUTH_MODE_CM);
 			if(userRight != null && userRight.getLastPWUpdateTime().compareTo(checkDate) < 0) {
 				request.getSession().setAttribute("checkPWDate", false);
 				return "redirect:/userRightPWChange/main";

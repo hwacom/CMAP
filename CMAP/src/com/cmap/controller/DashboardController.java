@@ -25,7 +25,7 @@ public class DashboardController extends BaseController {
 
 		} finally {
 			model.addAttribute("userInfo", SecurityUtil.getSecurityUser().getUsername());
-			behaviorLog(request.getRequestURI(), request.getQueryString());
+			behaviorLog(request);
 		}
 	}
 

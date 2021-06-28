@@ -70,7 +70,7 @@ public class PortStatusViewerController extends BaseController {
 
         } finally {
             initMenu(model, request);
-            behaviorLog(request.getRequestURI(), request.getQueryString());
+            behaviorLog(request);
         }
         return "plugin/module_port_status_viewer";
     }
@@ -105,7 +105,7 @@ public class PortStatusViewerController extends BaseController {
 			log.error(e.toString(), e);
 			return new DatatableResponse(total, dataList, filterdTotal, e.getMessage());
 		} finally {
-	    	behaviorLog(request.getRequestURI(), request.getQueryString());
+	    	behaviorLog(request);
 	    }
 
 		return new DatatableResponse(total, dataList, filterdTotal);
