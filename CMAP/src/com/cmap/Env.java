@@ -402,6 +402,7 @@ public class Env {
 	public static String PRTG_ADMIN_ACCOUNT;
 	public static String PRTG_ADMIN_PASSHASH;
 
+	public static String PRTG_DEFAULT_ADD_ACCOUNT_URI;
 	public static String PRTG_LOGIN_URI;
 	public static String PRTG_INDEX_URI;
 	public static String PRTG_DEFAULT_INDEX_URI;

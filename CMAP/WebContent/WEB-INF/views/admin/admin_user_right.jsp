@@ -40,6 +40,13 @@
 			  	    	<button type="button" class="btn btn-danger btn-sm" style="width: 100%" id="btnDelete"><spring:message code="btn.delete" /></button>
 			  	    </div>
 		  	    </c:if>
+		  	    <c:if test="${isAdmin eq true}">
+		  	    	<c:if test="${not empty prtgAddGroupUri}">
+			  	    	<div class="col-lg-2 action-btn-bar-style" align="center">
+			  	    		<button type="button" class="btn btn-secondary  btn-sm" style="width: 100%" id="btnAddGroup"><spring:message code="btn.add.group" /></button>
+			  	    	</div>
+			  	    </c:if>
+		  	    </c:if>
         	</div>
         	<div id="modifyActionBar" class="row" style="display: none">
 		  	    <div class="col-lg-2 action-btn-bar-style" align="center">
@@ -184,5 +191,25 @@
   </div>
 </div>
 <!-- Modal [Add/Modify] end -->
-
+<!-- Modal [AddGroup] start -->
+<div class="modal fade" id="addGroupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      
+        <h5 class="modal-title" id="exampleModalLabel"><span id="msgModal_title">新增群組</span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        
+      </div>
+      <div class="modal-body">
+		<iframe id="prtgFrame" class="scrollbar-macosx" width=100% style="height:calc(100vh - 55px)" frameborder="0" src="${prtgAddGroupUri}">
+  	 		Failed to open PRTG main page.
+   		</iframe>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal [AddGroup] end -->
 <script src="${pageContext.request.contextPath}/resources/js/custom/min/cmap.admin.user.right.min.js"></script>

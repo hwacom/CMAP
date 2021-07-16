@@ -29,6 +29,13 @@ $(document).ready(function() {
 		envAction('delete');
 	});
 	
+	$("#btnAddGroup").click(function() {
+		uncheckAll();
+		$("#addGroupModal").modal({
+			backdrop : 'static'
+		});
+	});
+	
 	$("#btnModifySubmit").click(function() {
 		envAction('modify');
 	});

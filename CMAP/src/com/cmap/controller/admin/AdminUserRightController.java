@@ -106,6 +106,10 @@ public class AdminUserRightController extends BaseController {
 			}
 			model.addAttribute("loginModeList", loginModeMap);
 			model.addAttribute("checkPWDate", true);
+			// 如果DB有設定就提供新增群組按鈕使用 2021-06-29 Alvin added
+			if (StringUtils.isNoneEmpty(Env.PRTG_DEFAULT_ADD_ACCOUNT_URI)) {
+				model.addAttribute("prtgAddGroupUri", Env.PRTG_DEFAULT_ADD_ACCOUNT_URI);
+			}
 		}
 
 		return "admin/admin_user_right";
